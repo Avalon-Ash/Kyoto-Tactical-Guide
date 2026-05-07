@@ -1,47 +1,41 @@
-import { JoinedSpot, I18nText } from '../types';
-import { SPOTS } from './db_spots';
-import { LINKS } from './db_links';
-import { TYPES, WARD_KEYS, AREA_KEYS } from './db_core';
-import { UI_DICT_ZH, WARD_NAMES_ZH, AREA_NAMES_ZH, TYPE_NAMES_ZH, SPOTS_ZH, WARD_DESC_ZH } from './db_zh';
-import { UI_DICT_JA, WARD_NAMES_JA, AREA_NAMES_JA, TYPE_NAMES_JA, SPOTS_JA, WARD_DESC_JA } from './db_ja';
+import { JoinedSpot } from '../types';
+import { UI_DICT } from './i18n';
+import { loadAllSpotsSync, loadSpotsByWard } from './spots-loader';
 
-function createI18nMap(zhObj: Record<string, string>, jaObj: Record<string, string>): Record<string, I18nText> {
-  const result: Record<string, I18nText> = {};
-  for (const key of Object.keys(zhObj)) {
-    result[key] = { zh: zhObj[key], ja: jaObj[key] || zhObj[key] };
-  }
-  return result;
-}
+// 引入新的 Metadata
+import { WARD_KEYS, WARD_NAMES, WARD_DESCS, WARD_STATS } from './wards';
+import { AREA_KEYS, AREA_NAMES, AREA_BY_WARD, WARD_BY_AREA, AREA_STATS } from './areas';
+import { TYPES, TYPE_NAMES } from './types';
 
-export const UI_DICT = createI18nMap(UI_DICT_ZH, UI_DICT_JA);
-export const WARD_NAMES = createI18nMap(WARD_NAMES_ZH, WARD_NAMES_JA);
-export const WARD_DESCS = createI18nMap(WARD_DESC_ZH, WARD_DESC_JA);
-export const AREA_NAMES = createI18nMap(AREA_NAMES_ZH, AREA_NAMES_JA);
-export const TYPE_NAMES = createI18nMap(TYPE_NAMES_ZH, TYPE_NAMES_JA);
-
+/**
+ * 取得所有景點資料 (同步版)
+ * 為了維持現有 App.tsx 的運作，暫時保留 DB 常數
+ */
 export function getJoinedSpots(): JoinedSpot[] {
-  return SPOTS.map(spot => {
-    const zhData = SPOTS_ZH.find(s => s.id === spot.id) || { id: spot.id, name: '', desc: '', tags: '' };
-    const jaData = SPOTS_JA.find(s => s.id === spot.id) || { id: spot.id, name: '', desc: '', tags: '' };
-    const link = LINKS.find(s => s.id === spot.id) || { id: spot.id, mapQuery: '' };
-    const typeObj = TYPES[spot.typeId] || { id: spot.typeId, colorClass: '' };
-
-    return {
-      ...spot,
-      name: { zh: zhData.name, ja: jaData.name },
-      desc: { zh: zhData.desc, ja: jaData.desc },
-      tags: { zh: zhData.tags, ja: jaData.tags },
-      mapQuery: link.mapQuery,
-      typeColorClass: typeObj.colorClass
-    };
-  });
+  return loadAllSpotsSync();
 }
 
 export const DB = getJoinedSpots();
 
+/**
+ * 重新導出所有資料與工具
+ */
 export {
-  TYPES,
+  // Metadata
   WARD_KEYS,
+  WARD_NAMES,
+  WARD_DESCS,
+  WARD_STATS,
   AREA_KEYS,
-  SPOTS
+  AREA_NAMES,
+  AREA_BY_WARD,
+  WARD_BY_AREA,
+  AREA_STATS,
+  TYPES,
+  TYPE_NAMES,
+  UI_DICT,
+  
+  // Loaders
+  loadAllSpotsSync,
+  loadSpotsByWard
 };

@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Lang, JoinedSpot } from '../types';
-import { DB, UI_DICT } from '../data/index';
+import { useState, useMemo, useEffect } from 'react';
+import { Lang, JoinedSpot, WardKey } from '../types';
+import { DB, UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
 
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
@@ -8,6 +8,38 @@ export function useKyotoEngine() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string>('T_ALL');
   const [search, setSearch] = useState('');
+  
+  // 核心：當前分區的景點資料 (Lazy Loaded)
+  const [loadedSpots, setLoadedSpots] = useState<JoinedSpot[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * 根據當前選擇的行政區或分區，動態加載資料
+   */
+  useEffect(() => {
+    if (!activeId) {
+      setLoadedSpots([]);
+      return;
+    }
+
+    async function loadData() {
+      setIsLoading(true);
+      
+      // 找出這筆資料屬於哪個行政區
+      const wardId = mode === 'ward' 
+        ? (activeId as WardKey) 
+        : (WARD_BY_AREA[activeId] as WardKey);
+
+      if (wardId) {
+        const spots = await loadSpotsByWard(wardId);
+        setLoadedSpots(spots);
+      }
+      
+      setIsLoading(false);
+    }
+
+    loadData();
+  }, [activeId, mode]);
 
   const t = (key: string, dict: any = UI_DICT) => {
     if (!dict[key]) return key;
@@ -19,7 +51,8 @@ export function useKyotoEngine() {
   const filteredSpots = useMemo(() => {
     if (!activeId) return [];
 
-    let result = DB.filter(spot => 
+    // 使用動態載入的資料進行過濾
+    let result = loadedSpots.filter(spot => 
       mode === 'area' ? spot.areaId === activeId : spot.wardId === activeId
     );
 
@@ -52,7 +85,7 @@ export function useKyotoEngine() {
     });
 
     return result;
-  }, [activeId, mode, activeType, search, lang]);
+  }, [activeId, mode, activeType, search, lang, loadedSpots]);
 
   const openDetail = (id: string, viewMode: 'ward' | 'area') => {
     setActiveId(id);
@@ -72,6 +105,7 @@ export function useKyotoEngine() {
     activeId,
     activeType,
     search,
+    isLoading,
     setSearch,
     setMode,
     setActiveType,
