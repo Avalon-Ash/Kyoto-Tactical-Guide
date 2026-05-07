@@ -22,6 +22,9 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
 
+  const query = spot.mapQuery || name;
+  const mapSearchQuery = query.includes('京都') ? query : `${query} 京都`;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -71,7 +74,7 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
       </div>
       
       <a 
-        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.mapQuery || (name + ' 京都'))}`}
+        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapSearchQuery)}`}
         target="_blank"
         rel="noopener noreferrer"
         style={{
