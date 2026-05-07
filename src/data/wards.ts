@@ -32,18 +32,3 @@ export const WARD_DESCS: Record<string, I18nText> = {
   W_YAMASHINA: { zh: "櫻花鐵道・山科古教", ja: "桜の鉄道・山科古教" },
   W_FUSHIMI: { zh: "清酒酒窖・千本鳥居", ja: "清酒の蔵・千本鳥居" }
 };
-
-// Cached stats for performance
-export const WARD_STATS: Record<string, number> = {
-  W_KITA: 25,
-  W_KAMIGYO: 35,
-  W_SAKYO: 75,
-  W_NAKAGYO: 65,
-  W_HIGASHIYAMA: 62,
-  W_SHIMOGYO: 42,
-  W_MINAMI: 16,
-  W_UKYO: 68,
-  W_NISHIKYO: 18,
-  W_YAMASHINA: 10,
-  W_FUSHIMI: 34
-};

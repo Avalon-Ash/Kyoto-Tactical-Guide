@@ -1,10 +1,10 @@
 import { JoinedSpot } from '../types';
 import { UI_DICT } from './i18n';
-import { loadAllSpotsSync, loadSpotsByWard } from './spots-loader';
+import { loadAllSpotsSync, loadSpotsByWard, computeWardStats, computeAreaStats } from './spots-loader';
 
 // 引入新的 Metadata
-import { WARD_KEYS, WARD_NAMES, WARD_DESCS, WARD_STATS } from './wards';
-import { AREA_KEYS, AREA_NAMES, AREA_BY_WARD, WARD_BY_AREA, AREA_STATS } from './areas';
+import { WARD_KEYS, WARD_NAMES, WARD_DESCS } from './wards';
+import { AREA_KEYS, AREA_NAMES, AREA_BY_WARD, WARD_BY_AREA } from './areas';
 import { TYPES, TYPE_NAMES } from './types';
 
 /**
@@ -18,6 +18,12 @@ export function getJoinedSpots(): JoinedSpot[] {
 export const DB = getJoinedSpots();
 
 /**
+ * 動態計算統計資訊
+ */
+export const WARD_STATS = computeWardStats();
+export const AREA_STATS = computeAreaStats();
+
+/**
  * 重新導出所有資料與工具
  */
 export {
@@ -25,12 +31,10 @@ export {
   WARD_KEYS,
   WARD_NAMES,
   WARD_DESCS,
-  WARD_STATS,
   AREA_KEYS,
   AREA_NAMES,
   AREA_BY_WARD,
   WARD_BY_AREA,
-  AREA_STATS,
   TYPES,
   TYPE_NAMES,
   UI_DICT,

@@ -1,9 +1,12 @@
 export type Lang = 'zh' | 'ja';
 
-export interface I18nText {
-  zh: string;
-  ja: string;
-}
+export type I18nText = Record<Lang, string>;
+
+export type WardKey = 
+  | 'W_KITA' | 'W_KAMIGYO' | 'W_SAKYO' | 'W_NAKAGYO' | 'W_HIGASHIYAMA' 
+  | 'W_SHIMOGYO' | 'W_MINAMI' | 'W_UKYO' | 'W_NISHIKYO' | 'W_YAMASHINA' | 'W_FUSHIMI';
+
+export type AreaKey = string; // Simplified for now unless I find a better definition
 
 export interface DBType {
   id: string;

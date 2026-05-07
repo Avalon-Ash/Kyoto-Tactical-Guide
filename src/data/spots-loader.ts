@@ -75,3 +75,25 @@ export function loadAllSpotsSync(): JoinedSpot[] {
     ...FUSHIMI_SPOTS,
   ];
 }
+
+/**
+ * 統計每個行政區的景點數量
+ */
+export function computeWardStats(): Record<string, number> {
+  const spots = loadAllSpotsSync();
+  return spots.reduce((acc, spot) => {
+    acc[spot.wardId] = (acc[spot.wardId] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+}
+
+/**
+ * 統計每個分區的景點數量
+ */
+export function computeAreaStats(): Record<string, number> {
+  const spots = loadAllSpotsSync();
+  return spots.reduce((acc, spot) => {
+    acc[spot.areaId] = (acc[spot.areaId] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+}

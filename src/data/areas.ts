@@ -47,8 +47,3 @@ export const WARD_BY_AREA: Record<string, string> = Object.entries(AREA_BY_WARD)
   });
   return acc;
 }, {} as Record<string, string>);
-
-export const AREA_STATS: Record<string, number> = {
-  A01: 45, A02: 12, A03: 18, A04: 35, A05: 32, A06: 38, A07: 15, A08: 12, A09: 42, A10: 16,
-  A11: 10, A12: 38, A13: 35, A14: 18, A15: 16, A16: 15, A17: 12, A18: 4, A19: 5
-};

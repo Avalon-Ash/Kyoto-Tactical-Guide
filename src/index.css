@@ -253,8 +253,14 @@
 .pos-nakagyo { top: 41%; left: 35%; width: 25%; height: 12%; }
 .pos-higashiyama { top: 41%; left: 62%; width: 16%; height: 25%; }
 .pos-shimogyo { top: 55%; left: 35%; width: 25%; height: 12%; }
-.pos-yamashina { top: 42%; left: 80%; width: 15%; height: 25%; }
+.pos-yamashina { 
+  top: 42%; left: 80%; width: 15%; height: 25%; 
+  min-width: 44px; min-height: 44px; padding: 8px;
+}
 .pos-nishikyo { top: 47%; left: 5%; width: 28%; height: 25%; }
-.pos-minami { top: 69%; left: 20%; width: 40%; height: 12%; }
+.pos-minami { 
+  top: 69%; left: 20%; width: 40%; height: 12%; 
+  min-width: 44px; min-height: 44px; padding: 8px;
+}
 .pos-fushimi { top: 83%; left: 20%; width: 60%; height: 15%; }
 
