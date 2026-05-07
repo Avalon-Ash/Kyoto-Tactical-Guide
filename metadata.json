@@ -1,6 +1,6 @@
 {
-  "name": "KyotoTravelGuide",
-  "description": "A high-performance bilingual tourism portal for Kyoto using ECS architecture.",
+  "name": "Kyoto Tactical Guide",
+  "description": "An MMORPG-style tactical guide for Kyoto sightseeing, featuring administrative 'Zone' maps and quest-based exploration.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

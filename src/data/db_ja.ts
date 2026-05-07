@@ -1,7 +1,7 @@
 import { SpotLangRecord } from '../types';
 
 export const UI_DICT_JA: Record<string, string> = {
-  app_title: "京都 観光 全域入口",
+  app_title: "京都 戦術 ガイド",
   db_info: "京洛図会：全 {n} 筆｜拾九エリア｜拾一行政区",
   btn_lang: "A / 中",
   tab_ward: "洛中洛外 (行政区)",
@@ -18,6 +18,20 @@ export const WARD_NAMES_JA: Record<string, string> = {
   W_KITA: "北区", W_KAMIGYO: "上京区", W_SAKYO: "左京区", W_NAKAGYO: "中京区",
   W_HIGASHIYAMA: "東山区", W_SHIMOGYO: "下京区", W_MINAMI: "南区", W_UKYO: "右京区",
   W_NISHIKYO: "西京区", W_YAMASHINA: "山科区", W_FUSHIMI: "伏見区"
+};
+
+export const WARD_DESC_JA: Record<string, string> = {
+  W_KITA: "皇家庭園・信仰の核心",
+  W_KAMIGYO: "御所官庁・西陣織の里",
+  W_SAKYO: "知識散策・森林の秘境",
+  W_NAKAGYO: "珈琲散歩・居酒屋夜戦",
+  W_HIGASHIYAMA: "寺社密集・伝統工芸",
+  W_SHIMOGYO: "交通の門・ショッピング",
+  W_MINAMI: "鉄道要衝・レトロ下町",
+  W_UKYO: "嵐山絶景・禅宗庭園",
+  W_NISHIKYO: "苔の霊域・竹の幽嶺",
+  W_YAMASHINA: "桜の鉄道・山科古教",
+  W_FUSHIMI: "清酒の蔵・千本鳥居"
 };
 
 export const AREA_NAMES_JA: Record<string, string> = {

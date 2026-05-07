@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ChevronLeft } from 'lucide-react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
-import { WARD_KEYS, AREA_KEYS, DB, TYPE_NAMES, TYPES, WARD_NAMES, AREA_NAMES } from './data/index';
+import { WARD_KEYS, AREA_KEYS, DB, TYPE_NAMES, TYPES, WARD_NAMES, AREA_NAMES, WARD_DESCS } from './data/index';
 import { SpotCard } from './components/SpotCard';
 import { toChineseNumerals } from './lib/numerals';
 
@@ -189,7 +189,12 @@ export default function App() {
                   <div className="flex-1 flex justify-center overflow-hidden">
                     <div className="flex flex-col items-center">
                       <h2 className="maki-e-text text-[clamp(1rem,3vw,2rem)] font-bold tracking-[0.2em] truncate max-w-full text-center">{activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : ''}</h2>
-                      <div className="text-[clamp(0.45rem,1.2vw,0.8rem)] text-gold-light/30 tracking-[0.4em] uppercase font-bold">
+                      {mode === 'ward' && activeId && (
+                        <div className="text-[clamp(0.5rem,1.2vw,0.85rem)] text-shuiro font-serif tracking-[0.2em] animate-pulse">
+                          // {t(activeId as string, WARD_DESCS)} //
+                        </div>
+                      )}
+                      <div className="text-[clamp(0.45rem,1.1vw,0.7rem)] text-gold-light/30 tracking-[0.4em] uppercase font-bold mt-1">
                         {filteredSpots.length} {t('unit_spot')}
                       </div>
                     </div>

@@ -2,8 +2,8 @@ import { JoinedSpot, I18nText } from '../types';
 import { SPOTS } from './db_spots';
 import { LINKS } from './db_links';
 import { TYPES, WARD_KEYS, AREA_KEYS } from './db_core';
-import { UI_DICT_ZH, WARD_NAMES_ZH, AREA_NAMES_ZH, TYPE_NAMES_ZH, SPOTS_ZH } from './db_zh';
-import { UI_DICT_JA, WARD_NAMES_JA, AREA_NAMES_JA, TYPE_NAMES_JA, SPOTS_JA } from './db_ja';
+import { UI_DICT_ZH, WARD_NAMES_ZH, AREA_NAMES_ZH, TYPE_NAMES_ZH, SPOTS_ZH, WARD_DESC_ZH } from './db_zh';
+import { UI_DICT_JA, WARD_NAMES_JA, AREA_NAMES_JA, TYPE_NAMES_JA, SPOTS_JA, WARD_DESC_JA } from './db_ja';
 
 function createI18nMap(zhObj: Record<string, string>, jaObj: Record<string, string>): Record<string, I18nText> {
   const result: Record<string, I18nText> = {};
@@ -15,6 +15,7 @@ function createI18nMap(zhObj: Record<string, string>, jaObj: Record<string, stri
 
 export const UI_DICT = createI18nMap(UI_DICT_ZH, UI_DICT_JA);
 export const WARD_NAMES = createI18nMap(WARD_NAMES_ZH, WARD_NAMES_JA);
+export const WARD_DESCS = createI18nMap(WARD_DESC_ZH, WARD_DESC_JA);
 export const AREA_NAMES = createI18nMap(AREA_NAMES_ZH, AREA_NAMES_JA);
 export const TYPE_NAMES = createI18nMap(TYPE_NAMES_ZH, TYPE_NAMES_JA);
 
