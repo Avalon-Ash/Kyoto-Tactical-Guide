@@ -6,17 +6,17 @@ export const WARD_KEYS = [
 ];
 
 export const WARD_NAMES: Record<string, I18nText> = {
-  W_KITA: { zh: "北", ja: "北区" },
-  W_KAMIGYO: { zh: "上京", ja: "上京区" },
-  W_SAKYO: { zh: "左京", ja: "左京区" },
-  W_NAKAGYO: { zh: "中京", ja: "中京区" },
-  W_HIGASHIYAMA: { zh: "東山", ja: "東山区" },
-  W_SHIMOGYO: { zh: "下京", ja: "下京区" },
-  W_MINAMI: { zh: "南", ja: "南区" },
-  W_UKYO: { zh: "右京", ja: "右京区" },
-  W_NISHIKYO: { zh: "西京", ja: "西京区" },
-  W_YAMASHINA: { zh: "山科", ja: "山科区" },
-  W_FUSHIMI: { zh: "伏見", ja: "伏見区" }
+  W_KITA: { zh: "北區", ja: "北区" },
+  W_KAMIGYO: { zh: "上京區", ja: "上京区" },
+  W_SAKYO: { zh: "左京區", ja: "左京区" },
+  W_NAKAGYO: { zh: "中京區", ja: "中京区" },
+  W_HIGASHIYAMA: { zh: "東山區", ja: "東山区" },
+  W_SHIMOGYO: { zh: "下京區", ja: "下京区" },
+  W_MINAMI: { zh: "南區", ja: "南区" },
+  W_UKYO: { zh: "右京區", ja: "右京区" },
+  W_NISHIKYO: { zh: "西京區", ja: "西京区" },
+  W_YAMASHINA: { zh: "山科區", ja: "山科区" },
+  W_FUSHIMI: { zh: "伏見區", ja: "伏見区" }
 };
 
 export const WARD_DESCS: Record<string, I18nText> = {

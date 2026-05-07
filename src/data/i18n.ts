@@ -2,7 +2,7 @@ import { I18nText } from '../types';
 
 export const UI_DICT: Record<string, I18nText> = {
   app_title: { zh: "京都 雅遊 手帖", ja: "京都 雅遊 手帖" },
-  db_info: { zh: "京洛紀勝：共紀存 {n} 處｜拾九區｜十一行政域", ja: "京洛紀勝：計 {n} 處｜十九区｜十一行政区" },
+  db_info: { zh: "京洛紀勝：共收錄 {n} 處｜十九區｜十一行政區", ja: "京洛紀勝：計 {n} 件｜十九区｜十一行政区" },
   btn_lang: { zh: "文 / JA", ja: "文 / ZH" },
   tab_ward: { zh: "洛中洛外・十一行政域", ja: "洛中洛外・十一行政区" },
   tab_area: { zh: "京洛拾九區・名所目録", ja: "京洛十九区・名所目録" },
@@ -11,6 +11,6 @@ export const UI_DICT: Record<string, I18nText> = {
   search_ph: { zh: "尋訪名所・町名・物語…", ja: "名所・町名・物語を尋ねる…" },
   empty_msg: { zh: "此間無跡，換一條路試試", ja: "この道には跡なし、別の径を" },
   btn_map: { zh: "展輿圖（Google Maps）", ja: "輿図を開く（Google Maps）" },
-  unit_spot: { zh: "處", ja: "幅" },
+  unit_spot: { zh: "處", ja: "件" },
   loading: { zh: "展卷中，稍候片刻…", ja: "巻物を広げています…" }
 };
