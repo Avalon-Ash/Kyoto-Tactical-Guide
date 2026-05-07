@@ -51,10 +51,17 @@ export function useKyotoEngine() {
 
   const t = (key: string, dict: any = UI_DICT) => {
     if (!dict[key]) return key;
-    return dict[key][lang] || dict[key]['ja'];
+    return dict[key][lang] ?? dict[key]['zh'] ?? Object.values(dict[key])[0] ?? key;
   };
 
   const toggleLang = () => setLang(prev => (prev === 'zh' ? 'ja' : 'zh'));
+
+  const switchMode = (newMode: 'ward' | 'area') => {
+    setActiveId(null);
+    setSearch('');
+    setActiveType('T_ALL');
+    setMode(newMode);
+  };
 
   const filteredSpots = useMemo(() => {
     if (!activeId) return [];
@@ -110,7 +117,7 @@ export function useKyotoEngine() {
     search,
     isLoading,
     setSearch,
-    setMode,
+    switchMode,
     setActiveType,
     t,
     toggleLang,

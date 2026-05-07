@@ -14,11 +14,11 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
 
   try {
     // 1. 動態 import 對應的 schema 檔
-    const schemaModule = await import(`./spots/${wardFile}.ts`);
+    const schemaModule = await import(`./spots/${wardFile}`);
     const schemaSpots: SpotSchema[] = schemaModule[`${wardKey}_SCHEMA`];
 
     // 2. 動態 import 對應語系的 locale 檔
-    const localeModule = await import(`./locales/${lang}/${wardFile}.ts`);
+    const localeModule = await import(`./locales/${lang}/${wardFile}`);
     const locales: Record<string, SpotLocale> = localeModule[`${wardKey}_${lang.toUpperCase()}`];
 
     // 3. 將 schema + locale 合併為 FlatSpot[]
