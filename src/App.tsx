@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ChevronLeft, AlertCircle, GripHorizontal } from 'lucide-react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
