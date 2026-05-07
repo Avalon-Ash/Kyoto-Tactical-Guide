@@ -35,5 +35,15 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-032', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "釘拔地藏 石像寺", typeColorClass: "border-[#c47070]" },
   { id: 'KG-033', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "幸神社", typeColorClass: "border-[#c47070]" },
   { id: 'KG-034', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "三上家路地", typeColorClass: "border-[#d4a74a]" },
-  { id: 'KG-035', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "清荒神 護淨院", typeColorClass: "border-[#c47070]" }
+  { id: 'KG-035', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "清荒神 護淨院", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-036', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "出町 枡形商店街", typeColorClass: "border-[#d4a74a]" },
+  { id: 'KG-037', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "樂美術館", typeColorClass: "border-[#6aab82]" },
+  { id: 'KG-038', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "菅原院天滿宮神社", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-039', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "廬山寺 通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'KG-040', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "阿彌陀寺", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-041', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "首途八幡宮", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-042', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "宥清寺", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-043', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "上京區役所", typeColorClass: "border-[#6aab82]" },
+  { id: 'KG-044', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "西陣產業會館", typeColorClass: "border-[#6aab82]" },
+  { id: 'KG-045', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "梨木神社 染井水", typeColorClass: "border-[#7ab89a]" }
 ];

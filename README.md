@@ -1,28 +1,17 @@
 # Kyoto Tactical Guide ⛩️
 ### 類 MMORPG 任務地圖概念的京都觀光入口網站
 
-Kyoto Tactical Guide 是一個以「遊戲任務」感官設計的京都旅遊規劃工具。將現實世界的行政區轉化為大地圖分區，景點轉化為帶標籤的任務卡片，讓旅遊規劃像在玩線上遊戲一般直覺且有趣。
-
----
-
-## 🎮 專案概念
-
-設計邏輯參考 MMORPG 的三層架構：
-
-1.  **行政區 (Ward)**：大地圖分區。使用者首先選擇感興趣的「區域」，類似遊戲中的世界地圖選區。
-2.  **任務篩選 (Quest Filter)**：每個景點設有類型（如古剎、商舖、美食）與標籤（如櫻花、紅葉、二次元）。使用者可依標籤篩選，如同執行特定類型的「任務」。
-3.  **卡片定位 (Card Positioning)**：最終呈現為精美的資訊卡片，點擊後可直接導向 Google Maps，模擬遊戲中「接取任務後的地點定位」。
+「Kyoto Tactical Guide」是一個將京都觀光資訊「遊戲化」的實驗專案。我們將京都市的各個行政區視為 RPG 遊戲中的「分區地圖 (Zones)」，將景點視為「任務 (Quests)」。透過標籤化系統（如清晨、深夜、體力需求、預算等級等），使用者可以像在玩 open-world 遊戲一樣，有系統地規劃屬於自己的京都冒險路徑。
 
 ---
 
 ## 🛠 技術堆疊
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Static Site](https://img.shields.io/badge/Static-Site-blue?style=for-the-badge)
-![i18n](https://img.shields.io/badge/i18n-zh%20%7C%20ja-orange?style=for-the-badge)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 
 ---
 
@@ -30,16 +19,22 @@ Kyoto Tactical Guide 是一個以「遊戲任務」感官設計的京都旅遊�
 
 ```text
 src/
-├── App.tsx
-├── main.tsx
-├── index.css
-├── types.ts
-├── components/        # UI 組件（SpotCard 等）
+├── App.tsx             # 應用程式入口與路由切換
+├── main.tsx            # React 掛載點
+├── index.css           # 全域樣式 (含漆藝 Urushi 視覺變數)
+├── types.ts            # TypeScript 介面定義
+├── components/         # UI 組件
+│   ├── MapCanvas.tsx   # 互動式行政區大地圖
+│   ├── HomeView.tsx    # 首頁 (地圖與說明區)
+│   ├── DetailView.tsx  # 任務列表頁面 (含側邊欄與橫向捲動卡片)
+│   ├── SpotCard.tsx    # 景點任務卡片 (漆藝風格視覺)
+│   └── ...
 ├── hooks/
-│   ├── useKyotoEngine.ts    # 資料篩選引擎
-│   └── useWindowSize.ts     # 響應式視窗尺寸 Hook
+│   ├── useKyotoEngine.ts    # 資料篩選與語系切換引擎
+│   └── useWindowSize.ts     # 響應式視窗監聽
 └── data/
-    ├── spots/               # 景點 Schema（純結構，無語系文字）
+    ├── areas.ts             # 行政區基本資料 (代碼、名稱、描述)
+    ├── spots/               # 景點 Schema (純地理與分類結構，無語系文字)
     │   ├── kita.ts          # 北區
     │   ├── kamigyo.ts       # 上京區
     │   ├── sakyo.ts         # 左京區
@@ -51,112 +46,30 @@ src/
     │   ├── nishikyo.ts      # 西京區
     │   ├── yamashina.ts     # 山科區
     │   └── fushimi.ts       # 伏見區
-    ├── locales/
-    │   ├── zh/              # 繁體中文語系（依行政區分檔）
-    │   └── ja/              # 日文語系（依行政區分檔）
-    ├── spots-loader.ts      # 動態載入景點資料
-    ├── areas.ts
-    ├── wards.ts
-    ├── types.ts
-    ├── i18n.ts
-    └── index.ts
+    └── locales/             # 多語系文字資料
+        ├── zh/              # 繁體中文景點名稱與說明
+        └── ja/              # 日文原始名稱與說明
 ```
 
 ---
 
-## 🔑 Spot ID 命名規則
+## 🎨 視覺風格：漆藝 (Urushi Style)
 
-新增一個段落說明區域前綴 ID 系統，表格如下：
+本專案採用獨特的「京都漆藝」視覺設計：
+- **底色 (漆道)**：深沉的炭黑與暗紅背景。
+- **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
+- **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
 
-| 行政區 | 前綴 | 範例 |
-| :--- | :--- | :--- |
-| 北區 KITA | KT | KT-001 |
-| 上京區 KAMIGYO | KG | KG-001 |
-| 左京區 SAKYO | SK | SK-001 |
-| 中京區 NAKAGYO | NC | NC-001 |
-| 東山區 HIGASHIYAMA | HY | HY-001 |
-| 下京區 SHIMOGYO | SM | SM-001 |
-| 南區 MINAMI | MN | MN-001 |
-| 右京區 UKYO | UK | UK-001 |
-| 西京區 NISHIKYO | NK | NK-001 |
-| 山科區 YAMASHINA | YS | YS-001 |
-| 伏見區 FUSHIMI | FS | FS-001 |
+## 🗺 行政區 (Game Zones) 關鍵字
 
----
-
-## 📊 資料模型
-
-### SpotSchema（src/data/spots/{ward}.ts）
-純結構資料，不含語系文字：
-- `id`: 景點唯一 ID
-- `wardId`: 所屬行政區 ID
-- `areaId`: 所屬區域 ID
-- `typeId`: 景點類型 ID
-- `mapQuery`: Google Maps 搜尋關鍵字或座標
-
-### SpotLocale（src/data/locales/{lang}/{ward}.ts）
-語系文字，以 SpotSchema ID 為 key：
-- `name`: 景點名稱
-- `desc`: 景點簡介
-- `tags`: 標籤內容
-
----
-
-## ➕ 如何新增一個景點
-
-更新三步驟流程，配合新架構：
-
-1. **src/data/spots/{ward}.ts** → 新增 SpotSchema，id 使用區域前綴格式
-2. **src/data/locales/zh/{ward}.ts** → 新增中文 locale
-3. **src/data/locales/ja/{ward}.ts** → 新增日文 locale
-
-⚠️ **警告**：三個檔案的 ID 必須完全一致，否則 `spots-loader.ts` 合併時會產生靜默錯誤。
-
----
-
-## 🌐 多語系架構
-
-說明語系資料依行政區分檔儲存，
-未來新增 en 語系只需新增 `locales/en/` 目錄，
-TypeScript `Lang` type 改一行即可全域提示需同步更新的位置。
-
----
-
-## 🚀 本地開發流程
-
-### 環境需求
-- Node.js (建議 v18 以上)
-- npm 或 yarn
-
-### 啟動步驟
-1. 安裝套件：
-   ```bash
-   npm install
-   ```
-2. 啟動開發伺服器：
-   ```bash
-   npm run dev
-   ```
-3. 預覽：開啟瀏覽器訪問 `http://localhost:5173`
-
-### 建立生產版本
-```bash
-npm run build
-```
-輸出檔案將位於 `dist/` 目錄中。
-
----
-
-## 🌐 部署說明
-
-本專案為**純靜態前端**，可部署於任何支援靜態檔案的平台：
-- **GitHub Pages** (推薦，需配置 GitHub Actions)
-- **Vercel / Netlify** (自動串接 Repo 即可部署)
-
-部署 `dist/` 文件夾內容即可使用。
-
----
-
-## 📄 License
-
-本專案採用 [MIT License](LICENSE) 授權。
+- **中京區**: 咖啡散步・居酒屋夜戰
+- **東山區**: 寺社密集・工藝重鎮
+- **下京區**: 交通門戶・購物商圈
+- **右京區**: 嵐山絕景・禪宗庭園
+- **左京區**: 知識散策・森林秘境
+- **北區**: 皇家園林・信仰核心
+- **上京區**: 御所官府・紡織西陣
+- **南區**: 鐵道要衝・下町風情
+- **西京區**: 苔之靈域・竹之幽嶺
+- **山科區**: 櫻花鐵道・山科古教
+- **伏見區**: 清酒酒窖・千本鳥居

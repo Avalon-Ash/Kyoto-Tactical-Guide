@@ -30,5 +30,20 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-027', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "杉本家住宅", typeColorClass: "border-[#6aab82]" },
   { id: 'SM-028', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: "綾小路通", typeColorClass: "border-[#d4a74a]" },
   { id: 'SM-029', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "和久傳", typeColorClass: "border-[#e67e22]" },
-  { id: 'SM-030', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都友都八喜", typeColorClass: "border-[#d4a74a]" }
+  { id: 'SM-030', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都友都八喜", typeColorClass: "border-[#d4a74a]" },
+  { id: 'SM-031', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "柳小路 京都", typeColorClass: "border-[#d4a74a]" },
+  { id: 'SM-032', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "富小路通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-033', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "高辻通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-034', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "佛光寺通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-035', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "松原通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-036', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "西洞院通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-037', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "堀川通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SM-038', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站大樓 空中徑", typeColorClass: "border-[#6aab82]" },
+  { id: 'SM-039', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川步道 七條", typeColorClass: "border-[#7ab89a]" },
+  { id: 'SM-040', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "七條甘春堂", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-041', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都站地下街 Porta", typeColorClass: "border-[#d4a74a]" },
+  { id: 'SM-042', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "京都伊勢丹 展望台", typeColorClass: "border-[#7ab89a]" },
+  { id: 'SM-043', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都織物問屋街", typeColorClass: "border-[#6aab82]" },
+  { id: 'SM-044', wardId: 'W_SHIMOGYO', areaId: 'A20', typeId: 'T_TEMPLE', mapQuery: "興正寺", typeColorClass: "border-[#c47070]" },
+  { id: 'SM-045', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站 綜合導覽所", typeColorClass: "border-[#6aab82]" }
 ];

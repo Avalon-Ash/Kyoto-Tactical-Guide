@@ -40,5 +40,10 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-037', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "矢田寺", typeColorClass: "border-[#c47070]" },
   { id: 'NC-038', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "誠心院", typeColorClass: "border-[#c47070]" },
   { id: 'NC-039', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "誓願寺", typeColorClass: "border-[#c47070]" },
-  { id: 'NC-040', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "星巴克咖啡 京都烏丸六角店", typeColorClass: "border-[#e67e22]" }
+  { id: 'NC-040', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "星巴克咖啡 京都烏丸六角店", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-041', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "1928大樓", typeColorClass: "border-[#6aab82]" },
+  { id: 'NC-042', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "三條通 近代建築群", typeColorClass: "border-[#6aab82]" },
+  { id: 'NC-043', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "蛸藥師通", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'NC-044', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "中京區役所", typeColorClass: "border-[#6aab82]" },
+  { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "西院車庫 景致", typeColorClass: "border-[#6aab82]" }
 ];

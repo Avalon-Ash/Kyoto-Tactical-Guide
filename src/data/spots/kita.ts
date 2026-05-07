@@ -40,5 +40,10 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-037', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 柊野地區", typeColorClass: "border-[#7ab89a]" },
   { id: 'KT-038', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "船山", typeColorClass: "border-[#7ab89a]" },
   { id: 'KT-039', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "加茂みたらし茶屋", typeColorClass: "border-[#e67e22]" },
-  { id: 'KT-040', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "マールブランシュ 北山本店", typeColorClass: "border-[#d4a74a]" }
+  { id: 'KT-040', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "マールブランシュ 北山本店", typeColorClass: "border-[#d4a74a]" },
+  { id: 'KT-041', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大德寺 高桐院", typeColorClass: "border-[#c47070]" },
+  { id: 'KT-042', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大德寺 龍源院", typeColorClass: "border-[#c47070]" },
+  { id: 'KT-043', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 半木之道", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KT-044', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "北區役所 京都", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-045', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "鹿苑寺 鏡湖池", typeColorClass: "border-[#c47070]" }
 ];
