@@ -1,10 +1,10 @@
 import { motion } from 'motion/react';
-import { JoinedSpot, Lang } from '../types';
+import { FlatSpot, Lang } from '../types';
 import { WARD_NAMES, AREA_NAMES, TYPE_NAMES, TYPES } from '../data/index';
 
 interface SpotCardProps {
   key?: number | string;
-  spot: JoinedSpot;
+  spot: FlatSpot;
   lang: Lang;
   t: (key: string, dict?: any) => string;
 }
@@ -12,9 +12,9 @@ interface SpotCardProps {
 export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeId = spot.typeId;
   const typeName = t(typeId, TYPE_NAMES);
-  const name = spot.name[lang as keyof typeof spot.name] || spot.name['zh'] || '';
-  const desc = spot.desc[lang as keyof typeof spot.desc] || spot.desc['zh'] || '';
-  const tagsStr = spot.tags[lang as keyof typeof spot.tags] || spot.tags['zh'] || '';
+  const name = spot.name;
+  const desc = spot.desc;
+  const tagsStr = spot.tags;
   const tags = tagsStr.split(',').filter(Boolean);
   const areaName = t(spot.areaId, AREA_NAMES);
   const wardName = t(spot.wardId, WARD_NAMES);

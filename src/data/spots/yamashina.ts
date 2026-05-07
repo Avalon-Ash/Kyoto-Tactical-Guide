@@ -1,14 +1,14 @@
-import { JoinedSpot } from '../../types';
+import { SpotSchema } from '../../types';
 
-export const YAMASHINA_SPOTS: JoinedSpot[] = [
-  { id: 'S230', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', name: { zh: "山科站 (JR/地鐵)", ja: "山科駅 (JR/地下鉄)" }, desc: { zh: "山科區的門戶。JR、地鐵東西線與京阪大津線在此集結。", ja: "山科区の玄関口。JR、地下鉄東西線、京阪大津線が乗り入れる。" }, tags: { zh: "JR,地鐵,京阪", ja: "JR,地下鉄,京阪" }, mapQuery: "山科駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S232', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', name: { zh: "御陵站", ja: "御陵駅" }, desc: { zh: "地下鐵東西線。前往天智天皇陵的起發地。", ja: "地下鉄東西線の駅。天智天皇陵への最寄り駅。" }, tags: { zh: "地鐵", ja: "地下鉄" }, mapQuery: "御陵駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S233', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', name: { zh: "小野站 (地下鐵)", ja: "小野駅 (地下鉄)" }, desc: { zh: "地下鐵東西線。前往隨心院與勸修寺的核心交通點。", ja: "地下鉄東西線。隨心院や勧修寺へのアクセスに便利。" }, tags: { zh: "地鐵", ja: "地下鉄" }, mapQuery: "小野駅 京都", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S234', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', name: { zh: "毘沙門堂", ja: "毘沙門堂" }, desc: { zh: "天台宗五門跡之一。其階梯上的「楓葉紅毯」是洛東紅葉季節的名景。", ja: "天台宗五門跡の一つ。参道の階段を真っ赤に染める紅葉の敷き紅葉が有名。" }, tags: { zh: "寺院,紅葉", ja: "寺院,紅葉" }, mapQuery: "毘沙門堂", typeColorClass: "border-[#c47070]" },
-  { id: 'S235', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', name: { zh: "勸修寺", ja: "勧修寺" }, desc: { zh: "與醍醐寺齊名的洛東名剎。其庭園水池景致雅緻，深受皇家青睞。", ja: "宸殿や書院、美しい池泉回遊式庭園を持ち、格式高い門跡寺院。" }, tags: { zh: "寺院,庭園", ja: "寺院,庭園" }, mapQuery: "勧修寺", typeColorClass: "border-[#c47070]" },
-  { id: 'S236', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', name: { zh: "隨心院", ja: "隨心院" }, desc: { zh: "小野小町的隱居地。以盛開的新種「小町櫻」與絕美的粉色室內屏風聞名。", ja: "小野小町ゆかりの寺。梅や桜の名所であり、美しい「だまし絵」の襖絵も話題。" }, tags: { zh: "寺院,文學", ja: "寺院,文学" }, mapQuery: "隨心院", typeColorClass: "border-[#c47070]" },
-  { id: 'S237', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', name: { zh: "大石神社", ja: "京都 大石神社" }, desc: { zh: "祭祀忠臣藏靈魂人物大石內藏助。其巨大的垂櫻是山科春季的代表視角。", ja: "忠臣蔵の大石内蔵助を祀る。境内の「大石桜」と呼ばれるしだれ桜が圧巻。" }, tags: { zh: "神社,歷史", ja: "神社,歴史" }, mapQuery: "京都 大石神社", typeColorClass: "border-[#c47070]" },
-  { id: 'S239', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_NATURE', name: { zh: "山科疏水", ja: "山科疏水" }, desc: { zh: "沿河而建的步道。櫻花與油菜花交相輝映，是京都最美的春季散策路徑之一。", ja: "疏水沿いの遊歩道。春には桜と菜の花が同時に咲き誇る、隠れた名所。" }, tags: { zh: "步道,風景", ja: "散策路,風景" }, mapQuery: "山科疏水", typeColorClass: "border-[#7ab89a]" },
-  { id: 'S240', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', name: { zh: "清水燒之鄉", ja: "清水焼の郷" }, desc: { zh: "山科陶藝重鎮。聚集了許多清水燒工坊，每年都會舉辦盛大的陶瓷器市集。", ja: "多くの清水焼の窯元が集まる。年に一度の「大陶器市」は全国から人が集まる。" }, tags: { zh: "購物,陶藝", ja: "ショッピング,工芸" }, mapQuery: "清水焼の郷", typeColorClass: "border-[#d4a74a]" },
-  { id: 'S241', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', name: { zh: "Racto 山科 (商場)", ja: "ラクト山科" }, desc: { zh: "山科站前的現代化百貨。提供海量日常購物、餐飲與休閒選擇。", ja: "山科駅前にある、地元に密着した大型商業施設。買い物や食事に便利。" }, tags: { zh: "購物,百貨", ja: "ショッピング,百貨店" }, mapQuery: "ラクト山科", typeColorClass: "border-[#d4a74a]" }
+export const YAMASHINA_SCHEMA: SpotSchema[] = [
+  { id: 'S230', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "山科駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S232', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "御陵駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S233', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "小野駅 京都", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S234', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "毘沙門堂", typeColorClass: "border-[#c47070]" },
+  { id: 'S235', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "勸修寺", typeColorClass: "border-[#c47070]" },
+  { id: 'S236', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "隨心院", typeColorClass: "border-[#c47070]" },
+  { id: 'S237', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "京都 大石神社", typeColorClass: "border-[#c47070]" },
+  { id: 'S239', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_NATURE', mapQuery: "山科疏水", typeColorClass: "border-[#7ab89a]" },
+  { id: 'S240', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "清水燒之鄉", typeColorClass: "border-[#d4a74a]" },
+  { id: 'S241', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "ラクト山科", typeColorClass: "border-[#d4a74a]" }
 ];

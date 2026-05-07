@@ -1,22 +1,22 @@
-import { JoinedSpot } from '../../types';
+import { SpotSchema } from '../../types';
 
-export const NISHIKYO_SPOTS: JoinedSpot[] = [
-  { id: 'S133', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_HUB', name: { zh: "阪急 嵐山站", ja: "阪急 嵐山駅" }, desc: { zh: "阪急嵐山線終點站。前往渡月橋南側的最佳路徑，環境優雅。", ja: "阪急嵐山線の終点。渡月橋の南側への玄関口で、落ち着いた佇まい。" }, tags: { zh: "地鐵,阪急", ja: "地下鉄,阪急" }, mapQuery: "阪急 嵐山駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S134', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', name: { zh: "松尾大社站 (阪急)", ja: "松尾大社駅 (阪急)" }, desc: { zh: "阪急嵐山線車站。正對松尾大社巨大的朱紅鳥居。", ja: "阪急嵐山線。松尾大社の巨大な鳥居の目の前にある静かな駅。" }, tags: { zh: "地鐵,阪急", ja: "地下鉄,阪急" }, mapQuery: "松尾大社駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S218', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', name: { zh: "桂站 (阪急)", ja: "桂駅 (阪急)" }, desc: { zh: "阪急京都線核心樞紐。前往嵐山、大宮或大阪方向的主要換乘點。", ja: "阪急京都線と嵐山線の接続駅。西京区の交通の中心。" }, tags: { zh: "地鐵,阪急", ja: "地下鉄,阪急" }, mapQuery: "桂站", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S219', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', name: { zh: "上桂站 (阪急)", ja: "上桂駅 (阪急)" }, desc: { zh: "前往「苔寺（西芳寺）」或「地藏院」的最接近車站。", ja: "阪急嵐山線。苔寺や地蔵院へのアクセス拠点。" }, tags: { zh: "地鐵,阪急", ja: "地下鉄,阪急" }, mapQuery: "上桂站", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S220', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', name: { zh: "洛西口站 (阪急)", ja: "洛西口駅 (阪急)" }, desc: { zh: "環境優美的高架車站點，周圍充滿新興住宅與便利零售區域。", ja: "阪急京都線。近年開発が進み、明るく近代的な雰囲気のエリア。" }, tags: { zh: "地鐵,阪急", ja: "地下鉄,阪急" }, mapQuery: "洛西口站", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S222', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', name: { zh: "桂站西口 (巴士站)", ja: "桂駅 (バス停)" }, desc: { zh: "前往洛西平原各處（如大原野、善峰寺）的重要巴士始發點。", ja: "桂駅西口。洛西ニュータウン方面へのバスが集まる。" }, tags: { zh: "巴士", ja: "バス" }, mapQuery: "桂站 巴士停", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S223', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "桂離宮", ja: "桂離宮" }, desc: { zh: "日本建築美學的巔峰之作。極簡與自然完美融合的皇家園林（需預約）。", ja: "日本建築の最高傑作。簡素ながらも洗練美を極めた、皇室ゆかりの別邸。" }, tags: { zh: "皇家園林,建築", ja: "皇室,建築" }, mapQuery: "桂離宮", typeColorClass: "border-[#c47070]" },
-  { id: 'S224', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "松尾大社", ja: "松尾大社" }, desc: { zh: "日本第一釀造祈願神社。以祭祀酒神聞名，境內有神聖的「龜與鯉」。", ja: "日本一の酒造の神様。境内の「霊亀の滝」もパワースポットとして有名。" }, tags: { zh: "神社,釀造之神", ja: "神社,お酒の神" }, mapQuery: "松尾大社", typeColorClass: "border-[#c47070]" },
-  { id: 'S225', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "大原野神社", ja: "大原野神社" }, desc: { zh: "隱於洛西，是藤原氏的守護神。秋季如隧道般的紅葉參道堪稱神祕名景。", ja: "洛西の自然の中にあり、「京の長春」とも呼ばれる美しい紅葉が見どころ。" }, tags: { zh: "神社,紅葉", ja: "神社,紅葉" }, mapQuery: "大原野神社", typeColorClass: "border-[#c47070]" },
-  { id: 'S226', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "勝持寺", ja: "勝持寺" }, desc: { zh: "西行法師剃髮出家之處。以春天的櫻花（西行櫻）與秋天的楓葉聞名。", ja: "西行法師ゆかりの寺。花の寺として知られ、四季折々の美しさ。" }, tags: { zh: "寺院,櫻花", ja: "寺院,櫻" }, mapQuery: "勝持寺", typeColorClass: "border-[#c47070]" },
-  { id: 'S227', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "京都 正法寺", ja: "京都 正法寺" }, desc: { zh: "位於大原野，與勝持寺鄰接。以「鳥獸之庭」枯山水和春賞櫻、秋賞紅葉聞名。", ja: "大原野にある。鳥獣の石庭と呼ばれる個性的な石庭があり、ゆったりとした時間が流れる。" }, tags: { zh: "寺院,庭園", ja: "寺院,庭園" }, mapQuery: "京都 正法寺", typeColorClass: "border-[#c47070]" },
-  { id: 'S228', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', name: { zh: "桂 車站商圈", ja: "桂駅" }, desc: { zh: "圍繞阪急桂站的大型成熟生活區。有許多在地美食與便利超市。", ja: "桂駅周辺。再開発が進み、便利な商業施設や地元の人が通うグルメが充実。" }, tags: { zh: "購物區,地方", ja: "ショッピング,地元" }, mapQuery: "桂駅", typeColorClass: "border-[#d4a74a]" },
-  { id: 'S292', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', name: { zh: "善峯寺", ja: "善峯寺" }, desc: { zh: "西山名剎。擁有世界遺產等級的高空展望與日本第一「遊龍之松」。", ja: "西山の山腹にあり、市内を一望できる。日本一の長さを誇る「遊龍の松」が有名。" }, tags: { zh: "寺院,風景,松樹", ja: "寺院,絶景,松" }, mapQuery: "善峯寺", typeColorClass: "border-[#c47070]" },
-  { id: 'S293', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', name: { zh: "光明寺 (長岡京)", ja: "光明寺 (長岡京)" }, desc: { zh: "西山三山之一。秋季「紅葉參道」落葉鋪成的紅色地毯震撼人心。", ja: "西山浄土宗総本山。紅葉のトンネルとなる長い参道が、秋には真っ赤に染まる。" }, tags: { zh: "寺院,紅葉", ja: "寺院,紅葉" }, mapQuery: "光明寺 長岡京", typeColorClass: "border-[#c47070]" },
-  { id: 'S294', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', name: { zh: "柳谷觀音 (楊谷寺)", ja: "楊谷寺 (柳谷観音)" }, desc: { zh: "以祈求眼病痊癒與極美的手水舍聞名。繡球花季氛圍夢幻。", ja: "眼病平癒の祈願所。季節の花で彩られる手水舎「花手水」発祥の地として大人気。" }, tags: { zh: "寺院,網美", ja: "寺院,映え" }, mapQuery: "楊谷寺 柳谷觀音", typeColorClass: "border-[#c47070]" },
-  { id: 'S295', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', name: { zh: "長岡天滿宮", ja: "長岡天満宮" }, desc: { zh: "位於海印寺旁。祭祀菅原道真。內有大型八條池，春天杜鵑花盛開景致卓絕。", ja: "菅原道真公ゆかりの天満宮。広大な八条ヶ池があり、キリシマツツジの名所。" }, tags: { zh: "神社,池景", ja: "神社,池" }, mapQuery: "長岡天滿宮", typeColorClass: "border-[#c47070]" },
-  { id: 'S296', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', name: { zh: "十輪寺 (在原業平寺)", ja: "十輪寺 (京都)" }, desc: { zh: "平安才子在原業平隱居之處。以「鳳與鹽」的鹽釜與優美的小型庭園著名。", ja: "美男として知られる在原業平ゆかりの寺。桜の季節の風情、石庭が美しい。" }, tags: { zh: "寺院,文學", ja: "寺院,歴史" }, mapQuery: "十輪寺 京都", typeColorClass: "border-[#c47070]" },
-  { id: 'S419', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', name: { zh: "西芳寺 (苔寺)", ja: "西芳寺" }, desc: { zh: "世界遺產。需預約。擁有日本最頂級的青苔庭園，能體驗抄經，遠離日常。", ja: "世界遺産。数ヶ月前からの往復はがきでの予約が必須。究極の苔の美しさに包まれます。" }, tags: { zh: "世界遺產,苔蘚,預約制", ja: "世界遺産,苔,予約必須" }, mapQuery: "西芳寺", typeColorClass: "border-[#c47070]" }
+export const NISHIKYO_SCHEMA: SpotSchema[] = [
+  { id: 'S133', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "阪急 嵐山駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S134', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "松尾大社駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S218', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "桂站", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S219', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "上桂站", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S220', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "洛西口站", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S222', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "桂站 巴士停", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S223', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "桂離宮", typeColorClass: "border-[#c47070]" },
+  { id: 'S224', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "松尾大社", typeColorClass: "border-[#c47070]" },
+  { id: 'S225', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "大原野神社", typeColorClass: "border-[#c47070]" },
+  { id: 'S226', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "勝持寺", typeColorClass: "border-[#c47070]" },
+  { id: 'S227', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "京都 正法寺", typeColorClass: "border-[#c47070]" },
+  { id: 'S228', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "桂駅", typeColorClass: "border-[#d4a74a]" },
+  { id: 'S292', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "善峯寺", typeColorClass: "border-[#c47070]" },
+  { id: 'S293', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "光明寺 長岡京", typeColorClass: "border-[#c47070]" },
+  { id: 'S294', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "楊谷寺 柳谷觀音", typeColorClass: "border-[#c47070]" },
+  { id: 'S295', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "長岡天滿宮", typeColorClass: "border-[#c47070]" },
+  { id: 'S296', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "十輪寺 京都", typeColorClass: "border-[#c47070]" },
+  { id: 'S419', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西芳寺", typeColorClass: "border-[#c47070]" }
 ];

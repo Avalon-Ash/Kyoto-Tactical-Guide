@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Lang, JoinedSpot, WardKey } from '../types';
-import { DB, UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
+import { Lang, FlatSpot, WardKey } from '../types';
+import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
 
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
@@ -10,7 +10,7 @@ export function useKyotoEngine() {
   const [search, setSearch] = useState('');
   
   // 核心：當前分區的景點資料 (Lazy Loaded)
-  const [loadedSpots, setLoadedSpots] = useState<JoinedSpot[]>([]);
+  const [loadedSpots, setLoadedSpots] = useState<FlatSpot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   /**
@@ -22,6 +22,8 @@ export function useKyotoEngine() {
       return;
     }
 
+    let isMounted = true;
+
     async function loadData() {
       setIsLoading(true);
       
@@ -31,15 +33,21 @@ export function useKyotoEngine() {
         : (WARD_BY_AREA[activeId] as WardKey);
 
       if (wardId) {
-        const spots = await loadSpotsByWard(wardId);
-        setLoadedSpots(spots);
+        const spots = await loadSpotsByWard(wardId, lang);
+        if (isMounted) {
+          setLoadedSpots(spots);
+        }
       }
       
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     }
 
     loadData();
-  }, [activeId, mode]);
+
+    return () => { isMounted = false; };
+  }, [activeId, mode, lang]);
 
   const t = (key: string, dict: any = UI_DICT) => {
     if (!dict[key]) return key;
@@ -63,12 +71,9 @@ export function useKyotoEngine() {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(spot => 
-        spot.name.zh.toLowerCase().includes(q) ||
-        spot.name.ja.toLowerCase().includes(q) ||
-        spot.desc.zh.toLowerCase().includes(q) ||
-        spot.desc.ja.toLowerCase().includes(q) ||
-        spot.tags.zh.toLowerCase().includes(q) ||
-        spot.tags.ja.toLowerCase().includes(q)
+        spot.name.toLowerCase().includes(q) ||
+        spot.desc.toLowerCase().includes(q) ||
+        spot.tags.toLowerCase().includes(q)
       );
     }
 
@@ -79,9 +84,7 @@ export function useKyotoEngine() {
       const orderB = ord[b.typeId] || 9;
       if (orderA !== orderB) return orderA - orderB;
       
-      const nameA = a.name[lang] || '';
-      const nameB = b.name[lang] || '';
-      return nameA.localeCompare(nameB);
+      return a.name.localeCompare(b.name, lang === 'zh' ? 'zh-TW' : 'ja-JP');
     });
 
     return result;

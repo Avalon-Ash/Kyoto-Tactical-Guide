@@ -1,14 +1,10 @@
-import { JoinedSpot } from '../../types';
+import { SpotSchema } from '../../types';
 
-export const MINAMI_SPOTS: JoinedSpot[] = [
-  { id: 'S034', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', name: { zh: "京都站八條口 (巴士站)", ja: "京都駅八条口 (バス停)" }, desc: { zh: "京都站南側樞紐。主要的機場大巴發著點與近鐵轉乘口。", ja: "京都駅南側のターミナル。空港リムジンバスや高速バスが発着する。" }, tags: { zh: "巴士", ja: "バス" }, mapQuery: "京都駅八条口 バス停", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S035', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', name: { zh: "東寺站 (近鐵)", ja: "東寺駅 (近鉄)" }, desc: { zh: "近鐵京都線。步行即可到達世界遺產「東寺」。", ja: "近鉄京都線。世界遺産「東寺」まで徒歩わずかの至近駅。" }, tags: { zh: "地鐵,近鐵", ja: "地下鉄,近鉄" }, mapQuery: "東寺駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S036', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', name: { zh: "九條站 (地下鐵)", ja: "九条駅 (地下鉄)" }, desc: { zh: "地下鐵烏丸線。位於京都站南側，交通便利但較為靜謐。", ja: "地下鉄烏丸線。駅チカながら落ち着いた雰囲気のエリア。" }, tags: { zh: "地鐵", ja: "地下鉄" }, mapQuery: "京都 九条駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S037', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', name: { zh: "十條站 (地下鐵)", ja: "十条駅 (地下鉄)" }, desc: { zh: "地下鐵烏丸線。鄰近任天堂總部大樓與任天堂資料館。", ja: "地下鉄烏丸線。任天堂本社などへのアクセスに便利。" }, tags: { zh: "地鐵", ja: "地下鉄" }, mapQuery: "京都 十条駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S041', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', name: { zh: "東寺 (教王護國寺)", ja: "東寺 (教王護国寺)" }, desc: { zh: "世界遺產。擁有日本最高的五重塔。每月21日的「弘法市」極其熱鬧。", ja: "世界遺産。日本最高の五重塔を持つ。毎月21日の縁日は大賑わい。" }, tags: { zh: "世界遺產,五重塔,國寶", ja: "世界遺産,五重塔,国宝" }, mapQuery: "東寺", typeColorClass: "border-[#c47070]" },
-  { id: 'S049', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', name: { zh: "永旺夢樂城 (AEON Mall) 京都", ja: "イオンモール京都" }, desc: { zh: "京都站南側大型連鎖百貨，提供豐富的生活與免稅購物選擇。", ja: "京都駅八条口近く。スーパーから雑貨、映画館まで揃う大型商業施設。" }, tags: { zh: "購物,超市", ja: "ショッピング,スーパー" }, mapQuery: "イオンモール京都", typeColorClass: "border-[#6aab82]" },
-  { id: 'S050', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', name: { zh: "丸福樓 (任天堂舊總部)", ja: "丸福樓" }, desc: { zh: "由任天堂舊總部大樓改建的頂級精品酒店。完美結合歷史與現代設計。", ja: "任天堂旧本社ビルをホテルとして再生。安藤忠雄氏設計の新館も。" }, tags: { zh: "建築,住宿", ja: "建築,宿泊" }, mapQuery: "丸福樓", typeColorClass: "border-[#6aab82]" },
-  { id: 'S221', wardId: 'W_MINAMI', areaId: 'A10', typeId: 'T_HUB', name: { zh: "桂川站 (JR)", ja: "桂川駅 (JR)" }, desc: { zh: "JR西日本站點。緊鄰大型商圈，是西南部重要的通勤站。", ja: "JR西日本の駅。大規模な商業施設に直結した便利な駅。" }, tags: { zh: "JR", ja: "JR" }, mapQuery: "桂川駅 京都", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'S229', wardId: 'W_MINAMI', areaId: 'A10', typeId: 'T_SHOP', name: { zh: "永旺夢樂城 (AEON Mall) 桂川", ja: "イオンモール京都桂川" }, desc: { zh: "橫跨南區與向日市的大型商場。設有電影院與海量餐廳，是休閒購物勝地。", ja: "駅に直結した府内最大級のモール。映画館やグルメも大充実。" }, tags: { zh: "購物,電影院", ja: "ショッピング,映画館" }, mapQuery: "イオンモール京都桂川", typeColorClass: "border-[#d4a74a]" },
-  { id: 'S404', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', name: { zh: "Gashapon Bandai Official Shop (Kyoto Avanti)", ja: "ガシャポンバンダイオフィシャルショップ 京都アバンティ店" }, desc: { zh: "位於京都站南側 Avanti 百貨。擁有上百台扭蛋機。從動漫到趣味小物、應有盡有，是轉蛋迷的樂園。", ja: "京都駅南側のAvanti内にある。最新のガシャポンが勢揃いしており、大人も子供も楽しめます。" }, tags: { zh: "扭蛋,轉蛋,萬代,動漫", ja: "公式" }, mapQuery: "ガシャポンバンダイオフィシャルショップ 京都アバンティ店", typeColorClass: "border-[#ff7eb6]" }
+export const MINAMI_SCHEMA: SpotSchema[] = [
+  { id: 'S167', wardId: 'W_MINAMI', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "東寺", typeColorClass: "border-[#c47070]" },
+  { id: 'S168', wardId: 'W_MINAMI', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "城南宮", typeColorClass: "border-[#c47070]" },
+  { id: 'S169', wardId: 'W_MINAMI', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "永旺夢樂城 京都", typeColorClass: "border-[#d4a74a]" },
+  { id: 'S311', wardId: 'W_MINAMI', areaId: 'A03', typeId: 'T_HUB', mapQuery: "十條站 京都", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S312', wardId: 'W_MINAMI', areaId: 'A03', typeId: 'T_HUB', mapQuery: "西大路站", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'S313', wardId: 'W_MINAMI', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "羅生門址", typeColorClass: "border-[#c47070]" }
 ];

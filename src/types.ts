@@ -6,41 +6,26 @@ export type WardKey =
   | 'W_KITA' | 'W_KAMIGYO' | 'W_SAKYO' | 'W_NAKAGYO' | 'W_HIGASHIYAMA' 
   | 'W_SHIMOGYO' | 'W_MINAMI' | 'W_UKYO' | 'W_NISHIKYO' | 'W_YAMASHINA' | 'W_FUSHIMI';
 
-export type AreaKey = string; // Simplified for now unless I find a better definition
-
-export interface DBType {
-  id: string;
-  colorClass: string;
-  color: string;
-}
-
-export interface SpotRecord {
+// 語系無關的 spot schema
+export interface SpotSchema {
   id: string;
   wardId: string;
   areaId: string;
   typeId: string;
+  mapQuery: string;
+  typeColorClass: string;
 }
 
-export interface SpotLangRecord {
-  id: string;
+// 單一語系的文字包
+export interface SpotLocale {
   name: string;
   desc: string;
   tags: string;
 }
 
-export interface SpotLinkRecord {
-  id: string;
-  mapQuery: string;
-}
-
-export interface JoinedSpot {
-  id: string;
-  wardId: string;
-  areaId: string;
-  typeId: string;
-  name: I18nText;
-  desc: I18nText;
-  tags: I18nText;
-  mapQuery: string;
-  typeColorClass: string;
+// 最終合併後（給 UI 用）
+export interface FlatSpot extends SpotSchema {
+  name: string;
+  desc: string;
+  tags: string;
 }

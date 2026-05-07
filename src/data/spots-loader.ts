@@ -1,78 +1,69 @@
-import { JoinedSpot, WardKey } from '../types';
+import { FlatSpot, SpotSchema, SpotLocale, WardKey, Lang } from '../types';
 
 /**
  * 景點資料載入器
- * 核心目標：實作 Lazy Loading，避免一次性載入數千筆資料
+ * 核心目標：實現「Schema 不含語系文字、語系資料按需載入」
  */
-
-// 對應關係：WardKey -> 動態載入函式
-// 注意：這裡使用 vite 的動態 import 特性，會自動進行 code splitting
-const WARD_LOADERS: Record<WardKey, () => Promise<any>> = {
-  W_KITA: () => import('./spots/kita'),
-  W_KAMIGYO: () => import('./spots/kamigyo'),
-  W_NAKAGYO: () => import('./spots/nakagyo'),
-  W_SAKYO: () => import('./spots/sakyo'),
-  W_HIGASHIYAMA: () => import('./spots/higashiyama'),
-  W_SHIMOGYO: () => import('./spots/shimogyo'),
-  W_MINAMI: () => import('./spots/minami'),
-  W_UKYO: () => import('./spots/ukyo'),
-  W_NISHIKYO: () => import('./spots/nishikyo'),
-  W_YAMASHINA: () => import('./spots/yamashina'),
-  W_FUSHIMI: () => import('./spots/fushimi'),
-};
 
 /**
- * 1. 非同步載入：根據 Ward 載入資料 (推薦用於 UI)
+ * 根據行政區與語系載入合併後的景點資料
  */
-export async function loadSpotsByWard(wardId: WardKey): Promise<JoinedSpot[]> {
-  const loader = WARD_LOADERS[wardId];
-  if (!loader) {
-    console.warn(`No loader found for ward: ${wardId}`);
-    return [];
-  }
-  
+export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<FlatSpot[]> {
+  const wardFile = wardId.replace('W_', '').toLowerCase();
+  const wardKey = wardId.replace('W_', '');
+
   try {
-    const module = await loader();
-    // 慣例：變數名稱為 [WARD_ID]_SPOTS，例如 KITA_SPOTS
-    // 我們在檔案中導出了對應常數
-    const key = `${wardId.replace('W_', '')}_SPOTS`;
-    return module[key] || [];
+    // 1. 動態 import 對應的 schema 檔
+    const schemaModule = await import(`./spots/${wardFile}.ts`);
+    const schemaSpots: SpotSchema[] = schemaModule[`${wardKey}_SCHEMA`];
+
+    // 2. 動態 import 對應語系的 locale 檔
+    const localeModule = await import(`./locales/${lang}/${wardFile}.ts`);
+    const locales: Record<string, SpotLocale> = localeModule[`${wardKey}_${lang.toUpperCase()}`];
+
+    // 3. 將 schema + locale 合併為 FlatSpot[]
+    return schemaSpots.map(s => {
+      const locale = locales[s.id];
+      if (!locale) {
+        console.warn(`Missing locale for spot ${s.id} in ${lang}`);
+        return { 
+          ...s, 
+          name: s.id, 
+          desc: '', 
+          tags: '' 
+        };
+      }
+      return { 
+        ...s, 
+        ...locale 
+      };
+    });
   } catch (error) {
-    console.error(`Failed to load spots for ${wardId}:`, error);
+    console.error(`Failed to load spots for ${wardId} [${lang}]:`, error);
     return [];
   }
 }
 
 /**
- * 2. 同步載入：用於轉換期的全量載入 (維持舊介面相容性)
- * 注意：這會讓 Vite 仍將所有檔案 bundle 進來，但內部結構已分層。
- * 未來當 UI 完整切換到非同步時，可移除此函式。
+ * 同步載入所有 Schema (用於統計計算)
  */
-import { KITA_SPOTS } from './spots/kita';
-import { KAMIGYO_SPOTS } from './spots/kamigyo';
-import { NAKAGYO_SPOTS } from './spots/nakagyo';
-import { SAKYO_SPOTS } from './spots/sakyo';
-import { HIGASHIYAMA_SPOTS } from './spots/higashiyama';
-import { SHIMOGYO_SPOTS } from './spots/shimogyo';
-import { MINAMI_SPOTS } from './spots/minami';
-import { UKYO_SPOTS } from './spots/ukyo';
-import { NISHIKYO_SPOTS } from './spots/nishikyo';
-import { YAMASHINA_SPOTS } from './spots/yamashina';
-import { FUSHIMI_SPOTS } from './spots/fushimi';
+import { KITA_SCHEMA } from './spots/kita';
+import { KAMIGYO_SCHEMA } from './spots/kamigyo';
+import { NAKAGYO_SCHEMA } from './spots/nakagyo';
+import { SAKYO_SCHEMA } from './spots/sakyo';
+import { HIGASHIYAMA_SCHEMA } from './spots/higashiyama';
+import { SHIMOGYO_SCHEMA } from './spots/shimogyo';
+import { MINAMI_SCHEMA } from './spots/minami';
+import { UKYO_SCHEMA } from './spots/ukyo';
+import { NISHIKYO_SCHEMA } from './spots/nishikyo';
+import { YAMASHINA_SCHEMA } from './spots/yamashina';
+import { FUSHIMI_SCHEMA } from './spots/fushimi';
 
-export function loadAllSpotsSync(): JoinedSpot[] {
+export function loadAllSchemasSync(): SpotSchema[] {
   return [
-    ...KITA_SPOTS,
-    ...KAMIGYO_SPOTS,
-    ...NAKAGYO_SPOTS,
-    ...SAKYO_SPOTS,
-    ...HIGASHIYAMA_SPOTS,
-    ...SHIMOGYO_SPOTS,
-    ...MINAMI_SPOTS,
-    ...UKYO_SPOTS,
-    ...NISHIKYO_SPOTS,
-    ...YAMASHINA_SPOTS,
-    ...FUSHIMI_SPOTS,
+    ...KITA_SCHEMA, ...KAMIGYO_SCHEMA, ...NAKAGYO_SCHEMA, ...SAKYO_SCHEMA, 
+    ...HIGASHIYAMA_SCHEMA, ...SHIMOGYO_SCHEMA, ...MINAMI_SCHEMA, ...UKYO_SCHEMA, 
+    ...NISHIKYO_SCHEMA, ...YAMASHINA_SCHEMA, ...FUSHIMI_SCHEMA
   ];
 }
 
@@ -80,7 +71,7 @@ export function loadAllSpotsSync(): JoinedSpot[] {
  * 統計每個行政區的景點數量
  */
 export function computeWardStats(): Record<string, number> {
-  const spots = loadAllSpotsSync();
+  const spots = loadAllSchemasSync();
   return spots.reduce((acc, spot) => {
     acc[spot.wardId] = (acc[spot.wardId] || 0) + 1;
     return acc;
@@ -91,7 +82,7 @@ export function computeWardStats(): Record<string, number> {
  * 統計每個分區的景點數量
  */
 export function computeAreaStats(): Record<string, number> {
-  const spots = loadAllSpotsSync();
+  const spots = loadAllSchemasSync();
   return spots.reduce((acc, spot) => {
     acc[spot.areaId] = (acc[spot.areaId] || 0) + 1;
     return acc;
