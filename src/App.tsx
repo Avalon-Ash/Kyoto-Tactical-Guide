@@ -1,19 +1,84 @@
-import React, { useEffect } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronLeft } from 'lucide-react';
+import { Search, ChevronLeft, AlertCircle } from 'lucide-react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
 import { WARD_KEYS, AREA_KEYS, DB, TYPE_NAMES, TYPES, WARD_NAMES, AREA_NAMES, WARD_DESCS } from './data/index';
 import { SpotCard } from './components/SpotCard';
 import { toChineseNumerals } from './lib/numerals';
 
-// Helper for responsive icon sizing
-function clampValue(min: number, max: number) {
-  return typeof window !== 'undefined' ? Math.min(Math.max(window.innerWidth / 40, min), max) : min;
+// Custom hook for safe window size access
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowSize;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+// Simple Error Boundary component
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false };
+
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full bg-[#0c0b0a] text-gold-light p-10 text-center font-serif">
+          <AlertCircle size={64} className="mb-6 opacity-50" />
+          <h1 className="text-2xl mb-4 tracking-widest">系統暫時無法讀取資料</h1>
+          <p className="opacity-60 mb-8">System synchronization failed. Please refresh the page.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="border border-gold/40 px-8 py-3 hover:bg-shuiro transition-colors"
+          >
+            重新載入 / Reload
+          </button>
+        </div>
+      );
+    }
+    return (this.props as ErrorBoundaryProps).children;
+  }
 }
 
 export default function App() {
   const engine = useKyotoEngine();
   const { lang, mode, activeId, activeType, search, t, toggleLang, openDetail, closeDetail, filteredSpots } = engine;
+  const { width } = useWindowSize();
+
+  // Helper for responsive icon sizing (now safe with useWindowSize)
+  const responsiveScale = Math.max(1, width / 1200);
+  const clampSize = (min: number, max: number) => Math.min(Math.max(width / 40, min), max);
 
   // Scroll to top when entering detail view
   useEffect(() => {
@@ -26,8 +91,9 @@ export default function App() {
   }, [activeId]);
 
   return (
-    <div className="flex justify-center h-full bg-[#050505]">
-      <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
+    <ErrorBoundary>
+      <div className="flex justify-center h-full bg-[#050505]">
+        <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
         
         {/* Home View */}
         <AnimatePresence mode="wait">
@@ -45,8 +111,8 @@ export default function App() {
                     京
                   </div>
                   <div className="flex flex-col">
-                    <h1 className="maki-e-text font-serif text-[clamp(0.9rem,2.8vw,2.5rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
-                    <div className="flex items-center gap-2 mt-0 sm:mt-1">
+                    <h1 className="maki-e-text font-serif text-[clamp(1.1rem,2.8vw,2.5rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
+                    <div className="hidden sm:flex items-center gap-2 mt-0 sm:mt-1">
                       <span className="w-4 sm:w-12 h-[1px] bg-gold/20"></span>
                       <p className="text-[clamp(0.45rem,1vw,0.75rem)] text-gold-light/40 tracking-[0.3em] font-serif uppercase font-bold">
                         {t('db_info').replace('{n}', DB.length.toString())}
@@ -56,9 +122,9 @@ export default function App() {
                 </div>
                 <button 
                   onClick={toggleLang}
-                  className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.55rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0"
+                  className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.65rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0 min-w-[44px]"
                 >
-                  {t('btn_lang')}
+                  {width < 400 ? (lang === 'zh' ? '日' : '中') : t('btn_lang')}
                 </button>
               </header>
 
@@ -133,13 +199,16 @@ export default function App() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap justify-center gap-4 text-[0.7rem] text-gold-light/40 pt-6 font-serif uppercase tracking-widest">
-                      {['T_HUB', 'T_SHOP', 'T_TEMPLE', 'T_MODERN', 'T_NATURE', 'T_ACG', 'T_FOOD'].map(k => (
+                    <div className="flex flex-wrap justify-center gap-4 text-[0.7rem] text-gold-light/40 pt-6 font-serif uppercase tracking-[0.3em] font-medium">
+                      {Object.keys(TYPES).filter(k => k !== 'T_ALL').map(k => (
                         <div key={k} className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full" style={{
-                            backgroundColor: k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : k === 'T_ACG' ? '#ff7eb6' : k === 'T_FOOD' ? '#e67e22' : '#7ab89a',
-                            boxShadow: `0 0 5px ${k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : k === 'T_ACG' ? '#ff7eb6' : k === 'T_FOOD' ? '#e67e22' : '#7ab89a'}`
-                          }}></span>
+                          <span 
+                            className="inline-block w-3 h-3 border border-current/30"
+                            style={{ 
+                              backgroundColor: TYPES[k].color,
+                              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.3)' 
+                            }}
+                          />
                           <span>{t(k, TYPE_NAMES)}</span>
                         </div>
                       ))}
@@ -182,7 +251,7 @@ export default function App() {
                     onClick={closeDetail}
                     className="flex items-center gap-2 text-gold-light/60 hover:text-white transition-all group"
                   >
-                    <ChevronLeft size={clampValue(18, 32)} className="group-hover:-translate-x-1 transition-transform" />
+                    <ChevronLeft size={clampSize(18, 32)} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="font-serif text-[0.65rem] sm:text-[1rem] uppercase tracking-[0.4em] font-bold">{t('btn_back')}</span>
                   </button>
                   
@@ -215,7 +284,7 @@ export default function App() {
 
                 {/* Inline Controls (Tabs & Search) */}
                 <div className="border-t border-gold/10">
-                  <div className="flex overflow-x-auto no-scrollbar px-2 bg-black/40">
+                  <div className="flex overflow-x-auto no-scrollbar px-2 bg-black/40 scroll-fade-right">
                     {Object.keys(TYPES).map(tKey => {
                       const territorySpots = DB.filter(s => mode === 'area' ? s.areaId === activeId : s.wardId === activeId);
                       const tCount = tKey === 'T_ALL' ? territorySpots.length : territorySpots.filter(s => s.typeId === tKey).length;
@@ -236,20 +305,21 @@ export default function App() {
 
                 <div className="p-[clamp(0.5rem,1.5vw,1.5rem)] bg-black/60">
                   <div className="flex items-center gap-3 bg-white/5 border border-gold/20 px-[clamp(0.8rem,1.2vw,1.2rem)] py-[clamp(0.5rem,1vw,1.2rem)] focus-within:border-gold/50 transition-colors">
-                    <Search size={16} className="text-gold-light/30 transition-transform" style={{ transform: `scale(${typeof window !== 'undefined' ? Math.max(1, window.innerWidth / 800) : 1})` }} />
+                    <Search size={16} className="text-gold-light/30 transition-transform" style={{ transform: `scale(${responsiveScale})` }} />
                     <input 
                       type="text" 
                       value={search}
                       onChange={(e) => engine.setSearch(e.target.value)}
                       placeholder={t('search_ph')}
-                      className="bg-transparent border-none outline-none text-[#f0ead6] text-[clamp(0.8rem,1.2vw,1.2rem)] w-full font-serif placeholder:text-[#f0ead6]/20"
+                      style={{ fontSize: 'max(16px, clamp(0.8rem, 1.2vw, 1.2rem))' }}
+                      className="bg-transparent border-none outline-none text-[#f0ead6] w-full font-serif placeholder:text-[#f0ead6]/20"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+              <div className="flex-1 overflow-y-auto no-scrollbar pb-[max(6rem,env(safe-area-inset-bottom)+4rem)]">
                 <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
                   {filteredSpots.length > 0 ? (
                     filteredSpots.map((spot, i) => (
@@ -257,7 +327,7 @@ export default function App() {
                     ))
                   ) : (
                     <div className="col-span-full flex flex-col items-center justify-center py-24 opacity-40">
-                      <Search size={clampValue(40, 64)} className="text-gold-light/20 mb-8" />
+                      <Search size={clampSize(40, 64)} className="text-gold-light/20 mb-8" />
                       <p className="font-serif tracking-[0.4em] text-sm sm:text-lg text-gold-light/50">{t('empty_msg')}</p>
                     </div>
                   )}
@@ -266,8 +336,9 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 

@@ -8,6 +8,7 @@ export interface I18nText {
 export interface DBType {
   id: string;
   colorClass: string;
+  color: string;
 }
 
 export interface SpotRecord {
