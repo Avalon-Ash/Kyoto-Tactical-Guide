@@ -16,6 +16,33 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     t, toggleLang, closeDetail, filteredSpots 
   } = engine;
   const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDraggingScroll = useRef(false);
+  const startY = useRef(0);
+  const scrollTop = useRef(0);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    isDraggingScroll.current = true;
+    startY.current = e.pageY;
+    scrollTop.current = scrollRef.current.scrollTop;
+    scrollRef.current.style.cursor = 'grabbing';
+    scrollRef.current.style.userSelect = 'none';
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingScroll.current || !scrollRef.current) return;
+    const dy = e.pageY - startY.current;
+    scrollRef.current.scrollTop = scrollTop.current - dy;
+  };
+
+  const onMouseUp = () => {
+    isDraggingScroll.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.userSelect = '';
+    }
+  };
 
   const responsiveScale = Math.max(1, width / 1200);
   const clampSize = (min: number, max: number) => Math.min(Math.max(width / 40, min), max);
@@ -118,7 +145,15 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]">
+      <div 
+        ref={scrollRef}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        style={{ cursor: 'grab' }}
+        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+      >
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 animate-pulse">
             <div className="hanko-stamp text-4xl w-16 h-16 mb-6 flex items-center justify-center animate-spin-slow">京</div>

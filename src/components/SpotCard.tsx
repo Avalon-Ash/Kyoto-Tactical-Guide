@@ -24,15 +24,9 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
 
   return (
     <motion.div 
-      drag
-      dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
-      dragElastic={0.15}
-      dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
-      whileDrag={{ scale: 1.04, zIndex: 50, boxShadow: '0 24px 60px rgba(0,0,0,0.8)' }}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      style={{ cursor: 'grab', touchAction: 'none' }}
       className="urushi-card p-[clamp(1rem,2.5vw,2.5rem)] flex flex-col gap-[clamp(1rem,2vw,2rem)] shadow-2xl relative group border-t border-gold/30"
     >
       {/* Type Seal / Hanko */}
