@@ -41,9 +41,10 @@ export const AREA_BY_WARD: Record<string, string[]> = {
   W_FUSHIMI: ['A08', 'A13']
 };
 
-export const WARD_BY_AREA: Record<string, string> = Object.entries(AREA_BY_WARD).reduce((acc, [ward, areas]) => {
+export const WARD_BY_AREA: Record<string, string[]> = Object.entries(AREA_BY_WARD).reduce((acc, [ward, areas]) => {
   areas.forEach(area => {
-    acc[area] = ward;
+    if (!acc[area]) acc[area] = [];
+    acc[area].push(ward);
   });
   return acc;
-}, {} as Record<string, string>);
+}, {} as Record<string, string[]>);

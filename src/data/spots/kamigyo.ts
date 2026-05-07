@@ -18,7 +18,7 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-015', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "本法寺", typeColorClass: "border-[#c47070]" },
   { id: 'KG-016', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "一條戾橋", typeColorClass: "border-[#7aa5d4]" },
   { id: 'KG-017', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "西陣織會館", typeColorClass: "border-[#d4a74a]" },
-  { id: 'KG-018', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "堀川通商圈", typeColorClass: "border-[#d4a74a]" },
+  { id: 'KG-018', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "堀川商店街", typeColorClass: "border-[#d4a74a]" },
   { id: 'KG-019', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "澤屋 粟餅", typeColorClass: "border-[#e67e22]" },
   { id: 'KG-020', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "護王神社", typeColorClass: "border-[#c47070]" },
   { id: 'KG-021', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "京都御苑 近衛邸跡 櫻花", typeColorClass: "border-[#c47070]" },

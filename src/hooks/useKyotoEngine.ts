@@ -27,15 +27,19 @@ export function useKyotoEngine() {
     async function loadData() {
       setIsLoading(true);
       
-      // 找出這筆資料屬於哪個行政區
-      const wardId = mode === 'ward' 
-        ? (activeId as WardKey) 
-        : (WARD_BY_AREA[activeId] as WardKey);
+      // 找出這筆資料屬於哪個行政區 (一區可能跨多個 Ward)
+      const wardIds = mode === 'ward' 
+        ? [activeId as WardKey] 
+        : (WARD_BY_AREA[activeId] as WardKey[] || []);
 
-      if (wardId) {
-        const spots = await loadSpotsByWard(wardId, lang);
+      if (wardIds.length > 0) {
+        // 並行載入所有相關行政區資料
+        const results = await Promise.all(
+          wardIds.map(wardId => loadSpotsByWard(wardId, lang))
+        );
+        
         if (isMounted) {
-          setLoadedSpots(spots);
+          setLoadedSpots(results.flat());
         }
       }
       
