@@ -30,55 +30,95 @@ Kyoto Tactical Guide 是一個以「遊戲任務」感官設計的京都旅遊�
 
 ```text
 src/
-├── App.tsx          # 主應用邏輯與路由掛載
-├── main.tsx         # React 渲染掛載點
-├── index.css        # 全域樣式與 Tailwind 配置
-├── types.ts         # 精確的 TypeScript 資料型別定義
-├── components/      # UI 組件（如 SpotCard 景點卡片）
-├── data/            # 靜態資料庫（核心、語系、連結、景點名錄）
-│   ├── db_core.ts   # 行政區、區域與類型定義
-│   ├── db_ja.ts     # 日文翻譯資料
-│   ├── db_zh.ts     # 繁體中文翻譯資料
-│   ├── db_links.ts  # Google Maps 查詢連結
-│   ├── db_spots.ts  # 景點核心關聯資料 (ID, 所屬行政區等)
-│   └── index.ts     # 資料匯總與對外接口
-├── hooks/           # 自定義 Hooks (如 useKyotoEngine 資料篩選引擎)
-└── lib/             # 工具函式 (如 numerials 羅馬數字轉換)
+├── App.tsx
+├── main.tsx
+├── index.css
+├── types.ts
+├── components/        # UI 組件（SpotCard 等）
+├── hooks/
+│   ├── useKyotoEngine.ts    # 資料篩選引擎
+│   └── useWindowSize.ts     # 響應式視窗尺寸 Hook
+└── data/
+    ├── spots/               # 景點 Schema（純結構，無語系文字）
+    │   ├── kita.ts          # 北區
+    │   ├── kamigyo.ts       # 上京區
+    │   ├── sakyo.ts         # 左京區
+    │   ├── nakagyo.ts       # 中京區
+    │   ├── higashiyama.ts   # 東山區
+    │   ├── shimogyo.ts      # 下京區
+    │   ├── minami.ts        # 南區
+    │   ├── ukyo.ts          # 右京區
+    │   ├── nishikyo.ts      # 西京區
+    │   ├── yamashina.ts     # 山科區
+    │   └── fushimi.ts       # 伏見區
+    ├── locales/
+    │   ├── zh/              # 繁體中文語系（依行政區分檔）
+    │   └── ja/              # 日文語系（依行政區分檔）
+    ├── spots-loader.ts      # 動態載入景點資料
+    ├── areas.ts
+    ├── wards.ts
+    ├── types.ts
+    ├── i18n.ts
+    └── index.ts
 ```
 
 ---
 
-## 📊 資料模型 (JoinedSpot)
+## 🔑 Spot ID 命名規則
 
-這是渲染 UI 時所使用的最終合併物件：
+新增一個段落說明區域前綴 ID 系統，表格如下：
 
-| 欄位 | 型別 | 說明 |
+| 行政區 | 前綴 | 範例 |
 | :--- | :--- | :--- |
-| `id` | `string` | 唯一辨識碼，例如 `S001` |
-| `wardId` | `string` | 行區 ID，關聯至 `db_core.ts` 中的 `WARD_KEYS` |
-| `areaId` | `string` | 子區域 ID，關聯至 `db_core.ts` 中的 `AREA_KEYS` |
-| `typeId` | `string` | 景點類型，決定卡片邊框色與圖示 |
-| `name` | `I18nText` | 景點名稱（支援 `zh`/`ja`） |
-| `desc` | `I18nText` | 景點簡介（支援 `zh`/`ja`） |
-| `tags` | `I18nText` | 逗號分隔的標籤字串（支援 `zh`/`ja`） |
-| `mapQuery` | `string` | Google Maps 搜尋關鍵字或座標 |
-| `typeColorClass`| `string` | 對應類型的 CSS 樣式類名 |
+| 北區 KITA | KT | KT-001 |
+| 上京區 KAMIGYO | KG | KG-001 |
+| 左京區 SAKYO | SK | SK-001 |
+| 中京區 NAKAGYO | NC | NC-001 |
+| 東山區 HIGASHIYAMA | HY | HY-001 |
+| 下京區 SHIMOGYO | SM | SM-001 |
+| 南區 MINAMI | MN | MN-001 |
+| 右京區 UKYO | UK | UK-001 |
+| 西京區 NISHIKYO | NK | NK-001 |
+| 山科區 YAMASHINA | YS | YS-001 |
+| 伏見區 FUSHIMI | FS | FS-001 |
+
+---
+
+## 📊 資料模型
+
+### SpotSchema（src/data/spots/{ward}.ts）
+純結構資料，不含語系文字：
+- `id`: 景點唯一 ID
+- `wardId`: 所屬行政區 ID
+- `areaId`: 所屬區域 ID
+- `typeId`: 景點類型 ID
+- `mapQuery`: Google Maps 搜尋關鍵字或座標
+
+### SpotLocale（src/data/locales/{lang}/{ward}.ts）
+語系文字，以 SpotSchema ID 為 key：
+- `name`: 景點名稱
+- `desc`: 景點簡介
+- `tags`: 標籤內容
 
 ---
 
 ## ➕ 如何新增一個景點
 
-若要新增一個景點（任務點），請依序修改以下檔案：
+更新三步驟流程，配合新架構：
 
-1.  **`src/data/db_spots.ts`**：
-    新增一筆 `SpotRecord`，定義基本屬性：
-    ```ts
-    { id: 'S420', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE' }
-    ```
-2.  **`src/data/db_zh.ts` & `db_ja.ts`**：
-    在 `SPOTS_ZH` / `SPOTS_JA` 陣列中新增對應 ID 的文字說明與標籤。
-3.  **`src/data/db_links.ts`**：
-    在 `LINKS` 陣列中新增對應 ID 的 Google Maps 查詢字串。
+1. **src/data/spots/{ward}.ts** → 新增 SpotSchema，id 使用區域前綴格式
+2. **src/data/locales/zh/{ward}.ts** → 新增中文 locale
+3. **src/data/locales/ja/{ward}.ts** → 新增日文 locale
+
+⚠️ **警告**：三個檔案的 ID 必須完全一致，否則 `spots-loader.ts` 合併時會產生靜默錯誤。
+
+---
+
+## 🌐 多語系架構
+
+說明語系資料依行政區分檔儲存，
+未來新增 en 語系只需新增 `locales/en/` 目錄，
+TypeScript `Lang` type 改一行即可全域提示需同步更新的位置。
 
 ---
 
@@ -97,7 +137,7 @@ src/
    ```bash
    npm run dev
    ```
-3. 預覽：開啟瀏覽器訪問 `http://localhost:3000`
+3. 預覽：開啟瀏覽器訪問 `http://localhost:5173`
 
 ### 建立生產版本
 ```bash
@@ -114,17 +154,6 @@ npm run build
 - **Vercel / Netlify** (自動串接 Repo 即可部署)
 
 部署 `dist/` 文件夾內容即可使用。
-
----
-
-## 🌍 多語系說明
-
-系統採用單一 `Long` 狀態 (`'zh' | 'ja'`)。
-透過 `I18nText` 結構儲存文字：
-```ts
-interface I18nText { zh: string; ja: string; }
-```
-切換語系時，UI 與所有景點內容會同步透過 `useKyotoEngine` Hook 完成即時映射渲染。
 
 ---
 

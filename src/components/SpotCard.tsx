@@ -24,10 +24,16 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
 
   return (
     <motion.div 
+      drag
+      dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+      dragElastic={0.15}
+      dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
+      whileDrag={{ scale: 1.04, zIndex: 50, boxShadow: '0 24px 60px rgba(0,0,0,0.8)' }}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="urushi-card p-[clamp(1rem,2.5vw,2.5rem)] flex flex-col gap-[clamp(1rem,2vw,2rem)] shadow-2xl relative overflow-hidden group border-t border-gold/30"
+      style={{ cursor: 'grab', touchAction: 'none' }}
+      className="urushi-card p-[clamp(1rem,2.5vw,2.5rem)] flex flex-col gap-[clamp(1rem,2vw,2rem)] shadow-2xl relative group border-t border-gold/30"
     >
       {/* Type Seal / Hanko */}
       <div 
@@ -74,7 +80,17 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.mapQuery || (name + ' 京都'))}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] border border-gold/20 text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all hover:bg-shuiro hover:text-white hover:border-shuiro bg-black/40 relative z-10 shadow-xl overflow-hidden active:scale-95"
+        style={{
+          background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
+          border: '1px solid rgba(200,160,74,0.4)',
+          boxShadow: `
+            inset 0 1px 0 rgba(255,240,180,0.10),
+            inset 0 -1px 0 rgba(0,0,0,0.7),
+            inset 1px 0 0 rgba(200,160,74,0.06),
+            0 3px 12px rgba(0,0,0,0.7)
+          `
+        }}
+        className="nikuai-btn block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all relative z-10 shadow-xl overflow-hidden active:scale-95"
       >
         <span className="relative z-10">{t('btn_map')}</span>
         <div className="absolute inset-0 bg-gold/5 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>

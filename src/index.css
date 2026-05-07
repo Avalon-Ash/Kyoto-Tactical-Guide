@@ -57,38 +57,83 @@
 }
 
 .urushi-card {
-  background-color: #12100e;
-  background-image: 
-    linear-gradient(to bottom right, rgba(255,255,255,0.03), transparent 60%),
-    radial-gradient(circle at top right, rgba(200, 160, 74, 0.05), transparent 70%);
-  border: 1px solid rgba(200, 160, 74, 0.18);
-  box-shadow: 
-    0 10px 30px rgba(0,0,0,0.7),
-    inset 0 0 30px rgba(0,0,0,0.9),
-    0 0 0 1px rgba(0,0,0,0.5);
+  background-color: #0d0a07;
+  background-image:
+    linear-gradient(
+      160deg,
+      rgba(200, 140, 30, 0.07) 0%,
+      rgba(10, 8, 5, 0.0) 35%,
+      rgba(180, 100, 20, 0.04) 100%
+    ),
+    radial-gradient(
+      ellipse at 25% 15%,
+      rgba(200, 160, 74, 0.06) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 80% 85%,
+      rgba(150, 80, 10, 0.04) 0%,
+      transparent 50%
+    );
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(200, 160, 74, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.8),
+    0 8px 32px rgba(0, 0, 0, 0.7);
+  border-top: 1px solid rgba(200, 160, 74, 0.25);
+  border-left: 1px solid rgba(200, 160, 74, 0.06);
+  border-right: 1px solid rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.8);
   transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   width: 100%;
 }
 
 .urushi-card:hover {
-  border-color: rgba(200, 160, 74, 0.6);
-  background-color: #181512;
-  transform: translateY(-4px);
-  box-shadow: 
-    0 20px 40px rgba(0,0,0,0.8),
-    inset 0 0 40px rgba(0,0,0,0.9),
-    0 0 15px rgba(200, 160, 74, 0.1);
+  background-image:
+    linear-gradient(
+      160deg,
+      rgba(200, 140, 30, 0.12) 0%,
+      rgba(10, 8, 5, 0.0) 35%,
+      rgba(180, 100, 20, 0.07) 100%
+    ),
+    radial-gradient(
+      ellipse at 25% 15%,
+      rgba(200, 160, 74, 0.10) 0%,
+      transparent 55%
+    );
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(200, 160, 74, 0.15),
+    0 12px 48px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(200, 160, 74, 0.04);
+  filter: none;
 }
 
 .maki-e-text {
-  background: linear-gradient(180deg, #fffcf0 0%, #e6c27a 35%, #c8a04a 70%, #8c6d31 100%);
+  color: transparent;
+  background: linear-gradient(
+    160deg,
+    #fffdf0 0%,
+    #e8c96a 30%,
+    #c8a04a 55%,
+    #8b6820 75%,
+    #c8a04a 90%
+  );
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: 
-    drop-shadow(0 2px 2px rgba(0,0,0,0.8))
-    drop-shadow(0 0 8px rgba(200, 160, 74, 0.15));
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  background-clip: text;
+  -webkit-text-stroke: 0.3px rgba(200, 160, 74, 0.4);
+  text-shadow: none;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8))
+          drop-shadow(0 0 8px rgba(200,160,74,0.15));
+}
+
+.nikuai-btn:hover {
+  background: linear-gradient(135deg, #3a2918 0%, #2a1c0e 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,240,180,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.8),
+    0 4px 20px rgba(0,0,0,0.8),
+    0 0 14px rgba(200,160,74,0.08) !important;
 }
 
 /* Custom Gold Scrollbar */

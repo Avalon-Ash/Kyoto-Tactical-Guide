@@ -128,7 +128,9 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
           <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
             {filteredSpots.length > 0 ? (
               filteredSpots.map((spot, i) => (
-                <SpotCard key={spot.id + i} spot={spot} lang={lang} t={t} />
+                <div key={spot.id + i} className="relative">
+                  <SpotCard spot={spot} lang={lang} t={t} />
+                </div>
               ))
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-24 opacity-40">
