@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronLeft, AlertCircle } from 'lucide-react';
+import { Search, ChevronLeft, AlertCircle, GripHorizontal } from 'lucide-react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
 import { WARD_KEYS, AREA_KEYS, DB, TYPE_NAMES, TYPES, WARD_NAMES, AREA_NAMES, WARD_DESCS } from './data/index';
 import { SpotCard } from './components/SpotCard';
@@ -31,48 +30,10 @@ function useWindowSize() {
   return windowSize;
 }
 
-interface ErrorBoundaryProps {
-  children: React.ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-}
-
-// Simple Error Boundary component
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { hasError: false };
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full bg-[#0c0b0a] text-gold-light p-10 text-center font-serif">
-          <AlertCircle size={64} className="mb-6 opacity-50" />
-          <h1 className="text-2xl mb-4 tracking-widest">系統暫時無法讀取資料</h1>
-          <p className="opacity-60 mb-8">System synchronization failed. Please refresh the page.</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="border border-gold/40 px-8 py-3 hover:bg-shuiro transition-colors"
-          >
-            重新載入 / Reload
-          </button>
-        </div>
-      );
-    }
-    return (this.props as ErrorBoundaryProps).children;
-  }
-}
-
+// No helper needed anymore.
 export default function App() {
   const engine = useKyotoEngine();
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
   const { lang, mode, activeId, activeType, search, t, toggleLang, openDetail, closeDetail, filteredSpots } = engine;
   const { width } = useWindowSize();
 
@@ -91,9 +52,8 @@ export default function App() {
   }, [activeId]);
 
   return (
-    <ErrorBoundary>
-      <div className="flex justify-center h-full bg-[#050505]">
-        <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
+    <div className="flex justify-center h-full bg-[#050505]">
+      <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
         
         {/* Home View */}
         <AnimatePresence mode="wait">
@@ -284,22 +244,35 @@ export default function App() {
 
                 {/* Inline Controls (Tabs & Search) */}
                 <div className="border-t border-gold/10">
-                  <div className="flex overflow-x-auto no-scrollbar px-2 bg-black/40 scroll-fade-right">
-                    {Object.keys(TYPES).map(tKey => {
-                      const territorySpots = DB.filter(s => mode === 'area' ? s.areaId === activeId : s.wardId === activeId);
-                      const tCount = tKey === 'T_ALL' ? territorySpots.length : territorySpots.filter(s => s.typeId === tKey).length;
-                      
-                      return (
-                        <button 
-                          key={tKey}
-                          onClick={() => engine.setActiveType(tKey)}
-                          className={`shrink-0 px-4 sm:px-8 py-3 sm:py-5 text-[0.65rem] sm:text-[1rem] cursor-pointer transition-all border-b-2 font-serif tracking-widest flex items-center gap-2 ${activeType === tKey ? 'text-gold-light border-shuiro bg-shuiro/5 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-gold-light/40'}`}
-                        >
-                          <span className="opacity-80">{t(tKey, TYPE_NAMES)}</span>
-                          <span className={`text-[0.5rem] sm:text-[0.75rem] min-w-[1.2rem] sm:min-w-[1.8rem] px-1 py-0.5 rounded-full text-center ${activeType === tKey ? 'bg-shuiro text-white shadow-lg' : 'bg-gold/5 text-gold-light/20'}`}>{tCount}</span>
-                        </button>
-                      );
-                    })}
+                  <div ref={tabsContainerRef} className="overflow-hidden bg-black/40 scroll-fade-right relative cursor-grab active:cursor-grabbing group/tabs">
+                    {/* Drag Hint for Desktop */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-gold-light/20 sm:group-hover/tabs:animate-pulse pointer-events-none z-10">
+                      <GripHorizontal size={14} />
+                    </div>
+                    
+                    <motion.div 
+                      drag="x"
+                      dragConstraints={tabsContainerRef}
+                      dragElastic={0.05}
+                      className="flex px-2 w-max"
+                    >
+                      {Object.keys(TYPES).map(tKey => {
+                        const territorySpots = DB.filter(s => mode === 'area' ? s.areaId === activeId : s.wardId === activeId);
+                        const tCount = tKey === 'T_ALL' ? territorySpots.length : territorySpots.filter(s => s.typeId === tKey).length;
+                        
+                        return (
+                          <button 
+                            key={tKey}
+                            onClick={() => engine.setActiveType(tKey)}
+                            onPointerDown={(e) => e.stopPropagation()} // Prevent drag when clicking
+                            className={`shrink-0 px-4 sm:px-8 py-3 sm:py-5 text-[0.65rem] sm:text-[1rem] cursor-pointer transition-all border-b-2 font-serif tracking-widest flex items-center gap-2 ${activeType === tKey ? 'text-gold-light border-shuiro bg-shuiro/5 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-gold-light/40'}`}
+                          >
+                            <span className="opacity-80">{t(tKey, TYPE_NAMES)}</span>
+                            <span className={`text-[0.5rem] sm:text-[0.75rem] min-w-[1.2rem] sm:min-w-[1.8rem] px-1 py-0.5 rounded-full text-center ${activeType === tKey ? 'bg-shuiro text-white shadow-lg' : 'bg-gold/5 text-gold-light/20'}`}>{tCount}</span>
+                          </button>
+                        );
+                      })}
+                    </motion.div>
                   </div>
                 </div>
 
@@ -336,9 +309,8 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-        </div>
       </div>
-    </ErrorBoundary>
+    </div>
   );
 }
 
