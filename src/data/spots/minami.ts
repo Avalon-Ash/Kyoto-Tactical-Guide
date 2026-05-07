@@ -45,5 +45,6 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-042', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "山王神社 京都", typeColorClass: "border-[#c47070]" },
   { id: 'MN-043', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "觀進寺", typeColorClass: "border-[#c47070]" },
   { id: 'MN-044', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "綾戶國中神社", typeColorClass: "border-[#c47070]" },
-  { id: 'MN-045', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "藏王堂光福寺", typeColorClass: "border-[#c47070]" }
+  { id: 'MN-045', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "藏王堂光福寺", typeColorClass: "border-[#c47070]" },
+  { id: 'MN-046', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "ガシャポンのデパート イオンモールKYOTO店", typeColorClass: "border-[#ff7eb6]" }
 ];

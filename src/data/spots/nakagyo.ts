@@ -45,5 +45,10 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-042', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "三條通 近代建築群", typeColorClass: "border-[#6aab82]" },
   { id: 'NC-043', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "蛸藥師通", typeColorClass: "border-[#7aa5d4]" },
   { id: 'NC-044', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "中京區役所", typeColorClass: "border-[#6aab82]" },
-  { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "京福電気鉄道 西院車庫", typeColorClass: "border-[#6aab82]" }
+  { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "京福電気鉄道 西院車庫", typeColorClass: "border-[#6aab82]" },
+  { id: 'NC-046', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "アニメイト 京都", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NC-047', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "三嶋亭", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-049', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "京の焼肉処 弘 三條木屋町店", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-050', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "六曜社珈琲店", typeColorClass: "border-[#e67e22]" }
 ];

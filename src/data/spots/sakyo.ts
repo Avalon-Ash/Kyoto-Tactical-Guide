@@ -55,5 +55,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-052', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "滿月 阿闍梨餅 本店", typeColorClass: "border-[#e67e22]" },
   { id: 'SK-053', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: "洛北阪急 Square", typeColorClass: "border-[#d4a74a]" },
   { id: 'SK-054', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "寶池公園", typeColorClass: "border-[#7ab89a]" },
-  { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "國立京都國際會館", typeColorClass: "border-[#6aab82]" }
+  { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "國立京都國際會館", typeColorClass: "border-[#6aab82]" },
+  { id: 'SK-056', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "瓢亭 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋総本店", typeColorClass: "border-[#e67e22]" }
 ];

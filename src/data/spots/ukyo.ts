@@ -50,5 +50,7 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-047', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山モンキーパーク", typeColorClass: "border-[#7ab89a]" },
   { id: 'UK-048', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨野湯", typeColorClass: "border-[#e67e22]" },
   { id: 'UK-049', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨豆腐 竹仙", typeColorClass: "border-[#e67e22]" },
-  { id: 'UK-050', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "齋宮神社", typeColorClass: "border-[#c47070]" }
+  { id: 'UK-050', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "齋宮神社", typeColorClass: "border-[#c47070]" },
+  { id: 'UK-051', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "吉兆 嵐山本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'UK-052', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "% Arabica 京都嵐山", typeColorClass: "border-[#e67e22]" }
 ];

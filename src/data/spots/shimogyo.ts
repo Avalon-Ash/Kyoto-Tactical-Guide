@@ -45,5 +45,12 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-042', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "京都伊勢丹 展望台", typeColorClass: "border-[#7ab89a]" },
   { id: 'SM-043', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都織物問屋街", typeColorClass: "border-[#6aab82]" },
   { id: 'SM-044', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "興正寺", typeColorClass: "border-[#c47070]" },
-  { id: 'SM-045', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站 綜合導覽所", typeColorClass: "border-[#6aab82]" }
+  { id: 'SM-045', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站 綜合導覽所", typeColorClass: "border-[#6aab82]" },
+  { id: 'SM-046', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "Nintendo KYOTO 任天堂京都", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-047', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂 旧本社ビル 京都", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-048', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "ポケモンセンターキョウト", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-049', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "くら寿司 京都駅前店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-050', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "しゃぶしゃぶ温野菜 四条烏丸店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-051', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 京都駅前店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-052', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "末富", typeColorClass: "border-[#e67e22]" }
 ];

@@ -45,5 +45,6 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-042', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "今熊野觀音寺", typeColorClass: "border-[#c47070]" },
   { id: 'HY-043', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "泉涌寺 雲龍院", typeColorClass: "border-[#c47070]" },
   { id: 'HY-044', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "瀧尾神社", typeColorClass: "border-[#c47070]" },
-  { id: 'HY-045', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "崇德天皇御廟", typeColorClass: "border-[#c47070]" }
+  { id: 'HY-045', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "崇德天皇御廟", typeColorClass: "border-[#c47070]" },
+  { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", typeColorClass: "border-[#e67e22]" }
 ];
