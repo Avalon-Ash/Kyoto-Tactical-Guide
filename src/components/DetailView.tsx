@@ -13,7 +13,7 @@ interface DetailViewProps {
 export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   const { 
     lang, mode, activeId, activeType, search, isLoading,
-    t, toggleLang, closeDetail, filteredSpots 
+    t, toggleLang, closeDetail, filteredSpots, typeCounts 
   } = engine;
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -108,8 +108,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
               className="flex px-2 w-max"
             >
               {Object.keys(TYPES).map(tKey => {
-                const territoryCount = activeId ? (mode === 'ward' ? WARD_STATS[activeId] : AREA_STATS[activeId]) : 0;
-                const displayCount = (tKey === 'T_ALL' || isLoading) ? (territoryCount || 0) : filteredSpots.filter(s => s.typeId === tKey).length;
+                const displayCount = typeCounts[tKey] || 0;
                 
                 return (
                   <button 
