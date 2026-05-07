@@ -6,6 +6,11 @@ import { WARD_KEYS, AREA_KEYS, DB, TYPE_NAMES, TYPES, WARD_NAMES, AREA_NAMES } f
 import { SpotCard } from './components/SpotCard';
 import { toChineseNumerals } from './lib/numerals';
 
+// Helper for responsive icon sizing
+function clampValue(min: number, max: number) {
+  return typeof window !== 'undefined' ? Math.min(Math.max(window.innerWidth / 40, min), max) : min;
+}
+
 export default function App() {
   const engine = useKyotoEngine();
   const { lang, mode, activeId, activeType, search, t, toggleLang, openDetail, closeDetail, filteredSpots } = engine;
@@ -22,9 +27,8 @@ export default function App() {
 
   return (
     <div className="flex justify-center h-full bg-[#050505]">
-      <div className="w-full max-w-[480px] h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
+      <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
         
-        {/* Home View */}
         {/* Home View */}
         <AnimatePresence mode="wait">
           {!activeId ? (
@@ -35,36 +39,39 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="flex flex-col h-full bg-transparent"
             >
-              <header className="urushi-panel border-b border-gold/40 p-5 flex items-center justify-between gap-4 shrink-0 relative z-30">
-                <div className="flex items-center gap-5">
-                  <div className="hanko-stamp text-2xl w-10 h-10 shadow-lg">
+              <header className="urushi-panel border-b border-gold/40 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between gap-4 shrink-0 relative z-30 shadow-xl">
+                <div className="flex items-center gap-3 sm:gap-6">
+                  <div className="hanko-stamp text-lg sm:text-2xl w-8 sm:w-12 h-8 sm:h-12 shadow-lg flex items-center justify-center">
                     京
                   </div>
-                  <div>
-                    <h1 className="maki-e-text font-serif text-2xl font-bold tracking-[0.2em]">{t('app_title')}</h1>
-                    <p className="text-[0.65rem] text-gold-light/60 tracking-widest mt-1">
-                      {t('db_info').replace('{n}', DB.length.toString())}
-                    </p>
+                  <div className="flex flex-col">
+                    <h1 className="maki-e-text font-serif text-[clamp(1rem,2.8vw,2rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
+                    <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
+                      <span className="w-6 sm:w-12 h-[1px] bg-gold/20"></span>
+                      <p className="text-[clamp(0.5rem,1vw,0.75rem)] text-gold-light/40 tracking-[0.3em] font-serif uppercase font-bold">
+                        {t('db_info').replace('{n}', DB.length.toString())}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <button 
                   onClick={toggleLang}
-                  className="bg-transparent border border-gold/40 text-gold-light rounded-none px-4 py-2 text-xs font-serif cursor-pointer hover:bg-shuiro hover:text-white transition-all shadow-md"
+                  className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-3 sm:px-6 py-1.5 sm:py-2.5 text-[0.6rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0"
                 >
                   {t('btn_lang')}
                 </button>
               </header>
 
-              <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a]">
+              <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
                 <button 
                    onClick={() => engine.setMode('ward')}
-                   className={`flex-1 py-4 text-[0.85rem] cursor-pointer transition-all border-b-2 font-serif tracking-[0.3em] ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/10 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-[#f0ead6]/60'}`}
+                   className={`flex-1 py-3 sm:py-6 text-[clamp(0.65rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
                 >
                    {t('tab_ward').split(' ')[0]}
                 </button>
                 <button 
                    onClick={() => engine.setMode('area')}
-                   className={`flex-1 py-4 text-[0.85rem] cursor-pointer transition-all border-b-2 font-serif tracking-[0.3em] ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/10 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-[#f0ead6]/60'}`}
+                   className={`flex-1 py-3 sm:py-6 text-[clamp(0.65rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
                 >
                    {t('tab_area').split(' ')[0]}
                 </button>
@@ -72,8 +79,8 @@ export default function App() {
 
               <div className="flex-1 overflow-y-auto no-scrollbar">
                 {mode === 'ward' ? (
-                  <div className="p-6 flex flex-col items-center gap-6 pb-12">
-                    <div className="font-serif text-[0.8rem] text-gold-light tracking-[0.2em] opacity-40 uppercase">{t('map_hint')}</div>
+                  <div className="p-4 sm:p-12 flex flex-col items-center gap-4 sm:gap-10 pb-12">
+                    <div className="font-serif text-[clamp(0.6rem,2vw,1rem)] text-gold-light tracking-[0.2em] opacity-40 uppercase">{t('map_hint')}</div>
                     
                     {/* Urushi Map Canvas */}
                     <div className="map-canvas">
@@ -168,76 +175,88 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="flex flex-col h-full bg-[#0a0a0a] relative z-40"
             >
-              <header className="urushi-panel border-b border-gold/40 p-6 flex flex-col items-center shrink-0">
-                <div className="flex w-full items-center justify-between mb-4">
+              {/* Persistent HUD Control Bar */}
+              <div className="urushi-panel border-b border-gold/40 shrink-0 z-50">
+                <div className="px-4 sm:px-10 py-3 sm:py-6 flex items-center justify-between gap-4">
                   <button 
                     onClick={closeDetail}
-                    className="text-gold-light/50 flex items-center gap-1 cursor-pointer p-1 font-serif hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-gold-light/60 hover:text-white transition-all group"
                   >
-                    <ChevronLeft size={18} />
-                    <span className="text-xs uppercase tracking-widest">{t('btn_back')}</span>
+                    <ChevronLeft size={clampValue(18, 32)} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-serif text-[0.65rem] sm:text-[1rem] uppercase tracking-[0.4em] font-bold">{t('btn_back')}</span>
                   </button>
-                  <div className="hanko-stamp text-lg w-8 h-8">
-                    京
+                  
+                  <div className="flex-1 flex justify-center overflow-hidden">
+                    <div className="flex flex-col items-center">
+                      <h2 className="maki-e-text text-[clamp(1rem,3vw,2rem)] font-bold tracking-[0.2em] truncate max-w-full text-center">{activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : ''}</h2>
+                      <div className="text-[clamp(0.45rem,1.2vw,0.8rem)] text-gold-light/30 tracking-[0.4em] uppercase font-bold">
+                        {filteredSpots.length} {t('unit_spot')}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-5 shrink-0">
+                    <button 
+                      onClick={toggleLang}
+                      className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-4 py-1 sm:py-2 text-[0.55rem] sm:text-[0.75rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold"
+                    >
+                      {t('btn_lang')}
+                    </button>
+                    <div className="hanko-stamp text-xs sm:text-xl w-6 sm:w-10 h-6 sm:h-10 shrink-0 flex items-center justify-center">
+                      京
+                    </div>
                   </div>
                 </div>
-                <div className="text-center font-serif">
-                   <h2 className="maki-e-text text-3xl font-bold tracking-[0.4em] mb-1">
-                     {activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : ''}
-                   </h2>
-                   <div className="flex items-center justify-center gap-4">
-                     <span className="h-[1px] w-8 bg-gold/20"></span>
-                     <span className="text-[0.7rem] text-gold-light/60 font-bold tracking-[0.5em] uppercase">
-                       {filteredSpots.length} {t('unit_spot')}
-                     </span>
-                     <span className="h-[1px] w-8 bg-gold/20"></span>
-                   </div>
-                </div>
-              </header>
 
-              <div className="bg-[#0c0b0a] border-b border-gold/20 shrink-0 z-10">
-                <div className="flex overflow-x-auto no-scrollbar px-2 border-b border-gold/10">
-                  {Object.keys(TYPES).map(tKey => {
-                    const territorySpots = DB.filter(s => mode === 'area' ? s.areaId === activeId : s.wardId === activeId);
-                    const tCount = tKey === 'T_ALL' ? territorySpots.length : territorySpots.filter(s => s.typeId === tKey).length;
-                    
-                    return (
-                      <button 
-                        key={tKey}
-                        onClick={() => engine.setActiveType(tKey)}
-                        className={`shrink-0 px-5 py-4 text-[0.8rem] cursor-pointer transition-all border-b-2 font-serif tracking-widest flex items-center gap-2 ${activeType === tKey ? 'text-gold-light border-shuiro font-bold' : 'text-[#f0ead6]/40 border-transparent hover:text-[#f0ead6]/70'}`}
-                      >
-                        <span>{t(tKey, TYPE_NAMES)}</span>
-                        <span className={`text-[0.6rem] px-2 py-0.5 rounded-full ${activeType === tKey ? 'bg-shuiro text-white' : 'bg-gold/10'}`}>{tCount}</span>
-                      </button>
-                    );
-                  })}
+                {/* Inline Controls (Tabs & Search) */}
+                <div className="border-t border-gold/10">
+                  <div className="flex overflow-x-auto no-scrollbar px-2 bg-black/40">
+                    {Object.keys(TYPES).map(tKey => {
+                      const territorySpots = DB.filter(s => mode === 'area' ? s.areaId === activeId : s.wardId === activeId);
+                      const tCount = tKey === 'T_ALL' ? territorySpots.length : territorySpots.filter(s => s.typeId === tKey).length;
+                      
+                      return (
+                        <button 
+                          key={tKey}
+                          onClick={() => engine.setActiveType(tKey)}
+                          className={`shrink-0 px-4 sm:px-8 py-3 sm:py-5 text-[0.65rem] sm:text-[1rem] cursor-pointer transition-all border-b-2 font-serif tracking-widest flex items-center gap-2 ${activeType === tKey ? 'text-gold-light border-shuiro bg-shuiro/5 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-gold-light/40'}`}
+                        >
+                          <span className="opacity-80">{t(tKey, TYPE_NAMES)}</span>
+                          <span className={`text-[0.5rem] sm:text-[0.75rem] min-w-[1.2rem] sm:min-w-[1.8rem] px-1 py-0.5 rounded-full text-center ${activeType === tKey ? 'bg-shuiro text-white shadow-lg' : 'bg-gold/5 text-gold-light/20'}`}>{tCount}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="p-4 bg-black/20">
-                  <div className="flex items-center gap-3 bg-white/5 border border-gold/20 rounded-none px-4 py-2.5 focus-within:border-gold/50 transition-colors">
-                    <Search size={18} className="text-gold-light/30" />
+
+                <div className="p-[clamp(0.5rem,1.5vw,1.5rem)] bg-black/60">
+                  <div className="flex items-center gap-3 bg-white/5 border border-gold/20 px-[clamp(0.8rem,1.2vw,1.2rem)] py-[clamp(0.5rem,1vw,1.2rem)] focus-within:border-gold/50 transition-colors">
+                    <Search size={16} className="text-gold-light/30 transition-transform" style={{ transform: `scale(${typeof window !== 'undefined' ? Math.max(1, window.innerWidth / 800) : 1})` }} />
                     <input 
                       type="text" 
                       value={search}
                       onChange={(e) => engine.setSearch(e.target.value)}
                       placeholder={t('search_ph')}
-                      className="bg-transparent border-none outline-none text-[#f0ead6] text-[0.95rem] w-full font-serif placeholder:text-[#f0ead6]/30"
+                      className="bg-transparent border-none outline-none text-[#f0ead6] text-[clamp(0.8rem,1.2vw,1.2rem)] w-full font-serif placeholder:text-[#f0ead6]/20"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col gap-6">
-                {filteredSpots.length > 0 ? (
-                  filteredSpots.map((spot, i) => (
-                    <SpotCard key={spot.id + i} spot={spot} lang={lang} t={t} />
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-24 opacity-40">
-                    <Search size={48} className="text-gold-light/30 mb-6" />
-                    <p className="font-serif tracking-[0.4em] text-lg text-gold-light/60">{t('empty_msg')}</p>
-                  </div>
-                )}
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+                <main className="p-4 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 lg:gap-14">
+                  {filteredSpots.length > 0 ? (
+                    filteredSpots.map((spot, i) => (
+                      <SpotCard key={spot.id + i} spot={spot} lang={lang} t={t} />
+                    ))
+                  ) : (
+                    <div className="col-span-full flex flex-col items-center justify-center py-24 opacity-40">
+                      <Search size={clampValue(40, 64)} className="text-gold-light/20 mb-8" />
+                      <p className="font-serif tracking-[0.4em] text-sm sm:text-lg text-gold-light/50">{t('empty_msg')}</p>
+                    </div>
+                  )}
+                </main>
               </div>
             </motion.div>
           )}
