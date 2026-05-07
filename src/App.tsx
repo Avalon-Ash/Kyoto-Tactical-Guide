@@ -39,16 +39,16 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="flex flex-col h-full bg-transparent"
             >
-              <header className="urushi-panel border-b border-gold/40 px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between gap-4 shrink-0 relative z-30 shadow-xl">
-                <div className="flex items-center gap-3 sm:gap-6">
-                  <div className="hanko-stamp text-lg sm:text-2xl w-8 sm:w-12 h-8 sm:h-12 shadow-lg flex items-center justify-center">
+              <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex items-center justify-between gap-2 sm:gap-4 shrink-0 relative z-30 shadow-xl">
+                <div className="flex items-center gap-2 sm:gap-6">
+                  <div className="hanko-stamp text-base sm:text-2xl w-7 sm:w-12 h-7 sm:h-12 shadow-lg flex items-center justify-center">
                     京
                   </div>
                   <div className="flex flex-col">
-                    <h1 className="maki-e-text font-serif text-[clamp(1rem,2.8vw,2rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
-                    <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
-                      <span className="w-6 sm:w-12 h-[1px] bg-gold/20"></span>
-                      <p className="text-[clamp(0.5rem,1vw,0.75rem)] text-gold-light/40 tracking-[0.3em] font-serif uppercase font-bold">
+                    <h1 className="maki-e-text font-serif text-[clamp(0.9rem,2.8vw,2.5rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
+                    <div className="flex items-center gap-2 mt-0 sm:mt-1">
+                      <span className="w-4 sm:w-12 h-[1px] bg-gold/20"></span>
+                      <p className="text-[clamp(0.45rem,1vw,0.75rem)] text-gold-light/40 tracking-[0.3em] font-serif uppercase font-bold">
                         {t('db_info').replace('{n}', DB.length.toString())}
                       </p>
                     </div>
@@ -56,7 +56,7 @@ export default function App() {
                 </div>
                 <button 
                   onClick={toggleLang}
-                  className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-3 sm:px-6 py-1.5 sm:py-2.5 text-[0.6rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0"
+                  className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.55rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0"
                 >
                   {t('btn_lang')}
                 </button>
@@ -134,11 +134,11 @@ export default function App() {
                     </div>
                     
                     <div className="flex flex-wrap justify-center gap-4 text-[0.7rem] text-gold-light/40 pt-6 font-serif uppercase tracking-widest">
-                      {['T_HUB', 'T_SHOP', 'T_TEMPLE', 'T_MODERN', 'T_NATURE'].map(k => (
+                      {['T_HUB', 'T_SHOP', 'T_TEMPLE', 'T_MODERN', 'T_NATURE', 'T_ACG', 'T_FOOD'].map(k => (
                         <div key={k} className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full" style={{
-                            backgroundColor: k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : '#7ab89a',
-                            boxShadow: `0 0 5px ${k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : '#7ab89a'}`
+                            backgroundColor: k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : k === 'T_ACG' ? '#ff7eb6' : k === 'T_FOOD' ? '#e67e22' : '#7ab89a',
+                            boxShadow: `0 0 5px ${k === 'T_HUB' ? '#7aa5d4' : k === 'T_SHOP' ? '#d4a74a' : k === 'T_TEMPLE' ? '#b1352b' : k === 'T_MODERN' ? '#6aab82' : k === 'T_ACG' ? '#ff7eb6' : k === 'T_FOOD' ? '#e67e22' : '#7ab89a'}`
                           }}></span>
                           <span>{t(k, TYPE_NAMES)}</span>
                         </div>
@@ -245,7 +245,7 @@ export default function App() {
 
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
-                <main className="p-4 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 lg:gap-14">
+                <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
                   {filteredSpots.length > 0 ? (
                     filteredSpots.map((spot, i) => (
                       <SpotCard key={spot.id + i} spot={spot} lang={lang} t={t} />

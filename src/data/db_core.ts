@@ -6,7 +6,9 @@ export const TYPES: Record<string, DBType> = {
   T_SHOP:   { id: 'T_SHOP', colorClass: "border-[#d4a74a]" },
   T_TEMPLE: { id: 'T_TEMPLE', colorClass: "border-[#c47070]" },
   T_MODERN: { id: 'T_MODERN', colorClass: "border-[#6aab82]" },
-  T_NATURE: { id: 'T_NATURE', colorClass: "border-[#7ab89a]" }
+  T_NATURE: { id: 'T_NATURE', colorClass: "border-[#7ab89a]" },
+  T_ACG:    { id: 'T_ACG',    colorClass: "border-[#ff7eb6]" },
+  T_FOOD:   { id: 'T_FOOD',   colorClass: "border-[#e67e22]" }
 };
 
 export const WARD_KEYS = [

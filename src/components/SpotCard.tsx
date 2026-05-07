@@ -19,7 +19,7 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const areaName = t(spot.areaId, AREA_NAMES);
   const wardName = t(spot.wardId, WARD_NAMES);
 
-  const typeColor = typeId === 'T_HUB' ? '#7aa5d4' : typeId === 'T_SHOP' ? '#d4a74a' : typeId === 'T_TEMPLE' ? '#b1352b' : typeId === 'T_MODERN' ? '#6aab82' : '#7ab89a';
+  const typeColor = typeId === 'T_HUB' ? '#7aa5d4' : typeId === 'T_SHOP' ? '#d4a74a' : typeId === 'T_TEMPLE' ? '#b1352b' : typeId === 'T_MODERN' ? '#6aab82' : typeId === 'T_ACG' ? '#ff7eb6' : typeId === 'T_FOOD' ? '#e67e22' : '#7ab89a';
 
   return (
     <motion.div 
