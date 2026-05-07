@@ -122,7 +122,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 animate-pulse">
             <div className="hanko-stamp text-4xl w-16 h-16 mb-6 flex items-center justify-center animate-spin-slow">京</div>
-            <p className="font-serif tracking-[0.5em] text-gold-light/40">{t('loading') || '陣地構築中...'}</p>
+            <p className="font-serif tracking-[0.5em] text-gold-light/40">{t('loading') || '展卷中，稍候片刻…'}</p>
           </div>
         ) : (
           <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">

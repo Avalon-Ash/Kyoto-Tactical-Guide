@@ -24,15 +24,15 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ onOpen, stats, t }) => {
       </div>
       
       <div className="ward-area pos-kamigyo" onClick={() => onOpen('W_KAMIGYO', 'ward')}>
-        <span className="ward-label-text">上京</span>
+        <span className="ward-label-text" style={{ writingMode: 'horizontal-tb' }}>上京</span>
         <span className="ward-count-text">{toChineseNumerals(stats.W_KAMIGYO || 0)}</span>
       </div>
       <div className="ward-area pos-nakagyo" onClick={() => onOpen('W_NAKAGYO', 'ward')}>
-        <span className="ward-label-text">中京</span>
+        <span className="ward-label-text" style={{ writingMode: 'horizontal-tb' }}>中京</span>
         <span className="ward-count-text">{toChineseNumerals(stats.W_NAKAGYO || 0)}</span>
       </div>
       <div className="ward-area pos-shimogyo" onClick={() => onOpen('W_SHIMOGYO', 'ward')}>
-        <span className="ward-label-text">下京</span>
+        <span className="ward-label-text" style={{ writingMode: 'horizontal-tb' }}>下京</span>
         <span className="ward-count-text">{toChineseNumerals(stats.W_SHIMOGYO || 0)}</span>
       </div>
       

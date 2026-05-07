@@ -49,13 +49,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
            onClick={() => engine.setMode('ward')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-           {t('tab_ward').split(' ')[0]}
+           {t('tab_ward')}
         </button>
         <button 
            onClick={() => engine.setMode('area')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-           {t('tab_area').split(' ')[0]}
+           {t('tab_area')}
         </button>
       </nav>
 

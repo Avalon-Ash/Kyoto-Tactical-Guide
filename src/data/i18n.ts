@@ -1,16 +1,16 @@
 import { I18nText } from '../types';
 
 export const UI_DICT: Record<string, I18nText> = {
-  app_title: { zh: "京都 戰術 指南", ja: "京都 タクティカル ガイド" },
-  db_info: { zh: "京洛紀勝：共收錄 {n} 筆｜十九區｜十一行政區", ja: "京洛紀勝：計 {n} 件｜十九エリア｜十一行政区" },
+  app_title: { zh: "京都 雅遊 手帖", ja: "京都 雅遊 手帖" },
+  db_info: { zh: "京洛紀勝：共紀存 {n} 處｜拾九區｜十一行政域", ja: "京洛紀勝：計 {n} 處｜十九区｜十一行政区" },
   btn_lang: { zh: "文 / JA", ja: "文 / ZH" },
-  tab_ward: { zh: "洛中洛外 (行政區)", ja: "洛中洛外 (行政区)" },
-  tab_area: { zh: "京洛拾九區 (名錄)", ja: "京洛拾九エリア (エリア)" },
-  map_hint: { zh: "請點擊上方京洛圖繪", ja: "地図上のエリアをクリックしてください" },
-  btn_back: { zh: "返、", ja: "戻る" },
-  search_ph: { zh: "搜尋名勝・町名・關鍵字…", ja: "名所・地名・キーワード検索…" },
-  empty_msg: { zh: "未尋得相關紀錄", ja: "該当する記録が見つかりません" },
-  btn_map: { zh: "開卷 (Google Maps)", ja: "開く (Google Maps)" },
-  unit_spot: { zh: "筆", ja: "件" },
-  loading: { zh: "陣地構築中...", ja: "陣地構築中..." }
+  tab_ward: { zh: "洛中洛外・十一行政域", ja: "洛中洛外・十一行政区" },
+  tab_area: { zh: "京洛拾九區・名所目録", ja: "京洛十九区・名所目録" },
+  map_hint: { zh: "點選圖繪，展卷入境", ja: "図絵を選び、京へと踏み込む" },
+  btn_back: { zh: "歸、", ja: "帰る" },
+  search_ph: { zh: "尋訪名所・町名・物語…", ja: "名所・町名・物語を尋ねる…" },
+  empty_msg: { zh: "此間無跡，換一條路試試", ja: "この道には跡なし、別の径を" },
+  btn_map: { zh: "展輿圖（Google Maps）", ja: "輿図を開く（Google Maps）" },
+  unit_spot: { zh: "處", ja: "幅" },
+  loading: { zh: "展卷中，稍候片刻…", ja: "巻物を広げています…" }
 };
