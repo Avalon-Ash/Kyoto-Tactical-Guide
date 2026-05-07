@@ -26,5 +26,14 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-023', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "上御靈神社", typeColorClass: "border-[#c47070]" },
   { id: 'KG-024', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "虎屋一條 虎屋寬", typeColorClass: "border-[#e67e22]" },
   { id: 'KG-025', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "鶴屋吉信 本店", typeColorClass: "border-[#e67e22]" },
-  { id: 'KG-026', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "本家尾張屋 本店", typeColorClass: "border-[#e67e22]" }
+  { id: 'KG-026', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "本家尾張屋 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'KG-027', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "大將軍八神社", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-028', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "妙蓮寺", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-029', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "雨寶院", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-030', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "千本釋迦堂", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-031', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "千本ゑんま堂", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-032', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "釘拔地藏 石像寺", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-033', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "幸神社", typeColorClass: "border-[#c47070]" },
+  { id: 'KG-034', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "三上家路地", typeColorClass: "border-[#d4a74a]" },
+  { id: 'KG-035', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "清荒神 護淨院", typeColorClass: "border-[#c47070]" }
 ];

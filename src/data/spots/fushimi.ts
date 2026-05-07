@@ -7,7 +7,7 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-004', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_HUB', mapQuery: "伏見桃山駅", typeColorClass: "border-[#7aa5d4]" },
   { id: 'FS-005', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_HUB', mapQuery: "丹波橋站", typeColorClass: "border-[#7aa5d4]" },
   { id: 'FS-006', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "伏見稲荷大社", typeColorClass: "border-[#c47070]" },
-  { id: 'FS-007', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "醍醐寺", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-007', wardId: 'W_FUSHIMI', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "醍醐寺", typeColorClass: "border-[#c47070]" },
   { id: 'FS-008', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "城南宮", typeColorClass: "border-[#c47070]" },
   { id: 'FS-009', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "長建寺", typeColorClass: "border-[#c47070]" },
   { id: 'FS-010', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見大手筋商店街", typeColorClass: "border-[#d4a74a]" },
@@ -22,5 +22,18 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-019', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "伏見桃山城", typeColorClass: "border-[#6aab82]" },
   { id: 'FS-020', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "伏見 宇治川派流", typeColorClass: "border-[#7ab89a]" },
   { id: 'FS-021', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見 竜馬通り", typeColorClass: "border-[#d4a74a]" },
-  { id: 'FS-022', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見 納屋町商店街", typeColorClass: "border-[#d4a74a]" }
+  { id: 'FS-022', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見 納屋町商店街", typeColorClass: "border-[#d4a74a]" },
+  { id: 'FS-023', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "明治天皇 伏見桃山陵", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-024', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "乃木神社 伏見", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-025', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "御香宮神社", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-026', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "寶塔寺", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-027', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "瑞光寺", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-028', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "墨染寺", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-029', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "藤森神社", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-030', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "キザクラ 伏見蔵", typeColorClass: "border-[#d4a74a]" },
+  { id: 'FS-031', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見夢百眾", typeColorClass: "border-[#d4a74a]" },
+  { id: 'FS-032', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "三棲閘門資料館", typeColorClass: "border-[#6aab82]" },
+  { id: 'FS-033', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "西岸寺 油懸地藏", typeColorClass: "border-[#c47070]" },
+  { id: 'FS-034', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "京都府立 桃山高等學校", typeColorClass: "border-[#6aab82]" },
+  { id: 'FS-035', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "荒木神社 伏見稻荷", typeColorClass: "border-[#c47070]" }
 ];

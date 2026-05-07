@@ -29,5 +29,16 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-026', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "平野神社 夜櫻", typeColorClass: "border-[#c47070]" },
   { id: 'KT-027', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "船岡温泉", typeColorClass: "border-[#7aa5d4]" },
   { id: 'KT-028', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "さらさ西陣", typeColorClass: "border-[#d4a74a]" },
-  { id: 'KT-029', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "一文字屋和助", typeColorClass: "border-[#e67e22]" }
+  { id: 'KT-029', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "一文字屋和助", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-030', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "京都府立植物園", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KT-031', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "京都府立陶板名畫之庭", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-032', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "堂本印象美術館", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-033', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "等持院", typeColorClass: "border-[#c47070]" },
+  { id: 'KT-034', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "正傳寺", typeColorClass: "border-[#c47070]" },
+  { id: 'KT-035', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "深泥池", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KT-036', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "上賀茂 社家町", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-037', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 柊野地區", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KT-038', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "船山", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KT-039', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "加茂みたらし茶屋", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-040', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "マールブランシュ 北山本店", typeColorClass: "border-[#d4a74a]" }
 ];

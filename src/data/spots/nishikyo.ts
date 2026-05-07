@@ -18,5 +18,12 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-015', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "楊谷寺 柳谷觀音", typeColorClass: "border-[#c47070]" },
   { id: 'NK-016', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "長岡天滿宮", typeColorClass: "border-[#c47070]" },
   { id: 'NK-017', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: "十輪寺 京都", typeColorClass: "border-[#c47070]" },
-  { id: 'NK-018', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西芳寺", typeColorClass: "border-[#c47070]" }
+  { id: 'NK-018', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西芳寺", typeColorClass: "border-[#c47070]" },
+  { id: 'NK-019', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "地藏院 竹之寺", typeColorClass: "border-[#c47070]" },
+  { id: 'NK-020', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "華嚴寺 鈴蟲寺", typeColorClass: "border-[#c47070]" },
+  { id: 'NK-021', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "虛空藏法輪寺", typeColorClass: "border-[#c47070]" },
+  { id: 'NK-022', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山 桂川堤防", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NK-023', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山中之島公園", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NK-024', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "洛西地下街", typeColorClass: "border-[#d4a74a]" },
+  { id: 'NK-025', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "西山公園", typeColorClass: "border-[#7ab89a]" }
 ];
