@@ -16,19 +16,48 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const handleTagBarMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const el = e.currentTarget;
+    const startX = e.pageX;
+    const startLeft = el.scrollLeft;
+    let moved = false;
+
+    const onMove = (ev: MouseEvent) => {
+      const dx = ev.pageX - startX;
+      if (Math.abs(dx) > 3) {
+        moved = true;
+        el.scrollLeft = startLeft - dx;
+        el.style.cursor = 'grabbing';
+        el.style.userSelect = 'none';
+      }
+    };
+
+    const onUp = () => {
+      el.style.cursor = '';
+      el.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (moved) {
+        const block = (ev: MouseEvent) => ev.stopPropagation();
+        window.addEventListener('click', block, { once: true, capture: true });
+      }
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
   if (tags.length === 0) return null;
 
   return (
     <div
       ref={containerRef}
-      className={`overflow-hidden relative touch-pan-x ${variant === 'global' ? 'py-4' : 'py-2'}`}
+      onMouseDown={handleTagBarMouseDown}
+      style={{ cursor: 'grab' }}
+      className={`overflow-x-auto no-scrollbar relative touch-pan-x ${variant === 'global' ? 'py-4' : 'py-2'}`}
     >
-      <motion.div
-        drag="x"
-        dragConstraints={containerRef}
-        dragElastic={0.1}
-        className="flex gap-3 px-6 w-max"
-      >
+      <div className="flex gap-3 px-6 w-max">
         {tags.map(tagId => {
           const meta = TAG_REGISTRY[tagId];
           const label = meta ? meta.label[lang] : tagId;
@@ -50,7 +79,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
             </motion.button>
           );
         })}
-      </motion.div>
+      </div>
     </div>
   );
 };

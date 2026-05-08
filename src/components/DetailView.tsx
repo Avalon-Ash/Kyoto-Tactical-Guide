@@ -18,10 +18,6 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   } = engine;
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startY = useRef(0);
-  const scrollTopStart = useRef(0);
-  const hasMoved = useRef(false);
 
   // Auto scroll to top when changing type filters or active tag
   React.useEffect(() => {
@@ -30,38 +26,39 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     }
   }, [activeType, activeId, activeTag]);
 
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    isDragging.current = true;
-    hasMoved.current = false;
-    startY.current = e.pageY;
-    scrollTopStart.current = scrollRef.current.scrollTop;
-    
-    // Add temporary listeners to window for smoother dragging outside container
-    window.addEventListener('mousemove', onGlobalMouseMove);
-    window.addEventListener('mouseup', onGlobalMouseUp);
-  };
+  const handleSpotListMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, [role="button"]')) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const startYValue = e.pageY;
+    const startTop = el.scrollTop;
+    let moved = false;
 
-  const onGlobalMouseMove = (e: MouseEvent) => {
-    if (!isDragging.current || !scrollRef.current) return;
-    
-    const dy = e.pageY - startY.current;
-    if (Math.abs(dy) > 5) {
-      hasMoved.current = true;
-      scrollRef.current.scrollTop = scrollTopStart.current - dy;
-      scrollRef.current.style.userSelect = 'none';
-      scrollRef.current.style.cursor = 'grabbing';
-    }
-  };
+    const onMove = (ev: MouseEvent) => {
+      const dy = ev.pageY - startYValue;
+      if (Math.abs(dy) > 4) {
+        moved = true;
+        el.scrollTop = startTop - dy;
+        el.style.cursor = 'grabbing';
+        el.style.userSelect = 'none';
+      }
+    };
 
-  const onGlobalMouseUp = () => {
-    isDragging.current = false;
-    if (scrollRef.current) {
-      scrollRef.current.style.userSelect = '';
-      scrollRef.current.style.cursor = '';
-    }
-    window.removeEventListener('mousemove', onGlobalMouseMove);
-    window.removeEventListener('mouseup', onGlobalMouseUp);
+    const onUp = () => {
+      el.style.cursor = '';
+      el.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (moved) {
+        const block = (ev: MouseEvent) => ev.stopPropagation();
+        window.addEventListener('click', block, { once: true, capture: true });
+      }
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
   };
 
   const responsiveScale = Math.max(1, width / 1200);
@@ -162,9 +159,9 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
       {/* Scrollable Content */}
       <div 
         ref={scrollRef}
-        onMouseDown={onMouseDown}
-        style={{ touchAction: 'pan-y' }}
-        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] active:cursor-grabbing"
+        onMouseDown={handleSpotListMouseDown}
+        style={{ cursor: 'grab', touchAction: 'pan-y' }}
+        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
       >
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 animate-pulse">
