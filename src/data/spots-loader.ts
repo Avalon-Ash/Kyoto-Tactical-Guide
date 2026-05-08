@@ -37,7 +37,6 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
     // 3. 將 schema + locale 合併為 FlatSpot[]
     const flatSpots: FlatSpot[] = schemaSpots.map(s => {
       const locale = locales[s.id];
-      const typeMeta = TYPES[s.typeId];
       
       const jaName = lang === 'ja'
         ? locale?.name ?? s.id
@@ -45,7 +44,6 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
 
       const base = {
         ...s,
-        typeColorClass: typeMeta?.colorClass ?? '',
         jaName
       };
 

@@ -108,7 +108,8 @@ export function useKyotoEngine() {
       result = result.filter(spot => 
         spot.name.toLowerCase().includes(q) ||
         spot.desc.toLowerCase().includes(q) ||
-        spot.tags.toLowerCase().includes(q)
+        spot.tags.toLowerCase().includes(q) ||
+        (spot.jaName ? spot.jaName.toLowerCase().includes(q) : false)
       );
     }
 
