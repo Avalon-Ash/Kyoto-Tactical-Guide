@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_UKYO — 右京區
  * Key 必須與 src/data/spots/ukyo.ts 的 id 完全一致。
  * 必須與 locales/zh/ukyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */

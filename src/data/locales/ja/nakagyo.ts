@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_NAKAGYO — 中京區
  * Key 必須與 src/data/spots/nakagyo.ts 的 id 完全一致。
  * 必須與 locales/zh/nakagyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -70,9 +71,9 @@ export const NAKAGYO_JA: Record<string, SpotLocale> = {
   'NC-059': { name: "喫茶 築地", desc: "バロック様式の重厚な内装が特別な喫茶店。", tags: "喫茶 老舗 映え" },
   'NC-060': { name: "イノダコーヒ 本店", desc: "「京都の朝」を象徴する、レトロな雰囲気の名店。", tags: "喫茶 老舗 必食 映え" },
   'NC-061': { name: "前田珈琲 明倫店", desc: "旧小学校の教室を利用した、懐かしい雰囲気のカフェ。", tags: "喫茶 映え" },
-  'W_NAKAGYO_NISHIKI_NISHIKAWA': { name: "錦・西川", desc: "錦市場にある鮮魚と惣菜の老舗。新鮮な刺身や季節のおかずが並び、地元の人々に愛されている。", tags: "老舖 必吃" },
-  'W_NAKAGYO_TAKAGI': { name: "割烹 たか木", desc: "ミシュラン星付きの懐石料理店。店主の繊細な技が光る関西の旬を、静かな隠れ家空間で堪能できる。", tags: "正餐 懷石 隱密" },
-  'W_NAKAGYO_KIKUNOI_KIYAMACHI': { name: "菊乃井 木屋町店", desc: "ミシュランの名店「菊乃井」の支店。高瀬川のほとりで、極上の京懐石を素晴らしい雰囲気の中で味わえる。", tags: "正餐 懷石 必吃" },
+  'W_NAKAGYO_NISHIKI_NISHIKAWA': { name: "錦・西川", desc: "錦市場にある鮮魚と惣菜の老舗。新鮮な刺身や季節のおかずが並び、地元の人々に愛されている。", tags: "老舗 必食" },
+  'W_NAKAGYO_TAKAGI': { name: "割烹 たか木", desc: "ミシュラン星付きの懐石料理店。店主の繊細な技が光る関西の旬を、静かな隠れ家空間で堪能できる。", tags: "食事 懐石 穴場" },
+  'W_NAKAGYO_KIKUNOI_KIYAMACHI': { name: "菊乃井 木屋町店", desc: "ミシュランの名店「菊乃井」の支店。高瀬川のほとりで、極上の京懐石を素晴らしい雰囲気の中で味わえる。", tags: "食事 懐石 必食" },
   'NAKAGYO_TEMPURA_TAIAN': { name: '錦 天ぷら 大安', desc: '錦市場周辺の天ぷら専門店。厳選された京野菜や海鮮を目の前で揚げる。湯葉の天ぷらは必食。', tags: '天ぷら 食事 必食' },
   'NAKAGYO_SHINPUHKAN': { name: '新風館', desc: '安藤忠雄氏が改築に携わった旧京都中央電話局。エースホテル京都やこだわりのショップが入る複合施設。', tags: '現代 購物 映え' }
 };

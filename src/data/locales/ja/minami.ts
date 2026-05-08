@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_MINAMI — 南區
  * Key 必須與 src/data/spots/minami.ts 的 id 完全一致。
  * 必須與 locales/zh/minami.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -69,6 +70,6 @@ export const MINAMI_JA: Record<string, SpotLocale> = {
   'MN-057': { name: "京都テルサ", desc: "大規模な公共建築。イベントやスポーツの拠点。", tags: "映え" },
   'MN-058': { name: "近鉄十条駅", desc: "より下町に近い、生活感あふれるエリアの最寄り駅。", tags: "地下鉄" },
   'MN-059': { name: "中村藤吉 京都駅店", desc: "抹茶の聖地「宇治」を代表する名店。南側の玄関口にあり、宇治方面へ向かう前の抹茶補給に最適。", tags: "抹茶 甘味 必食" },
-  'W_MINAMI_TORIYASA': { name: "鳥彌三", desc: "天明年間（1788年）創業の鶏料理の老舗。名物の「名代水炊き」の白濁スープは絶品で、京都を代表するごちそう。", tags: "正餐 老舖 必吃" },
-  'W_MINAMI_KISSHOKARYO': { name: "吉祥菓寮 東寺店", desc: "自家焙煎のきな粉スイーツが人気。贅沢なパフェは、東寺参拝後のティータイムに最適。", tags: "和菓子 抹茶 打卡 必吃" }
+  'W_MINAMI_TORIYASA': { name: "鳥彌三", desc: "天明年間（1788年）創業の鶏料理の老舗. 名物の「名代水炊き」の白濁スープは絶品で、京都を代表するごちそう。", tags: "食事 老舗 必食" },
+  'W_MINAMI_KISSHOKARYO': { name: "吉祥菓寮 東寺店", desc: "自家焙煎のきな粉スイーツが人気. 贅沢なパフェは、東寺参拝後のティータイムに最適。", tags: "和菓子 抹茶 映え 必食" },
 };

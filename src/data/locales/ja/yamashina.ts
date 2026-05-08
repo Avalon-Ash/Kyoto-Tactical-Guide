@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_YAMASHINA — 山科區
  * Key 必須與 src/data/spots/yamashina.ts 的 id 完全一致。
  * 必須與 locales/zh/yamashina.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -68,8 +69,8 @@ export const YAMASHINA_JA: Record<string, SpotLocale> = {
   'YS-056': { name: "GiGO 山科", desc: "最新機種が並ぶゲーセン。地域住民の娯楽の場。 ", tags: "ACG 映え" },
   'YS-057': { name: "ジョーシン 山科店", desc: "プラモデルやフィギュアも充実。ホビーファンの拠点。 ", tags: "ACG 映え" },
   'YS-058': { name: "TSUTAYA 山科駅前", desc: "アニメ、漫画などサブカルチャーも充実の情報発信地。 ", tags: "ACG 映え" },
-  'W_YAMASHINA_RYUGETSUDO': { name: "柳月堂", desc: "山科の老舗ベーカリー兼喫茶。名物の「クラシック音楽席」があり、静寂の中で音楽とパンを楽しめる通好みの名店。", tags: "喫茶 老舖 隱密" },
-  'W_YAMASHINA_BISHAMON_MONZEN': { name: "毘沙門堂 門前茶屋 やましな", desc: "毘沙門堂の参道脇に位置。抹茶や伝統的な甘味を提供し、秋の紅葉シーズンは特に絶景。 ", tags: "和菓子 打卡 抹茶" },
-  'W_YAMASHINA_FURUKAWAYA': { name: "三条 古川屋", desc: "旧三条通り沿いにあり、江戸時代から続くような趣の京懐石や季節の定食を、素朴で温かい雰囲気で提供する。", tags: "正餐 老舖 隱密" },
-  'W_YAMASHINA_SHIBAZUKE_CHAYA': { name: "志ば漬本舗 茶屋", desc: "大原の名産・志ば漬の老舗による山科店。漬物定食や茶漬けを通して、京都の食文化の粋を味わえる。", tags: "和菓子 老舖 打卡" }
+  'W_YAMASHINA_RYUGETSUDO': { name: "柳月堂", desc: "山科の老舗ベーカリー兼喫茶. 名物の「クラシック音楽席」があり、静寂の中で音楽とパンを楽しめる通好みの名店。", tags: "喫茶 老舗 穴場" },
+  'W_YAMASHINA_BISHAMON_MONZEN': { name: "毘沙門堂 門前茶屋 やましな", desc: "毘沙門堂の参道脇に位置. 抹茶や伝統的な甘味を提供し、秋の紅葉シーズンは特に絶景。 ", tags: "和菓子 映え 抹茶" },
+  'W_YAMASHINA_FURUKAWAYA': { name: "三條 古川屋", desc: "旧三条通り沿いにあり、江戸時代から続くような趣の京懐石や季節の定食を、素朴で温かい雰囲気で提供する。", tags: "食事 老舗 穴場" },
+  'W_YAMASHINA_SHIBAZUKE_CHAYA': { name: "志ば漬本舗 茶屋", desc: "大原の名産・志ば漬の老舗による山科店. 漬物定食や茶漬けを通して、京都の食文化の粋を味わえる。", tags: "和菓子 老舗 映え" },
 };

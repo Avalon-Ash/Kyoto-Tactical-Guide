@@ -5,7 +5,7 @@ import { SpotLocale } from '../../../types';
  * @ward W_HIGASHIYAMA — 東山區
  * Key 必須與 src/data/spots/higashiyama.ts 的 id 完全一致。
  * 必須與 locales/ja/higashiyama.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用中文標籤（與 schema.tagIds 鏡射，同時作為 SpotCard 顯示文字與篩選 key）。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */

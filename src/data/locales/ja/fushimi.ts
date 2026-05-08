@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_FUSHIMI — 伏見區
  * Key 必須與 src/data/spots/fushimi.ts 的 id 完全一致。
  * 必須與 locales/zh/fushimi.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -60,8 +61,8 @@ export const FUSHIMI_JA: Record<string, SpotLocale> = {
   'FS-048': { name: "伏見 駿河屋", desc: "羊羹の名門老舗。洗練された甘さの和菓子を。", tags: "甘味 和菓子 老舗" },
   'FS-049': { name: "JRA 京都競馬場", desc: "広大な芝生と最新の設備。迫力の競技が楽しめる。", tags: "映え" },
   'FS-050': { name: "伊藤久右衛門 JR伏見稲荷店", desc: "宇治抹茶の名店. 抹茶スイーツや高品質な手土産が充実しており、参拝後の休憩に最適。", tags: "抹茶 甘味 必食 映え" },
-  'W_FUSHIMI_NAKAMURA_TOKICHI_STATION': { name: "中村藤吉 京都駅店", desc: "京都駅構内に位置。看板メニューのまるとパフェや持ち帰り用甘味を提供し、旅の始まりや終わりに最適。", tags: "和菓子 抹茶 必吃 打卡" },
-  'W_FUSHIMI_UOSABURO': { name: "魚三楼", desc: "創業250年を超える。幕末の伏見鳥羽の戦いの際の弾痕が門柱に残り、旬の京懐石を提供している。", tags: "正餐 懷石 老舖" },
-  'W_FUSHIMI_GEKKEIKAN_SAKAGURA_CHAYA': { name: "月桂冠 酒蔵茶屋", desc: "月桂冠大倉記念館に隣接。日本酒を使った独自の甘味や利き酒を楽しめる。", tags: "和菓子 老舖 隱密" },
+  'W_FUSHIMI_NAKAMURA_TOKICHI_STATION': { name: "中村藤吉 京都駅店", desc: "京都駅構内に位置。看板メニューのまるとパフェや持ち帰り用甘味を提供し、旅の始まりや終わりに最適。", tags: "和菓子 抹茶 必食 映え" },
+  'W_FUSHIMI_UOSABURO': { name: "魚三楼", desc: "創業250年を超える。幕末の伏見鳥羽の戦いの際の弾痕が門柱に残り、旬の京懐石を提供している。", tags: "食事 懐石 老舗" },
+  'W_FUSHIMI_GEKKEIKAN_SAKAGURA_CHAYA': { name: "月桂冠 酒蔵茶屋", desc: "月桂冠大倉記念館に隣接. 日本酒を使った独自の甘味や利き酒を楽しめる。", tags: "和菓子 老舗 穴場" },
   'FUSHIMI_TEMPURA_INARIMON': { name: '稲荷門前 天ぷら茶屋', desc: '伏見稲荷大社の鳥居門前にある伝統的な茶屋。揚げたての天ぷら蕎麦が名物で、千本鳥居を巡った後の休憩に最適。', tags: '天ぷら 映え 必食' }
 };

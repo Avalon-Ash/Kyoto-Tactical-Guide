@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_HIGASHIYAMA — 東山區
  * Key 必須與 src/data/spots/higashiyama.ts 的 id 完全一致。
  * 必須與 locales/zh/higashiyama.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -68,11 +69,11 @@ export const HIGASHIYAMA_JA: Record<string, SpotLocale> = {
   'HY-058': { name: "祇園 萬養軒", desc: "1904年創業の、皇室御用達フレンチ老舗。", tags: "食事 老舗" },
   'HY-059': { name: "ぎをん 萬屋", desc: "麺が見えないほど九條ねぎが盛られたうどんが絶品。", tags: "食事 必食" },
   'HY-061': { name: "茶寮都路里 祗園本店", desc: "宇治抹茶スイーツの最高峰。「特選都路里パフェ」は京都観光の定番。", tags: "抹茶 甘味 必食 映え" },
-  'HY-062': { name: "祇園辻利 祇園本店", desc: "1860年創業の老舖茶商。抹茶ソフトクリームは祇園の風物詩。", tags: "抹茶 和菓子 老舖" },
+  'HY-062': { name: "祇園辻利 祇園本店", desc: "1860年創業の老舗茶商。抹茶ソフトクリームは祇園の風物詩。", tags: "抹茶 和菓子 老舗" },
   'HY-063': { name: "中村藤吉 京都祇園店", desc: "宇治の名門茶商。高品質な抹茶スイーツと淹れたての日本茶を提供。", tags: "抹茶 甘味 必食" },
-  'W_HIGASHIYAMA_AKOYA_CHAYA': { name: "阿古屋茶屋", desc: "清水寺近くのお茶漬けバイキングの名店。数十種類の京漬物と3種類のご飯が食べ放題で、行列が絶えない。", tags: "正餐 老舖 隱密 豆腐" },
-  'W_HIGASHIYAMA_SHICHIMIYA_HONPO_CHASEKI': { name: "七味家本舗 茶席", desc: "創業350年の七味粉の老舗に併設された茶席。香ばしい湯豆腐や甘味を産寧坂の景色と共に楽しめる。", tags: "和菓子 老舖 打卡" },
-  'W_HIGASHIYAMA_JUNIDANYA': { name: "十二段家 祇園", desc: "しゃぶしゃぶ発祥の店として知られる。民芸調の落ち着いた店内で、元祖お茶漬定食などが人気。", tags: "和菓子 老舖 必吃" },
-  'W_HIGASHIYAMA_GION_YATA': { name: "祇をん 八咫", desc: "祇園白川のほとりに佇む京料理店。「一汁三菜」を基本とした繊細な懐石を、隠れ家的な空間で楽しめる。", tags: "正餐 和牛 隱密 懷石" },
+  'W_HIGASHIYAMA_AKOYA_CHAYA': { name: "阿古屋茶屋", desc: "清水寺近くのお茶漬けバイキングの名店. 数十種類の京漬物と3種類のご飯が食べ放題で、行列が絶えない。", tags: "食事 老舗 穴場 豆腐" },
+  'W_HIGASHIYAMA_SHICHIMIYA_HONPO_CHASEKI': { name: "七味家本舗 茶席", desc: "創業350年の七味粉の老舗に併設された茶席. 香ばしい湯豆腐や甘味を産寧坂の景色と共に楽しめる。", tags: "和菓子 老舗 映え" },
+  'W_HIGASHIYAMA_JUNIDANYA': { name: "十二段家 祇園", desc: "しゃぶしゃぶ発祥の店として知られる. 民芸調の落ち着いた店内で、元祖お茶漬定食などが人気。", tags: "和菓子 老舗 必食" },
+  'W_HIGASHIYAMA_GION_YATA': { name: "祇をん 八咫", desc: "祇園白川のほとりに佇む京料理店. 「一汁三菜」を基本とした繊細な懐石を、隠れ家的な空間で楽しめる。", tags: "食事 和牛 穴場 懐石" },
   'HIGASHIYAMA_TEMPURA_ENDO': { name: '祇園 天周', desc: '祇園の石畳の路地裏にある天ぷらの名店。ボリューム満点の穴子天丼で知られる。', tags: '天ぷら 食事 老舗' }
 };

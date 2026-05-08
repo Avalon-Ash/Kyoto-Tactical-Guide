@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_SHIMOGYO — 下京區
  * Key 必須與 src/data/spots/shimogyo.ts 的 id 完全一致。
  * 必須與 locales/zh/shimogyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -70,9 +71,9 @@ export const SHIMOGYO_JA: Record<string, SpotLocale> = {
   'SM-060': { name: "本家 第一旭", desc: "早朝から行列ができる京都ラーメンの伝説的老舗。", tags: "食事 必食 老舗" },
   'SM-061': { name: "京都中央郵便局", desc: "昭和モダニズムが香る名建築。旅の便りはこちらから。", tags: "映え" },
   'SM-062': { name: "大丸京都店 屋上", desc: "喧騒を離れて深呼吸できる、屋上の緑あふれるテラス。", tags: "自然" },
-  'W_SHIMOGYO_ISETAN_SHOYUKAN': { name: "伊勢丹 食遊館", desc: "JR京都伊勢丹の地下2階。京都の一流老舗が集結しており、上質な和菓子や弁当が一堂に揃う。", tags: "和菓子 老舖 打卡" },
-  'W_SHIMOGYO_YOSHINOYA': { name: "吉廼家", desc: "路地裏に佇む和菓子の老舗。名物の「一休大福」は、柔らかい餅と上品なあんが多くの地元ファンに愛されている。", tags: "和菓子 老舖 隱密" },
-  'W_SHIMOGYO_SARASA_KAYUKOJI': { name: "さらさ 花遊小路", desc: "さらさグループの中でも最も隠れ家的な店舗。細い路地の中にあり、アメリカン・ヴィンテージな雰囲気の中で食事が楽しめる。", tags: "喫茶 打卡 隱密" },
+  'W_SHIMOGYO_ISETAN_SHOYUKAN': { name: "伊勢丹 食遊館", desc: "JR京都伊勢丹の地下2階. 京都の一流老舗が集結しており、上質な和菓子や弁当が一堂に揃う。", tags: "和菓子 老舗 映え" },
+  'W_SHIMOGYO_YOSHINOYA': { name: "吉廼家", desc: "路地裏に佇む和菓子の老舗. 名物の「一休大福」は、柔らかい餅と上品なあんが多くの地元ファンに愛されている。", tags: "和菓子 老舗 穴場" },
+  'W_SHIMOGYO_SARASA_KAYUKOJI': { name: "さらさ 花遊小路", desc: "さらさグループの中でも最も隠れ家的な店舗. 細い路地の中にあり、アメリカン・ヴィンテージな雰囲気の中で食事が楽しめる。", tags: "喫茶 映え 穴場" },
   'SHIMOGYO_TEMPURA_YOKOTA': { name: '京都駅前 天ぷら 横田', desc: '京都駅徒歩すぐの老舗天ぷら食堂。旅の最後の夜にぴったりの揚げたて天ぷら處理。', tags: '天ぷら 食事 映え' },
   'SHIMOGYO_KYOTO_STATION_BLDG': { name: '京都駅ビル 大空広場', desc: '原研哉氏が設計監修に携わった京都駅の大空間。幾何学的なトラス構造が現代の京都を象徴する。', tags: '現代 映え 買い物' }
 };

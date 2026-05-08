@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_NISHIKYO — 西京區
  * Key 必須與 src/data/spots/nishikyo.ts 的 id 完全一致。
  * 必須與 locales/zh/nishikyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -67,9 +68,9 @@ export const NISHIKYO_JA: Record<string, SpotLocale> = {
   'NK-056': { name: "大原野 十二屋", desc: "地元の野菜をふんだんに使った農家レストラン。 ", tags: "食事 必食" },
   'NK-057': { name: "柿本 豆富店", desc: "本格的なお豆腐を手軽に。厚揚げの揚げたてが絶品。 ", tags: "食事 必食" },
   'NK-058': { name: "京都大学 桂キャンパス", desc: "近代建築が並ぶ、未来都市のような美しさ。 ", tags: "映え" },
-  'W_NISHIKYO_TSUTA': { name: "桂離宮前 蔦", desc: "桂離宮の目の前にある京料理の名店。旬の食材を活かし、美しい環境の中で伝統的な懐石料理を楽しめる。", tags: "正餐 懷石 隱密" },
-  'W_NISHIKYO_SHIOGAMA': { name: "洛西 塩竈の杜", desc: "洛西の閑静な住宅街に位置する、創作豆腐料理と京懐石の店。優雅で禅の趣を感じさせる空間。", tags: "正餐 隱密 豆腐" },
-  'W_NISHIKYO_YAMADAYA': { name: "柚餅子 山田屋", desc: "150年の歴史を誇る柚餅子の専門店。伝統的な技法で、甘み、酸味、苦みが絶妙に調和した逸品を作る。", tags: "和菓子 老舖" },
-  'W_NISHIKYO_SMART_COFFEE': { name: "スマート珈琲 西京店", desc: "京都の老舗喫茶の支店。広々とした店内で、本店と同じ自家焙煎コーヒーとクラシックなパフェが楽しめる。", tags: "喫茶 老舖" },
+  'W_NISHIKYO_TSUTA': { name: "桂離宮前 蔦", desc: "桂離宮の目の前にある京料理の名店。旬の食材を活かし、美しい環境の中で伝統的な懐石料理を楽しめる。", tags: "食事 懐石 穴場" },
+  'W_NISHIKYO_SHIOGAMA': { name: "洛西 塩竈の杜", desc: "洛西の閑静な住宅街に位置する、創作豆腐料理と京懐石の店。優雅で禅の趣を感じさせる空間。", tags: "食事 穴場 豆腐" },
+  'W_NISHIKYO_YAMADAYA': { name: "柚餅子 山田屋", desc: "150年の歴史を誇る柚餅子の専門店。伝統的な技法で、甘み、酸味、苦みが絶妙に調和した逸品を作る。", tags: "和菓子 老舗" },
+  'W_NISHIKYO_SMART_COFFEE': { name: "スマート珈琲 西京店", desc: "京都の老舗喫茶の支店。広々とした店内で、本店と同じ自家焙煎コーヒーとクラシックなパフェが楽しめる。", tags: "喫茶 老舗" },
   'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '嵐山渡月橋のすぐそばにあるモダンなカフェ. 桂川を望む全面ガラス張りの空間で、こだわりのスイーツが楽しめる。', tags: '現代 映え 甘味' }
 };

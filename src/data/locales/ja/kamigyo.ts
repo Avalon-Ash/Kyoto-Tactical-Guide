@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_KAMIGYO — 上京區
  * Key 必須與 src/data/spots/kamigyo.ts 的 id 完全一致。
  * 必須與 locales/zh/kamigyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -67,8 +68,8 @@ export const KAMIGYO_JA: Record<string, SpotLocale> = {
   'KG-056': { name: "西陣 露地", desc: "『有頂天家族』で狸たちが駆け抜けた路地裏。", tags: "ACG 映え" },
   'KG-057': { name: "同志社大学 (彰栄館)", desc: "赤レンガの西洋建築が美しい、洋風背景聖地。", tags: "ACG 映え" },
   'KAMIGYO_TEMPURA_YOSHIKAWA': { name: '西陣 天ぷら 吉川', desc: '西陣の職人の街にある落ち着いた天ぷら割烹。店主こだわりの揚げたて天ぷらが絶品。', tags: '天ぷら 食事 穴場' },
-  'W_KAMIGYO_IPPODO_KAGI': { name: "一保堂茶舗 嘉木", desc: "京都の老舗茶舗の本店。併設의茶室「嘉木」では、自分で点てるお茶体験と上質な和菓子を楽しめる。", tags: "喫茶 老舖 抹茶" },
-  'W_KAMIGYO_ORYORI_HAYASHI': { name: "御料理 はやし", desc: "ミシュランにも掲載された京料理の名店。御苑の隣に位置し、店主・林幸治氏による引き算の美学が光る、シンプルかつ奥深い懐石を味わえる。", tags: "正餐 懷石 隱密" },
-  'W_KAMIGYO_CHOGOROMOCHI': { name: "長五郎餅本舗", desc: "天正年間（1587年）創業。豊臣秀吉が北野大茶会で絶賛したと伝わる、とろけるような餅と上品な餡が特徴の名物菓子。", tags: "和菓子 老舖 打卡" },
-  'W_KAMIGYO_FUNAHASHIYA_NIBEI': { name: "船はしや仁兵衛", desc: "丸太町通りにある老舗菓子店。香ばしい五色豆や手焼き煎餅が評判で、店内には江戸時代からの歴史を感じる雰囲気が漂う。", tags: "喫茶 老舖 隱密 和菓子" }
+  'W_KAMIGYO_IPPODO_KAGI': { name: "一保堂茶舗 嘉木", desc: "京都の老舗茶舗の本店. 併設の茶室「嘉木」では、自分で点てるお茶体験と上質な和菓子を楽しめる。", tags: "喫茶 老舗 抹茶" },
+  'W_KAMIGYO_ORYORI_HAYASHI': { name: "御料理 はやし", desc: "ミシュランにも掲載された京料理の名店. 御苑の隣に位置し、店主・林幸治氏による引き算の美学が光る、シンプルかつ奥深い懐石を味わえる。", tags: "食事 懐石 穴場" },
+  'W_KAMIGYO_CHOGOROMOCHI': { name: "長五郎餅本舗", desc: "天正年間（1587年）創業. 豊臣秀吉が北野大茶会で絶賛したと伝わる、とろけるような餅と上品な餡が特徴の名物菓子。", tags: "和菓子 老舗 映え" },
+  'W_KAMIGYO_FUNAHASHIYA_NIBEI': { name: "船はしや仁兵衛", desc: "丸太町通りにある老舗菓子店. 香ばしい五色豆や手焼き煎餅が評判で、店内には江戸時代からの歴史を感じる雰囲気が漂う。", tags: "喫茶 老舗 穴場 和菓子" },
 };

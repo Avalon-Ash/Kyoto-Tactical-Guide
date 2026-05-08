@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_KITA — 北區
  * Key 必須與 src/data/spots/kita.ts 的 id 完全一致。
  * 必須與 locales/zh/kita.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -66,8 +67,8 @@ export const KITA_JA: Record<string, SpotLocale> = {
   'KT-054': { name: "賀茂川 北大路橋", desc: "多くの京アニ作品に登場する河川敷。", tags: "ACG 映え" },
   'KT-055': { name: "立命館大学 西園寺記念館", desc: "衣笠キャンパスの象徴的な建物。", tags: "穴場" },
   'KT-056': { name: "金閣寺 (アニメ定番スポット)", desc: "数えきれないほどのアニメやゲーム의舞台となっている京都のシンボル。", tags: "ACG 映え" },
-  'W_KITA_KAIKADO_CAFE': { name: "Kaikado Café", desc: "旧市電の車庫をリノベーションされたカフェ。開化堂の茶筒の匠の技と最高級のコーヒーが融合した、インダストリアルモダンな空間。", tags: "喫茶 打卡 老舖" },
-  'W_KITA_CHIKUSEI': { name: "金閣寺 近清", desc: "金閣寺に隣接し、「陸舟の松」を眺めながら挽き立ての蕎麦を味わえる。京都の老舗の趣に満ちた店。", tags: "正餐 老舖 打卡 蕎麥" },
-  'W_KITA_NISHIJIN_UOSHIN': { name: "西陣 魚新", desc: "1855年創業。かつて御所に料理を納めていた歴史を持ち、西陣の職人文化を感じさせる正統派の懐石を楽しめる。", tags: "正餐 懷石 隱密" },
-  'W_KITA_KAMIGAMO_YAKIMOCHI': { name: "葵家 やきもち総本家", desc: "上賀茂神社門前の名物。香ばしく焼かれた餅の中に、程よい甘さの粒あんが詰まった伝統の味。", tags: "和菓子 老舖 必吃" }
+  'W_KITA_KAIKADO_CAFE': { name: "Kaikado Café", desc: "旧市電の車庫をリノベーションされたカフェ。開化堂の茶筒の匠の技と最高級のコーヒーが融合した、インダストリアルモダンな空間。", tags: "喫茶 映え 老舗" },
+  'W_KITA_CHIKUSEI': { name: "金閣寺 近清", desc: "金閣寺に隣接し、「陸舟の松」を眺めながら挽き立ての蕎麦を味わえる。京都の老舗の趣に満ちた店。", tags: "食事 老舗 映え そば" },
+  'W_KITA_NISHIJIN_UOSHIN': { name: "西陣 魚新", desc: "1855年創業。かつて御所に料理を納めていた歴史を持ち、西陣の職人文化を感じさせる正統派の懐石を楽しめる。", tags: "食事 懐石 穴場" },
+  'W_KITA_KAMIGAMO_YAKIMOCHI': { name: "葵家 やきもち総本家", desc: "上賀茂神社門前の名物。香ばしく焼かれた餅の中に、程よい甘さの粒あんが詰まった伝統の味。", tags: "和菓子 老舗 必食" }
 };

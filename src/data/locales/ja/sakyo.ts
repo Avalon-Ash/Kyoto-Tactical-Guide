@@ -5,7 +5,8 @@ import { SpotLocale } from '../../../types';
  * @ward W_SAKYO — 左京區
  * Key 必須與 src/data/spots/sakyo.ts 的 id 完全一致。
  * 必須與 locales/zh/sakyo.ts 同步新增。
- * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
+ * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
@@ -75,8 +76,8 @@ export const SAKYO_JA: Record<string, SpotLocale> = {
   'SK-063': { name: "貴船神社 (境界の彼方)", desc: "『境界の彼方』の神秘的な舞台。", tags: "ACG 神社" },
   'SK-064': { name: "藤井有隣館", desc: "中国美術の精華を集めた私立美術館。", tags: "穴場" },
   'SK-065': { name: "京都伝統産業ミュージアム", desc: "京都の美の真髄を学べる美の拠点。", tags: "映え" },
-  'W_SAKYO_OKAKITA': { name: "岡北", desc: "平安神宮の隣に位置し、隣の山元麺蔵と並ぶうどんの名店。ふわふわの卵とじうどんは絶品。", tags: "正餐 必吃 老舖 烏龍" },
-  'W_SAKYO_MOAN': { name: "茂庵", desc: "吉田山の山頂に佇む木造のカフェ。かつては茶人・谷川茂次郎の茶室群で、京都市街を一望できる隠れ家。", tags: "抹茶 喫茶 隱密 打卡" },
-  'W_SAKYO_YAMAMOTO_MENZOU': { name: "山元麺蔵", desc: "京都屈指の人気を誇るうどん店。コシの強い麺と揚げたての土ゴボウ天ぷらは外せない看板メニュー。", tags: "正餐 必吃 烏龍" },
-  'W_SAKYO_RAKUCHU_RAKUGAI': { name: "洛中洛外", desc: "修学院離宮の入口近くにある蕎麦席。洗練された冷やし蕎麦や天ぷらを、静かな環境で堪能できる。", tags: "正餐 隱密 蕎麥" }
+  'W_SAKYO_OKAKITA': { name: "岡北", desc: "平安神宮の隣に位置し、隣の山元麺蔵と並ぶうどんの名店。ふわふわの卵とじうどんは絶品。", tags: "食事 必食 老舗 うどん" },
+  'W_SAKYO_MOAN': { name: "茂庵", desc: "吉田山の山頂に佇む木造のカフェ。かつては茶人・谷川茂次郎の茶室群で、京都市街を一望できる隠れ家。", tags: "抹茶 喫茶 穴場 映え" },
+  'W_SAKYO_YAMAMOTO_MENZOU': { name: "山元麺蔵", desc: "京都屈指の人気を誇るうどん店。コシの強い麺と揚げたての土ゴボウ天ぷらは外せない看板メニュー。", tags: "食事 必食 うどん" },
+  'W_SAKYO_RAKUCHU_RAKUGAI': { name: "洛中洛外", desc: "修学院離宮の入口近くにある蕎麦席。洗練された冷やし蕎麦や天ぷらを、静かな環境で堪能できる。", tags: "食事 穴場 そば" }
 };
