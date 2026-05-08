@@ -10,7 +10,7 @@ const ALL_WARD_KEYS: WardKey[] = [
 
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
-  const [mode, setMode] = useState<'ward' | 'area'>('ward');
+  const [mode, setMode] = useState<'ward' | 'area' | 'tag'>('ward');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string>('T_ALL');
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -89,7 +89,7 @@ export function useKyotoEngine() {
 
   const toggleLang = () => setLang(prev => (prev === 'zh' ? 'ja' : 'zh'));
 
-  const switchMode = (newMode: 'ward' | 'area') => {
+  const switchMode = (newMode: 'ward' | 'area' | 'tag') => {
     setActiveId(null);
     setActiveType('T_ALL');
     setActiveTag(null);

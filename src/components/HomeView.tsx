@@ -2,9 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
-import { PINNED_GLOBAL_TAGS } from '../data/tags';
+import { TAG_REGISTRY } from '../data/tags';
 import { MapCanvas } from './MapCanvas';
-import { TagSelector } from './TagSelector';
 import { SpotCard } from './SpotCard';
 
 interface HomeViewProps {
@@ -56,16 +55,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
         </button>
       </header>
 
-      <section className="bg-[#050505] border-b border-gold/10 z-20">
-        <TagSelector 
-          tags={PINNED_GLOBAL_TAGS} 
-          activeTag={activeTag} 
-          onSelect={setActiveTag} 
-          lang={lang} 
-          variant="global"
-        />
-      </section>
-
       <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
         <button 
            onClick={() => engine.switchMode('ward')}
@@ -78,6 +67,15 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
            {t('tab_area')}
+        </button>
+        <button
+          onClick={() => engine.switchMode('tag')}
+          className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold
+            ${mode === 'tag'
+              ? 'text-gold-light border-shuiro bg-shuiro/5'
+              : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
+        >
+          {lang === 'zh' ? '御秘帖' : '御秘帖'}
         </button>
       </nav>
 
@@ -106,6 +104,71 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
                 </div>
               ))}
             </div>
+          </div>
+        ) : mode === 'tag' ? (
+          <div className="py-4 sm:py-8 px-4 sm:px-8 flex flex-col gap-6">
+            {/* 頁面副題 */}
+            <div className="flex flex-col items-center gap-2 pt-2 pb-4 border-b border-gold/10">
+              <p className="font-serif text-[clamp(0.7rem,1.2vw,0.8rem)] text-gold-light/30
+                            tracking-[0.5em] uppercase">
+                {lang === 'zh' ? '以風物筆記索驥全洛' : '洛中洛外・風物索引'}
+              </p>
+            </div>
+
+            {/* 各 group 分組渲染 */}
+            {(['food', 'misc', 'culture', 'nature', 'transport', 'acg'] as const).map(group => {
+              const groupTags = Object.values(TAG_REGISTRY).filter(t => t.group === group);
+              if (groupTags.length === 0) return null;
+
+              const groupLabel: Record<string, string> = {
+                food:      lang === 'zh' ? '口福・食處' : '食・口福',
+                misc:      lang === 'zh' ? '旅行特質' : '旅の性格',
+                culture:   lang === 'zh' ? '文化・信仰' : '文化・信仰',
+                nature:    lang === 'zh' ? '自然・風景' : '自然・風景',
+                transport: lang === 'zh' ? '交通要道' : '交通',
+                acg:       lang === 'zh' ? '次文化' : 'ACG',
+              };
+
+              return (
+                <div key={group} className="flex flex-col gap-3">
+                  {/* Group 標題 */}
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 sm:w-8 h-[1px] bg-gold/20" />
+                    <h3 className="font-serif text-[clamp(0.7rem,1.2vw,0.85rem)]
+                                   text-gold-light/40 tracking-[0.4em] uppercase font-bold">
+                      {groupLabel[group]}
+                    </h3>
+                    <span className="flex-1 h-[1px] bg-gold/10" />
+                  </div>
+
+                  {/* Tag chips 網格 */}
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
+                    {groupTags.map(tagMeta => {
+                      const isActive = activeTag === tagMeta.id;
+                      return (
+                        <button
+                          key={tagMeta.id}
+                          onClick={() => {
+                            setActiveTag(isActive ? null : tagMeta.id);
+                          }}
+                          className={`maki-e-tag min-h-[48px] px-4 sm:px-5 py-2 font-serif
+                                      text-[clamp(0.8rem,1.4vw,0.95rem)] tracking-[0.2em]
+                                      flex items-center gap-2 transition-all
+                                      ${isActive
+                                        ? 'active border-gold/70 bg-shuiro/80 text-white'
+                                        : ''}`}
+                        >
+                          {tagMeta.emoji && (
+                            <span className="text-base leading-none">{tagMeta.emoji}</span>
+                          )}
+                          {lang === 'zh' ? tagMeta.label.zh : tagMeta.label.ja}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="py-2">

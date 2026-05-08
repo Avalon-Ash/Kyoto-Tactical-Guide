@@ -45,6 +45,12 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '自然':  { id: '自然',  label: { zh: '自然',  ja: '自然'   }, group: 'nature', emoji: '🌿' },
   // --- acg group ---
   'ACG':   { id: 'ACG',   label: { zh: 'ACG',  ja: 'ACG'    }, group: 'acg', emoji: '🎮' },
+  // --- added missing ---
+  '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歴史'   }, group: 'culture', emoji: '📜' },
+  '購物':   { id: '購物',   label: { zh: '購物', ja: '買い物' }, group: 'misc', emoji: '🛍️' },
+  '展望':   { id: '展望',   label: { zh: '展望', ja: '展望'   }, group: 'nature', emoji: '🔭' },
+  '現代':   { id: '現代',   label: { zh: '現代', ja: '現代'   }, group: 'misc',   emoji: '🏢' },
+  '美食':   { id: '美食',   label: { zh: '美食', ja: 'グルメ' }, group: 'food',   emoji: '😋' },
 };
 
 // HomeView 首頁展示的固定置頂標籤（全域標籤門戶用）

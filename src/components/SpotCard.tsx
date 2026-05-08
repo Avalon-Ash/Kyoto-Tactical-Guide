@@ -104,11 +104,23 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
         <span className="text-[clamp(0.6rem,0.9vw,0.85rem)] px-[clamp(0.5rem,1.2vw,1.5rem)] py-[clamp(0.25rem,0.6vw,0.8rem)] bg-shuiro/20 text-[#fff] font-serif font-bold border border-shuiro/30 shadow-inner">
           {typeName}
         </span>
-        {tags.map((tag, i) => (
-          <span key={i} className="text-[clamp(0.55rem,0.8vw,0.8rem)] px-[clamp(0.5rem,1vw,1rem)] py-[clamp(0.2rem,0.5vw,0.6rem)] bg-white/5 text-[#f0ead6]/40 font-serif border border-white/5 tracking-wider">
-            #{tag.trim()}
-          </span>
-        ))}
+        {spot.tagIds && spot.tagIds.length > 0 ? (
+          spot.tagIds.map((tid) => {
+            const tagMeta = TAG_REGISTRY[tid];
+            if (!tagMeta) return null;
+            return (
+              <span key={tid} className="text-[clamp(0.55rem,0.8vw,0.8rem)] px-[clamp(0.5rem,1vw,1rem)] py-[clamp(0.2rem,0.5vw,0.6rem)] bg-white/5 text-[#f0ead6]/40 font-serif border border-white/5 tracking-wider">
+                #{lang === 'zh' ? tagMeta.label.zh : tagMeta.label.ja}
+              </span>
+            );
+          })
+        ) : (
+          tags.map((tag, i) => (
+            <span key={i} className="text-[clamp(0.55rem,0.8vw,0.8rem)] px-[clamp(0.5rem,1vw,1rem)] py-[clamp(0.2rem,0.5vw,0.6rem)] bg-white/5 text-[#f0ead6]/40 font-serif border border-white/5 tracking-wider">
+              #{tag.trim()}
+            </span>
+          ))
+        )}
       </div>
       
       {!readOnly && (
