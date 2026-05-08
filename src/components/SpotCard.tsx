@@ -22,8 +22,16 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
 
-  const query = spot.mapQuery || name;
-  const mapSearchQuery = query.includes('京都') ? query : `${query} 京都`;
+  const baseQuery = spot.mapQuery || name;
+  // Remove redundant city/ward names if already present (suffix or prefix)
+  const cleanedQuery = baseQuery
+    .replace(/^京都府\s*京都市\s*/, '')
+    .replace(/^京都市\s*/, '')
+    .replace(new RegExp(`^${WARD_NAMES[spot.wardId].ja}\\s*`), '')
+    .replace(new RegExp(`\\s*${WARD_NAMES[spot.wardId].ja}$`), '')
+    .replace(/\s*京都$/, '');
+
+  const mapSearchQuery = `京都府 京都市 ${WARD_NAMES[spot.wardId].ja} ${cleanedQuery}`;
 
   return (
     <motion.div 

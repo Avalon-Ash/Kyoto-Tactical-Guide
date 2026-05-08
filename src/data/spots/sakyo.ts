@@ -1,7 +1,7 @@
 import { SpotSchema } from '../../types';
 
 export const SAKYO_SCHEMA: SpotSchema[] = [
-  { id: 'SK-001', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "出町柳駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SK-001', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "京阪電車 出町柳駅", typeColorClass: "border-[#7aa5d4]" },
   { id: 'SK-002', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "下鴨神社", typeColorClass: "border-[#c47070]" },
   { id: 'SK-003', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "鴨川三角洲", typeColorClass: "border-[#7ab89a]" },
   { id: 'SK-004', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "南禪寺", typeColorClass: "border-[#c47070]" },
@@ -15,8 +15,8 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-012', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: "鞍馬寺", typeColorClass: "border-[#c47070]" },
   { id: 'SK-013', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "三千院", typeColorClass: "border-[#c47070]" },
   { id: 'SK-014', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "瑠璃光院", typeColorClass: "border-[#c47070]" },
-  { id: 'SK-015', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "叡山電鐵 出町柳駅", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'SK-016', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "蹴上駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SK-015', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "叡山電車 出町柳駅", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'SK-016', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 蹴上駅", typeColorClass: "border-[#7aa5d4]" },
   { id: 'SK-018', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "河合神社", typeColorClass: "border-[#c47070]" },
   { id: 'SK-019', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "真如堂", typeColorClass: "border-[#c47070]" },
   { id: 'SK-020', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "金戒光明寺", typeColorClass: "border-[#c47070]" },
@@ -41,11 +41,11 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-039', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "比叡山 延曆寺", typeColorClass: "border-[#c47070]" },
   { id: 'SK-040', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "叡山索道 ケーブル八瀬駅", typeColorClass: "border-[#7aa5d4]" },
   { id: 'SK-041', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "比叡山內巴士 延曆寺巴士站", typeColorClass: "border-[#7aa5d4]" },
-  { id: 'SK-042', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "蓮華寺 左京區", typeColorClass: "border-[#c47070]" },
+  { id: 'SK-042', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "蓮華寺", typeColorClass: "border-[#c47070]" },
   { id: 'SK-043', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "崇道神社", typeColorClass: "border-[#c47070]" },
   { id: 'SK-044', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "三宅八幡宮", typeColorClass: "border-[#c47070]" },
   { id: 'SK-045', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "妙滿寺", typeColorClass: "border-[#c47070]" },
-  { id: 'SK-046', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "圓通寺 京都", typeColorClass: "border-[#c47070]" },
+  { id: 'SK-046', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "圓通寺", typeColorClass: "border-[#c47070]" },
   { id: 'SK-047', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市動物園", typeColorClass: "border-[#d4a74a]" },
   { id: 'SK-048', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "無鄰菴", typeColorClass: "border-[#c47070]" },
   { id: 'SK-049', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: "泉屋博古館", typeColorClass: "border-[#d4a74a]" },
@@ -56,5 +56,13 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-054', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "寶池公園", typeColorClass: "border-[#7ab89a]" },
   { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "國立京都國際會館", typeColorClass: "border-[#6aab82]" },
   { id: 'SK-056', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "瓢亭 本店", typeColorClass: "border-[#e67e22]" },
-  { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋総本店", typeColorClass: "border-[#e67e22]" }
+  { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋総本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SK-058', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市京セラ美術館", typeColorClass: "border-[#6aab82]" },
+  { id: 'SK-059', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_ACG', mapQuery: "叡山電車 きらら", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SK-060', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "下鴨神社 糺之森 有頂天家族", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SK-061', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "鴨川三角洲 けいおん", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SK-062', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_ACG', mapQuery: "鞍馬寺 有頂天家族", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SK-063', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_ACG', mapQuery: "貴船神社 境界の彼方", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SK-064', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "藤井有鄰館", typeColorClass: "border-[#6aab82]" },
+  { id: 'SK-065', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都傳統産業ミュージアム", typeColorClass: "border-[#6aab82]" }
 ];
