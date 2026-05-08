@@ -90,20 +90,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             
             <MapCanvas onOpen={openDetail} stats={getWardStats()} t={t} />
             
-            <div className="flex flex-wrap justify-center gap-4 text-[0.7rem] text-gold-light/40 pt-6 font-serif uppercase tracking-[0.3em] font-medium">
-              {Object.keys(TYPES).filter(k => k !== 'T_ALL').map(k => (
-                <div key={k} className="flex items-center gap-2">
-                  <span 
-                    className="inline-block w-3 h-3 border border-current/30"
-                    style={{ 
-                      backgroundColor: TYPES[k].color,
-                      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.3)' 
-                    }}
-                  />
-                  <span>{t(k, TYPE_NAMES)}</span>
-                </div>
-              ))}
-            </div>
+
           </div>
         ) : mode === 'tag' ? (
           <div className="py-4 sm:py-8 px-4 sm:px-8 flex flex-col gap-6">
