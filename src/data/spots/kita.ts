@@ -25,7 +25,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-022', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "御薗橋801商店街" },
   { id: 'KT-023', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "新大宮商店街" },
   { id: 'KT-024', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "志明院" },
-  { id: 'KT-025', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "西方寺 京都北区" },
+  { id: 'KT-025', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "神光院 京都" },
   { id: 'KT-026', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "平野神社 夜櫻" },
   { id: 'KT-027', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "船岡温泉" },
   { id: 'KT-028', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "さらさ西陣" },
