@@ -13,7 +13,7 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount }) => {
-  const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading } = engine;
+  const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading, tagCounts } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
   const overlayScrollRef = useRef<HTMLDivElement>(null);
 
@@ -58,24 +58,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
       <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
         <button 
            onClick={() => engine.switchMode('ward')}
-           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
+           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-           {t('tab_ward')}
+           <span className="whitespace-nowrap">{lang === 'zh' ? '洛中洛外' : '洛中洛外'}</span>
         </button>
         <button 
            onClick={() => engine.switchMode('area')}
-           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
+           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-           {t('tab_area')}
+           <span className="whitespace-nowrap">{lang === 'zh' ? '名所目録' : '名所目録'}</span>
         </button>
         <button
           onClick={() => engine.switchMode('tag')}
-          className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold
+          className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap
             ${mode === 'tag'
               ? 'text-gold-light border-shuiro bg-shuiro/5'
               : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-          {lang === 'zh' ? '御秘帖' : '御秘帖'}
+          <span className="whitespace-nowrap">御秘帖</span>
         </button>
       </nav>
 
@@ -161,7 +161,20 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
                           {tagMeta.emoji && (
                             <span className="text-base leading-none">{tagMeta.emoji}</span>
                           )}
-                          {lang === 'zh' ? tagMeta.label.zh : tagMeta.label.ja}
+                          <span className="flex-1">{lang === 'zh' ? tagMeta.label.zh : tagMeta.label.ja}</span>
+
+                          {/* 數量 badge */}
+                          {tagCounts[tagMeta.id] != null && tagCounts[tagMeta.id] > 0 && (
+                            <span className={`
+                              text-[0.6rem] leading-none px-1.5 py-0.5 rounded-full font-bold
+                              min-w-[1.4rem] text-center tabular-nums
+                              ${isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-gold/10 text-gold-light/40'}
+                            `}>
+                              {tagCounts[tagMeta.id]}
+                            </span>
+                          )}
                         </button>
                       );
                     })}

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
 import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
+import { loadAllSchemasSync } from '../data/spots-loader';
 import { TYPES } from '../data/types';
 
 const ALL_WARD_KEYS: WardKey[] = [
@@ -167,6 +168,17 @@ export function useKyotoEngine() {
     return Array.from(tagSet);
   }, [loadedSpots, activeId, mode]);
 
+  const tagCounts = useMemo<Record<string, number>>(() => {
+    const allSchemas = loadAllSchemasSync();
+    const counts: Record<string, number> = {};
+    allSchemas.forEach(s => {
+      s.tagIds?.forEach(tid => {
+        counts[tid] = (counts[tid] ?? 0) + 1;
+      });
+    });
+    return counts;
+  }, []);
+
   const clearTag = () => setActiveTag(null);
 
   const openDetail = (id: string, viewMode: 'ward' | 'area') => {
@@ -200,5 +212,6 @@ export function useKyotoEngine() {
     clearTag,
     isGlobalLoading,
     localTags,
+    tagCounts,
   };
 }
