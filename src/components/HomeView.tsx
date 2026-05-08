@@ -17,39 +17,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
   const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
   const overlayScrollRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startY = useRef(0);
-  const scrollTopStart = useRef(0);
-
-  const onMouseDown = (ref: React.RefObject<HTMLDivElement>) => (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    isDragging.current = true;
-    startY.current = e.pageY;
-    scrollTopStart.current = ref.current.scrollTop;
-    
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDragging.current || !ref.current) return;
-      const dy = moveEvent.pageY - startY.current;
-      if (Math.abs(dy) > 5) {
-        ref.current.scrollTop = scrollTopStart.current - dy;
-        ref.current.style.userSelect = 'none';
-        ref.current.style.cursor = 'grabbing';
-      }
-    };
-
-    const onMouseUp = () => {
-      isDragging.current = false;
-      if (ref.current) {
-        ref.current.style.userSelect = '';
-        ref.current.style.cursor = '';
-      }
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
 
   // Auto scroll to top when switching modes (Ward/Area)
   useEffect(() => {
@@ -116,9 +83,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
 
       <div 
         ref={scrollRef} 
-        onMouseDown={onMouseDown(scrollRef)}
         style={{ touchAction: 'pan-y' }}
-        className="flex-1 overflow-y-auto no-scrollbar active:cursor-grabbing"
+        className="flex-1 overflow-y-auto no-scrollbar"
       >
         {mode === 'ward' ? (
           <div className="p-4 sm:p-12 flex flex-col items-center gap-4 sm:gap-10 pb-12">
@@ -169,16 +135,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ touchAction: 'pan-y' }}
+            style={{ touchAction: 'pan-y', backgroundColor: '#0d0a07' }}
             className="fixed inset-0 z-50 flex flex-col"
           >
-            <div 
-              className="absolute inset-0 urushi-panel -z-10 pointer-events-none" 
-              style={{ backgroundColor: '#0d0a07', opacity: 0.97 }}
-            />
-            
             {/* Header */}
-            <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
+            <div className="bg-[#0d0a07] border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0 z-10">
               <div className="flex items-center gap-3">
                 <span className="text-shuiro font-bold font-serif">●</span>
                 <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
@@ -199,8 +160,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             {/* Scroll Body */}
             <div
               ref={overlayScrollRef}
-              onMouseDown={onMouseDown(overlayScrollRef)}
-              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-[#0d0a07]/95"
+              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-transparent"
               style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
             >
               {isGlobalLoading ? (
