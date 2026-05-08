@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { FlatSpot, Lang } from '../types';
 import { WARD_NAMES, AREA_NAMES, TYPE_NAMES, TYPES } from '../data/index';
+import { TAG_REGISTRY } from '../data/tags';
 
 interface SpotCardProps {
   key?: number | string;
@@ -8,11 +9,12 @@ interface SpotCardProps {
   lang: Lang;
   t: (key: string, dict?: any) => string;
   readOnly?: boolean;
+  activeTag?: string | null;
 }
 
 const STATIC_NOISE = ['京都府', '京都市'];
 
-export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
+export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCardProps) {
   const typeId = spot.typeId;
   const typeName = t(typeId, TYPE_NAMES);
   const name = spot.name;
@@ -25,6 +27,21 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
   const typeEmoji = TYPES[typeId]?.emoji;
+
+  // 優先顯示 activeTag 的 emoji（語義更精確）
+  const tagEmoji = activeTag
+    ? TAG_REGISTRY[activeTag]?.emoji
+    : undefined;
+
+  // 次選：spot 自身第一個有 emoji 的 tagId
+  const spotFirstTagEmoji = !tagEmoji
+    ? spot.tagIds
+        ?.map(tid => TAG_REGISTRY[tid]?.emoji)
+        .find(Boolean)
+    : undefined;
+
+  // 最終顯示：tag > spot 首tag > typeEmoji
+  const displayEmoji = tagEmoji ?? spotFirstTagEmoji ?? typeEmoji;
 
   const wardJa = WARD_NAMES[spot.wardId].ja;
   const wardZh = WARD_NAMES[spot.wardId].zh;
@@ -67,31 +84,6 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
       style={{ touchAction: 'pan-y' }}
       className="urushi-card p-[clamp(1rem,2.5vw,2.5rem)] flex flex-col gap-[clamp(1rem,2vw,2rem)] shadow-2xl relative group border-t border-gold/30"
     >
-      {/* Type Seal / Hanko */}
-      <div 
-        className="absolute top-3 right-3 w-9 h-9 border border-white/20 flex items-center justify-center shadow-lg z-20 group-hover:scale-110 transition-transform"
-        style={{ 
-          backgroundColor: typeColor,
-          transform: 'rotate(-3deg)',
-          boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3), 2px 2px 5px rgba(0,0,0,0.5)'
-        }}
-      >
-        {typeEmoji ? (
-          <span
-            className="text-base leading-none select-none"
-            role="img"
-            aria-label={typeName}
-            style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))' }}
-          >
-            {typeEmoji}
-          </span>
-        ) : (
-          <span className="text-white font-serif font-black text-sm leading-none flex items-center justify-center">
-            {typeFirstChar}
-          </span>
-        )}
-      </div>
-
       <div className="flex flex-col gap-[clamp(0.25rem,0.8vw,0.8rem)] relative z-10">
         <div className="flex items-center gap-[clamp(0.5rem,1.2vw,1.2rem)] min-w-0">
           <span className="w-[clamp(0.2rem,0.4vw,0.4rem)] h-[clamp(1.5rem,3vw,3.5rem)] shrink-0" style={{ backgroundColor: typeColor, boxShadow: `0 0 15px ${typeColor}60` }}></span>
@@ -120,30 +112,60 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
       </div>
       
       {!readOnly && (
-        <a 
-          href={googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => {
-            // Force use Search API with window.open to ensure correct cross-platform behavior
-            e.preventDefault();
-            window.open(googleMapsUrl, '_blank');
-          }}
-          style={{
-            background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
-            border: '1px solid rgba(200,160,74,0.4)',
-            boxShadow: `
-              inset 0 1px 0 rgba(255,240,180,0.10),
-              inset 0 -1px 0 rgba(0,0,0,0.7),
-              inset 1px 0 0 rgba(200,160,74,0.06),
-              0 3px 12px rgba(0,0,0,0.7)
-            `
-          }}
-          className="nikuai-btn block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all relative z-10 shadow-xl overflow-hidden active:scale-95"
-        >
-          <span className="relative z-10">{t('btn_map')}</span>
-          <div className="absolute inset-0 bg-gold/5 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-        </a>
+        <div className="relative inline-block w-full">
+          <a 
+            href={googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              // Force use Search API with window.open to ensure correct cross-platform behavior
+              e.preventDefault();
+              window.open(googleMapsUrl, '_blank');
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
+              border: '1px solid rgba(200,160,74,0.4)',
+              boxShadow: `
+                inset 0 1px 0 rgba(255,240,180,0.10),
+                inset 0 -1px 0 rgba(0,0,0,0.7),
+                inset 1px 0 0 rgba(200,160,74,0.06),
+                0 3px 12px rgba(0,0,0,0.7)
+              `
+            }}
+            className="nikuai-btn block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all relative z-10 shadow-xl overflow-hidden active:scale-95"
+          >
+            <span className="relative z-10">{t('btn_map')}</span>
+            <div className="absolute inset-0 bg-gold/5 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+          </a>
+
+          {/* 印章移到這裡，壓在按鈕右上角出血 */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-0.75rem',
+              right: '-0.75rem',
+              width: '2.25rem',
+              height: '2.25rem',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.1rem',
+              lineHeight: 1,
+              transform: 'rotate(-6deg)',
+              background: 'rgba(10,8,5,0.85)',
+              border: '1px solid rgba(230,194,122,0.35)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(230,194,122,0.08)',
+              zIndex: 20,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+            role="img"
+            aria-label={typeName}
+          >
+            {displayEmoji}
+          </div>
+        </div>
       )}
     </motion.div>
   );

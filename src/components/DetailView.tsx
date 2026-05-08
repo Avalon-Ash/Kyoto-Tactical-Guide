@@ -173,7 +173,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
             {filteredSpots.length > 0 ? (
               filteredSpots.map((spot, i) => (
                 <div key={spot.id + i} className="relative">
-                  <SpotCard spot={spot} lang={lang} t={t} />
+                  <SpotCard spot={spot} lang={lang} t={t} activeTag={activeTag} />
                 </div>
               ))
             ) : (
