@@ -9,6 +9,8 @@ interface SpotCardProps {
   t: (key: string, dict?: any) => string;
 }
 
+const STATIC_NOISE = ['京都府', '京都市'];
+
 export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeId = spot.typeId;
   const typeName = t(typeId, TYPE_NAMES);
@@ -27,20 +29,18 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
 
   // 1. 清理 mapQuery 中所有冗餘地理前綴
   //    移除：京都府、京都市、行政區名（ja/zh）、多餘空白
-  const NOISE_PATTERNS = [
-    '京都府', '京都市',
-    wardJa, wardZh,
-    // 高頻跨區地名（出現在 mapQuery 但本身就是完整識別詞）
-    '京都', // 最後清除，避免誤刪前面規則保留的字
-  ];
+  const NOISE_PATTERNS = [...STATIC_NOISE, wardJa, wardZh];
   const cleanQuery = NOISE_PATTERNS
     .reduce((q, p) => q.replace(new RegExp(p, 'g'), ''), spot.mapQuery)
+    .replace(/京都(?=\s|$|[^府市御苑駅城大路通院])/g, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
 
   // 2. 判斷是否為「固有名詞型」查詢（已含地點性質，不需前綴強化）
-  //    條件：cleanQuery 超過 4 字元，且含日文字符（漢字/假名）
-  const isProperNoun = cleanQuery.length > 4 && /[\u3040-\u9FFF]/.test(cleanQuery);
+  //    條件：cleanQuery >= 3 字元且含日文，或以常見地名後綴結尾
+  const isProperNoun = 
+    (cleanQuery.length >= 3 && /[\u3040-\u9FFF]/.test(cleanQuery)) ||
+    /[駅寺院社宮堂公園橋通町]$/.test(cleanQuery);
 
   // 3. 組裝最終查詢字串
   //    - 固有名詞型：直接以「京都 + cleanQuery」查詢，不加行政區

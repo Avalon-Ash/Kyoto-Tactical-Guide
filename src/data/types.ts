@@ -1,7 +1,5 @@
 import { I18nText } from '../types';
 
-export const TYPE_KEYS = ['T_ALL', 'T_HUB', 'T_SHOP', 'T_TEMPLE', 'T_MODERN', 'T_NATURE', 'T_ACG', 'T_FOOD'];
-
 export interface SpotTypeMetadata {
   id: string;
   colorClass: string;
@@ -18,8 +16,16 @@ export const TYPES: Record<string, SpotTypeMetadata> = {
   T_MODERN: { id: 'T_MODERN', colorClass: "border-[#6aab82]",     color: "#6aab82", sortOrder: 4, name: { zh: "近代設施", ja: "近代施設" } },
   T_NATURE: { id: 'T_NATURE', colorClass: "border-[#7ab89a]",     color: "#7ab89a", sortOrder: 5, name: { zh: "山水・風雅", ja: "山水・景観" } },
   T_FOOD:   { id: 'T_FOOD',   colorClass: "border-[#e67e22]",     color: "#e67e22", sortOrder: 6, name: { zh: "口福・食處", ja: "口福・食処" } },
-  T_ACG:    { id: 'T_ACG',    colorClass: "border-[#ff7eb6]",     color: "#ff7eb6", sortOrder: 7, name: { zh: "幻夢・繪草子", ja: "幻夢・絵草紙" } }
+  T_ACG:    { id: 'T_ACG',    colorClass: "border-[#ff7eb6]",     color: "#ff7eb6", sortOrder: 7, name: { zh: "幻夢・繪草子", ja: "幻夢・繪草紙" } }
 };
+
+export const TYPE_KEYS = [
+  'T_ALL',
+  ...Object.values(TYPES)
+    .filter(t => t.id !== 'T_ALL')
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(t => t.id)
+];
 
 export const TYPE_NAMES: Record<string, I18nText> = Object.entries(TYPES).reduce((acc, [key, val]) => {
   acc[key] = val.name;
