@@ -57,7 +57,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "國立京都國際會館", tagIds: ['打卡'] },
   { id: 'SK-056', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "瓢亭 本店", tagIds: ['正餐', '世界遺產', '必吃', '懷石'] },
   { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋總本店", tagIds: ['和菓子', '老舖', '必吃'] },
-  { id: 'SK-058', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市京セラ美術館", tagIds: ['打卡'] },
+  { id: 'SK-058', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市京セラ美術館", tagIds: ['打卡', '現代'] },
   { id: 'SK-059', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_ACG', mapQuery: "叡山電車 きらら", tagIds: ['ACG', '地鐵'] },
   { id: 'SK-060', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "下鴨神社 糺之森 有頂天家族", tagIds: ['ACG', '神社'] },
   { id: 'SK-061', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "鴨川三角洲 けいおん", tagIds: ['ACG', '自然'] },

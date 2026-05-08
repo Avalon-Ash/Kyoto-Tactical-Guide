@@ -62,5 +62,6 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'W_KAMIGYO_IPPODO_KAGI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一保堂茶舖 嘉木', tagIds: ['抹茶', '老舖', '隱密', '喫茶'] },
   { id: 'W_KAMIGYO_ORYORI_HAYASHI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '御料理 はやし', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_KAMIGYO_CHOGOROMOCHI', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '長五郎餅本舗 北野天滿宮', tagIds: ['和菓子', '老舖', '打卡'] },
-  { id: 'W_KAMIGYO_FUNAHASHIYA_NIBEI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '船はしや仁兵衛', tagIds: ['喫茶', '老舖', '隱密', '和菓子'] }
+  { id: 'W_KAMIGYO_FUNAHASHIYA_NIBEI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '船はしや仁兵衛', tagIds: ['喫茶', '老舖', '隱密', '和菓子'] },
+  { id: 'KAMIGYO_TEMPURA_YOSHIKAWA', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '天ぷら よしかわ 西陣', tagIds: ['天婦羅', '正餐', '隱密'] }
 ];

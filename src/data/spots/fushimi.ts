@@ -14,12 +14,12 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-011', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "月的桂 增田德兵衛商店", tagIds: ['老舖', '隱密'] },
   { id: 'FS-012', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "寺田屋", tagIds: ['老舖', '打卡'] },
   { id: 'FS-013', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "伏見十石舟", tagIds: ['打卡', '賞花'] },
-  { id: 'FS-014', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "月桂冠大倉紀念館", tagIds: ['老舖', '打卡'] },
-  { id: 'FS-015', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "黄桜カッパカントリー", tagIds: ['打卡', '正餐'] },
+  { id: 'FS-014', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "月桂冠大倉紀念館", tagIds: ['老舖', '打卡', '現代'] },
+  { id: 'FS-015', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "黄桜カッパカントリー", tagIds: ['打卡', '正餐', '現代'] },
   { id: 'FS-016', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "伏見稲荷大社 奥社奉拝所", tagIds: ['神社', '打卡'] },
   { id: 'FS-017', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "伏見稲荷大社 根上がり松", tagIds: ['神社', '隱密'] },
   { id: 'FS-018', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見酒蔵小路", tagIds: ['打卡', '正餐'] },
-  { id: 'FS-019', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "伏見桃山城", tagIds: ['打卡'] },
+  { id: 'FS-019', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "伏見桃山城", tagIds: ['打卡', '現代'] },
   { id: 'FS-020', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "伏見 宇治川派流", tagIds: ['打卡', '賞花'] },
   { id: 'FS-021', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見 竜馬通り", tagIds: ['打卡', '喫茶'] },
   { id: 'FS-022', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見 納屋町商店街", tagIds: ['打卡'] },
@@ -49,9 +49,10 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-046', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "禰ざめや", tagIds: ['正餐', '老舖', '必吃', '壽司'] },
   { id: 'FS-047', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "大黑拉麵", tagIds: ['正餐', '必吃', '拉麵'] },
   { id: 'FS-048', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伏見 駿河屋", tagIds: ['和菓子', '老舖'] },
-  { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", tagIds: ['打卡'] },
+  { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", tagIds: ['打卡', '現代'] },
   { id: 'FS-050', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 JR伏見稻荷店", tagIds: ['抹茶', '和菓子', '必吃', '打卡'] },
   { id: 'W_FUSHIMI_NAKAMURA_TOKICHI_STATION', wardId: 'W_FUSHIMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '中村藤吉 京都站店', tagIds: ['和菓子', '抹茶', '必吃', '打卡'] },
   { id: 'W_FUSHIMI_UOSABURO', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '魚三楼 伏見', tagIds: ['正餐', '懷石', '老舖'] },
-  { id: 'W_FUSHIMI_GEKKEIKAN_SAKAGURA_CHAYA', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '月桂冠 酒藏茶屋', tagIds: ['和菓子', '老舖', '隱密'] }
+  { id: 'W_FUSHIMI_GEKKEIKAN_SAKAGURA_CHAYA', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '月桂冠 酒藏茶屋', tagIds: ['和菓子', '老舖', '隱密'] },
+  { id: 'FUSHIMI_TEMPURA_INARIMON', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '稲荷茶屋 天ぷらそば', tagIds: ['天婦羅', '打卡', '必吃'] }
 ];

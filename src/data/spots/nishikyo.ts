@@ -39,7 +39,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-040', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "勝持寺 櫻花", tagIds: ['賞花', '打卡'] },
   { id: 'NK-041', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "大原野神社 參道", tagIds: ['神社', '賞楓', '打卡'] },
   { id: 'NK-042', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "京都 桂溫泉", tagIds: ['溫泉', '打卡'] },
-  { id: 'NK-043', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都市立藝術大學", tagIds: ['打卡'] },
+  { id: 'NK-043', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都市立藝術大學", tagIds: ['打卡', '現代'] },
   { id: 'NK-044', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "嵐山 展望路 (西京側)", tagIds: ['展望', '打卡'] },
   { id: 'NK-045', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西京 庚申堂", tagIds: ['神社', '歷史'] },
   { id: 'NK-046', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "中村軒", tagIds: ['和菓子', '老舖', '必吃'] },
@@ -54,9 +54,10 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-055', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "喫茶 ヤマモト", tagIds: ['喫茶', '必吃'] },
   { id: 'NK-056', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "大原野 十二屋", tagIds: ['正餐', '必吃'] },
   { id: 'NK-057', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "柿本 豆富店", tagIds: ['正餐', '必吃', '豆腐'] },
-  { id: 'NK-058', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都大學 桂校區", tagIds: ['打卡'] },
+  { id: 'NK-058', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都大學 桂校區", tagIds: ['打卡', '現代'] },
   { id: 'W_NISHIKYO_TSUTA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '松尾 桂離宮前 懷石 蔦', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_NISHIKYO_SHIOGAMA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '洛西 塩竈の杜', tagIds: ['正餐', '隱密', '豆腐'] },
   { id: 'W_NISHIKYO_YAMADAYA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '柚餅子 山田屋', tagIds: ['和菓子', '老舖'] },
-  { id: 'W_NISHIKYO_SMART_COFFEE', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'スマート珈琲 西京店', tagIds: ['喫茶', '老舖'] }
+  { id: 'W_NISHIKYO_SMART_COFFEE', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'スマート珈琲 西京店', tagIds: ['喫茶', '老舖'] },
+  { id: 'NISHIKYO_PASS_THE_BATON', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: 'アミティエ 嵐山 カフェ', tagIds: ['現代', '打卡', '甜點'] }
 ];

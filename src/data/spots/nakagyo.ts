@@ -63,5 +63,7 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-061', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "前田珈琲 明倫店", tagIds: ['喫茶', '打卡'] },
   { id: 'W_NAKAGYO_NISHIKI_NISHIKAWA', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '錦・西川 錦市場', tagIds: ['老舖', '必吃'] },
   { id: 'W_NAKAGYO_TAKAGI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '割烹 たか木', tagIds: ['正餐', '懷石', '隱密'] },
-  { id: 'W_NAKAGYO_KIKUNOI_KIYAMACHI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '菊乃井 木屋町店', tagIds: ['正餐', '懷石', '必吃'] }
+  { id: 'W_NAKAGYO_KIKUNOI_KIYAMACHI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '菊乃井 木屋町店', tagIds: ['正餐', '懷石', '必吃'] },
+  { id: 'NAKAGYO_TEMPURA_TAIAN', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '天ぷら 大安 錦', tagIds: ['天婦羅', '正餐', '必吃'] },
+  { id: 'NAKAGYO_SHINPUHKAN', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: '新風館 京都', tagIds: ['現代', '購物', '打卡'] }
 ];
