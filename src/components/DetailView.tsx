@@ -18,6 +18,10 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   } = engine;
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const scrollTopStart = useRef(0);
+  const hasMoved = useRef(false);
 
   // Auto scroll to top when changing type filters or active tag
   React.useEffect(() => {
@@ -25,6 +29,40 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
       scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
   }, [activeType, activeId, activeTag]);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    isDragging.current = true;
+    hasMoved.current = false;
+    startY.current = e.pageY;
+    scrollTopStart.current = scrollRef.current.scrollTop;
+    
+    // Add temporary listeners to window for smoother dragging outside container
+    window.addEventListener('mousemove', onGlobalMouseMove);
+    window.addEventListener('mouseup', onGlobalMouseUp);
+  };
+
+  const onGlobalMouseMove = (e: MouseEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    
+    const dy = e.pageY - startY.current;
+    if (Math.abs(dy) > 5) {
+      hasMoved.current = true;
+      scrollRef.current.scrollTop = scrollTopStart.current - dy;
+      scrollRef.current.style.userSelect = 'none';
+      scrollRef.current.style.cursor = 'grabbing';
+    }
+  };
+
+  const onGlobalMouseUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.userSelect = '';
+      scrollRef.current.style.cursor = '';
+    }
+    window.removeEventListener('mousemove', onGlobalMouseMove);
+    window.removeEventListener('mouseup', onGlobalMouseUp);
+  };
 
   const responsiveScale = Math.max(1, width / 1200);
   const clampSize = (min: number, max: number) => Math.min(Math.max(width / 40, min), max);
@@ -124,7 +162,9 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
       {/* Scrollable Content */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+        onMouseDown={onMouseDown}
+        style={{ touchAction: 'pan-y' }}
+        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] active:cursor-grabbing"
       >
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 animate-pulse">

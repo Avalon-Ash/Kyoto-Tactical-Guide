@@ -16,6 +16,40 @@ interface HomeViewProps {
 export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount }) => {
   const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
+  const overlayScrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const scrollTopStart = useRef(0);
+
+  const onMouseDown = (ref: React.RefObject<HTMLDivElement>) => (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    isDragging.current = true;
+    startY.current = e.pageY;
+    scrollTopStart.current = ref.current.scrollTop;
+    
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDragging.current || !ref.current) return;
+      const dy = moveEvent.pageY - startY.current;
+      if (Math.abs(dy) > 5) {
+        ref.current.scrollTop = scrollTopStart.current - dy;
+        ref.current.style.userSelect = 'none';
+        ref.current.style.cursor = 'grabbing';
+      }
+    };
+
+    const onMouseUp = () => {
+      isDragging.current = false;
+      if (ref.current) {
+        ref.current.style.userSelect = '';
+        ref.current.style.cursor = '';
+      }
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 
   // Auto scroll to top when switching modes (Ward/Area)
   useEffect(() => {
@@ -80,7 +114,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
         </button>
       </nav>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar">
+      <div 
+        ref={scrollRef} 
+        onMouseDown={onMouseDown(scrollRef)}
+        style={{ touchAction: 'pan-y' }}
+        className="flex-1 overflow-y-auto no-scrollbar active:cursor-grabbing"
+      >
         {mode === 'ward' ? (
           <div className="p-4 sm:p-12 flex flex-col items-center gap-4 sm:gap-10 pb-12">
             <div className="font-serif text-[clamp(0.75rem,2vw,1rem)] text-gold-light tracking-[0.2em] opacity-40 uppercase">{t('map_hint')}</div>
@@ -150,7 +189,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-black/60">
+            <div 
+              ref={overlayScrollRef}
+              onMouseDown={onMouseDown(overlayScrollRef)}
+              style={{ touchAction: 'pan-y' }}
+              className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-black/60 active:cursor-grabbing"
+            >
               {isGlobalLoading ? (
                 <div className="h-full flex items-center justify-center">
                   <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
