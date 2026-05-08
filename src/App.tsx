@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
-import { WARD_STATS } from './data/index';
+import { getWardStats } from './data/index';
 import { useWindowSize } from './hooks/useWindowSize';
 import { HomeView } from './components/HomeView';
 import { DetailView } from './components/DetailView';
@@ -12,7 +12,7 @@ export default function App() {
   const { width } = useWindowSize();
 
   // 使用全域統計快取來加速
-  const totalCount = useMemo(() => Object.values(WARD_STATS).reduce((a, b) => a + b, 0), []);
+  const totalCount = useMemo(() => Object.values(getWardStats()).reduce((a, b) => a + b, 0), []);
 
   return (
     <div className="flex justify-center h-full bg-[#050505]">

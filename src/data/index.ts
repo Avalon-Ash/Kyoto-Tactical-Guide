@@ -9,8 +9,18 @@ import { TYPES, TYPE_NAMES } from './types';
 /**
  * 動態計算統計資訊 (基於 Schema)
  */
-export const WARD_STATS = computeWardStats();
-export const AREA_STATS = computeAreaStats();
+let _wardStats: Record<string, number> | null = null;
+let _areaStats: Record<string, number> | null = null;
+
+export function getWardStats(): Record<string, number> {
+  if (!_wardStats) _wardStats = computeWardStats();
+  return _wardStats;
+}
+
+export function getAreaStats(): Record<string, number> {
+  if (!_areaStats) _areaStats = computeAreaStats();
+  return _areaStats;
+}
 
 /**
  * 重新導出所有資料與工具

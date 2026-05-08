@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion } from 'motion/react';
 import { Search, ChevronLeft, GripHorizontal, AlertCircle } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
-import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, WARD_STATS, AREA_STATS } from '../data/index';
+import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
 
 interface DetailViewProps {
@@ -82,7 +82,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
                 </div>
               )}
               <div className="text-[clamp(0.75rem,1.1vw,0.7rem)] text-gold-light/30 tracking-[0.4em] uppercase font-bold mt-1">
-                {activeId && (mode === 'ward' ? WARD_STATS[activeId] : AREA_STATS[activeId])} {t('unit_spot')}
+                {activeId && (mode === 'ward' ? getWardStats()[activeId] : getAreaStats()[activeId])} {t('unit_spot')}
               </div>
             </div>
           </div>

@@ -13,7 +13,6 @@ export interface SpotSchema {
   areaId: string;
   typeId: string;
   mapQuery: string;
-  typeColorClass: string;
 }
 
 // 單一語系的文字包
@@ -28,5 +27,6 @@ export interface FlatSpot extends SpotSchema {
   name: string;
   desc: string;
   tags: string;
-  jaName: string;
+  /** 僅供地圖外部連結使用的日文名稱，非 ja 語系時由 Assembler 注入 */
+  jaName?: string;
 }

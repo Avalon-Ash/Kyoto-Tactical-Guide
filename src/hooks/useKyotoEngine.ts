@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
 import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
+import { TYPES } from '../data/types';
 
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
@@ -22,6 +23,7 @@ export function useKyotoEngine() {
   useEffect(() => {
     if (!activeId) {
       setLoadedSpots([]);
+      setIsLoading(false);
       return;
     }
 
@@ -110,7 +112,7 @@ export function useKyotoEngine() {
       );
     }
 
-    const ord: Record<string, number> = { 'T_HUB': 1, 'T_TEMPLE': 2, 'T_SHOP': 3, 'T_MODERN': 4, 'T_NATURE': 5 };
+    const ord = Object.fromEntries(Object.values(TYPES).map(t => [t.id, t.sortOrder]));
     
     result.sort((a, b) => {
       const orderA = ord[a.typeId] || 9;

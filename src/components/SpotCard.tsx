@@ -33,6 +33,7 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
 
   // Construct the precise query string: Kyoto City + Ward Name + Cleaned Query
   const preciseQuery = `京都府京都市${wardJa} ${cleanQuery}`;
+  // 使用標準 Google Maps Search API，並修正模板字串的變數綁定 ($)
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(preciseQuery)}`;
 
   return (

@@ -1,4 +1,7 @@
 import { FlatSpot, SpotSchema, SpotLocale, WardKey, Lang } from '../types';
+import { TYPES } from './types';
+
+const _cache = new Map<string, FlatSpot[]>();
 
 /**
  * 景點資料載入器
@@ -9,6 +12,9 @@ import { FlatSpot, SpotSchema, SpotLocale, WardKey, Lang } from '../types';
  * 根據行政區與語系載入合併後的景點資料
  */
 export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<FlatSpot[]> {
+  const cacheKey = `${wardId}:${lang}`;
+  if (_cache.has(cacheKey)) return _cache.get(cacheKey)!;
+
   const wardFile = wardId.replace('W_', '').toLowerCase();
   const wardKey = wardId.replace('W_', '');
 
@@ -29,26 +35,37 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
     }
 
     // 3. 將 schema + locale 合併為 FlatSpot[]
-    return schemaSpots.map(s => {
+    const flatSpots: FlatSpot[] = schemaSpots.map(s => {
       const locale = locales[s.id];
-      const jaLocale = jaLocales[s.id];
+      const typeMeta = TYPES[s.typeId];
       
+      const jaName = lang === 'ja'
+        ? locale?.name ?? s.id
+        : jaLocales[s.id]?.name ?? locale?.name ?? s.id;
+
+      const base = {
+        ...s,
+        typeColorClass: typeMeta?.colorClass ?? '',
+        jaName
+      };
+
       if (!locale) {
         console.warn(`Missing locale for spot ${s.id} in ${lang}`);
         return { 
-          ...s, 
+          ...base, 
           name: s.id, 
           desc: '', 
           tags: '',
-          jaName: jaLocale?.name || s.id
         };
       }
       return { 
-        ...s, 
+        ...base, 
         ...locale,
-        jaName: jaLocale?.name || locale.name
       };
     });
+
+    _cache.set(cacheKey, flatSpots);
+    return flatSpots;
   } catch (error) {
     console.error(`Failed to load spots for ${wardId} [${lang}]:`, error);
     return [];
