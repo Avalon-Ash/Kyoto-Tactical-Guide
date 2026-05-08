@@ -19,8 +19,8 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-016', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都 伊勢丹", tagIds: ['打卡', '購物'] },
   { id: 'SM-017', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "大丸京都店", tagIds: ['打卡', '購物'] },
   { id: 'SM-018', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "高島屋 京都店", tagIds: ['打卡', '購物'] },
-  { id: 'SM-019', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "龍谷大學 龍谷資料館", tagIds: ['打卡'] },
-  { id: 'SM-020', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都市學校歷史博物館", tagIds: ['打卡'] },
+  { id: 'SM-019', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "龍谷大學 龍谷資料館", tagIds: ['現代', '打卡'] },
+  { id: 'SM-020', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都市學校歷史博物館", tagIds: ['現代', '打卡'] },
   { id: 'SM-021', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "文子天滿宮", tagIds: ['神社', '隱密'] },
   { id: 'SM-022', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "神明神社", tagIds: ['神社', '隱密'] },
   { id: 'SM-023', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都中央卸賣市場", tagIds: ['美食'] },
@@ -66,5 +66,5 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'W_SHIMOGYO_YOSHINOYA', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '吉廼家', tagIds: ['和菓子', '老舖', '隱密'] },
   { id: 'W_SHIMOGYO_SARASA_KAYUKOJI', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: 'Sarasa 花遊小路', tagIds: ['喫茶', '打卡', '隱密'] },
   { id: 'SHIMOGYO_TEMPURA_YOKOTA', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '天ぷら よこ田 京都駅', tagIds: ['天婦羅', '正餐', '打卡'] },
-  { id: 'SHIMOGYO_KYOTO_STATION_BLDG', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_HUB', mapQuery: '京都駅ビル 大空広場', tagIds: ['現代', '打卡', '購物'] }
+  { id: 'SHIMOGYO_KYOTO_STATION_BLDG', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: '京都駅ビル 大空広場', tagIds: ['現代', '打卡', '購物'] }
 ];

@@ -64,5 +64,6 @@ export const SAKYO_ZH: Record<string, SpotLocale> = {
   'SK-062': { name: "鞍馬寺 (聖地)", desc: "《有頂天家族》中天狗狸貓之地。", tags: "ACG 寺院" },
   'SK-063': { name: "貴船神社 (聖地)", desc: "《境界的彼方》神祕場景。", tags: "ACG 神社" },
   'SK-064': { name: "藤井有鄰館", desc: "建築外觀獨眼龍造型引人注目。", tags: "隱密" },
-  'SK-065': { name: "傳統產業交流館", desc: "深入了解京工藝精髓的地方。", tags: "打卡" }
+  'SK-065': { name: "傳統產業交流館", desc: "深入了解京工藝精髓的地方。", tags: "打卡" },
+  'SAKYO_KYOCERA_MUSEUM': { name: '京都市京瓷美術館', desc: '1933 年竣工的帝冠樣式建築，2020 年青木淳監修改建，日本最大公立美術館之一，新舊建築語言交織令人著迷。', tags: '現代 打卡 現代' }
 };

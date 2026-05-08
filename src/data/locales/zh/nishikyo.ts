@@ -54,5 +54,6 @@ export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'NK-055': { name: "喫茶 ヤマモト", desc: "厚切水果三明治極受好評。懷舊咖啡香氣十足。", tags: "喫茶 必吃" },
   'NK-056': { name: "大原野 十二屋", desc: "使用在地契作蔬菜。口味清爽的田園農家菜。", tags: "正餐 必吃" },
   'NK-057': { name: "柿本 豆富店", desc: "老字號豆製品店。酥脆炸油豆腐是平民級補給。", tags: "正餐 必吃" },
-  'NK-058': { name: "京都大學 桂校區", desc: "矗立山丘的現代科技群。展現科研基地氛圍。", tags: "打卡" }
+  'NK-058': { name: "京都大學 桂校區", desc: "矗立山丘的現代科技群。展現科研基地氛圍。", tags: "打卡" },
+  'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '嵐山渡月橋旁的現代風格咖啡廳，落地窗正對桂川，甜品與景觀俱佳。', tags: '現代 打卡 甜點' }
 };
