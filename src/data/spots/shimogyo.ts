@@ -51,5 +51,15 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-049', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "くら寿司 京都駅前店", typeColorClass: "border-[#e67e22]" },
   { id: 'SM-050', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "しゃぶしゃぶ温野菜 四条烏丸店", typeColorClass: "border-[#e67e22]" },
   { id: 'SM-051', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 京都駅前店", typeColorClass: "border-[#e67e22]" },
-  { id: 'SM-052', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "末富", typeColorClass: "border-[#e67e22]" }
+  { id: 'SM-052', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "末富", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-053', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "京都駅ビル 大空広場", typeColorClass: "border-[#7ab89a]" },
+  { id: 'SM-054', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "高瀬川 下京区", typeColorClass: "border-[#7ab89a]" },
+  { id: 'SM-055', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都駅 大階段", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-056', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都駅 西口広場 ピアノ", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-057', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "梅小路公園 ハローワールド 聖地", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'SM-058', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "市比賣神社", typeColorClass: "border-[#c47070]" },
+  { id: 'SM-059', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "京都拉麺小路", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-060', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "本家 第一旭 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'SM-061', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都中央郵便局", typeColorClass: "border-[#6aab82]" },
+  { id: 'SM-062', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "大丸京都店 屋上庭園", typeColorClass: "border-[#7ab89a]" }
 ];

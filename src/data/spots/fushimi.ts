@@ -36,5 +36,18 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-033', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "西岸寺 油懸地藏", typeColorClass: "border-[#c47070]" },
   { id: 'FS-034', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "京都府立 桃山高等學校", typeColorClass: "border-[#6aab82]" },
   { id: 'FS-035', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "荒木神社 伏見稻荷", typeColorClass: "border-[#c47070]" },
-  { id: 'FS-036', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "ちいかわもぐもぐ本舗 伏見稲荷店", typeColorClass: "border-[#ff7eb6]" }
+  { id: 'FS-036', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "ちいかわもぐもぐ本舗 伏見稲荷店", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'FS-037', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "伏見港公園", typeColorClass: "border-[#7ab89a]" },
+  { id: 'FS-038', wardId: 'W_FUSHIMI', areaId: 'A08', typeId: 'T_NATURE', mapQuery: "醍醐山 登山道", typeColorClass: "border-[#7ab89a]" },
+  { id: 'FS-039', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "鴨川 伏見区段", typeColorClass: "border-[#7ab89a]" },
+  { id: 'FS-040', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "京都アニメーション 第1スタジオ跡地", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'FS-041', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "墨染駅 響け！ユーフォニアム", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'FS-042', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "三棲閘門 響け！ユーフォニアム 聖地", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'FS-043', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "伏見稲荷大社 いなり、こんこん、恋いろは。 聖地", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'FS-044', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "鳥せい 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'FS-045', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "酒粕拉麺 玄屋", typeColorClass: "border-[#e67e22]" },
+  { id: 'FS-046', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "禰ざめや", typeColorClass: "border-[#e67e22]" },
+  { id: 'FS-047', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "大黒ラーメン", typeColorClass: "border-[#e67e22]" },
+  { id: 'FS-048', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伏見 駿河屋", typeColorClass: "border-[#e67e22]" },
+  { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", typeColorClass: "border-[#6aab82]" }
 ];

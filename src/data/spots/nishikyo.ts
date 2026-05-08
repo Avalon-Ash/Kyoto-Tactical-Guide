@@ -41,5 +41,18 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-042', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "京都 桂溫泉", typeColorClass: "border-[#7aa5d4]" },
   { id: 'NK-043', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都市立藝術大學", typeColorClass: "border-[#6aab82]" },
   { id: 'NK-044', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "嵐山 展望路 (西京側)", typeColorClass: "border-[#7ab89a]" },
-  { id: 'NK-045', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西京 庚申堂", typeColorClass: "border-[#c47070]" }
+  { id: 'NK-045', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西京 庚申堂", typeColorClass: "border-[#c47070]" },
+  { id: 'NK-046', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "中村軒", typeColorClass: "border-[#d4a74a]" },
+  { id: 'NK-047', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "桂東口商店街", typeColorClass: "border-[#d4a74a]" },
+  { id: 'NK-048', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "高島屋 洛西店", typeColorClass: "border-[#d4a74a]" },
+  { id: 'NK-049', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "阪急 嵐山駅 K-ON", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NK-050', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "松尾大社 ACG", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NK-051', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "鈴蟲寺 ACG", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NK-052', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "嵐山モンキーパーク ACG", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NK-053', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_ACG', mapQuery: "阪急 上桂駅 K-ON", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NK-054', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "麺たんぴん", typeColorClass: "border-[#e67e22]" },
+  { id: 'NK-055', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "喫茶 ヤマモト", typeColorClass: "border-[#e67e22]" },
+  { id: 'NK-056', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "大原野 十二屋", typeColorClass: "border-[#e67e22]" },
+  { id: 'NK-057', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "柿本 豆富店", typeColorClass: "border-[#e67e22]" },
+  { id: 'NK-058', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都大学 桂キャンパス", typeColorClass: "border-[#6aab82]" }
 ];

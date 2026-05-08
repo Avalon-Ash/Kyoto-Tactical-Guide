@@ -52,5 +52,16 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-049', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨豆腐 竹仙", typeColorClass: "border-[#e67e22]" },
   { id: 'UK-050', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "齋宮神社", typeColorClass: "border-[#c47070]" },
   { id: 'UK-051', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "吉兆 嵐山本店", typeColorClass: "border-[#e67e22]" },
-  { id: 'UK-052', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "% Arabica 京都嵐山", typeColorClass: "border-[#e67e22]" }
+  { id: 'UK-052', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "% Arabica 京都嵐山", typeColorClass: "border-[#e67e22]" },
+  { id: 'UK-053', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: "老松 嵐山本店", typeColorClass: "border-[#d4a74a]" },
+  { id: 'UK-054', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: "嵐山 ちりめん細工館", typeColorClass: "border-[#d4a74a]" },
+  { id: 'UK-055', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_MODERN', mapQuery: "嵯峨嵐山文華館", typeColorClass: "border-[#6aab82]" },
+  { id: 'UK-056', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_MODERN', mapQuery: "福田美術館", typeColorClass: "border-[#6aab82]" },
+  { id: 'UK-057', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_MODERN', mapQuery: "京都嵐山音樂盒博物館", typeColorClass: "border-[#6aab82]" },
+  { id: 'UK-058', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_MODERN', mapQuery: "19世紀館", typeColorClass: "border-[#6aab82]" },
+  { id: 'UK-059', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "渡月橋 名偵探柯南", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'UK-060', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "東映太秦映畫村 ACG", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'UK-061', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "嵐電 嵐山站 友禪光林", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'UK-062', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "龍安寺 石庭 ACG", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'UK-063', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "車折神社 聖地", typeColorClass: "border-[#ff7eb6]" }
 ];

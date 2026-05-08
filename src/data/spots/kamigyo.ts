@@ -45,5 +45,17 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-042', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "宥清寺", typeColorClass: "border-[#c47070]" },
   { id: 'KG-043', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "上京區役所", typeColorClass: "border-[#6aab82]" },
   { id: 'KG-044', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "西陣產業會館", typeColorClass: "border-[#6aab82]" },
-  { id: 'KG-045', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "梨木神社 染井水", typeColorClass: "border-[#7ab89a]" }
+  { id: 'KG-045', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "梨木神社 染井水", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KG-046', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "堀川今出川 巴士站", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'KG-047', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "西陣 織成館", typeColorClass: "border-[#d4a74a]" },
+  { id: 'KG-048', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "西陣 鳥岩樓", typeColorClass: "border-[#e67e22]" },
+  { id: 'KG-049', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_MODERN', mapQuery: "京都府廳舊本館", typeColorClass: "border-[#6aab82]" },
+  { id: 'KG-050', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "京都御苑 九條池", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KG-051', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "京都御苑 拾翠亭", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KG-052', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "堀川水際公園", typeColorClass: "border-[#7ab89a]" },
+  { id: 'KG-053', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "晴明神社 陰陽師 聖地", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KG-054', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野天滿宮 髭切", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KG-055', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "一條戻橋 有頂天家族", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KG-056', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "西陣 露地 散策", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KG-057', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "同志社大學 彰榮館", typeColorClass: "border-[#ff7eb6]" }
 ];

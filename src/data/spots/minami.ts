@@ -46,5 +46,17 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-043', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "觀進寺", typeColorClass: "border-[#c47070]" },
   { id: 'MN-044', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "綾戶國中神社", typeColorClass: "border-[#c47070]" },
   { id: 'MN-045', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "藏王堂光福寺", typeColorClass: "border-[#c47070]" },
-  { id: 'MN-046', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "ガシャポンのデパート イオンモールKYOTO店", typeColorClass: "border-[#ff7eb6]" }
+  { id: 'MN-046', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "ガシャポンのデパート イオンモールKYOTO店", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'MN-047', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都アバンティ", typeColorClass: "border-[#d4a74a]" },
+  { id: 'MN-048', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "ドン・キホーテ 京都駅八条口店", typeColorClass: "border-[#d4a74a]" },
+  { id: 'MN-049', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "丸福樓 (任天堂旧本社)", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'MN-050', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂開発センター", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'MN-051', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "九条跨線橋", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'MN-052', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "十条通 任天堂", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'MN-053', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "東寺餅", typeColorClass: "border-[#e67e22]" },
+  { id: 'MN-054', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "ミスタードーナツ 京都駅八条口", typeColorClass: "border-[#e67e22]" },
+  { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麺 香来 上鳥羽店", typeColorClass: "border-[#e67e22]" },
+  { id: 'MN-056', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鳥羽水環境保全中心 藤", typeColorClass: "border-[#7ab89a]" },
+  { id: 'MN-057', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都テルサ", typeColorClass: "border-[#6aab82]" },
+  { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鉄十条駅", typeColorClass: "border-[#7aa5d4]" }
 ];

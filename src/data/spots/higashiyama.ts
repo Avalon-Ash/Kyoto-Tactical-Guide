@@ -18,7 +18,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-015', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "智積院", typeColorClass: "border-[#c47070]" },
   { id: 'HY-016', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "養源院", typeColorClass: "border-[#c47070]" },
   { id: 'HY-017', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_MODERN', mapQuery: "京都國立博物館", typeColorClass: "border-[#d4a74a]" },
-  { id: 'SK-017', wardId: 'W_HIGASHIYAMA', areaId: 'A05', typeId: 'T_HUB', mapQuery: "東山駅 京都", typeColorClass: "border-[#7aa5d4]" },
+  { id: 'HY-060', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "東山駅 京都", typeColorClass: "border-[#7aa5d4]" },
   { id: 'HY-018', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "白川一本橋", typeColorClass: "border-[#d4a74a]" },
   { id: 'HY-019', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "圓山公園 櫻花", typeColorClass: "border-[#7ab89a]" },
   { id: 'HY-020', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "法觀寺 八坂塔", typeColorClass: "border-[#c47070]" },
@@ -47,5 +47,18 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-043', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "泉涌寺 雲龍院", typeColorClass: "border-[#c47070]" },
   { id: 'HY-044', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "瀧尾神社", typeColorClass: "border-[#c47070]" },
   { id: 'HY-045', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "崇德天皇御廟", typeColorClass: "border-[#c47070]" },
-  { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", typeColorClass: "border-[#e67e22]" }
+  { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", typeColorClass: "border-[#e67e22]" },
+  { id: 'HY-047', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_MODERN', mapQuery: "長楽館", typeColorClass: "border-[#6aab82]" },
+  { id: 'HY-048', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_MODERN', mapQuery: "藤井有隣館", typeColorClass: "border-[#6aab82]" },
+  { id: 'HY-049', wardId: 'W_HIGASHIYAMA', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都伝統産業ミュージアム", typeColorClass: "border-[#6aab82]" },
+  { id: 'HY-050', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_NATURE', mapQuery: "九条池 東福寺", typeColorClass: "border-[#7ab89a]" },
+  { id: 'HY-051', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "清水寺 舞台 柯南", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'HY-052', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "八坂神社 舞殿 刀剣乱舞", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'HY-053', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "巽橋 有頂天家族", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'HY-054', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "建仁寺 雙龍圖 呪術廻戦", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'HY-055', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "祇園 白川 宵山 柯南", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'HY-056', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "鍵善良房 四条本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'HY-057', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "祇園 天周", typeColorClass: "border-[#e67e22]" },
+  { id: 'HY-058', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "祇園 萬養軒", typeColorClass: "border-[#e67e22]" },
+  { id: 'HY-059', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "ぎをん 萬屋", typeColorClass: "border-[#e67e22]" }
 ];

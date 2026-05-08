@@ -51,5 +51,14 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", typeColorClass: "border-[#e67e22]" },
   { id: 'NC-049', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "京の焼肉処 弘 三條木屋町店", typeColorClass: "border-[#e67e22]" },
   { id: 'NC-050', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "六曜社珈琲店", typeColorClass: "border-[#e67e22]" },
-  { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'ちいかわらんど キデイランド京都四条河原町店', typeColorClass: 'border-[#ff7eb6]' }
+  { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'ちいかわらんど キデイランド京都四条河原町店', typeColorClass: 'border-[#ff7eb6]' },
+  { id: 'NC-053', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 納涼床", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NC-054', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "神泉苑 法成橋", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NC-055', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "高瀬川 桜並木", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NC-056', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "二条城 清流園", typeColorClass: "border-[#7ab89a]" },
+  { id: 'NC-057', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "駿河屋 京都寺町店", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NC-058', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "ガシャポンのデパート 寺町店", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'NC-059', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "喫茶 築地", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-060', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "イノダコーヒ 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'NC-061', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "前田珈琲 明倫店", typeColorClass: "border-[#e67e22]" }
 ];

@@ -44,5 +44,16 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-042', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大德寺 龍源院", typeColorClass: "border-[#c47070]" },
   { id: 'KT-043', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 半木之道", typeColorClass: "border-[#7ab89a]" },
   { id: 'KT-044', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "北區役所 京都", typeColorClass: "border-[#6aab82]" },
-  { id: 'KT-045', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "鹿苑寺 鏡湖池", typeColorClass: "border-[#c47070]" }
+  { id: 'KT-045', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "鹿苑寺 鏡湖池", typeColorClass: "border-[#c47070]" },
+  { id: 'KT-046', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "かざりや 京都", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-047', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "中華のサカイ 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-048', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "グリルはせがわ", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-049', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "東洋亭 本店", typeColorClass: "border-[#e67e22]" },
+  { id: 'KT-050', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "船岡山 公園 柯南", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KT-051', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "上賀茂神社 有頂天家族", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KT-052', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "佛教大学 紫野キャンパス", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-053', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野白梅町 K-ON", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KT-054', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "北大路橋 鴨川 輕音部", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'KT-055', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "立命館大学 西園寺記念館", typeColorClass: "border-[#6aab82]" },
+  { id: 'KT-056', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "金閣寺 アニメ", typeColorClass: "border-[#ff7eb6]" }
 ];
