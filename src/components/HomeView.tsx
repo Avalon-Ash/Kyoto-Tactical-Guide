@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
 import { PINNED_GLOBAL_TAGS } from '../data/tags';
@@ -161,60 +161,64 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
           </div>
         )}
       </div>
-      {/* GlobalTagOverlay — pure CSS transition，避免 framer transform context 破壞 overflow */}
-      <div
-        className="fixed inset-0 z-50 urushi-panel flex flex-col"
-        style={{
-          transform: activeTag ? 'translateY(0)' : 'translateY(100%)',
-          transition: activeTag
-            ? 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1)'
-            : 'transform 300ms cubic-bezier(0.4, 0, 1, 1)',
-          pointerEvents: activeTag ? 'auto' : 'none',
-        }}
-      >
-        {/* Header */}
-        <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="text-shuiro font-bold font-serif">●</span>
-            <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
-              {activeTag ?? ''}
-            </h2>
-            <span className="text-gold-light/40 font-serif text-sm ml-2">
-              ({filteredSpots.length})
-            </span>
-          </div>
-          <button
-            onClick={() => setActiveTag(null)}
-            className="bg-shuiro/10 border border-shuiro/30 text-shuiro rounded-full px-5 py-2 text-sm font-bold font-serif hover:bg-shuiro hover:text-white transition-all min-h-[44px]"
+      <AnimatePresence mode="wait">
+        {activeTag && (
+          <motion.div
+            key="tag-overlay"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            style={{ touchAction: 'pan-y' }}
+            className="fixed inset-0 z-50 flex flex-col"
           >
-            {t('btn_close')}
-          </button>
-        </div>
+            <div className="absolute inset-0 urushi-panel -z-10 pointer-events-none" />
+            
+            {/* Header */}
+            <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="text-shuiro font-bold font-serif">●</span>
+                <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
+                  {activeTag}
+                </h2>
+                <span className="text-gold-light/40 font-serif text-sm ml-2">
+                  ({filteredSpots.length})
+                </span>
+              </div>
+              <button
+                onClick={() => setActiveTag(null)}
+                className="bg-shuiro/10 border border-shuiro/30 text-shuiro rounded-full px-5 py-2 text-sm font-bold font-serif hover:bg-shuiro hover:text-white transition-all min-h-[44px]"
+              >
+                {t('btn_close')}
+              </button>
+            </div>
 
-        {/* Scroll Body */}
-        <div
-          ref={overlayScrollRef}
-          onMouseDown={onMouseDown(overlayScrollRef)}
-          className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-black/60"
-          style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
-        >
-          {isGlobalLoading ? (
-            <div className="h-full flex items-center justify-center">
-              <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
+            {/* Scroll Body */}
+            <div
+              ref={overlayScrollRef}
+              onMouseDown={onMouseDown(overlayScrollRef)}
+              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-black/60"
+              style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+            >
+              {isGlobalLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
+                </div>
+              ) : filteredSpots.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                  {filteredSpots.map(s => (
+                    <SpotCard key={s.id} spot={s} lang={lang} t={t} readOnly={true} />
+                  ))}
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-gold-light/40 font-serif tracking-widest">{t('no_results')}</p>
+                </div>
+              )}
             </div>
-          ) : filteredSpots.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {filteredSpots.map(s => (
-                <SpotCard key={s.id} spot={s} lang={lang} t={t} readOnly={true} />
-              ))}
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gold-light/40 font-serif tracking-widest">{t('no_results')}</p>
-            </div>
-          )}
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
