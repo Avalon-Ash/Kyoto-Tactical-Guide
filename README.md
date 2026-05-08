@@ -14,7 +14,19 @@
 - **Schema (結構層)**: 存放於 `src/data/spots/`。這裡定義了景點的「實體識別資訊」：ID、wardId、areaId、typeId、mapQuery。所有視覺呈現屬性（如類型顏色）均由 TYPES 元數據動態衍生，Schema 不含任何渲染指令。它是統計運算與邏輯判斷的唯一基準。
 - **Locales (內容層)**: 存放於 `src/data/locales/`。按語系與行政區拆分，僅存放與 ID 對應的翻譯文字（名稱、描述、標籤串）。
 - **Metadata (元數據)**: 行政區 (Wards)、分區 (Areas)、類型 (Types) 各自擁有獨立的設定檔，確保全域定義統一，避免硬編碼。
-- **Tags (標籤元數據)**：存放於 `src/data/tags.ts`。定義 `TAG_REGISTRY`（型別 `TagMeta`：id、多語系 label `I18nText`、group 分組 `food/transport/culture/ nature/acg/misc`、顯示 emoji），確保標籤系統的全域定義統一。另有 `PINNED_GLOBAL_TAGS` 陣列，定義首頁御秘帖模式的固定置頂標籤順序。
+- **Tags (標籤元數據)**：存放於 `src/data/tags.ts`。定義 `TAG_REGISTRY`，
+  包含每個 tagId 的多語系 label（I18nText）、分組（food/transport/culture/
+  nature/acg/misc）與顯示 emoji。另有 `PINNED_GLOBAL_TAGS` 陣列，
+  定義首頁御秘帖模式的固定置頂標籤順序。
+
+  **雙層 Tags 設計（重要）**：
+  - `schema.tagIds`（中文 key，如 `['和菓子', '老舖']`）：篩選系統的唯一基準，
+    供 `useKyotoEngine` 的 filter、`localTags`、`tagCounts` 使用，語系無關。
+  - `locale.tags`（各語系顯示文字）：純顯示用途，渲染於 SpotCard 的 tag chip，
+    不參與任何篩選邏輯。
+    ZH locale 的 tags 須與 schema.tagIds 鏡射（key 完全相同）；
+    JA locale 的 tags 使用對應日文（映え / 穴場 / 甘味 等），
+    與 schema.tagIds 語意對應但字面不同，此為刻意的多語系設計。
 
 ### 2. ECS (實體組件系統) 架構
 將旅遊景點視為「遊戲物體 (Game Objects)」，而非傳統的網頁元件：
@@ -48,17 +60,22 @@
 
 ### ⚠️ 已知技術注意事項
 
-1. **動態 import 路徑含 `.ts` 副檔名**（`spots-loader.ts`）：
-   `import(\`./spots/${wardFile}.ts\`)` 在 Vite 開發環境正常運作，但部分打包設定下 production build 可能找不到路徑，建議改為省略副檔名。
+1. **動態 import 含 `.ts` 副檔名**（`spots-loader.ts`）：
+   Vite 開發環境正常運作，部分 production 打包設定可能找不到路徑，
+   建議改為省略副檔名：`` `./spots/${wardFile}` ``。
 
-2. **`tagCounts` 在 React StrictMode 下會執行兩次**：
-   `tagCounts` 使用 `useMemo(fn, [])` 計算，依賴 `loadAllSchemasSync()` 同步讀取全部 Schema。StrictMode 下 effect 執行兩次，建議將此計算移至模組頂層，採用類似 `_wardStats` 的 lazy getter 模式快取。
+2. **`tagCounts` 在 React StrictMode 下執行兩次**：
+   `useMemo(fn, [])` 包住 `loadAllSchemasSync()`，StrictMode 下會執行兩次，
+   建議移至模組頂層 lazy getter（與 `_wardStats` 同樣模式）。
 
 3. **`closeDetail()` 不重置 `mode`**：
-   從 DetailView 返回 HomeView 時，`mode` 保留上一次的 ward/area 值，屬於預期行為。但若日後增加「從全域 Tag Overlay 進入 DetailView」的導航路徑，需確保 `closeDetail()` 同時重置 mode，避免 `mode === 'tag'` 與 `activeId !== null` 同時成立導致資料分支錯誤。
+   返回 HomeView 時保留上一次的 ward/area 值，屬預期行為。
+   若日後新增「從 Tag Overlay 進入 DetailView」路徑，
+   需在 `closeDetail()` 補充 mode 重置，防止 `mode==='tag'` 與 `activeId!==null` 同時成立。
 
-4. **`lib/numerals.ts` 邊界值**：
-   `toChineseNumerals()` 對 100、110 等帶零中位數的三位數輸出可能產生「百」而非「一百」的省略問題，目前景點數量範圍不超過兩位數，不影響現行功能，但擴充時需注意。
+4. **`lib/numerals.ts` 三位數邊界值**：
+   `toChineseNumerals()` 對 100 以上數字可能省略百位「一」，
+   現行景點數不超過兩位數，不影響功能，擴充時需注意。
 
 ---
 
@@ -72,7 +89,7 @@ src/
 │   ├── useKyotoEngine.ts    # 【系統層】資料篩選與狀態管理樞紐
 │   └── useWindowSize.ts     # 響應式佈局監聽
 ├── data/
-│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式，使用模組作用域快取，初次呼叫時才執行統計並快取結果，後續呼叫直接返回快取。注意：`tags.ts`（TAG_REGISTRY, PINNED_GLOBAL_TAGS）目前並未在 index.ts 中 re-export，各消費端（SpotCard.tsx、HomeView.tsx）直接從 `../data/tags` 引用。
+│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式，使用模組作用域快取，初次呼叫時才執行統計並快取結果，後續呼叫直接返回快取。注意：`tags.ts` 的 `TAG_REGISTRY` 與 `PINNED_GLOBAL_TAGS` 未在 `index.ts` re-export，`SpotCard.tsx` 與 `HomeView.tsx` 直接從 `../data/tags` 引用，是此統一入口原則的唯一例外。
 │   ├── spots-loader.ts      # 【組件裝配層】實現 Schema 與 Locale 的合併負載
 │   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義；定義 A01–A19 共 19 個分區，AREA_BY_WARD / WARD_BY_AREA 互為逆映射，處理分區跨行政區的雙向歸屬。
 │   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義、分組與 emoji；PINNED_GLOBAL_TAGS 置頂順序
