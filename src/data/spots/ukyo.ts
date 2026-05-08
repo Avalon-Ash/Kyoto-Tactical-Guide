@@ -63,5 +63,6 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-060', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "東映太秦電影村 ACG", tagIds: ['ACG', '打卡'] },
   { id: 'UK-061', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "嵐電 嵐山站 友禪光林", tagIds: ['ACG', '打卡'] },
   { id: 'UK-062', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "龍安寺 石庭 ACG", tagIds: ['ACG', '打卡'] },
-  { id: 'UK-063', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "車折神社 聖地", tagIds: ['ACG', '打卡'] }
+  { id: 'UK-063', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "車折神社 聖地", tagIds: ['ACG', '打卡'] },
+  { id: 'UK-064', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨嵐山 文の助茶屋", tagIds: ['抹茶', '喫茶', '老舖', '隱密'] }
 ];

@@ -50,7 +50,7 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-048', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "寶可夢中心 京都", tagIds: ['ACG', '打卡'] },
   { id: 'SM-049', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "藏壽司 京都站前店", tagIds: ['正餐', '必吃'] },
   { id: 'SM-050', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "涮涮鍋溫野菜 四條烏丸店", tagIds: ['正餐', '必吃'] },
-  { id: 'SM-051', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 京都站前店", tagIds: ['甜點', '老舖', '必吃'] },
+  { id: 'SM-051', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 京都站前店", tagIds: ['抹茶', '甜點', '老舖', '必吃'] },
   { id: 'SM-052', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "末富", tagIds: ['甜點', '老舖', '必吃'] },
   { id: 'SM-053', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "京都站大樓 大空廣場", tagIds: ['打卡', '自然'] },
   { id: 'SM-054', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "高瀨川", tagIds: ['打卡', '賞花'] },

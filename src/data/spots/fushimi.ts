@@ -49,5 +49,6 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-046', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "禰ざめや", tagIds: ['正餐', '老舖', '必吃'] },
   { id: 'FS-047', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "大黑拉麵", tagIds: ['正餐', '必吃'] },
   { id: 'FS-048', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伏見 駿河屋", tagIds: ['甜點', '和菓子', '老舖'] },
-  { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", tagIds: ['打卡'] }
+  { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", tagIds: ['打卡'] },
+  { id: 'FS-050', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 JR伏見稻荷店", tagIds: ['抹茶', '甜點', '必吃', '打卡'] }
 ];

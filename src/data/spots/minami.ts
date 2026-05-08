@@ -58,5 +58,6 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麵 香來 上鳥羽店", tagIds: ['正餐', '必吃'] },
   { id: 'MN-056', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鳥羽水環境保全中心 藤", tagIds: ['自然', '賞花'] },
   { id: 'MN-057', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都Terrsa", tagIds: ['打卡'] },
-  { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鐵十條站", tagIds: ['地鐵'] }
+  { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鐵十條站", tagIds: ['地鐵'] },
+  { id: 'MN-059', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都站店", tagIds: ['抹茶', '甜點', '必吃'] }
 ];

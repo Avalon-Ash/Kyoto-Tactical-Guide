@@ -172,7 +172,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             style={{ touchAction: 'pan-y' }}
             className="fixed inset-0 z-50 flex flex-col"
           >
-            <div className="absolute inset-0 urushi-panel -z-10 pointer-events-none" />
+            <div 
+              className="absolute inset-0 urushi-panel -z-10 pointer-events-none" 
+              style={{ backgroundColor: '#0d0a07', opacity: 0.97 }}
+            />
             
             {/* Header */}
             <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
@@ -197,7 +200,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             <div
               ref={overlayScrollRef}
               onMouseDown={onMouseDown(overlayScrollRef)}
-              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-black/60"
+              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-[#0d0a07]/95"
               style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
             >
               {isGlobalLoading ? (

@@ -57,5 +57,6 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-054', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野天滿宮 髭切", tagIds: ['ACG', '神社'] },
   { id: 'KG-055', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "一條戾橋 有頂天家族", tagIds: ['ACG', '打卡'] },
   { id: 'KG-056', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "西陣 露地 散策", tagIds: ['ACG', '打卡'] },
-  { id: 'KG-057', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "同志社大學 彰榮館", tagIds: ['ACG', '打卡'] }
+  { id: 'KG-057', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "同志社大學 彰榮館", tagIds: ['ACG', '打卡'] },
+  { id: 'KG-058', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "一保堂茶舖 本店", tagIds: ['抹茶', '老舖', '必吃'] }
 ];

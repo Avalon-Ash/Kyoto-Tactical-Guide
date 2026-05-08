@@ -47,7 +47,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-043', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "泉涌寺 雲龍院", tagIds: ['寺院', '隱密'] },
   { id: 'HY-044', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "瀧尾神社", tagIds: ['神社', '打卡'] },
   { id: 'HY-045', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "崇德天皇御廟", tagIds: ['打卡', '隱密'] },
-  { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", tagIds: ['甜點', '必吃'] },
+  { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", tagIds: ['抹茶', '甜點', '必吃'] },
   { id: 'HY-047', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_MODERN', mapQuery: "長樂館", tagIds: ['打卡', '正餐', '喫茶'] },
   { id: 'HY-050', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_NATURE', mapQuery: "九條池 東福寺", tagIds: ['自然'] },
   { id: 'HY-051', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "清水寺 舞台 柯南", tagIds: ['ACG', '寺院'] },
@@ -58,5 +58,8 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-056', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "鍵善良房 四條本店", tagIds: ['甜點', '老舖', '必吃'] },
   { id: 'HY-057', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "祇園 天周", tagIds: ['正餐', '必吃'] },
   { id: 'HY-058', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "祇園 萬養軒", tagIds: ['正餐', '老舖'] },
-  { id: 'HY-059', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "ぎをん 萬屋", tagIds: ['正餐', '必吃'] }
+  { id: 'HY-059', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "ぎをん 萬屋", tagIds: ['正餐', '必吃'] },
+  { id: 'HY-061', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 祇園本店", tagIds: ['抹茶', '甜點', '必吃', '打卡'] },
+  { id: 'HY-062', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "祇園辻利 祇園本店", tagIds: ['抹茶', '和菓子', '老舖'] },
+  { id: 'HY-063', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都祇園店", tagIds: ['抹茶', '甜點', '必吃'] }
 ];
