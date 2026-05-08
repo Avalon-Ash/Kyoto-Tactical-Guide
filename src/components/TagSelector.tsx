@@ -21,13 +21,13 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`overflow-hidden relative ${variant === 'global' ? 'py-3' : 'py-2'}`}
+      className={`overflow-hidden relative touch-pan-x ${variant === 'global' ? 'py-4' : 'py-2'}`}
     >
       <motion.div
         drag="x"
         dragConstraints={containerRef}
-        dragElastic={0.05}
-        className="flex gap-2 px-4 w-max"
+        dragElastic={0.1}
+        className="flex gap-3 px-6 w-max"
       >
         {tags.map(tagId => {
           const meta = TAG_REGISTRY[tagId];
@@ -35,15 +35,19 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           const isActive = activeTag === tagId;
 
           return (
-            <button
+            <motion.button
               key={tagId}
+              whileTap={{ scale: 0.95 }}
               onClick={() => onSelect(isActive ? null : tagId)}
-              className={`maki-e-tag shrink-0 px-4 py-2 text-[clamp(0.75rem,2vw,0.85rem)]
-                font-serif tracking-[0.2em] min-h-[48px] flex items-center
-                ${isActive ? 'active' : ''}`}
+              className={`maki-e-tag shrink-0 px-6 py-2.5 text-[0.95rem]
+                font-serif tracking-[0.15em] min-h-[48px] flex items-center justify-center
+                rounded-full border transition-all duration-300
+                ${isActive 
+                  ? 'bg-shuiro text-white border-shuiro shadow-lg' 
+                  : 'bg-white/5 text-gold-light border-gold-light/30'}`}
             >
               {label}
-            </button>
+            </motion.button>
           );
         })}
       </motion.div>

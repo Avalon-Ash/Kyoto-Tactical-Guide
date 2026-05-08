@@ -13,7 +13,6 @@ export function useKyotoEngine() {
   const [mode, setMode] = useState<'ward' | 'area'>('ward');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string>('T_ALL');
-  const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [allLoadedSpots, setAllLoadedSpots] = useState<FlatSpot[]>([]);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
@@ -92,7 +91,6 @@ export function useKyotoEngine() {
 
   const switchMode = (newMode: 'ward' | 'area') => {
     setActiveId(null);
-    setSearch('');
     setActiveType('T_ALL');
     setActiveTag(null);
     setMode(newMode);
@@ -175,13 +173,11 @@ export function useKyotoEngine() {
     setActiveId(id);
     setMode(viewMode);
     setActiveType('T_ALL');
-    setSearch('');
     setActiveTag(null);
   };
 
   const closeDetail = () => {
     setActiveId(null);
-    setSearch('');
     setActiveTag(null);
   };
 
@@ -190,9 +186,7 @@ export function useKyotoEngine() {
     mode,
     activeId,
     activeType,
-    search,
     isLoading,
-    setSearch,
     switchMode,
     setActiveType,
     t,

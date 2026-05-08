@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { motion } from 'motion/react';
-import { Search, ChevronLeft, GripHorizontal, AlertCircle } from 'lucide-react';
+import { ChevronLeft, GripHorizontal, AlertCircle, Filter } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
+import { TagSelector } from './TagSelector';
 
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
@@ -12,7 +13,7 @@ interface DetailViewProps {
 
 export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   const { 
-    lang, mode, activeId, activeType, search, isLoading,
+    lang, mode, activeId, activeType, isLoading, activeTag, setActiveTag, localTags,
     t, toggleLang, closeDetail, filteredSpots, typeCounts 
   } = engine;
   const tabsContainerRef = useRef<HTMLDivElement>(null);
@@ -21,12 +22,12 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   const startY = useRef(0);
   const scrollTop = useRef(0);
 
-  // Auto scroll to top when changing type filters, region, or performing a search
+  // Auto scroll to top when changing type filters or active tag
   React.useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
-  }, [activeType, activeId, search]);
+  }, [activeType, activeId, activeTag]);
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
@@ -135,18 +136,14 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
           </div>
         </div>
 
-        <div className="p-[clamp(0.5rem,1.5vw,1.5rem)] bg-black/60">
-          <div className="flex items-center gap-3 bg-white/5 border border-gold/20 px-[clamp(0.8rem,1.2vw,1.2rem)] py-[clamp(0.5rem,1vw,1.2rem)] focus-within:border-gold/50 transition-colors">
-            <Search size={16} className="text-gold-light/30 transition-transform" style={{ transform: `scale(${responsiveScale})` }} />
-            <input 
-              type="text" 
-              value={search}
-              onChange={(e) => engine.setSearch(e.target.value)}
-              placeholder={t('search_ph')}
-              style={{ fontSize: 'max(16px, clamp(0.8rem, 1.2vw, 1.2rem))' }}
-              className="bg-transparent border-none outline-none text-[#f0ead6] w-full font-serif placeholder:text-[#f0ead6]/20"
-            />
-          </div>
+        <div className="bg-black/60 border-t border-gold/10">
+          <TagSelector 
+            tags={localTags}
+            activeTag={activeTag}
+            onSelect={setActiveTag}
+            lang={lang}
+            variant="local"
+          />
         </div>
       </div>
 
@@ -175,7 +172,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
               ))
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-24 opacity-40">
-                <Search size={clampSize(40, 64)} className="text-gold-light/20 mb-8" />
+                <Filter size={clampSize(40, 64)} className="text-gold-light/20 mb-8" />
                 <p className="font-serif tracking-[0.4em] text-sm sm:text-lg text-gold-light/50">{t('empty_msg')}</p>
               </div>
             )}

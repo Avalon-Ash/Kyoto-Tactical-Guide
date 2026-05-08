@@ -7,11 +7,12 @@ interface SpotCardProps {
   spot: FlatSpot;
   lang: Lang;
   t: (key: string, dict?: any) => string;
+  readOnly?: boolean;
 }
 
 const STATIC_NOISE = ['京都府', '京都市'];
 
-export function SpotCard({ spot, lang, t }: SpotCardProps) {
+export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
   const typeId = spot.typeId;
   const typeName = t(typeId, TYPE_NAMES);
   const name = spot.name;
@@ -105,30 +106,32 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
         ))}
       </div>
       
-      <a 
-        href={googleMapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => {
-          // Force use Search API with window.open to ensure correct cross-platform behavior
-          e.preventDefault();
-          window.open(googleMapsUrl, '_blank');
-        }}
-        style={{
-          background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
-          border: '1px solid rgba(200,160,74,0.4)',
-          boxShadow: `
-            inset 0 1px 0 rgba(255,240,180,0.10),
-            inset 0 -1px 0 rgba(0,0,0,0.7),
-            inset 1px 0 0 rgba(200,160,74,0.06),
-            0 3px 12px rgba(0,0,0,0.7)
-          `
-        }}
-        className="nikuai-btn block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all relative z-10 shadow-xl overflow-hidden active:scale-95"
-      >
-        <span className="relative z-10">{t('btn_map')}</span>
-        <div className="absolute inset-0 bg-gold/5 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-      </a>
+      {!readOnly && (
+        <a 
+          href={googleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            // Force use Search API with window.open to ensure correct cross-platform behavior
+            e.preventDefault();
+            window.open(googleMapsUrl, '_blank');
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
+            border: '1px solid rgba(200,160,74,0.4)',
+            boxShadow: `
+              inset 0 1px 0 rgba(255,240,180,0.10),
+              inset 0 -1px 0 rgba(0,0,0,0.7),
+              inset 1px 0 0 rgba(200,160,74,0.06),
+              0 3px 12px rgba(0,0,0,0.7)
+            `
+          }}
+          className="nikuai-btn block text-center no-underline p-[clamp(0.75rem,2vw,2rem)] text-gold-light text-[clamp(0.7rem,1vw,1rem)] font-bold tracking-[0.3em] sm:tracking-[0.6em] font-serif mt-[clamp(0.5rem,1.5vw,2rem)] transition-all relative z-10 shadow-xl overflow-hidden active:scale-95"
+        >
+          <span className="relative z-10">{t('btn_map')}</span>
+          <div className="absolute inset-0 bg-gold/5 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+        </a>
+      )}
     </motion.div>
   );
 }

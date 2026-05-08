@@ -1,8 +1,11 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
+import { PINNED_GLOBAL_TAGS } from '../data/tags';
 import { MapCanvas } from './MapCanvas';
+import { TagSelector } from './TagSelector';
+import { SpotCard } from './SpotCard';
 
 interface HomeViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
@@ -11,7 +14,7 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount }) => {
-  const { lang, mode, t, toggleLang, openDetail } = engine;
+  const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll to top when switching modes (Ward/Area)
@@ -27,7 +30,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col h-full bg-transparent"
+      className="flex flex-col h-full bg-transparent relative overflow-hidden"
     >
       <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
         <div className="flex items-center gap-2 sm:gap-6">
@@ -51,6 +54,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
           {width < 400 ? (lang === 'zh' ? '日' : '中') : t('btn_lang')}
         </button>
       </header>
+
+      <section className="bg-[#050505] border-b border-gold/10 z-20">
+        <TagSelector 
+          tags={PINNED_GLOBAL_TAGS} 
+          activeTag={activeTag} 
+          onSelect={setActiveTag} 
+          lang={lang} 
+          variant="global"
+        />
+      </section>
 
       <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
         <button 
@@ -109,6 +122,60 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
           </div>
         )}
       </div>
+      <AnimatePresence mode="wait">
+        {activeTag && (
+          <motion.div
+            key="tag-overlay"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-50 urushi-panel flex flex-col p-0 sm:p-0"
+          >
+            <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="text-shuiro font-bold font-serif">●</span>
+                <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
+                  {activeTag}
+                </h2>
+                <span className="text-gold-light/40 font-serif text-sm ml-2">
+                  ({filteredSpots.length})
+                </span>
+              </div>
+              <button 
+                onClick={() => setActiveTag(null)}
+                className="bg-shuiro/10 border border-shuiro/30 text-shuiro rounded-full px-5 py-2 text-sm font-bold font-serif hover:bg-shuiro hover:text-white transition-all min-h-[44px]"
+              >
+                {t('btn_close')}
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-black/60">
+              {isGlobalLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
+                </div>
+              ) : filteredSpots.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                  {filteredSpots.map(s => (
+                    <SpotCard 
+                      key={s.id} 
+                      spot={s} 
+                      lang={lang} 
+                      t={t} 
+                      readOnly={true} // Global overlay is read-only as per specs
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                   <p className="text-gold-light/40 font-serif tracking-widest">{t('no_results')}</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
