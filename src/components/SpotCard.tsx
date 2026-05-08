@@ -80,9 +80,9 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
       </div>
 
       <div className="flex flex-col gap-[clamp(0.25rem,0.8vw,0.8rem)] relative z-10">
-        <div className="flex items-center gap-[clamp(0.5rem,1.2vw,1.2rem)]">
+        <div className="flex items-center gap-[clamp(0.5rem,1.2vw,1.2rem)] min-w-0">
           <span className="w-[clamp(0.2rem,0.4vw,0.4rem)] h-[clamp(1.5rem,3vw,3.5rem)] shrink-0" style={{ backgroundColor: typeColor, boxShadow: `0 0 15px ${typeColor}60` }}></span>
-          <h3 className="maki-e-text font-serif text-[clamp(1.2rem,4vw,2.8rem)] font-bold leading-tight flex-1 tracking-tight">{name}</h3>
+          <h3 className="maki-e-text font-serif text-[clamp(1rem,2.5vw,1.8rem)] font-bold leading-snug flex-1 tracking-tight break-words overflow-wrap-anywhere">{name}</h3>
         </div>
         <div className="flex items-center gap-[clamp(0.5rem,1vw,1.5rem)] ml-[clamp(0.7rem,1.8vw,2.2rem)]">
           <span className="text-[clamp(0.6rem,1vw,0.9rem)] text-gold-light/80 font-bold tracking-[0.3em] uppercase">{areaName}</span>
