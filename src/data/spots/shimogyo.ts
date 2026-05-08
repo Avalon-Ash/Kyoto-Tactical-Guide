@@ -61,5 +61,8 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-059', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "京都拉麵小路", tagIds: ['正餐', '必吃'] },
   { id: 'SM-060', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "本家 第一旭 本店", tagIds: ['正餐', '必吃', '老舖'] },
   { id: 'SM-061', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都中央郵局", tagIds: ['打卡'] },
-  { id: 'SM-062', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "大丸京都店 屋頂庭園", tagIds: ['自然'] }
+  { id: 'SM-062', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "大丸京都店 屋頂庭園", tagIds: ['自然'] },
+  { id: 'W_SHIMOGYO_ISETAN_SHOYUKAN', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '伊勢丹 京都店 B1F 食遊館', tagIds: ['甜點', '老舖', '打卡'] },
+  { id: 'W_SHIMOGYO_YOSHINOYA', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '吉廼家', tagIds: ['甜點', '老舖', '隱密'] },
+  { id: 'W_SHIMOGYO_SARASA_KAYUKOJI', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: 'Sarasa 花遊小路', tagIds: ['喫茶', '打卡', '隱密'] }
 ];

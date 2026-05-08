@@ -64,5 +64,9 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-061', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_ACG', mapQuery: "嵐電 嵐山站 友禪光林", tagIds: ['ACG', '打卡'] },
   { id: 'UK-062', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "龍安寺 石庭 ACG", tagIds: ['ACG', '打卡'] },
   { id: 'UK-063', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "車折神社 聖地", tagIds: ['ACG', '打卡'] },
-  { id: 'UK-064', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨嵐山 文の助茶屋", tagIds: ['抹茶', '喫茶', '老舖', '隱密'] }
+  { id: 'UK-064', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: "嵯峨嵐山 文の助茶屋", tagIds: ['抹茶', '喫茶', '老舖', '隱密'] },
+  { id: 'W_UKYO_MITATE', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 MITATE', tagIds: ['抹茶', '甜點', '打卡'] },
+  { id: 'W_UKYO_CHIKURIN_CHAYA', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '野宮神社前 竹林茶屋', tagIds: ['甜點', '打卡', '抹茶'] },
+  { id: 'W_UKYO_HIRANOYA', wardId: 'W_UKYO', areaId: 'A11', typeId: 'T_FOOD', mapQuery: '平野屋 嵐山', tagIds: ['正餐', '懷石', '老舖', '隱密'] },
+  { id: 'W_UKYO_TSURUYA_YOSHINOBU', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '鶴屋吉信 嵐山店', tagIds: ['甜點', '老舖', '打卡'] }
 ];

@@ -59,5 +59,7 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-056', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鳥羽水環境保全中心 藤", tagIds: ['自然', '賞花'] },
   { id: 'MN-057', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都Terrsa", tagIds: ['打卡'] },
   { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鐵十條站", tagIds: ['地鐵'] },
-  { id: 'MN-059', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都站店", tagIds: ['抹茶', '甜點', '必吃'] }
+  { id: 'MN-059', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都站店", tagIds: ['抹茶', '甜點', '必吃'] },
+  { id: 'W_MINAMI_TORIYASA', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '京都 鳥彌三 南區', tagIds: ['正餐', '老舖', '必吃'] },
+  { id: 'W_MINAMI_KISSHOKARYO', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '吉祥菓寮 東寺店', tagIds: ['甜點', '抹茶', '打卡', '必吃'] }
 ];

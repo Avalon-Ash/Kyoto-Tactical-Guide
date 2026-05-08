@@ -58,5 +58,9 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-055', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "一條戾橋 有頂天家族", tagIds: ['ACG', '打卡'] },
   { id: 'KG-056', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "西陣 露地 散策", tagIds: ['ACG', '打卡'] },
   { id: 'KG-057', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "同志社大學 彰榮館", tagIds: ['ACG', '打卡'] },
-  { id: 'KG-058', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "一保堂茶舖 本店", tagIds: ['抹茶', '老舖', '必吃'] }
+  { id: 'KG-058', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "一保堂茶舖 本店", tagIds: ['抹茶', '老舖', '必吃'] },
+  { id: 'W_KAMIGYO_IPPODO_KAGI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一保堂茶舖 嘉木', tagIds: ['抹茶', '老舖', '隱密', '喫茶'] },
+  { id: 'W_KAMIGYO_ORYORI_HAYASHI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '御料理 はやし', tagIds: ['正餐', '懷石', '隱密'] },
+  { id: 'W_KAMIGYO_CHOGOROMOCHI', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '長五郎餅本舗 北野天滿宮', tagIds: ['甜點', '老舖', '打卡'] },
+  { id: 'W_KAMIGYO_FUNAHASHIYA_NIBEI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '船はしや仁兵衛', tagIds: ['喫茶', '老舖', '隱密'] }
 ];

@@ -64,5 +64,9 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-062', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_ACG', mapQuery: "鞍馬寺 有頂天家族", tagIds: ['ACG', '寺院'] },
   { id: 'SK-063', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_ACG', mapQuery: "貴船神社 境界の彼方", tagIds: ['ACG', '神社'] },
   { id: 'SK-064', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "藤井有鄰館", tagIds: ['隱密'] },
-  { id: 'SK-065', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都傳統産業ミュージアム", tagIds: ['打卡'] }
+  { id: 'SK-065', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都傳統産業ミュージアム", tagIds: ['打卡'] },
+  { id: 'W_SAKYO_OKAKITA', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '岡北 京都', tagIds: ['正餐', '必吃', '老舖'] },
+  { id: 'W_SAKYO_MOAN', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '茂庵', tagIds: ['抹茶', '喫茶', '隱密', '打卡'] },
+  { id: 'W_SAKYO_YAMAMOTO_MENZOU', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '山元麺蔵', tagIds: ['正餐', '必吃'] },
+  { id: 'W_SAKYO_RAKUCHU_RAKUGAI', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '修学院離宮前 洛中洛外', tagIds: ['正餐', '隱密'] }
 ];

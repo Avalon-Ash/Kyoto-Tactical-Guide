@@ -54,5 +54,9 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-055', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "喫茶 ヤマモト", tagIds: ['喫茶', '必吃'] },
   { id: 'NK-056', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "大原野 十二屋", tagIds: ['正餐', '必吃'] },
   { id: 'NK-057', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "柿本 豆富店", tagIds: ['正餐', '必吃'] },
-  { id: 'NK-058', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都大學 桂校區", tagIds: ['打卡'] }
+  { id: 'NK-058', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都大學 桂校區", tagIds: ['打卡'] },
+  { id: 'W_NISHIKYO_TSUTA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '松尾 桂離宮前 懷石 蔦', tagIds: ['正餐', '懷石', '隱密'] },
+  { id: 'W_NISHIKYO_SHIOGAMA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '洛西 塩竈の杜', tagIds: ['正餐', '隱密'] },
+  { id: 'W_NISHIKYO_YAMADAYA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '柚餅子 山田屋', tagIds: ['甜點', '老舖'] },
+  { id: 'W_NISHIKYO_SMART_COFFEE', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'スマート珈琲 西京店', tagIds: ['喫茶', '老舖'] }
 ];

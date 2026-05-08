@@ -60,5 +60,8 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-058', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "扭蛋百貨 寺町店", tagIds: ['ACG', '打卡'] },
   { id: 'NC-059', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "喫茶 築地", tagIds: ['喫茶', '老舖', '打卡'] },
   { id: 'NC-060', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "INODA COFFEE 本店", tagIds: ['喫茶', '老舖', '必吃', '打卡'] },
-  { id: 'NC-061', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "前田珈琲 明倫店", tagIds: ['喫茶', '打卡'] }
+  { id: 'NC-061', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "前田珈琲 明倫店", tagIds: ['喫茶', '打卡'] },
+  { id: 'W_NAKAGYO_NISHIKI_NISHIKAWA', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '錦・西川 錦市場', tagIds: ['老舖', '必吃'] },
+  { id: 'W_NAKAGYO_TAKAGI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '割烹 たか木', tagIds: ['正餐', '懷石', '隱密'] },
+  { id: 'W_NAKAGYO_KIKUNOI_KIYAMACHI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '菊乃井 木屋町店', tagIds: ['正餐', '懷石', '必吃'] }
 ];

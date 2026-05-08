@@ -61,5 +61,9 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-059', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "ぎをん 萬屋", tagIds: ['正餐', '必吃'] },
   { id: 'HY-061', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 祇園本店", tagIds: ['抹茶', '甜點', '必吃', '打卡'] },
   { id: 'HY-062', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "祇園辻利 祇園本店", tagIds: ['抹茶', '和菓子', '老舖'] },
-  { id: 'HY-063', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都祇園店", tagIds: ['抹茶', '甜點', '必吃'] }
+  { id: 'HY-063', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都祇園店", tagIds: ['抹茶', '甜點', '必吃'] },
+  { id: 'W_HIGASHIYAMA_AKOYA_CHAYA', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '阿古屋茶屋 清水寺', tagIds: ['正餐', '老舖', '隱密'] },
+  { id: 'W_HIGASHIYAMA_SHICHIMIYA_HONPO_CHASEKI', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '七味家本舖 茶席 産寧坂', tagIds: ['甜點', '老舖', '打卡'] },
+  { id: 'W_HIGASHIYAMA_JUNIDANYA', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '十二段家 祇園', tagIds: ['甜點', '老舖', '必吃'] },
+  { id: 'W_HIGASHIYAMA_GION_YATA', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇をん 八咫 祇園白川', tagIds: ['正餐', '和牛', '隱密'] }
 ];

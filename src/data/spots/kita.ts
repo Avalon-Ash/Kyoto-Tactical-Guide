@@ -56,5 +56,9 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-053', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野白梅町 K-ON", tagIds: ['ACG', '地鐵'] },
   { id: 'KT-054', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "北大路橋 鴨川 輕音部", tagIds: ['ACG', '打卡'] },
   { id: 'KT-055', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "立命館大学 西園寺記念館", tagIds: ['隱密'] },
-  { id: 'KT-056', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "金閣寺 アニメ", tagIds: ['ACG', '打卡'] }
+  { id: 'KT-056', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "金閣寺 アニメ", tagIds: ['ACG', '打卡'] },
+  { id: 'W_KITA_KAIKADO_CAFE', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: 'Kaikado Café 京都', tagIds: ['喫茶', '打卡', '老舖'] },
+  { id: 'W_KITA_CHIKUSEI', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '金閣寺 陸舟の松そば 近清', tagIds: ['正餐', '老舖', '打卡'] },
+  { id: 'W_KITA_NISHIJIN_UOSHIN', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '西陣 魚新', tagIds: ['正餐', '懷石', '隱密'] },
+  { id: 'W_KITA_KAMIGAMO_YAKIMOCHI', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '上賀茂 やきもち總本家', tagIds: ['甜點', '老舖', '必吃'] }
 ];
