@@ -9,7 +9,7 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-006', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "仁和寺", typeColorClass: "border-[#c47070]" },
   { id: 'UK-007', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山 竹林", typeColorClass: "border-[#7ab89a]" },
   { id: 'UK-008', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "渡月橋", typeColorClass: "border-[#7ab89a]" },
-  { id: 'UK-009', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_SHOP', mapQuery: "太秦電影村", typeColorClass: "border-[#d4a74a]" },
+  { id: 'UK-009', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "太秦電影村", typeColorClass: "border-[#6aab82]" },
   { id: 'UK-010', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "嵯峨嵐山站", typeColorClass: "border-[#7aa5d4]" },
   { id: 'UK-011', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "小火車嵯峨站", typeColorClass: "border-[#7aa5d4]" },
   { id: 'UK-012', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "常寂光寺", typeColorClass: "border-[#c47070]" },
