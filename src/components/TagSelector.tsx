@@ -39,12 +39,12 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               key={tagId}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelect(isActive ? null : tagId)}
-              className={`maki-e-tag shrink-0 px-6 py-2.5 text-[0.95rem]
+              className={`shrink-0 px-6 py-2.5 text-[0.95rem]
                 font-serif tracking-[0.15em] min-h-[48px] flex items-center justify-center
                 rounded-sm border transition-all duration-300
                 ${isActive 
-                  ? 'bg-shuiro text-white border-shuiro shadow-lg maki-e-tag active' 
-                  : 'bg-white/5 text-gold-light border-gold-light/30 maki-e-tag'}`}
+                  ? 'maki-e-tag active bg-shuiro text-white border-shuiro shadow-lg' 
+                  : 'maki-e-tag bg-white/5 text-gold-light border-gold-light/30'}`}
             >
               {label}
             </motion.button>

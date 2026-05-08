@@ -12,5 +12,7 @@ export const UI_DICT: Record<string, I18nText> = {
   empty_msg: { zh: "此間無跡，換一條路試試", ja: "この道には跡なし、別の径を" },
   btn_map: { zh: "展輿圖（Google Maps）", ja: "輿図を開く（Google Maps）" },
   unit_spot: { zh: "處", ja: "件" },
-  loading: { zh: "展卷中，稍候片刻…", ja: "巻物を広げています…" }
+  loading: { zh: "展卷中，稍候片刻…", ja: "巻物を広げています…" },
+  btn_close: { zh: "收卷・歸", ja: "巻を閉じる" },
+  no_results: { zh: "此間無跡", ja: "跡なし" }
 };
