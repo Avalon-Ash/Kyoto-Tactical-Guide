@@ -51,7 +51,7 @@ export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'NK-043': { name: "京都市立藝術大學", desc: "校園氣氛充滿靈感。孕育京都西側文化生命力。", tags: "打卡" },
   'NK-044': { name: "嵐山 展望路 (西京側)", desc: "林間步道。從立體角度觀察大堰川與山形。", tags: "展望 打卡" },
   'NK-045': { name: "西京 庚申堂", desc: "守護交通安全與除厄。香火連綿的古老場所。", tags: "神社 歷史" },
-  'NK-046': { name: "中村軒", desc: "百年老舖。招牌「麥代餅」是補充體力的名物。", tags: "甜點 老舖 必吃" },
+  'NK-046': { name: "中村軒", desc: "百年老舖。招牌「麥代餅」是補充體力的名物。", tags: "和菓子 老舖 必吃" },
   'NK-047': { name: "桂東口商店街", desc: "保留下町親切感。觀察西京日常生活的最佳處。", tags: "購物" },
   'NK-048': { name: "高島屋 洛西店", desc: "新城購物核心。提供高品質物資補給。", tags: "購物" },
   'NK-049': { name: "阪急 嵐山站 K-ON", desc: "《K-ON！》少女們合宿必經的懷舊車站。", tags: "ACG 打卡" },
@@ -68,5 +68,5 @@ export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'W_NISHIKYO_SHIOGAMA': { name: "洛西 鹽竈之杜", desc: "位於洛西靜謐住宅區，主打創意豆腐料理與京懷石，空間優雅且充滿禪意。", tags: "正餐 隱密 豆腐" },
   'W_NISHIKYO_YAMADAYA': { name: "柚餅子 山田屋", desc: "專營傳承 150 年的柚餅子名產。以傳統工法製作出甜、酸、苦平衡的絕妙滋味。", tags: "和菓子 老舖" },
   'W_NISHIKYO_SMART_COFFEE': { name: "聰明咖啡 西京店", desc: "京都老派咖啡名店分店。環境更寬敞，維持一致的頂級自家烘焙與經典厚鬆餅。", tags: "喫茶 老舖" },
-  'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '嵐山渡月橋旁的現代風格咖啡廳，落地窗正對桂川，甜品與景觀俱佳。', tags: '現代 打卡 甜點' }
+  'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '嵐山渡月橋旁的現代風格咖啡廳，落地窗正對桂川美景，精緻洋菓子甜品與窗外溪谷景觀俱佳，非常適合悠閒午後。', tags: '現代 打卡 洋菓子' }
 };

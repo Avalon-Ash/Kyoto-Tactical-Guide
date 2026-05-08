@@ -105,7 +105,7 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
           {typeName}
         </span>
         {spot.tagIds && spot.tagIds.length > 0 ? (
-          spot.tagIds.map((tid) => {
+          spot.tagIds.slice(0, 4).map((tid) => {
             const tagMeta = TAG_REGISTRY[tid];
             if (!tagMeta) return null;
             return (
@@ -115,7 +115,7 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
             );
           })
         ) : (
-          tags.map((tag, i) => (
+          tags.slice(0, 4).map((tag, i) => (
             <span key={i} className="text-[clamp(0.55rem,0.8vw,0.8rem)] px-[clamp(0.5rem,1vw,1rem)] py-[clamp(0.2rem,0.5vw,0.6rem)] bg-white/5 text-[#f0ead6]/40 font-serif border border-white/5 tracking-wider">
               #{tag.trim()}
             </span>

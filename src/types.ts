@@ -1,5 +1,8 @@
 export type Lang = 'zh' | 'ja';
 
+/** 景點與元數據 ID 的合法字元規範：僅限大寫字母、數字、底線及連字號 */
+export const RE_ID_SLUG = /^[A-Z0-9_\-]+$/;
+
 export type I18nText = Record<Lang, string>;
 
 export type WardKey = 
@@ -20,6 +23,11 @@ export interface SpotSchema {
 export interface SpotLocale {
   name: string;
   desc: string;
+  /** 
+   * tags 欄位用途：
+   * - ZH locale: 須與 schema.tagIds 鏡射（中文 key），同時作為顯示文字與篩選基準。
+   * - JA locale: 使用日文標籤供顯示用途（如 '映え', '穴場'），不參與篩選邏輯。
+   */
   tags: string;
 }
 

@@ -50,7 +50,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-024', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "志明院", tagIds: ['寺院', '隱密'] },
   { id: 'KT-025', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "神光院 京都", tagIds: ['寺院'] },
   { id: 'KT-026', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "平野神社 夜櫻", tagIds: ['神社', '賞花', '打卡'] },
-  { id: 'KT-027', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "船岡温泉", tagIds: ['打卡', '老舖'] },
+  { id: 'KT-027', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "船岡温泉", tagIds: ['打卡', '老舖'] },
   { id: 'KT-028', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "さらさ西陣", tagIds: ['喫茶', '打卡', '老舖'] },
   { id: 'KT-029', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "一文字屋和助", tagIds: ['和菓子', '老舖', '必吃'] },
   { id: 'KT-030', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "京都府立植物園", tagIds: ['賞花', '庭園'] },

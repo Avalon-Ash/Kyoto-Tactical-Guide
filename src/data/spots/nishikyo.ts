@@ -45,7 +45,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-023', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山中之島公園 (西京區)", tagIds: ['自然', '散步'] },
   { id: 'NK-024', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "洛西地下街", tagIds: ['購物'] },
   { id: 'NK-025', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "西山公園", tagIds: ['自然'] },
-  { id: 'NK-026', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "沓掛交流道", tagIds: ['打卡'] },
+  { id: 'NK-026', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "沓掛交流道", tagIds: ['打卡'] },
   { id: 'NK-027', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "洛西新城 景觀", tagIds: ['打卡'] },
   { id: 'NK-028', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: "壽司 誠 桂店", tagIds: ['正餐', '必吃', '壽司'] },
   { id: 'NK-029', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "桂川 渡月橋南側", tagIds: ['展望', '打卡'] },
@@ -61,7 +61,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-039', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "桂川 堤防自行車道", tagIds: ['自然'] },
   { id: 'NK-040', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "勝持寺 櫻花", tagIds: ['賞花', '打卡'] },
   { id: 'NK-041', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "大原野神社 參道", tagIds: ['神社', '賞楓', '打卡'] },
-  { id: 'NK-042', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_HUB', mapQuery: "京都 桂溫泉", tagIds: ['溫泉', '打卡'] },
+  { id: 'NK-042', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都 桂溫泉", tagIds: ['溫泉', '打卡'] },
   { id: 'NK-043', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "京都市立藝術大學", tagIds: ['打卡', '現代'] },
   { id: 'NK-044', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "嵐山 展望路 (西京側)", tagIds: ['展望', '打卡'] },
   { id: 'NK-045', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "西京 庚申堂", tagIds: ['神社', '歷史'] },
@@ -82,5 +82,5 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'W_NISHIKYO_SHIOGAMA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '洛西 塩竈の杜', tagIds: ['正餐', '隱密', '豆腐'] },
   { id: 'W_NISHIKYO_YAMADAYA', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '柚餅子 山田屋', tagIds: ['和菓子', '老舖'] },
   { id: 'W_NISHIKYO_SMART_COFFEE', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'スマート珈琲 西京店', tagIds: ['喫茶', '老舖'] },
-  { id: 'NISHIKYO_PASS_THE_BATON', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: 'アミティエ 嵐山 カフェ', tagIds: ['現代', '打卡', '甜點'] }
+  { id: 'NISHIKYO_PASS_THE_BATON', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: 'アミティエ 嵐山 カフェ', tagIds: ['現代', '打卡', '洋菓子'] }
 ];
