@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, WARD_STATS, AREA_STATS } from '../data/index';
@@ -12,6 +12,14 @@ interface HomeViewProps {
 
 export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount }) => {
   const { lang, mode, t, toggleLang, openDetail } = engine;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto scroll to top when switching modes (Ward/Area)
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [mode]);
 
   return (
     <motion.div 
@@ -59,7 +67,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
         </button>
       </nav>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar">
         {mode === 'ward' ? (
           <div className="p-4 sm:p-12 flex flex-col items-center gap-4 sm:gap-10 pb-12">
             <div className="font-serif text-[clamp(0.75rem,2vw,1rem)] text-gold-light tracking-[0.2em] opacity-40 uppercase">{t('map_hint')}</div>

@@ -22,16 +22,18 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
 
-  const baseQuery = spot.mapQuery || spot.jaName || name;
-  // Remove redundant city/ward names if already present (suffix or prefix)
-  const cleanedQuery = baseQuery
-    .replace(/^京都府\s*京都市\s*/, '')
-    .replace(/^京都市\s*/, '')
-    .replace(new RegExp(`^${WARD_NAMES[spot.wardId].ja}\\s*`), '')
-    .replace(new RegExp(`\\s*${WARD_NAMES[spot.wardId].ja}$`), '')
-    .replace(/\s*京都$/, '');
+  const wardJa = WARD_NAMES[spot.wardId].ja;
+  const wardZh = WARD_NAMES[spot.wardId].zh;
 
-  const mapSearchQuery = `京都府 京都市 ${WARD_NAMES[spot.wardId].ja} ${cleanedQuery}`;
+  // Filter out any Japanese or Chinese ward names already present in the mapQuery to avoid redundancy
+  const cleanQuery = spot.mapQuery
+    .replace(new RegExp(wardJa, 'g'), '')
+    .replace(new RegExp(wardZh, 'g'), '')
+    .trim();
+
+  // Construct the precise query string: Kyoto City + Ward Name + Cleaned Query
+  const preciseQuery = `京都府京都市${wardJa} ${cleanQuery}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(preciseQuery)}`;
 
   return (
     <motion.div 
@@ -82,9 +84,14 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
       </div>
       
       <a 
-        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapSearchQuery)}`}
+        href={googleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={(e) => {
+          // Explicitly use window.open as per requirement, while keeping href for accessibility
+          e.preventDefault();
+          window.open(googleMapsUrl, '_blank');
+        }}
         style={{
           background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
           border: '1px solid rgba(200,160,74,0.4)',

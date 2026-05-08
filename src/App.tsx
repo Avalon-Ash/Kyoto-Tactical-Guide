@@ -14,16 +14,6 @@ export default function App() {
   // 使用全域統計快取來加速
   const totalCount = useMemo(() => Object.values(WARD_STATS).reduce((a, b) => a + b, 0), []);
 
-  // Scroll to top when entering detail view
-  useEffect(() => {
-    if (activeId) {
-      const scrollContainer = document.querySelector('.overflow-y-auto');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = 0;
-      }
-    }
-  }, [activeId]);
-
   return (
     <div className="flex justify-center h-full bg-[#050505]">
       <div className="w-full h-full bg-[#0c0b0a] text-[#f0ead6] relative overflow-hidden shadow-2xl urushi-panel border-x border-gold/20">
