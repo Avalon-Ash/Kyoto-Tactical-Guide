@@ -51,6 +51,5 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", typeColorClass: "border-[#e67e22]" },
   { id: 'NC-049', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "京の焼肉処 弘 三條木屋町店", typeColorClass: "border-[#e67e22]" },
   { id: 'NC-050', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "六曜社珈琲店", typeColorClass: "border-[#e67e22]" },
-  { id: 'NC-051', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'Nintendo 京都', typeColorClass: 'border-[#ff7eb6]' },
   { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'ちいかわらんど キデイランド京都四条河原町店', typeColorClass: 'border-[#ff7eb6]' }
 ];
