@@ -64,5 +64,9 @@ export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'NK-056': { name: "大原野 十二屋", desc: "使用在地契作蔬菜。口味清爽的田園農家菜。", tags: "正餐 必吃" },
   'NK-057': { name: "柿本 豆富店", desc: "老字號豆製品店。酥脆炸油豆腐是平民級補給。", tags: "正餐 必吃" },
   'NK-058': { name: "京都大學 桂校區", desc: "矗立山丘的現代科技群。展現科研基地氛圍。", tags: "打卡" },
+  'W_NISHIKYO_TSUTA': { name: "桂離宮前 蔦", desc: "桂離宮前的京料理名店。使用當季鮮活食材，在優美環境中享用傳統懷石料理。", tags: "正餐 懷石 隱密" },
+  'W_NISHIKYO_SHIOGAMA': { name: "洛西 鹽竈之杜", desc: "位於洛西靜謐住宅區，主打創意豆腐料理與京懷石，空間優雅且充滿禪意。", tags: "正餐 隱密 豆腐" },
+  'W_NISHIKYO_YAMADAYA': { name: "柚餅子 山田屋", desc: "專營傳承 150 年的柚餅子名產。以傳統工法製作出甜、酸、苦平衡的絕妙滋味。", tags: "和菓子 老舖" },
+  'W_NISHIKYO_SMART_COFFEE': { name: "聰明咖啡 西京店", desc: "京都老派咖啡名店分店。環境更寬敞，維持一致的頂級自家烘焙與經典厚鬆餅。", tags: "喫茶 老舖" },
   'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '嵐山渡月橋旁的現代風格咖啡廳，落地窗正對桂川，甜品與景觀俱佳。', tags: '現代 打卡 甜點' }
 };

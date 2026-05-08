@@ -67,5 +67,9 @@ export const YAMASHINA_JA: Record<string, SpotLocale> = {
   'YS-055': { name: "山科図書館", desc: "落ち着いて読書が楽しめる、地域の文化発信基地。 ", tags: "映え" },
   'YS-056': { name: "GiGO 山科", desc: "最新機種が並ぶゲーセン。地域住民の娯楽の場。 ", tags: "ACG 映え" },
   'YS-057': { name: "ジョーシン 山科店", desc: "プラモデルやフィギュアも充実。ホビーファンの拠点。 ", tags: "ACG 映え" },
-  'YS-058': { name: "TSUTAYA 山科駅前", desc: "アニメ、漫画などサブカルチャーも充実の情報発信地。 ", tags: "ACG 映え" }
+  'YS-058': { name: "TSUTAYA 山科駅前", desc: "アニメ、漫画などサブカルチャーも充実の情報発信地。 ", tags: "ACG 映え" },
+  'W_YAMASHINA_RYUGETSUDO': { name: "柳月堂", desc: "山科の老舗ベーカリー兼喫茶。名物の「クラシック音楽席」があり、静寂の中で音楽とパンを楽しめる通好みの名店。", tags: "喫茶 老舖 隱密" },
+  'W_YAMASHINA_BISHAMON_MONZEN': { name: "毘沙門堂 門前茶屋 やましな", desc: "毘沙門堂の参道脇に位置。抹茶や伝統的な甘味を提供し、秋の紅葉シーズンは特に絶景。 ", tags: "和菓子 打卡 抹茶" },
+  'W_YAMASHINA_FURUKAWAYA': { name: "三条 古川屋", desc: "旧三条通り沿いにあり、江戸時代から続くような趣の京懐石や季節の定食を、素朴で温かい雰囲気で提供する。", tags: "正餐 老舖 隱密" },
+  'W_YAMASHINA_SHIBAZUKE_CHAYA': { name: "志ば漬本舗 茶屋", desc: "大原の名産・志ば漬の老舗による山科店。漬物定食や茶漬けを通して、京都の食文化の粋を味わえる。", tags: "和菓子 老舖 打卡" }
 };

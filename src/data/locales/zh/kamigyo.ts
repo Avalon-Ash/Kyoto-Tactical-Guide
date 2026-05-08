@@ -66,5 +66,9 @@ export const KAMIGYO_ZH: Record<string, SpotLocale> = {
   'KG-055': { name: "一條戾橋 (有頂天家族)", desc: "通往彼世的奇點，多部動漫聖地。", tags: "ACG 打卡" },
   'KG-056': { name: "西陣 露地", desc: "隱藏的迷宮巷弄，《有頂天家族》狸貓奔跑點。", tags: "ACG 打卡" },
   'KG-057': { name: "同志社大學 (彰榮館)", desc: "洋風背景聖地，紅磚建築登錄為重要文化財。", tags: "ACG 打卡" },
-  'KAMIGYO_TEMPURA_YOSHIKAWA': { name: '西陣 天婦羅 吉川', desc: '西陣織職人街中的低調天婦羅割烹，老闆自產自炸，隱密卻口碑極佳。', tags: '天婦羅 正餐 隱密' }
+  'KAMIGYO_TEMPURA_YOSHIKAWA': { name: '西陣 天婦羅 吉川', desc: '西陣織職人街中的低調天婦羅割烹，老闆自產自炸，隱密卻口碑極佳。', tags: '天婦羅 正餐 隱密' },
+  'W_KAMIGYO_IPPODO_KAGI': { name: "一保堂茶舖 嘉木", desc: "京都百年茶舖本店。附設茶室「嘉木」可體驗自行沖泡抹茶與經典和菓子。", tags: "喫茶 老舖 抹茶" },
+  'W_KAMIGYO_ORYORI_HAYASHI': { name: "御料理 はやし", desc: "名列米其林的京料理店。位於御苑旁，主廚林幸治以對食材的極致理解，呈現簡潔卻深邃的懷石之味。", tags: "正餐 懷石 隱密" },
+  'W_KAMIGYO_CHOGOROMOCHI': { name: "長五郎餅本舖", desc: "創業於 400 多年前的天正年間。豐臣秀吉曾在北野大茶會中讚賞其軟嫩的麻糬與細緻紅豆餡。", tags: "和菓子 老舖 打卡" },
+  'W_KAMIGYO_FUNAHASHIYA_NIBEI': { name: "船はしや仁兵衛", desc: "位於丸太町通上的老舖菓子店。特色是香脆的五色豆與手工煎餅，店內散發著懷舊的江戶氛圍。", tags: "喫茶 老舖 隱密 和菓子" }
 };

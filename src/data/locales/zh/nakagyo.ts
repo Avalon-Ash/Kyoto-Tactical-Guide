@@ -70,6 +70,9 @@ export const NAKAGYO_ZH: Record<string, SpotLocale> = {
   'NC-059': { name: "喫茶 築地", desc: "1934年創業。巴洛克風格時空隧道。", tags: "喫茶 老舖 打卡" },
   'NC-060': { name: "INODA COFFEE 本店", desc: "「京都的一天從這裡開始」。歐式庭園。名特調咖啡。", tags: "喫茶 老舖 必吃 打卡" },
   'NC-061': { name: "前田珈琲 明倫店", desc: "位於舊小學校舍內，體驗時光倒流感。", tags: "喫茶 打卡" },
+  'W_NAKAGYO_NISHIKI_NISHIKAWA': { name: "錦・西川", desc: "錦市場內的鮮魚與惣菜老舖。提供新鮮刺身與季節配菜，深受在地人喜愛。", tags: "老舖 必吃" },
+  'W_NAKAGYO_TAKAGI': { name: "割烹 たか木", desc: "米其林星級懷石料理。主廚以細膩手法呈現關西旬味，空間幽靜隱密。", tags: "正餐 懷石 隱密" },
+  'W_NAKAGYO_KIKUNOI_KIYAMACHI': { name: "菊乃井 木屋町店", desc: "米其林名店菊乃井的分店。位於清流旁，在絕佳氛圍中享用頂級京懷石。", tags: "正餐 懷石 必吃" },
   'NAKAGYO_TEMPURA_TAIAN': { name: '錦 天婦羅 大安', desc: '錦市場週邊的天婦羅専門店，嚴選京野菜與海鮮現炸，必吃炸湯葉。', tags: '天婦羅 正餐 必吃' },
   'NAKAGYO_SHINPUHKAN': { name: '新風館', desc: '安藤忠雄改建的舊中央電話局，黑色清水模與京町家共生，集結精品旅館 Ace Hotel、選物店與餐飲的新複合設施。', tags: '現代 購物 打卡' }
 };

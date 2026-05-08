@@ -73,5 +73,9 @@ export const SAKYO_ZH: Record<string, SpotLocale> = {
   'SK-062': { name: "鞍馬寺 (聖地)", desc: "《有頂天家族》中天狗狸貓之地。", tags: "ACG 寺院" },
   'SK-063': { name: "貴船神社 (聖地)", desc: "《境界的彼方》神祕場景。", tags: "ACG 神社" },
   'SK-064': { name: "藤井有鄰館", desc: "建築外觀獨眼龍造型引人注目。", tags: "隱密" },
-  'SK-065': { name: "傳統產業交流館", desc: "深入了解京工藝精髓的地方。", tags: "打卡" }
+  'SK-065': { name: "傳統產業交流館", desc: "深入了解京工藝精髓的地方。", tags: "打卡" },
+  'W_SAKYO_OKAKITA': { name: "岡北", desc: "位於平安神宮旁，與隔壁山元麵藏並稱的烏龍麵名店。滑順的勾芡蛋花麵是經典。", tags: "正餐 必吃 老舖 烏龍" },
+  'W_SAKYO_MOAN': { name: "茂庵", desc: "位於吉田山頂的木造喫茶。曾是茶道大師的園林，能俯瞰京都市景，充滿隱世感。", tags: "抹茶 喫茶 隱密 打卡" },
+  'W_SAKYO_YAMAMOTO_MENZOU': { name: "山元麵藏", desc: "京都最強烏龍麵。麵條勁道無窮，現炸牛蒡天婦羅更是每桌必點的招牌菜。", tags: "正餐 必吃 烏龍" },
+  'W_SAKYO_RAKUCHU_RAKUGAI': { name: "洛中洛外", desc: "修學院離宮前的蕎麥麵席。提供精緻的冷蕎麥與天婦羅，適合漫遊後的寧靜午餐。", tags: "正餐 隱密 蕎麥" }
 };

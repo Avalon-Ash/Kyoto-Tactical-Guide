@@ -65,5 +65,9 @@ export const KITA_ZH: Record<string, SpotLocale> = {
   'KT-053': { name: "北野白梅町 (K-ON! 聖地)", desc: "《輕音部》中平澤唯等人上學必經的路口場景。", tags: "ACG 地鐵" },
   'KT-054': { name: "賀茂川 北大路橋", desc: "多次出現在《輕音部》等京阿尼作品中的河畔步道。", tags: "ACG 打卡" },
   'KT-055': { name: "立命館大學 西園寺紀念館", desc: "融合古典與現代元素的校園建築。", tags: "隱密" },
-  'KT-056': { name: "金閣寺 (動畫取景)", desc: "作為京都的絕對象徵，在無數動漫與遊戲中登場。", tags: "ACG 打卡" }
+  'KT-056': { name: "金閣寺 (動畫取景)", desc: "作為京都的絕對象徵，在無數動漫與遊戲中登場。", tags: "ACG 打卡" },
+  'W_KITA_KAIKADO_CAFE': { name: "Kaikado Café", desc: "由舊市電倉庫改建，結合開化堂茶筒工藝與頂級咖啡，空間極具工業現代感。", tags: "喫茶 打卡 老舖" },
+  'W_KITA_CHIKUSEI': { name: "金閣寺 近清", desc: "緊鄰金閣寺，邊眺望「陸舟之松」邊品嚐現磨蕎麥麵，極富京都老舖情懷。", tags: "正餐 老舖 打卡 蕎麥" },
+  'W_KITA_NISHIJIN_UOSHIN': { name: "西陣 魚新", desc: "創立於 1855 年依。曾為御所供餐，環境典雅，能體驗正統西陣職人文化的懷石。", tags: "正餐 懷石 隱密" },
+  'W_KITA_KAMIGAMO_YAKIMOCHI': { name: "葵家 燒餅總本家", desc: "上賀茂神社前的名產。外皮微焦香甜，內餡紅豆飽滿，是必嚐的傳統和菓子。", tags: "和菓子 老舖 必吃" }
 };

@@ -67,5 +67,9 @@ export const YAMASHINA_ZH: Record<string, SpotLocale> = {
   'YS-055': { name: "山科圖書館", desc: "現代文化中心，提供靜謐的閱讀與充電空間。", tags: "打卡" },
   'YS-056': { name: "GiGO 山科", desc: "熱鬧遊戲中心。與當地玩家交流，釋放壓力。", tags: "ACG 打卡" },
   'YS-057': { name: "Joshin 山科店", desc: "鋼彈與模型迷的補給點，兒童玩具區域極大。", tags: "ACG 打卡" },
-  'YS-058': { name: "TSUTAYA 山科站前", desc: "轉運節點。收藏海量動漫與流行刊物。", tags: "ACG 打卡" }
+  'YS-058': { name: "TSUTAYA 山科站前", desc: "轉運節點。收藏海量動漫與流行刊物。", tags: "ACG 打卡" },
+  'W_YAMASHINA_RYUGETSUDO': { name: "柳月堂", desc: "山科的老舖麵包店與喫茶。特色是設有古典音樂席，能在他人的耳語外享受靜謐。", tags: "喫茶 老舖 隱密" },
+  'W_YAMASHINA_BISHAMON_MONZEN': { name: "毘沙門堂 門前茶屋", desc: "位於毘沙門堂參道旁，提供抹茶與傳統甜品，秋季紅葉環繞時景色絕佳。", tags: "和菓子 打卡 抹茶" },
+  'W_YAMASHINA_FURUKAWAYA': { name: "三條 古川屋", desc: "位於舊三條街道旁，主打在地江戶風格的京懷石與時令定食，氛圍樸實親切。", tags: "正餐 老舖 隱密" },
+  'W_YAMASHINA_SHIBAZUKE_CHAYA': { name: "志ば漬本舖 茶屋", desc: "大原名產漬物老舖的山科分店。可品嚐漬物定食與茶漬，體驗京都飲食精髓。", tags: "和菓子 老舖 打卡" }
 };

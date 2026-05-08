@@ -70,5 +70,9 @@ export const HIGASHIYAMA_ZH: Record<string, SpotLocale> = {
   'HY-061': { name: "茶寮都路里 祇園本店", desc: "宇治抹茶甜點的巔峰。其「特選都路里聖代」是京都旅遊必嚐。", tags: "抹茶 甜點 必吃 打卡" },
   'HY-062': { name: "祇園辻利 祇園本店", desc: "創業於1860年的老舖茶商。抹茶霜淇淋是祇園街頭的經典風味。", tags: "抹茶 和菓子 老舖" },
   'HY-063': { name: "中村藤吉 京都祇園店", desc: "來自宇治的頂級茶商。提供高品質抹茶甜點與現泡茗茶。", tags: "抹茶 甜點 必吃" },
+  'W_HIGASHIYAMA_AKOYA_CHAYA': { name: "阿古屋茶屋", desc: "清水寺附近的茶漬飯名店。提供數十種京醬菜與三種米飯吃到飽，需預約的排隊店。", tags: "正餐 老舖 隱密 豆腐" },
+  'W_HIGASHIYAMA_SHICHIMIYA_HONPO_CHASEKI': { name: "七味家本舖 茶席", desc: "擁有 350 年歷史的七味粉老舖附屬茶席。可在此品味香氣撲鼻的湯豆腐與甘味。", tags: "和菓子 老舖 打卡" },
+  'W_HIGASHIYAMA_JUNIDANYA': { name: "十二段家 祇園", desc: "涮涮鍋發源地。老建築內充滿民藝氣息，元祖茶漬飯定食亦是招牌。", tags: "和菓子 老舖 必吃" },
+  'W_HIGASHIYAMA_GION_YATA': { name: "祇園 八咫", desc: "隱身於白川畔的京料理店。主打一汁三菜，能以親民價格在祇園品嚐精緻懷石。", tags: "正餐 和牛 隱密 懷石" },
   'HIGASHIYAMA_TEMPURA_ENDO': { name: '祇園 天周', desc: '祇園石疊小路旁的天婦羅名店，以份量爆炸的穴子（星鰻）天井聞名。', tags: '天婦羅 正餐 老舖' }
 };

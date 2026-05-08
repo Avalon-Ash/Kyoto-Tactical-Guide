@@ -70,6 +70,9 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SM-060': { name: "本家 第一旭", desc: "京都站旁的排隊神店。體驗傳統豬骨醬油的精髓。", tags: "正餐 必吃 老舖" },
   'SM-061': { name: "京都中央郵局", desc: "昭和現代建築大作。寄出旅途思念的地方。", tags: "打卡" },
   'SM-062': { name: "大丸京都店 屋頂", desc: "百貨公司頂層的神祕綠地。逃離擁擠的最佳歇腳處。", tags: "自然" },
+  'W_SHIMOGYO_ISETAN_SHOYUKAN': { name: "伊勢丹 食遊館", desc: "位於京都車站伊勢丹地下。匯集所有京都一線老舖的精品和菓子與便利餐盒。", tags: "和菓子 老舖 打卡" },
+  'W_SHIMOGYO_YOSHINOYA': { name: "吉廼家", desc: "隱身巷弄的和菓子老舖。名物「一休大福」口感Q彈，是許多在地人的心頭好。", tags: "和菓子 老舖 隱密" },
+  'W_SHIMOGYO_SARASA_KAYUKOJI': { name: "Sarasa 花遊小路", desc: "Sarasa 系列中氛圍最隱密的分店。隱身窄巷中，提供充滿美式復古風的餐食。", tags: "喫茶 打卡 隱密" },
   'SHIMOGYO_TEMPURA_YOKOTA': { name: '京都駅前 天婦羅 橫田', desc: '京都站徒步即達的老牌天婦羅食堂，旅途最終夜的熱炸慰藉。', tags: '天婦羅 正餐 打卡' },
   'SHIMOGYO_KYOTO_STATION_BLDG': { name: '京都驛大廈 大空廣場', desc: '原研哉設計監修的京都站內部大廳，挑高空間與幾何格柵構成現代京都的門戶意象，夜間打光尤為壯觀。', tags: '現代 打卡 購物' }
 };
