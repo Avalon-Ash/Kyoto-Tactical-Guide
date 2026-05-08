@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_SAKYO — 左京區
+ * Key 必須與 src/data/spots/sakyo.ts 的 id 完全一致。
+ * 必須與 locales/ja/sakyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const SAKYO_ZH: Record<string, SpotLocale> = {
   'SK-001': { name: "出町柳站", desc: "京阪電鐵與叡山電鐵的交匯點。前往貴船、鞍馬地區的總體轉運站。", tags: "地鐵" },
   'SK-002': { name: "下鴨神社", desc: "世界遺產。森林「糺之森」充滿原始靈氣。", tags: "神社 世界遺產 打卡" },

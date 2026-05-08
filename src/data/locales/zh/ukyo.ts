@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_UKYO — 右京區
+ * Key 必須與 src/data/spots/ukyo.ts 的 id 完全一致。
+ * 必須與 locales/ja/ukyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const UKYO_ZH: Record<string, SpotLocale> = {
   'UK-001': { name: "嵐山站 (嵐電)", desc: "京福電鐵終點站。內裝友禪光柱，車站即是絕美景點。", tags: "地鐵" },
   'UK-002': { name: "西院站", desc: "阪急與嵐電交匯點。周邊居酒屋滿佈，生活氣息濃厚。", tags: "地鐵" },

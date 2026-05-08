@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_YAMASHINA — 山科區
+ * Key 必須與 src/data/spots/yamashina.ts 的 id 完全一致。
+ * 必須與 locales/ja/yamashina.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const YAMASHINA_ZH: Record<string, SpotLocale> = {
   'YS-001': { name: "山科站 (JR/地鐵)", desc: "山科區的門戶。JR、地鐵與京阪大津線在此集結。", tags: "地鐵" },
   'YS-002': { name: "御陵站", desc: "地下鐵東西線。前往天智天皇陵的起發地。", tags: "地鐵" },

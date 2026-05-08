@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_MINAMI — 南區
+ * Key 必須與 src/data/spots/minami.ts 的 id 完全一致。
+ * 必須與 locales/ja/minami.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const MINAMI_ZH: Record<string, SpotLocale> = {
   'MN-001': { name: "東寺 (教王護國寺)", desc: "世界遺產。擁有日本最高的木造五重塔。", tags: "寺院 世界遺產 經典 打卡" },
   'MN-002': { name: "伏見稻荷大社 御旅所", desc: "每年稻荷祭時，神輿會巡行至此安放。", tags: "神社 打卡" },

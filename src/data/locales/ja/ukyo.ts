@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_UKYO — 右京區
+ * Key 必須與 src/data/spots/ukyo.ts 的 id 完全一致。
+ * 必須與 locales/zh/ukyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const UKYO_JA: Record<string, SpotLocale> = {
   'UK-001': { name: "嵐山駅 (嵐電)", desc: "京福電鉄の終点。友禅の光柱が並ぶ「キモノ・フォレスト」が幻想的。", tags: "地下鉄" },
   'UK-002': { name: "西院駅", desc: "阪急と嵐電の乗換駅。周辺は活気ある飲み屋街として知られる。", tags: "地下鉄" },

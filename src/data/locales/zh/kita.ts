@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_KITA — 北區
+ * Key 必須與 src/data/spots/kita.ts 的 id 完全一致。
+ * 必須與 locales/ja/kita.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const KITA_ZH: Record<string, SpotLocale> = {
   'KT-001': { name: "北野白梅町站", desc: "京福電鐵（嵐電）北野線終點站名。前往金閣寺與平野神社的重要門戶。", tags: "地鐵" },
   'KT-002': { name: "金閣寺道 (巴士站)", desc: "前往金閣寺最常用的巴士站，鄰近許多土產店與餐廳。", tags: "巴士" },

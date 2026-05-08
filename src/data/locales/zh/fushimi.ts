@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_FUSHIMI — 伏見區
+ * Key 必須與 src/data/spots/fushimi.ts 的 id 完全一致。
+ * 必須與 locales/ja/fushimi.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const FUSHIMI_ZH: Record<string, SpotLocale> = {
   'FS-001': { name: "稻荷站 (JR)", desc: "JR奈良線。走出站口即是伏見稻荷大社巨大的朱紅鳥居。", tags: "地鐵" },
   'FS-002': { name: "伏見稻荷站 (京阪)", desc: "前往稻荷大社主要的商店街入口，車站裝潢極具特色。", tags: "地鐵" },

@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_HIGASHIYAMA — 東山區
+ * Key 必須與 src/data/spots/higashiyama.ts 的 id 完全一致。
+ * 必須與 locales/zh/higashiyama.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const HIGASHIYAMA_JA: Record<string, SpotLocale> = {
   'HY-001': { name: "祇園四条駅", desc: "京阪本線の駅。鴨川にかかる四条大橋のすぐそば。", tags: "地下鉄" },
   'HY-002': { name: "三条京阪駅", desc: "地下鉄東西線と京阪電車が接続するターミナル。", tags: "地下鉄" },

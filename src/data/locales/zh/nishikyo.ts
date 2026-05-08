@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_NISHIKYO — 西京區
+ * Key 必須與 src/data/spots/nishikyo.ts 的 id 完全一致。
+ * 必須與 locales/ja/nishikyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'NK-001': { name: "阪急 嵐山站", desc: "阪急嵐山線終點站。前往渡月橋南側的最佳路徑。", tags: "地鐵" },
   'NK-002': { name: "松尾大社站 (阪急)", desc: "出口即是松尾大社巨大的朱紅鳥居。", tags: "地鐵" },

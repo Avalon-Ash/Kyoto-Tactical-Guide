@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_KAMIGYO — 上京區
+ * Key 必須與 src/data/spots/kamigyo.ts 的 id 完全一致。
+ * 必須與 locales/zh/kamigyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const KAMIGYO_JA: Record<string, SpotLocale> = {
   'KG-001': { name: "北野天滿宮", desc: "學問の神・菅原道真を祀る。梅の名所として、また毎月25日の「天神さん」の縁日で賑わう。", tags: "神社 お花見 必食" },
   'KG-002': { name: "今出川駅", desc: "地下鉄烏丸線の主要駅。京都御苑の北側に位置し、同志社大学に隣接する。", tags: "地下鉄" },

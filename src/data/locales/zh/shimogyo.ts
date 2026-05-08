@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（ZH 內容層）
+ * @ward W_SHIMOGYO — 下京區
+ * Key 必須與 src/data/spots/shimogyo.ts 的 id 完全一致。
+ * 必須與 locales/ja/shimogyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SM-001': { name: "京都站", desc: "京都的門戶。現代建築傑作，集結所有交通心臟。", tags: "地鐵" },
   'SM-002': { name: "四條烏丸", desc: "地鐵烏丸線與阪急線的換乘點，商業金融中心。", tags: "地鐵" },

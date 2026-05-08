@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_NISHIKYO — 西京區
+ * Key 必須與 src/data/spots/nishikyo.ts 的 id 完全一致。
+ * 必須與 locales/zh/nishikyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const NISHIKYO_JA: Record<string, SpotLocale> = {
   'NK-001': { name: "桂川駅", desc: "JR京都線の駅。大型商業施設イオンモール京都桂川に直結している。", tags: "地下鉄" },
   'NK-002': { name: "桂駅", desc: "阪急京都線と嵐山線の乗換ターミナル。桂離宮への最寄り駅。", tags: "地下鉄" },

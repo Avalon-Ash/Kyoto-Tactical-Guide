@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_NAKAGYO — 中京區
+ * Key 必須與 src/data/spots/nakagyo.ts 的 id 完全一致。
+ * 必須與 locales/zh/nakagyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const NAKAGYO_JA: Record<string, SpotLocale> = {
   'NC-001': { name: "二条城前駅", desc: "地下鉄東西線の駅。出口を出れば世界遺産二条城の入口が目の前。", tags: "地下鉄" },
   'NC-002': { name: "京都市役所前駅", desc: "三条エリアの商店街や鴨川、老舗のお店が並ぶエリアの起点。", tags: "地下鉄" },

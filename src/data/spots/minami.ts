@@ -1,3 +1,26 @@
+/**
+ * @layer SSOT / Schema（結構層）
+ * @ward W_MINAMI — 南區
+ * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
+ * 禁止存放任何語言文字（name / desc / tags）。
+ *
+ * 新增一筆時，必須同步維護：
+ *   src/data/locales/zh/minami.ts
+ *   src/data/locales/ja/minami.ts
+ *
+ * 合法 typeId：
+ *   T_HUB=交通要津  T_TEMPLE=寺社名所  T_SHOP=商肆茶寮
+ *   T_FOOD=口福食處  T_NATURE=山水風景  T_MODERN=近代設施  T_ACG=ACG聖地
+ *
+ * 類型禁則：通道散策路→T_SHOP非T_HUB / 橋梁河畔→T_NATURE非T_SHOP / 展望台廣場→T_MODERN非T_NATURE
+ *
+ * 合法 tagIds（從此集合選用）：
+ *   地鐵 巴士 寺院 神社 世界遺產 庭園 山岳 歷史 自然 賞花 楓葉 打卡
+ *   正餐 甜點 喫茶 和菓子 抹茶 老舖 必吃 壽司 拉麵 烏龍 天婦羅
+ *   壽喜燒 涮涮鍋 懷石 豆腐 洋菓子 蕎麥 ACG 購物 現代 經典 隱密
+ *
+ * 禁則：T_FOOD 禁用「世界遺產」標籤 / 禁用模糊標籤「美食」
+ */
 import { SpotSchema } from '../../types';
 
 export const MINAMI_SCHEMA: SpotSchema[] = [

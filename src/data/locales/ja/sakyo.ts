@@ -1,5 +1,14 @@
 import { SpotLocale } from '../../../types';
 
+/**
+ * @layer Locale（JA 內容層）
+ * @ward W_SAKYO — 左京區
+ * Key 必須與 src/data/spots/sakyo.ts 的 id 完全一致。
+ * 必須與 locales/zh/sakyo.ts 同步新增。
+ * tags 欄位始終使用中文標籤（篩選系統統一以中文 key 運作）。
+ *
+ * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
+ */
 export const SAKYO_JA: Record<string, SpotLocale> = {
   'SK-001': { name: "三条京阪駅", desc: "地下鉄東西線と京阪電車が接続する、東山エリアの北の玄関口。", tags: "地下鉄" },
   'SK-002': { name: "神宮丸太町駅", desc: "平安神宮や京都市美術館、動物園などがある文化エリアへの最寄り駅。", tags: "地下鉄" },
