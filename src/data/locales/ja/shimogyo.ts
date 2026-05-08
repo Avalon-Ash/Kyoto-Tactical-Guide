@@ -74,6 +74,6 @@ export const SHIMOGYO_JA: Record<string, SpotLocale> = {
   'W_SHIMOGYO_ISETAN_SHOYUKAN': { name: "伊勢丹 食遊館", desc: "JR京都伊勢丹の地下2階. 京都の一流老舗が集結しており、上質な和菓子や弁当が一堂に揃う。", tags: "和菓子 老舗 映え" },
   'W_SHIMOGYO_YOSHINOYA': { name: "吉廼家", desc: "路地裏に佇む和菓子の老舗. 名物の「一休大福」は、柔らかい餅と上品なあんが多くの地元ファンに愛されている。", tags: "和菓子 老舗 穴場" },
   'W_SHIMOGYO_SARASA_KAYUKOJI': { name: "さらさ 花遊小路", desc: "さらさグループの中でも最も隠れ家的な店舗. 細い路地の中にあり、アメリカン・ヴィンテージな雰囲気の中で食事が楽しめる。", tags: "喫茶 映え 穴場" },
-  'SHIMOGYO_TEMPURA_YOKOTA': { name: '京都駅前 天ぷら 横田', desc: '京都駅徒歩すぐの老舗天ぷら食堂。旅の最後の夜にぴったりの揚げたて天ぷら處理。', tags: '天ぷら 食事 映え' },
+  'SHIMOGYO_TEMPURA_YOKOTA': { name: '京都駅前 天ぷら 横田', desc: '京都駅徒歩すぐの老舗天ぷら食堂。旅の最後の夜にぴったりの揚げたて天ぷらが楽しめる。', tags: '天ぷら 食事 映え' },
   'SHIMOGYO_KYOTO_STATION_BLDG': { name: '京都駅ビル 大空広場', desc: '原研哉氏が設計監修に携わった京都駅の大空間。幾何学的なトラス構造が現代の京都を象徴する。', tags: '現代 映え 買い物' }
 };

@@ -75,5 +75,5 @@ export const NAKAGYO_JA: Record<string, SpotLocale> = {
   'W_NAKAGYO_TAKAGI': { name: "割烹 たか木", desc: "ミシュラン星付きの懐石料理店。店主の繊細な技が光る関西の旬を、静かな隠れ家空間で堪能できる。", tags: "食事 懐石 穴場" },
   'W_NAKAGYO_KIKUNOI_KIYAMACHI': { name: "菊乃井 木屋町店", desc: "ミシュランの名店「菊乃井」の支店。高瀬川のほとりで、極上の京懐石を素晴らしい雰囲気の中で味わえる。", tags: "食事 懐石 必食" },
   'NAKAGYO_TEMPURA_TAIAN': { name: '錦 天ぷら 大安', desc: '錦市場周辺の天ぷら専門店。厳選された京野菜や海鮮を目の前で揚げる。湯葉の天ぷらは必食。', tags: '天ぷら 食事 必食' },
-  'NAKAGYO_SHINPUHKAN': { name: '新風館', desc: '安藤忠雄氏が改築に携わった旧京都中央電話局。エースホテル京都やこだわりのショップが入る複合施設。', tags: '現代 購物 映え' }
+  'NAKAGYO_SHINPUHKAN': { name: '新風館', desc: '安藤忠雄氏が改築に携わった旧京都中央電話局。エースホテル京都やこだわりのショップが入る複合施設。', tags: '現代 買い物 映え' }
 };

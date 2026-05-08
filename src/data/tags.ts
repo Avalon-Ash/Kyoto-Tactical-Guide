@@ -11,7 +11,7 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   // --- food group ---
   '正餐':  { id: '正餐',  label: { zh: '正餐', ja: '食事'   }, group: 'food', emoji: '🍖' },
   '喫茶':  { id: '喫茶',  label: { zh: '喫茶', ja: '喫茶'   }, group: 'food', emoji: '☕' },
-  '懷石':  { id: '懷石',  label: { zh: '懷石', ja: '懷石'   }, group: 'food', emoji: '🍱' },
+  '懷石':  { id: '懷石',  label: { zh: '懷石', ja: '懐石'   }, group: 'food', emoji: '🍱' },
   '燒肉':  { id: '燒肉',  label: { zh: '燒肉',  ja: '焼肉'   }, group: 'food', emoji: '🥩' },
   '壽喜燒': { id: '壽喜燒', label: { zh: '壽喜燒', ja: 'すき焼き' }, group: 'food', emoji: '🍲' },
   '拉麵':  { id: '拉麵',  label: { zh: '拉麵',  ja: 'ラーメン' }, group: 'food', emoji: '🍜' },
