@@ -22,7 +22,7 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
 
-  const baseQuery = spot.mapQuery || name;
+  const baseQuery = spot.mapQuery || spot.jaName || name;
   // Remove redundant city/ward names if already present (suffix or prefix)
   const cleanedQuery = baseQuery
     .replace(/^京都府\s*京都市\s*/, '')

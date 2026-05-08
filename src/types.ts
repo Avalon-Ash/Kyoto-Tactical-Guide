@@ -28,4 +28,5 @@ export interface FlatSpot extends SpotSchema {
   name: string;
   desc: string;
   tags: string;
+  jaName: string;
 }

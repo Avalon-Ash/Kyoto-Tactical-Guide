@@ -21,21 +21,32 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
     const localeModule = await import(`./locales/${lang}/${wardFile}.ts`);
     const locales: Record<string, SpotLocale> = localeModule[`${wardKey}_${lang.toUpperCase()}`];
 
+    // 2.5 動態載入日文 locale 用於地圖搜尋 (若當前不是日文)
+    let jaLocales: Record<string, SpotLocale> = locales;
+    if (lang !== 'ja') {
+      const jaModule = await import(`./locales/ja/${wardFile}.ts`);
+      jaLocales = jaModule[`${wardKey}_JA`];
+    }
+
     // 3. 將 schema + locale 合併為 FlatSpot[]
     return schemaSpots.map(s => {
       const locale = locales[s.id];
+      const jaLocale = jaLocales[s.id];
+      
       if (!locale) {
         console.warn(`Missing locale for spot ${s.id} in ${lang}`);
         return { 
           ...s, 
           name: s.id, 
           desc: '', 
-          tags: '' 
+          tags: '',
+          jaName: jaLocale?.name || s.id
         };
       }
       return { 
         ...s, 
-        ...locale 
+        ...locale,
+        jaName: jaLocale?.name || locale.name
       };
     });
   } catch (error) {
