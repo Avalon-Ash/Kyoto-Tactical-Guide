@@ -88,7 +88,7 @@ export function SpotCard({ spot, lang, t }: SpotCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => {
-          // Explicitly use window.open as per requirement, while keeping href for accessibility
+          // Force use Search API with window.open to ensure correct cross-platform behavior
           e.preventDefault();
           window.open(googleMapsUrl, '_blank');
         }}

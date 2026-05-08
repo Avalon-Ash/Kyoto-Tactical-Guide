@@ -21,12 +21,12 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   const startY = useRef(0);
   const scrollTop = useRef(0);
 
-  // Auto scroll to top when changing type filters or region
+  // Auto scroll to top when changing type filters, region, or performing a search
   React.useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
-  }, [activeType, activeId]);
+  }, [activeType, activeId, search]);
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
