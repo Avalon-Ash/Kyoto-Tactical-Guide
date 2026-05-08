@@ -62,7 +62,8 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, root: undefined }}
+      style={{ touchAction: 'pan-y' }}
       className="urushi-card p-[clamp(1rem,2.5vw,2.5rem)] flex flex-col gap-[clamp(1rem,2vw,2rem)] shadow-2xl relative group border-t border-gold/30"
     >
       {/* Type Seal / Hanko */}

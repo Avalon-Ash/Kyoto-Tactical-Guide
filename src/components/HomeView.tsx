@@ -169,7 +169,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-50 urushi-panel flex flex-col p-0 sm:p-0 touch-none"
+            dragPropagation={false}
+            style={{ touchAction: 'pan-y' }}
+            className="fixed inset-0 z-50 urushi-panel flex flex-col p-0 sm:p-0"
           >
             <div className="urushi-panel border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -193,7 +195,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
               ref={overlayScrollRef}
               onMouseDown={onMouseDown(overlayScrollRef)}
               style={{ touchAction: 'pan-y' }}
-              className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-black/60 touch-pan-y overscroll-contain active:cursor-grabbing"
+              className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-black/60 overscroll-contain active:cursor-grabbing"
             >
               {isGlobalLoading ? (
                 <div className="h-full flex items-center justify-center">
