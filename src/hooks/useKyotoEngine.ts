@@ -3,12 +3,20 @@ import { Lang, FlatSpot, WardKey } from '../types';
 import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
 import { TYPES } from '../data/types';
 
+const ALL_WARD_KEYS: WardKey[] = [
+  'W_KITA','W_KAMIGYO','W_SAKYO','W_NAKAGYO','W_HIGASHIYAMA',
+  'W_SHIMOGYO','W_MINAMI','W_UKYO','W_NISHIKYO','W_YAMASHINA','W_FUSHIMI'
+];
+
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
   const [mode, setMode] = useState<'ward' | 'area'>('ward');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string>('T_ALL');
   const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [allLoadedSpots, setAllLoadedSpots] = useState<FlatSpot[]>([]);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
   
   // 核心：當前分區的景點資料 (Lazy Loaded)
   const [loadedSpots, setLoadedSpots] = useState<FlatSpot[]>([]);
@@ -58,6 +66,23 @@ export function useKyotoEngine() {
     return () => { isMounted = false; };
   }, [activeId, mode, lang]);
 
+  useEffect(() => {
+    if (!activeTag || activeId !== null) {
+      setAllLoadedSpots([]);
+      return;
+    }
+    let isMounted = true;
+    setIsGlobalLoading(true);
+    Promise.all(ALL_WARD_KEYS.map(w => loadSpotsByWard(w, lang)))
+      .then(results => {
+        if (isMounted) setAllLoadedSpots(results.flat());
+      })
+      .finally(() => {
+        if (isMounted) setIsGlobalLoading(false);
+      });
+    return () => { isMounted = false; };
+  }, [activeTag, activeId, lang]);
+
   const t = (key: string, dict: any = UI_DICT) => {
     if (!dict[key]) return key;
     return dict[key][lang] ?? dict[key]['zh'] ?? Object.values(dict[key])[0] ?? key;
@@ -69,6 +94,7 @@ export function useKyotoEngine() {
     setActiveId(null);
     setSearch('');
     setActiveType('T_ALL');
+    setActiveTag(null);
     setMode(newMode);
   };
 
@@ -92,6 +118,19 @@ export function useKyotoEngine() {
   }, [loadedSpots, isLoading, activeId, mode]);
 
   const filteredSpots = useMemo(() => {
+    // Global Tag View：無 activeId，有 activeTag → 全屏蓋板資料來源
+    if (!activeId && activeTag) {
+      const ord = Object.fromEntries(Object.values(TYPES).map(t => [t.id, t.sortOrder]));
+      return allLoadedSpots
+        .filter(s => s.tagIds?.includes(activeTag))
+        .sort((a, b) => {
+          const orderA = ord[a.typeId] || 9;
+          const orderB = ord[b.typeId] || 9;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.name.localeCompare(b.name, lang === 'zh' ? 'zh-TW' : 'ja-JP');
+        });
+    }
+
     if (!activeId) return [];
 
     // 使用動態載入的資料進行過濾
@@ -103,14 +142,8 @@ export function useKyotoEngine() {
       result = result.filter(spot => spot.typeId === activeType);
     }
 
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(spot => 
-        spot.name.toLowerCase().includes(q) ||
-        spot.desc.toLowerCase().includes(q) ||
-        spot.tags.toLowerCase().includes(q) ||
-        (spot.jaName ? spot.jaName.toLowerCase().includes(q) : false)
-      );
+    if (activeTag) {
+      result = result.filter(spot => spot.tagIds?.includes(activeTag));
     }
 
     const ord = Object.fromEntries(Object.values(TYPES).map(t => [t.id, t.sortOrder]));
@@ -124,18 +157,32 @@ export function useKyotoEngine() {
     });
 
     return result;
-  }, [activeId, mode, activeType, search, lang, loadedSpots]);
+  }, [activeId, mode, activeType, activeTag, lang, loadedSpots, allLoadedSpots]);
+
+  const localTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    loadedSpots.forEach(s => {
+      if (mode === 'area' ? s.areaId === activeId : s.wardId === activeId) {
+        s.tagIds?.forEach(tag => tagSet.add(tag));
+      }
+    });
+    return Array.from(tagSet);
+  }, [loadedSpots, activeId, mode]);
+
+  const clearTag = () => setActiveTag(null);
 
   const openDetail = (id: string, viewMode: 'ward' | 'area') => {
     setActiveId(id);
     setMode(viewMode);
     setActiveType('T_ALL');
     setSearch('');
+    setActiveTag(null);
   };
 
   const closeDetail = () => {
     setActiveId(null);
     setSearch('');
+    setActiveTag(null);
   };
 
   return {
@@ -153,6 +200,11 @@ export function useKyotoEngine() {
     openDetail,
     closeDetail,
     filteredSpots,
-    typeCounts
+    typeCounts,
+    activeTag,
+    setActiveTag,
+    clearTag,
+    isGlobalLoading,
+    localTags,
   };
 }
