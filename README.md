@@ -46,6 +46,20 @@
 - `@google/genai`：Google AI SDK（預留依賴，目前未啟用）
 - `express` + `dotenv`：本地開發伺服器輔助依賴
 
+### ⚠️ 已知技術注意事項
+
+1. **動態 import 路徑含 `.ts` 副檔名**（`spots-loader.ts`）：
+   `import(\`./spots/${wardFile}.ts\`)` 在 Vite 開發環境正常運作，但部分打包設定下 production build 可能找不到路徑，建議改為省略副檔名。
+
+2. **`tagCounts` 在 React StrictMode 下會執行兩次**：
+   `tagCounts` 使用 `useMemo(fn, [])` 計算，依賴 `loadAllSchemasSync()` 同步讀取全部 Schema。StrictMode 下 effect 執行兩次，建議將此計算移至模組頂層，採用類似 `_wardStats` 的 lazy getter 模式快取。
+
+3. **`closeDetail()` 不重置 `mode`**：
+   從 DetailView 返回 HomeView 時，`mode` 保留上一次的 ward/area 值，屬於預期行為。但若日後增加「從全域 Tag Overlay 進入 DetailView」的導航路徑，需確保 `closeDetail()` 同時重置 mode，避免 `mode === 'tag'` 與 `activeId !== null` 同時成立導致資料分支錯誤。
+
+4. **`lib/numerals.ts` 邊界值**：
+   `toChineseNumerals()` 對 100、110 等帶零中位數的三位數輸出可能產生「百」而非「一百」的省略問題，目前景點數量範圍不超過兩位數，不影響現行功能，但擴充時需注意。
+
 ---
 
 ## 📂 目錄結構
@@ -58,7 +72,7 @@ src/
 │   ├── useKyotoEngine.ts    # 【系統層】資料篩選與狀態管理樞紐
 │   └── useWindowSize.ts     # 響應式佈局監聽
 ├── data/
-│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式，使用模組作用域快取，初次呼叫時才執行統計並快取結果，後續呼叫直接返回快取。
+│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式，使用模組作用域快取，初次呼叫時才執行統計並快取結果，後續呼叫直接返回快取。注意：`tags.ts`（TAG_REGISTRY, PINNED_GLOBAL_TAGS）目前並未在 index.ts 中 re-export，各消費端（SpotCard.tsx、HomeView.tsx）直接從 `../data/tags` 引用。
 │   ├── spots-loader.ts      # 【組件裝配層】實現 Schema 與 Locale 的合併負載
 │   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義；定義 A01–A19 共 19 個分區，AREA_BY_WARD / WARD_BY_AREA 互為逆映射，處理分區跨行政區的雙向歸屬。
 │   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義、分組與 emoji；PINNED_GLOBAL_TAGS 置頂順序
@@ -80,19 +94,17 @@ src/
 
 ## 🎨 視覺風格：漆藝 (Urushi Style)
 
+本專案採用獨特的「京都漆藝」視覺設計：
+- **底色 (漆道)**：深沉的炭黑與暗紅背景。
+- **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
+- **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
+
 ---
 
 ## 📁 根目錄檔案說明
 
 - `metadata.json`：應用部署元資料，聲明應用名稱、描述及所需框架權限 (`requestFramePermissions` / `majorCapabilities`)，供宿主環境識別用。
 - `.env.example`：環境變數模板，開發時複製為 `.env` 使用。
-
----
-
-本專案採用獨特的「京都漆藝」視覺設計：
-- **底色 (漆道)**：深沉的炭黑與暗紅背景。
-- **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
-- **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
 
 ---
 
