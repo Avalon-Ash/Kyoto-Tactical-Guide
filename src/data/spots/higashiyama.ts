@@ -19,7 +19,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-016', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "養源院", tagIds: ['寺院', '隱密'] },
   { id: 'HY-017', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_MODERN', mapQuery: "京都國立博物館", tagIds: ['打卡'] },
   { id: 'HY-060', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 東山站", tagIds: ['地鐵'] },
-  { id: 'HY-018', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "白川一本橋", tagIds: ['自然', '打卡'] },
+  { id: 'HY-018', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "白川一本橋", tagIds: ['自然', '打卡'] },
   { id: 'HY-019', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "圓山公園 櫻花", tagIds: ['賞花', '打卡'] },
   { id: 'HY-020', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "法觀寺 八坂塔", tagIds: ['打卡', '經典'] },
   { id: 'HY-021', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_MODERN', mapQuery: "靈山歷史館", tagIds: ['打卡'] },
