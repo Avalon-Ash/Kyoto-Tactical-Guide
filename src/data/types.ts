@@ -16,7 +16,7 @@ export const TYPES: Record<string, SpotTypeMetadata> = {
   T_MODERN: { id: 'T_MODERN', colorClass: "border-[#6aab82]",     color: "#6aab82", sortOrder: 4, name: { zh: "近代設施", ja: "近代施設" } },
   T_NATURE: { id: 'T_NATURE', colorClass: "border-[#7ab89a]",     color: "#7ab89a", sortOrder: 5, name: { zh: "山水・風雅", ja: "山水・景観" } },
   T_FOOD:   { id: 'T_FOOD',   colorClass: "border-[#e67e22]",     color: "#e67e22", sortOrder: 6, name: { zh: "口福・食處", ja: "口福・食処" } },
-  T_ACG:    { id: 'T_ACG',    colorClass: "border-[#ff7eb6]",     color: "#ff7eb6", sortOrder: 7, name: { zh: "幻夢・繪草子", ja: "幻夢・繪草紙" } }
+  T_ACG:    { id: 'T_ACG',    colorClass: "border-[#ff7eb6]",     color: "#ff7eb6", sortOrder: 7, name: { zh: "幻夢・繪草子", ja: "幻夢・絵草紙" } }
 };
 
 export const TYPE_KEYS = [
