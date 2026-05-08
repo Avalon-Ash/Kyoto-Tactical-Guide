@@ -45,5 +45,18 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-042', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "隨心院 小野梅園", typeColorClass: "border-[#c47070]" },
   { id: 'YS-043', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "勸修寺 冰室池", typeColorClass: "border-[#c47070]" },
   { id: 'YS-044', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "毘沙門堂 敷紅葉", typeColorClass: "border-[#c47070]" },
-  { id: 'YS-045', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "山科 熟食街", typeColorClass: "border-[#e67e22]" }
+  { id: 'YS-045', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "山科 熟食街", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-046', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "マールブランシュ ロマンの森", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-047', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "そば処 胡蝶庵 山科", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-048', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "麺屋 裕 山科", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-049', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "菓子司 瑞穂 山科", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-050', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "中国料理 再来 山科", typeColorClass: "border-[#e67e22]" },
+  { id: 'YS-051', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "無印良品 京都山科", typeColorClass: "border-[#d4a74a]" },
+  { id: 'YS-052', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "陶あん 清水焼団地店", typeColorClass: "border-[#d4a74a]" },
+  { id: 'YS-053', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_MODERN', mapQuery: "京都橘大学", typeColorClass: "border-[#6aab82]" },
+  { id: 'YS-054', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_MODERN', mapQuery: "京都薬科大学", typeColorClass: "border-[#6aab82]" },
+  { id: 'YS-055', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_MODERN', mapQuery: "京都市山科図書館", typeColorClass: "border-[#6aab82]" },
+  { id: 'YS-056', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "GiGO 山科", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'YS-057', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "ジョーシン 山科店", typeColorClass: "border-[#ff7eb6]" },
+  { id: 'YS-058', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "TSUTAYA 山科駅前店", typeColorClass: "border-[#ff7eb6]" }
 ];
