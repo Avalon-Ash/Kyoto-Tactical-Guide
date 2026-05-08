@@ -46,10 +46,10 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-043', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "勸修寺 冰室池", tagIds: ['庭園', '打卡'] },
   { id: 'YS-044', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "毘沙門堂 敷紅葉", tagIds: ['打卡', '自然'] },
   { id: 'YS-045', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "山科 熟食街", tagIds: ['正餐', '必吃'] },
-  { id: 'YS-046', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "Malebranche 浪漫之森", tagIds: ['甜點', '打卡', '必吃'] },
-  { id: 'YS-047', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "蕎麥處 胡蝶庵 山科", tagIds: ['正餐', '必吃'] },
-  { id: 'YS-048', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "麵屋 裕 山科", tagIds: ['正餐', '必吃'] },
-  { id: 'YS-049', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "菓子司 瑞穗 山科", tagIds: ['甜點', '和菓子'] },
+  { id: 'YS-046', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "Malebranche 浪漫之森", tagIds: ['洋菓子', '打卡', '必吃'] },
+  { id: 'YS-047', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "蕎麥處 胡蝶庵 山科", tagIds: ['正餐', '必吃', '蕎麥'] },
+  { id: 'YS-048', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "麵屋 裕 山科", tagIds: ['正餐', '必吃', '拉麵'] },
+  { id: 'YS-049', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "菓子司 瑞穗 山科", tagIds: ['和菓子'] },
   { id: 'YS-050', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: "中國料理 再來 山科", tagIds: ['正餐'] },
   { id: 'YS-051', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "無印良品 京都山科", tagIds: ['購物', '打卡'] },
   { id: 'YS-052', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "陶あん 清水燒團地店", tagIds: ['購物', '打卡'] },
@@ -60,7 +60,7 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-057', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "Joshin 山科店", tagIds: ['ACG', '打卡'] },
   { id: 'YS-058', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "TSUTAYA 山科站前店", tagIds: ['ACG', '打卡'] },
   { id: 'W_YAMASHINA_RYUGETSUDO', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '山科 柳月堂', tagIds: ['喫茶', '老舖', '隱密'] },
-  { id: 'W_YAMASHINA_BISHAMON_MONZEN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '毘沙門堂 門前甘味處 やましな', tagIds: ['甜點', '打卡', '抹茶'] },
+  { id: 'W_YAMASHINA_BISHAMON_MONZEN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '毘沙門堂 門前甘味處 やましな', tagIds: ['和菓子', '打卡', '抹茶'] },
   { id: 'W_YAMASHINA_FURUKAWAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '追分 三条 古川屋', tagIds: ['正餐', '老舖', '隱密'] },
-  { id: 'W_YAMASHINA_SHIBAZUKE_CHAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '山科 醍醐 志ば漬本舗 茶屋', tagIds: ['甜點', '老舖', '打卡'] }
+  { id: 'W_YAMASHINA_SHIBAZUKE_CHAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '山科 醍醐 志ば漬本舗 茶屋', tagIds: ['和菓子', '老舖', '打卡'] }
 ];

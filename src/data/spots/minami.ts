@@ -38,7 +38,7 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-035', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "竹田站", tagIds: ['地鐵'] },
   { id: 'MN-036', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京瓷 本社", tagIds: ['打卡'] },
   { id: 'MN-037', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "日本郵便 京都南郵便局", tagIds: ['打卡'] },
-  { id: 'MN-038', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "燒肉 弘 上鳥羽店", tagIds: ['正餐', '必吃'] },
+  { id: 'MN-038', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "燒肉 弘 上鳥羽店", tagIds: ['正餐', '必吃', '燒肉'] },
   { id: 'MN-039', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "瓦町 纖維街", tagIds: ['購物'] },
   { id: 'MN-040', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "油小路通", tagIds: ['打卡'] },
   { id: 'MN-041', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "京都南交流道", tagIds: ['打卡'] },
@@ -53,13 +53,13 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-050_acg', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂開發中心", tagIds: ['ACG', '打卡'] },
   { id: 'MN-051', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "九條跨線橋", tagIds: ['ACG', '打卡'] },
   { id: 'MN-052', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "十條通 任天堂", tagIds: ['ACG', '打卡'] },
-  { id: 'MN-053', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "東寺餅", tagIds: ['甜點', '老舖', '必吃'] },
-  { id: 'MN-054', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "Mister Donut 京都站八條口", tagIds: ['甜點'] },
-  { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麵 香來 上鳥羽店", tagIds: ['正餐', '必吃'] },
+  { id: 'MN-053', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "東寺餅", tagIds: ['和菓子', '老舖', '必吃'] },
+  { id: 'MN-054', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "Mister Donut 京都站八條口", tagIds: ['洋菓子'] },
+  { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麵 香來 上鳥羽店", tagIds: ['正餐', '必吃', '拉麵'] },
   { id: 'MN-056', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鳥羽水環境保全中心 藤", tagIds: ['自然', '賞花'] },
   { id: 'MN-057', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都Terrsa", tagIds: ['打卡'] },
   { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鐵十條站", tagIds: ['地鐵'] },
-  { id: 'MN-059', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都站店", tagIds: ['抹茶', '甜點', '必吃'] },
+  { id: 'MN-059', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "中村藤吉 京都站店", tagIds: ['抹茶', '和菓子', '必吃'] },
   { id: 'W_MINAMI_TORIYASA', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '京都 鳥彌三 南區', tagIds: ['正餐', '老舖', '必吃'] },
-  { id: 'W_MINAMI_KISSHOKARYO', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '吉祥菓寮 東寺店', tagIds: ['甜點', '抹茶', '打卡', '必吃'] }
+  { id: 'W_MINAMI_KISSHOKARYO', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '吉祥菓寮 東寺店', tagIds: ['和菓子', '抹茶', '打卡', '必吃'] }
 ];
