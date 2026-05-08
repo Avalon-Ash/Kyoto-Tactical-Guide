@@ -31,7 +31,6 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-028', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "綾小路通", typeColorClass: "border-[#d4a74a]" },
   { id: 'SM-029', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "和久傳", typeColorClass: "border-[#e67e22]" },
   { id: 'SM-030', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都友都八喜", typeColorClass: "border-[#d4a74a]" },
-  { id: 'SM-031', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "柳小路 京都", typeColorClass: "border-[#d4a74a]" },
   { id: 'SM-032', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_HUB', mapQuery: "富小路通", typeColorClass: "border-[#7aa5d4]" },
   { id: 'SM-033', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_HUB', mapQuery: "高辻通", typeColorClass: "border-[#7aa5d4]" },
   { id: 'SM-034', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_HUB', mapQuery: "佛光寺通", typeColorClass: "border-[#7aa5d4]" },
