@@ -170,7 +170,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
               ) : filteredSpots.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                   {filteredSpots.map(s => (
-                    <SpotCard key={s.id} spot={s} lang={lang} t={t} readOnly={true} />
+                    <SpotCard key={s.id} spot={s} lang={lang} t={t} readOnly={false} />
                   ))}
                 </div>
               ) : (
