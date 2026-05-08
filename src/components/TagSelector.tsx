@@ -61,6 +61,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         {tags.map(tagId => {
           const meta = TAG_REGISTRY[tagId];
           const label = meta ? meta.label[lang] : tagId;
+          const emoji = TAG_REGISTRY[tagId]?.emoji;
           const isActive = activeTag === tagId;
 
           return (
@@ -75,6 +76,9 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                   ? 'maki-e-tag active bg-shuiro text-white border-shuiro shadow-lg' 
                   : 'maki-e-tag bg-white/5 text-gold-light border-gold-light/30'}`}
             >
+              {emoji && (
+                <span className="mr-1 text-xs leading-none select-none">{emoji}</span>
+              )}
               {label}
             </motion.button>
           );

@@ -24,6 +24,7 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
 
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);
+  const typeEmoji = TYPES[typeId]?.emoji;
 
   const wardJa = WARD_NAMES[spot.wardId].ja;
   const wardZh = WARD_NAMES[spot.wardId].zh;
@@ -68,16 +69,27 @@ export function SpotCard({ spot, lang, t, readOnly = false }: SpotCardProps) {
     >
       {/* Type Seal / Hanko */}
       <div 
-        className="absolute top-3 right-3 w-8 h-8 border border-white/20 flex items-center justify-center shadow-lg z-20 group-hover:scale-110 transition-transform"
+        className="absolute top-3 right-3 w-9 h-9 border border-white/20 flex items-center justify-center shadow-lg z-20 group-hover:scale-110 transition-transform"
         style={{ 
           backgroundColor: typeColor,
           transform: 'rotate(-3deg)',
           boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3), 2px 2px 5px rgba(0,0,0,0.5)'
         }}
       >
-        <span className="text-white font-serif font-black text-sm leading-none flex items-center justify-center">
-          {typeFirstChar}
-        </span>
+        {typeEmoji ? (
+          <span
+            className="text-base leading-none select-none"
+            role="img"
+            aria-label={typeName}
+            style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))' }}
+          >
+            {typeEmoji}
+          </span>
+        ) : (
+          <span className="text-white font-serif font-black text-sm leading-none flex items-center justify-center">
+            {typeFirstChar}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-[clamp(0.25rem,0.8vw,0.8rem)] relative z-10">
