@@ -4,7 +4,7 @@ import { loadSpotsByWard, computeWardStats, computeAreaStats, loadAllSchemasSync
 // 引入新的 Metadata
 import { WARD_KEYS, WARD_NAMES, WARD_DESCS } from './wards';
 import { AREA_KEYS, AREA_NAMES, AREA_BY_WARD, WARD_BY_AREA } from './areas';
-import { TYPES, TYPE_NAMES } from './types';
+import { TYPES, TYPE_NAMES, TYPE_KEYS } from './types';
 
 /**
  * 動態計算統計資訊 (基於 Schema)
@@ -25,6 +25,7 @@ export function getAreaStats(): Record<string, number> {
 /**
  * 重新導出所有資料與工具
  */
+export { TAG_GROUP_LABELS } from './tags';
 export {
   // Metadata
   WARD_KEYS,
@@ -36,6 +37,7 @@ export {
   WARD_BY_AREA,
   TYPES,
   TYPE_NAMES,
+  TYPE_KEYS,   // 從 ./types 新增
   UI_DICT,
   
   // Loaders

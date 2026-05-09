@@ -45,7 +45,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
 import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
-import { loadAllSchemasSync } from '../data/spots-loader';
+import { loadAllSchemasSync, computeWardStats } from '../data/spots-loader';
 import { TYPES } from '../data/types';
 
 const ALL_WARD_KEYS: WardKey[] = [
@@ -262,5 +262,8 @@ export function useKyotoEngine() {
     isGlobalLoading,
     localTags,
     tagCounts,
+    totalCount: useMemo(() =>
+      Object.values(computeWardStats()).reduce((a, b) => a + b, 0), []
+    ),
   };
 }

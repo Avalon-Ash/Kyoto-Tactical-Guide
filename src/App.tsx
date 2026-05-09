@@ -1,18 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from './hooks/useKyotoEngine';
-import { getWardStats } from './data/index';
 import { useWindowSize } from './hooks/useWindowSize';
 import { HomeView } from './components/HomeView';
 import { DetailView } from './components/DetailView';
 
 export default function App() {
   const engine = useKyotoEngine();
-  const { activeId } = engine;
+  const { activeId, totalCount } = engine;
   const { width } = useWindowSize();
-
-  // 使用全域統計快取來加速
-  const totalCount = useMemo(() => Object.values(getWardStats()).reduce((a, b) => a + b, 0), []);
 
   return (
     <div className="flex justify-center h-full bg-[#050505]">

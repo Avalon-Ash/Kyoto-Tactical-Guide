@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
-import { TAG_REGISTRY } from '../data/tags';
+import { TAG_REGISTRY, TAG_GROUP_LABELS } from '../data/tags';
 import { MapCanvas } from './MapCanvas';
 import { SpotCard } from './SpotCard';
 
@@ -107,15 +107,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
               const groupTags = Object.values(TAG_REGISTRY).filter(t => t.group === group);
               if (groupTags.length === 0) return null;
 
-              const groupLabel: Record<string, string> = {
-                food:      lang === 'zh' ? '口福・食處' : '食・口福',
-                misc:      lang === 'zh' ? '旅行特質' : '旅の性格',
-                culture:   lang === 'zh' ? '文化・信仰' : '文化・信仰',
-                nature:    lang === 'zh' ? '自然・風景' : '自然・風景',
-                transport: lang === 'zh' ? '交通要道' : '交通',
-                acg:       lang === 'zh' ? '次文化' : 'ACG',
-              };
-
               return (
                 <div key={group} className="flex flex-col gap-3">
                   {/* Group 標題 */}
@@ -123,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
                     <span className="w-4 sm:w-8 h-[1px] bg-gold/20" />
                     <h3 className="font-serif text-[clamp(0.7rem,1.2vw,0.85rem)]
                                    text-gold-light/40 tracking-[0.4em] uppercase font-bold">
-                      {groupLabel[group]}
+                      {TAG_GROUP_LABELS[group]?.[lang] ?? group}
                     </h3>
                     <span className="flex-1 h-[1px] bg-gold/10" />
                   </div>
@@ -206,7 +197,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
               <div className="flex items-center gap-3">
                 <span className="text-shuiro font-bold font-serif">●</span>
                 <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
-                  {activeTag}
+                  {activeTag ? (TAG_REGISTRY[activeTag]?.label[lang] ?? activeTag) : ''}
                 </h2>
                 <span className="text-gold-light/40 font-serif text-sm ml-2">
                   ({filteredSpots.length})

@@ -38,7 +38,7 @@
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * 供 HomeView.tsx「御秘帖」模式首頁置頂展示的固定標籤列表。
  * 僅影響顯示順序，不影響資料完整性。
- * 修改此陣列不需要同步任何其他檔案。
+ * 修改此陣列不需要同步 any other file.
  */
 import { I18nText } from '../types';
 
@@ -74,9 +74,9 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   // --- transport group ---
   '鐵道':  { id: '鐵道',  label: { zh: '鐵道', ja: '鉄道'   }, group: 'transport', emoji: '🚃' },
   '地鐵':  { id: '地鐵',  label: { zh: '地鐵', ja: '地下鉄' }, group: 'transport', emoji: '🚇' },
-  '巴士':  { id: '巴士',  label: { zh: '巴士', ja: 'バス'   }, group: 'transport', emoji: '🚌' },
+  '巴士':  { id: '巴士',  label: { zh: '巴士', ja: '巴士'   }, group: 'transport', emoji: '🚌' },
   // --- culture group ---
-  '世界遺產':{ id: '世界遺產',label:{ zh: '世界遺產',ja: '世界遺産'}, group: 'culture', emoji: '🌐' },
+  '世界遺產':{ id: '世界遺產',label:{ zh: '世界遺產',ja: '世界遺產'}, group: 'culture', emoji: '🌐' },
   '庭園':  { id: '庭園',  label: { zh: '庭園', ja: '庭園'   }, group: 'culture', emoji: '🪴' },
   '神社':  { id: '神社',  label: { zh: '神社', ja: '神社'   }, group: 'culture', emoji: '⛩️' },
   '寺院':  { id: '寺院',  label: { zh: '寺院', ja: '寺院'   }, group: 'culture', emoji: '🛕' },
@@ -88,15 +88,24 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   // --- acg group ---
   'ACG':   { id: 'ACG',   label: { zh: 'ACG',  ja: 'ACG'    }, group: 'acg', emoji: '🎮' },
   // --- added missing ---
-  '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歴史'   }, group: 'culture', emoji: '📜' },
-  '購物':   { id: '購物',   label: { zh: '購物', ja: '買い物' }, group: 'misc', emoji: '🛍️' },
+  '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歷史'   }, group: 'culture', emoji: '📜' },
+  '購物':   { id: '購物',   label: { zh: '購物', ja: '購物'   }, group: 'misc', emoji: '🛍️' },
   '展望':   { id: '展望',   label: { zh: '展望', ja: '展望'   }, group: 'nature', emoji: '🔭' },
   '現代':   { id: '現代',   label: { zh: '現代', ja: '現代'   }, group: 'misc',   emoji: '🏗️' },
   '涮涮鍋': { id: '涮涮鍋', label: { zh: '涮涮鍋', ja: 'しゃぶしゃぶ' }, group: 'food', emoji: '🍲' },
-  '地標':   { id: '地標',   label: { zh: '地標', ja: 'ランドマーク' }, group: 'misc', emoji: '🗼' },
-  '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '温泉'   }, group: 'misc', emoji: '♨️' },
-  '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '国宝'   }, group: 'culture', emoji: '💎' },
+  '地標':   { id: '地標',   label: { zh: '地標', ja: '地標'   }, group: 'misc', emoji: '🗼' },
+  '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '溫泉'   }, group: 'misc', emoji: '♨️' },
+  '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '國寶'   }, group: 'culture', emoji: '💎' },
   '博物館': { id: '博物館', label: { zh: '博物館', ja: '博物館' }, group: 'culture', emoji: '🏛️' },
+};
+
+export const TAG_GROUP_LABELS: Record<string, I18nText> = {
+  food:      { zh: '口福・食處', ja: '食・口福' },
+  misc:      { zh: '旅行特質',   ja: '旅の性格' },
+  culture:   { zh: '文化・信仰', ja: '文化・信仰' },
+  nature:    { zh: '自然・風景', ja: '自然・風景' },
+  transport: { zh: '交通要道',   ja: '交通' },
+  acg:       { zh: '次文化',     ja: 'ACG' },
 };
 
 // HomeView 首頁展示的固定置頂標籤（全域標籤門戶用）
