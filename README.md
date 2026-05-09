@@ -355,3 +355,94 @@ src/
 - **西京區**: 苔之靈域・竹之幽嶺
 - **山科區**: 櫻花鐵道・山科古教
 - **伏見區**: 清酒酒窖・千本鳥居
+
+---
+
+## 🤖 資料錄入規範（代理人行為約束）
+
+> 本章節是資料層的 SSOT 行為約束文件。  
+> AI 代理人在操作 `src/data/` 下任何檔案前，必須完整閱讀本章節。
+
+---
+
+### 開放操作（代理人可自行執行）
+
+| 檔案路徑 | 允許操作 |
+|---|---|
+| `src/data/spots/*.ts` | 新增 `SpotSchema` 條目 |
+| `src/data/locales/zh/*.ts` | 新增／修改 ZH `SpotLocale` |
+| `src/data/locales/ja/*.ts` | 新增／修改 JA `SpotLocale` |
+| 現有 `SpotSchema` 的 `tagIds`、`mapQuery`、`reservationRequired` | 修改 |
+| 現有 `SpotLocale` 的 `name`、`desc`、`tags` | 修改 |
+
+---
+
+### 封閉操作（需 Ash 人工審查，代理人禁止自行執行）
+
+| 檔案 | 封閉原因 |
+|---|---|
+| `src/data/tags.ts` — `TAG_REGISTRY` | tagId 白名單由 Ash 維護，擴充是架構決策 |
+| `src/data/types.ts` — `TYPES` | typeId 是系統級定義，不是資料決策 |
+| `src/data/areas.ts` — `AREA_NAMES` / `AREA_KEYS` | 分區定義由 Ash 維護 |
+| `src/data/wards.ts` — `WARD_NAMES` / `WARD_KEYS` | 行政區定義由 Ash 維護 |
+| `src/data/index.ts` | re-export 清單異動需審查 |
+
+---
+
+### `tagIds` 填寫規則
+
+1. **只能使用 `TAG_REGISTRY` 現有鍵名**  
+   執行前讀取 `src/data/tags.ts`，以當下版本為準。  
+   使用不存在的 tagId 會靜默失敗，屬資料汙染。
+
+2. **上限 6 個**  
+   超過 6 個代表語意不精確，應挑選最相關者。
+
+3. **優先序**  
+   最具識別度的特徵 → 類型輔助 → 通用特質  
+   禁止堆砌所有「可能相關」的標籤。
+
+4. **找不到對應 tag 時**  
+   - `tagIds` 省略該項目  
+   - 在 ZH locale 的 `tags` 欄位用中文描述（純顯示用）  
+   - 在回報中標記「建議新增 tag：XXX」，由 Ash 決定是否擴充  
+   - **禁止自行新增到 `TAG_REGISTRY`**
+
+---
+
+### `mapQuery` 填寫規則
+
+- 必須為**日文字串**（含漢字或假名），這是 Query Assembly System 的 SSOT 輸入
+- 使用景點的官方日文地名，不得使用中文、英文或羅馬拼音
+- 不確定時填入最接近的官方地名並在回報中標記「待確認」
+- 禁止包含導航觸發字元（`→ ← から まで via to from`）
+
+---
+
+### 執行前自我檢查清單
+
+代理人每次 push 前必須完成以下驗證，並在回報中列出結果：
+
+- [ ] 所有新 `SpotSchema` 的 `wardId` 存在於 `WardKey` 型別
+- [ ] 所有新 `SpotSchema` 的 `areaId` 存在於 `AREA_KEYS`
+- [ ] 所有新 `SpotSchema` 的 `typeId` 存在於 `TYPES`
+- [ ] 所有新 `SpotSchema` 的 `tagIds` 每一個都存在於 `TAG_REGISTRY`
+- [ ] 所有新 `SpotSchema` 都有對應的 ZH 與 JA locale 條目
+- [ ] `mapQuery` 為日文字串
+- [ ] 本次修改未動到 `tags.ts` / `types.ts` / `areas.ts` / `wards.ts`
+
+任何一項未通過 → 停止 push，先向 Ash 報告。
+
+---
+
+### 回報格式
+
+每次完成後，代理人必須用以下格式回報：
+
+```
+新增景點：{數量} 筆
+  - {spot.id} / {wardId} / {areaId} / tagIds: {數量} 個
+待確認項目：（無 或 列出）
+建議新增 tag：（無 或 列出建議 tagId 與理由）
+自我檢查：全部通過 ✓ / 未通過項目：...
+```
