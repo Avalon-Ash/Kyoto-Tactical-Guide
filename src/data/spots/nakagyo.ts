@@ -104,6 +104,8 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-071', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "焼肉 益市 市役所前店", tagIds: ['正餐', '名物', '燒肉'] },
   { id: 'NC-072', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "こま井亭", tagIds: ['正餐', '老舖', '壽喜燒'] },
   { id: 'NC-073', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "天ぷら 点邑", tagIds: ['天婦羅', '正餐', '隱密'] },
+  { id: 'NC-074', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '国産牛焼肉 食べ放題 あぶりや 四条河原町駅前店', tagIds: ['正餐', '燒肉'] },
+  { id: 'NC-075', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '本格焼肉 チファジャ 四条河原町店', tagIds: ['正餐', '燒肉'] },
   { id: 'W_NAKAGYO_NISHIKI_NISHIKAWA', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '錦・西川 錦市場', tagIds: ['老舖', '名物'] },
   { id: 'W_NAKAGYO_TAKAGI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '割烹 たか木', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_NAKAGYO_KIKUNOI_KIYAMACHI', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '菊乃井 木屋町店', tagIds: ['正餐', '懷石', '名物'] },

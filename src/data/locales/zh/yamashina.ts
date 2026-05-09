@@ -73,5 +73,8 @@ export const YAMASHINA_ZH: Record<string, SpotLocale> = {
   'W_YAMASHINA_FURUKAWAYA': { name: "三條 古川屋", desc: "位於舊三條街道旁，主打在地江戶風格的京懷石與時令定食，氛圍樸實親切。", tags: "正餐 老舖 隱密" },
   'W_YAMASHINA_SHIBAZUKE_CHAYA': { name: "志ば漬本舖 茶屋", desc: "大原名產漬物老舖的山科分店。可品嚐漬物定食與茶漬，體驗京都飲食精髓。", tags: "和菓子 老舖 打卡" },
   'W_YAMASHINA_LION_CURRY': { name: "Lion Curry 山科店", desc: "山科人氣直線上升的歐風咖哩店。使用特製辛香料與慢熬肉汁，濃郁且極富層次的滋味讓食客絡繹不絕。", tags: "正餐 名物" },
-  'W_YAMASHINA_FURAIPAN': { name: "ふらいぱん (Furaipan)", desc: "隱身住宅區的復古洋食屋。主打漢堡排與炸蝦定食，濃濃的昭和家庭溫情與紮實美味，是山科人的避風港。", tags: "正餐 名物" }
+  'W_YAMASHINA_FURAIPAN': { name: "ふらいぱん (Furaipan)", desc: "隱身住宅區的復古洋食屋。主打漢堡排與炸蝦定食，濃濃的昭和家庭溫情與紮實美味，是山科人的避風港。", tags: "正餐 名物" },
+  'YS-FOOD-001': { name: "擔擔麵 胡", desc: "位於山科站附近的擔擔麵專賣店。其湯頭香醇濃郁，麻辣度適中且帶有迷人的芝麻香，是山科地區極具人氣的麵食地標。", tags: "正餐 拉麵 名物" },
+  'YS-FOOD-002': { name: "Patisserie Nuage", desc: "山科地區精緻甜點的代表。店內洋溢著如雲朵般輕柔優雅的氛圍，職人手作的蛋糕不僅外型精美，層次豐富的口感更是令人難忘。", tags: "甜點 洋菓子 打卡" },
+  'YS-FOOD-003': { name: "壽喜燒 牛禪 山科店", desc: "深受當地家庭喜愛的壽喜燒與涮涮鍋店。以親民的價格提供嚴選和牛與豐富配菜，是山科地區慶祝或聚餐的首選肉食餐廳。", tags: "正餐 壽喜燒" },
 };

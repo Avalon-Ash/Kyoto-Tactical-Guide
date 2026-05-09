@@ -66,5 +66,8 @@ export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'W_NISHIKYO_YAMADAYA': { name: "柚餅子 山田屋", desc: "傳承至150年的柚子甜點名鋪。以天然柚子製作的餅食是西京區代表伴手禮。", tags: "和菓子 老舖" },
   'W_NISHIKYO_MUSETTE': { name: "Patisserie Musette", desc: "進駐桂地區的高水準法式洋菓子店。精緻的蛋糕如藝術品般令人垂涎。", tags: "洋菓子 打卡" },
   'W_NISHIKYO_SMART_COFFEE': { name: "聰明咖啡 西京店", desc: "市中心老店的西京分店。提供高品質的自家烘焙咖啡與懷舊聖代。", tags: "喫茶 老舖" },
-  'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '落地窗正對桂川與渡月橋南側。以現代美學詮釋法式洋菓子的高質感空間。', tags: '現代 打卡 洋菓子' }
+  'NISHIKYO_PASS_THE_BATON': { name: '嵐山 アミティエ Café', desc: '落地窗正對桂川與渡月橋南側。以現代美學詮釋法式洋菓子的高質感空間。', tags: '現代 打卡 洋菓子' },
+  'NX-FOOD-001': { name: "拉麵 ぎん琉", desc: "位於桂站附近的拉麵店。湯頭濃郁卻不膩口，配上香氣撲鼻的自製麵條，是西京區內深受在地食客推崇的隱藏版拉麵首選。", tags: "正餐 拉麵 名物" },
+  'NX-FOOD-002': { name: "菓子工房 & 咖啡 KINEEL", desc: "擁有極高設計感的洋菓子名店。其精緻的甜點如藝術品般呈現在顧客面前，在優雅的午茶空間內享受一場法式美學與日式口感的完美匯流。", tags: "甜點 洋菓子 打卡" },
+  'NX-FOOD-003': { name: "壽喜燒 はり重 桂", desc: "在充滿靜謐氛圍的西京區，也能品嚐到京都老舖「はり重」的經典滋味。嚴選黑毛和牛與傳統關西風醬汁，帶來極致奢華的壽喜燒盛宴。", tags: "正餐 壽喜燒 老舖" },
 };
