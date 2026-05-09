@@ -5,6 +5,7 @@ import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
 import { TagSelector } from './TagSelector';
+import { TAG_REGISTRY } from '../data/tags';
 
 // 主 Tab（typeId）→ 允許的 tag group 白名單對應表
 // SSOT：此表是 TypeId 與 TagGroup 的跨層對應依據，禁止在其他地方硬編碼
@@ -52,7 +53,10 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     // 若當前選中的 tag 不屬於新主 Tab 的允許範圍，自動取消選取
     const allowedGroups = TYPE_TAG_GROUP_MAP[activeType] ?? DEFAULT_TAG_GROUPS;
     const tagStillValid = activeTag
-      ? localTags.some(t => t.id === activeTag && allowedGroups.includes(t.group))
+      ? (() => {
+          const meta = TAG_REGISTRY[activeTag];
+          return meta ? allowedGroups.includes(meta.group) : false;
+        })()
       : true;
     if (!tagStillValid) setActiveTag(null);
   }, [activeType, activeId, activeTag, localTags, setActiveTag]);
@@ -60,9 +64,11 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   // 根據當前 activeType，篩選出相關的 localTags 子集
   const visibleLocalTags = useMemo(() => {
     const allowedGroups = TYPE_TAG_GROUP_MAP[activeType] ?? DEFAULT_TAG_GROUPS;
-    return localTags
-      .filter(tag => allowedGroups.includes(tag.group))
-      .map(tag => tag.id);   // ← 萃取 id 字串，符合 TagSelector 的 tags: string[] 介面
+    return localTags.filter(tagId => {
+      const meta = TAG_REGISTRY[tagId];
+      return meta ? allowedGroups.includes(meta.group) : false;
+    });
+    // 結果仍為 string[]，符合 TagSelector tags: string[] 介面
   }, [activeType, localTags]);
 
   const handleSpotListMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
