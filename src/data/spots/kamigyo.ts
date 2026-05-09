@@ -97,7 +97,9 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-060', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'KNOT CAFE 西陣', tagIds: ['喫茶', '打卡', '名物'] },
   { id: 'KG-061', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: '山中油店', tagIds: ['老舖', '打卡', '歷史'] },
   { id: 'KG-062', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一条 恵比寿屋', tagIds: ['和菓子', '隱密'] },
-  { id: 'KM-FOOD-001', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一養軒', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'KM-FOOD-002', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 拍銚子', tagIds: ['正餐', '蕎麥'] },
-  { id: 'KM-FOOD-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'すき焼き 木村 上京', tagIds: ['正餐', '壽喜燒', '老舖'] },
+  { id: 'KG-FOOD-001', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '京豆腐 とよ受け茶屋', tagIds: ['正餐', '豆腐', '老舖'] },
+  { id: 'KG-FOOD-002', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一養軒', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'KG-FOOD-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '焼肉 弘 千本中立売店', tagIds: ['正餐', '燒肉', '名物'] },
+  { id: 'KG-FOOD-004', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 拍銚子', tagIds: ['正餐', '蕎麥'] },
+  { id: 'KG-FOOD-005', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'すき焼き 木村', tagIds: ['正餐', '壽喜燒', '老舖'] },
 ];

@@ -113,4 +113,5 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-FOOD-001', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: 'らーめん 嵐丸', tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'UK-FOOD-002', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 さくらもち 本家 琴きき茶屋', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'UK-FOOD-003', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 喜重郎', tagIds: ['正餐', '名物'] },
+  { id: 'UK-FOOD-004', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '焼肉 弘 嵯峨野店', tagIds: ['正餐', '燒肉', '名物'] },
 ];
