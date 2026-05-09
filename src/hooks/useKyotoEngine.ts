@@ -160,13 +160,18 @@ export function useKyotoEngine() {
 
   const localTags = useMemo(() => {
     const tagSet = new Set<string>();
-    loadedSpots.forEach(s => {
-      if (mode === 'area' ? s.areaId === activeId : s.wardId === activeId) {
-        s.tagIds?.forEach(tag => tagSet.add(tag));
-      }
-    });
+    loadedSpots
+      .filter(s => {
+        // Step 1: 確認屬於當前行政區/分區
+        const inScope = mode === 'area' ? s.areaId === activeId : s.wardId === activeId;
+        if (!inScope) return false;
+        // Step 2: 若 A 有選擇特定類型（非全選），只收集該類型的 spots
+        if (activeType !== 'T_ALL') return s.typeId === activeType;
+        return true;
+      })
+      .forEach(s => s.tagIds?.forEach(tag => tagSet.add(tag)));
     return Array.from(tagSet);
-  }, [loadedSpots, activeId, mode]);
+  }, [loadedSpots, activeId, mode, activeType]);
 
   const tagCounts = useMemo<Record<string, number>>(() => {
     const allSchemas = loadAllSchemasSync();
