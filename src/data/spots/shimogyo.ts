@@ -110,6 +110,8 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-076', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "蓮 (Hasu) しゃぶしゃぶ", tagIds: ['正餐', '涮涮鍋'] },
   { id: 'SM-077', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "すき焼き 木村", tagIds: ['正餐', '老舖', '壽喜燒'] },
   { id: 'SM-078', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "寿司 乙羽 四条店", tagIds: ['正餐', '老舖', '壽司'] },
+  { id: 'SM-079', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'モリタ屋 JR京都伊勢丹店', tagIds: ['正餐', '名物', '涮涮鍋'] },
+  { id: 'SM-080', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'すき焼き・しゃぶしゃぶ 桂', tagIds: ['正餐', '涮涮鍋'] },
   { id: 'SM-FOOD-001', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: 'パティスリー・エス', tagIds: ['甜點', '洋菓子', '打卡'] },
   { id: 'SM-FOOD-002', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '拳ラーメン', tagIds: ['正餐', '拉麵', '打卡'] },
   { id: 'SM-FOOD-003', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 実延', tagIds: ['正餐', '蕎麥'] },

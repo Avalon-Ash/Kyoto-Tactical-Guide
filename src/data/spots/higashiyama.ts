@@ -108,6 +108,8 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-071', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '奥丹 清水店', tagIds: ['正餐', '老舖', '豆腐'] },
   { id: 'HY-072', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 寿司 忠保', tagIds: ['正餐', '經典', '壽司'] },
   { id: 'HY-073', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '十二段家 花見小路店', tagIds: ['正餐', '名物', '涮涮鍋'] },
+  { id: 'HY-074', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'しゃぶ禅 京都祇園店', tagIds: ['正餐', '涮涮鍋'] },
+  { id: 'HY-075', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 牛善', tagIds: ['正餐', '涮涮鍋'] },
   { id: 'HY-FOOD-001', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 麺処 むらじ', tagIds: ['正餐', '拉麵', '名物', '打卡'] },
   { id: 'HY-FOOD-002', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 権兵衛', tagIds: ['正餐', '蕎麥', '老舖'] },
   { id: 'HY-FOOD-003', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '三嶋亭 髙島屋京都店', tagIds: ['正餐', '壽喜燒', '老舖'] },

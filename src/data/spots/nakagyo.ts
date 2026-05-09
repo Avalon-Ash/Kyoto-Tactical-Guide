@@ -79,8 +79,8 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-044', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "中京区役所", tagIds: ['隱密'] },
   { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "京福電気鉄道 西院車庫", tagIds: ['打卡'] },
   { id: 'NC-046', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "アニメイト 京都", tagIds: ['ACG', '打卡'] },
-  { id: 'NC-047', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "三嶋亭", tagIds: ['正餐', '老舖', '名物', '打卡', '壽喜燒'] },
-  { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", tagIds: ['正餐', '老舖', '名物', '壽喜燒'] },
+  { id: 'NC-047', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "三嶋亭", tagIds: ['正餐', '老舖', '名物', '打卡', '壽喜燒', '涮涮鍋'] },
+  { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", tagIds: ['正餐', '老舖', '名物', '壽喜燒', '涮涮鍋'] },
   { id: 'NC-049', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "京の焼肉処 弘 三条木屋町店", tagIds: ['正餐', '名物', '打卡', '燒肉'] },
   { id: 'NC-050', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "六曜社珈琲店", tagIds: ['喫茶', '老舖', '打卡'] },
   { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'ちいかわ専門店 京都', tagIds: ['ACG', '打卡'] },
@@ -112,4 +112,6 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-FOOD-001', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '龍旗信 京都店', tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'NK-FOOD-002', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'La Maison JOUVAUD 京都祇園店', tagIds: ['甜點', '洋菓子', '打卡'] },
   { id: 'NK-FOOD-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '河道屋 養老別館', tagIds: ['正餐', '蕎麥', '老舖'] },
+  { id: 'NK-FOOD-004', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 豚しゃぶ 英', tagIds: ['正餐', '名物', '涮涮鍋'] },
+  { id: 'NK-FOOD-005', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 瓢斗 四条烏丸店', tagIds: ['正餐', '名物', '涮涮鍋'] },
 ];
