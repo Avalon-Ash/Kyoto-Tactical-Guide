@@ -96,5 +96,9 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-071', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '寿しのむさし 京都駅八条口店', tagIds: ['正餐', '名物', '壽司'] },
   { id: 'SM-072', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '瓢斗 京都駅前本店', tagIds: ['正餐', '名物', '涮涮鍋'] },
   { id: 'SM-073', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'とんかつ一番', tagIds: ['正餐', '名物'] },
-  { id: 'SM-074', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '山本まんぼ', tagIds: ['正餐', '名物', '老舖'] }
+  { id: 'SM-074', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '山本まんぼ', tagIds: ['正餐', '名物', '老舖'] },
+  { id: 'SM-075', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "燒肉 弘 京都站前店", tagIds: ['正餐', '名物', '燒肉'] },
+  { id: 'SM-076', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "蓮 (Hasu) 涮涮鍋", tagIds: ['正餐', '涮涮鍋'] },
+  { id: 'SM-077', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "壽喜燒 木村", tagIds: ['正餐', '老舖', '壽喜燒'] },
+  { id: 'SM-078', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "壽司 乙羽 四條店", tagIds: ['正餐', '老舖', '壽司'] },
 ];

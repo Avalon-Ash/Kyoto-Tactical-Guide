@@ -96,5 +96,8 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'W_SAKYO_HINODE_UDON', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '日の出うどん', tagIds: ['正餐', '名物', '烏龍'] },
   { id: 'W_SAKYO_OMEN', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: 'おめん 銀閣寺本店', tagIds: ['正餐', '名物', '烏龍', '老舖'] },
   { id: 'W_SAKYO_ICHIRIJO_NAKATANI', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '一乗寺 中谷', tagIds: ['和菓子', '抹茶', '打卡', '名物'] },
-  { id: 'W_SAKYO_RAKUCHU_RAKUGAI', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '修学院離宮前 洛中洛外', tagIds: ['正餐', '隱密', '蕎麥'] }
+  { id: 'W_SAKYO_RAKUCHU_RAKUGAI', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '修学院離宮前 洛中洛外', tagIds: ['正餐', '隱密', '蕎麥'] },
+  { id: 'SK-068', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '南禪寺 順正', tagIds: ['正餐', '老舖', '豆腐'] },
+  { id: 'SK-069', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '奧丹 南禪寺店', tagIds: ['正餐', '老舖', '豆腐'] },
+  { id: 'SK-070', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '天婦羅 圓堂 岡崎店', tagIds: ['天婦羅', '正餐', '名物'] },
 ];

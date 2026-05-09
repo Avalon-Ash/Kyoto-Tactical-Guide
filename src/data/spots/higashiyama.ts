@@ -94,5 +94,9 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-066', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'かさぎ屋 二年坂', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'HY-067', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'いづ重 祇園', tagIds: ['正餐', '壽司', '老舖', '名物'] },
   { id: 'HY-068', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 きづな', tagIds: ['正餐', '名物', '隱密'] },
-  { id: 'HY-069', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '無礙山房', tagIds: ['喫茶', '和菓子', '打卡'] }
+  { id: 'HY-069', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '無礙山房', tagIds: ['喫茶', '和菓子', '打卡'] },
+  { id: 'HY-070', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 燒肉 鹿六', tagIds: ['正餐', '名物', '燒肉'] },
+  { id: 'HY-071', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '奧丹 清水店', tagIds: ['正餐', '老舖', '豆腐'] },
+  { id: 'HY-072', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 壽司 忠保', tagIds: ['正餐', '經典', '壽司'] },
+  { id: 'HY-073', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '十二段家 花見小路店', tagIds: ['正餐', '名物', '涮涮鍋'] },
 ];

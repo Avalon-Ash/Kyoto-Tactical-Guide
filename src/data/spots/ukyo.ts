@@ -97,5 +97,8 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'W_UKYO_HIROKAWA', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: 'うなぎ 廣川', tagIds: ['正餐', '老舖', '名物'] },
   { id: 'W_UKYO_OTSUKA', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 大塚', tagIds: ['正餐', '名物', '打卡'] },
   { id: 'W_UKYO_YOSHIMURA', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 よしむら', tagIds: ['正餐', '蕎麥', '名物', '打卡'] },
-  { id: 'W_UKYO_SHIGETSU', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '篩月', tagIds: ['正餐', '懷石', '名物', '經典'] }
+  { id: 'W_UKYO_SHIGETSU', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '篩月', tagIds: ['正餐', '懷石', '名物', '經典'] },
+  { id: 'UK-067', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵯峨野 豆腐', tagIds: ['正餐', '名物', '豆腐'] },
+  { id: 'UK-068', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 涮涮鍋 嵯峨', tagIds: ['正餐', '名物', '涮涮鍋'] },
+  { id: 'UK-069', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', mapQuery: '嵐山 壽司 寫樂', tagIds: ['正餐', '壽司'] },
 ];

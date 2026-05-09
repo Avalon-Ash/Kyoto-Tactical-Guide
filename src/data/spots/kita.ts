@@ -86,5 +86,6 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'W_KITA_NISHIJIN_UOSHIN', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '西陣 魚新', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_KITA_KAMIGAMO_YAKIMOCHI', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '上賀茂 やきもち總本家', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KT-057', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '嘯月', tagIds: ['和菓子', '名物', '隱密'] },
-  { id: 'KT-058', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '神馬', tagIds: ['正餐', '老舖', '隱密'] }
+  { id: 'KT-058', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '神馬', tagIds: ['正餐', '老舖', '隱密'] },
+  { id: 'KT-059', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '豆禪', tagIds: ['正餐', '豆腐', '拉麵'] },
 ];
