@@ -79,6 +79,32 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 ---
 
+### DetailView — 主 Tab 與副標籤對應規則（TYPE_TAG_GROUP_MAP）
+
+**SSOT 位置**：`src/components/DetailView.tsx` 頂部常數 `TYPE_TAG_GROUP_MAP`
+
+進入「洛中洛外」或「名所目録」的 DetailView 後，
+副標籤列（TagSelector）會依據當前選中的主 Tab（typeId）動態縮減，
+僅顯示與該類型語意相關的標籤分組，避免無效的跨類型標籤干擾。
+
+| typeId | 允許的 tag group |
+|---|---|
+| `T_ALL` | 全部（food / misc / culture / nature / transport / acg） |
+| `T_FOOD` | food、misc |
+| `T_SHRINE` | culture、misc |
+| `T_TEMPLE` | culture、nature、misc |
+| `T_GARDEN` | nature、culture、misc |
+| `T_SPOT` | culture、nature、misc、acg |
+| `T_TRANSPORT` | transport、misc |
+| `T_SHOP` | misc |
+
+**維護規則：**
+- 新增 TYPES（新 typeId）時，必須同步在 `TYPE_TAG_GROUP_MAP` 新增對應白名單
+- 切換主 Tab 時，若當前已選中的副標籤不屬於新白名單，系統自動清除選取狀態
+- 此表禁止在 `useKyotoEngine`、`TagSelector`、spots 資料層複製或重新實作
+
+---
+
 ## 🏗️ 核心架構：ECS 與 SSOT 原則
 
 本專案採用 **ECS (Entity Component System)** 的設計思想來管理繁雜的旅遊資料，並嚴格遵守 **SSOT (Single Source of Truth)** 確保資料的一致性與可維護性。
@@ -110,6 +136,11 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
   - **Categorical**: `typeId` (分類屬性，如寺社、咖啡、現代設施)。對應的 `SpotTypeMetadata` 還包含 `sortOrder`（整數，決定 filteredSpots 的類型排序順序）與 `emoji`（類型圖示，供 SpotCard 印章顯示備選）。
   - **Map**: `mapQuery`（Google Maps 搜尋關鍵字，由 SpotCard 的 Query Assembly System 清洗組裝後使用）
   - **Presentation**: 由語系層動態混入的 `name`, `desc`, `tags`。合併後的 FlatSpot 另含選填的 `jaName`，供 Query Assembly System 在非日文模式下輔助地圖搜尋精度。
+    > 注意：`jaName` 在**所有語系**（`lang === 'zh'` 與 `lang === 'ja'`）下均會注入，
+    > 差異在於值的來源不同——日文模式下取 `locale.name`（日文原名），
+    > 中文模式下同樣取 `locale.name` 作為 Query Assembly 的日文錨點輔助。
+    > 此欄位存在的目的是確保 SpotCard 的 Query Assembly System
+    > 在景點名稱為英文/羅馬字時（ACG 聖地等）仍能取得日文名稱作為地圖搜尋錨點。
 - **Systems (系統)**:
   - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
   - **Query Assembly System (`SpotCard.tsx`)**: 負責將原始 `mapQuery` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。

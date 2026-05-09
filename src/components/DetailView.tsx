@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, GripHorizontal, AlertCircle, Filter } from 'lucide-react';
+import { ChevronLeft, GripHorizontal, Filter } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
@@ -98,7 +98,6 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     window.addEventListener('mouseup', onUp);
   };
 
-  const responsiveScale = Math.max(1, width / 1200);
   const clampSize = (min: number, max: number) => Math.min(Math.max(width / 40, min), max);
 
   return (
