@@ -35,7 +35,7 @@ import { SpotSchema } from '../../types';
 export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-001', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "北野天満宮", tagIds: ['神社', '賞花', '經典', '打卡'] },
   { id: 'KG-002', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "今出川駅", tagIds: ['地鐵'] },
-  { id: 'KG-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "相國寺", tagIds: ['寺院', '庭園'] },
+  { id: 'KG-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "相国寺", tagIds: ['寺院', '庭園'] },
   { id: 'KG-004', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "廬山寺", tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'KG-005', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "清淨華院", tagIds: ['寺院'] },
   { id: 'KG-006', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "梨木神社", tagIds: ['神社', '賞花'] },
@@ -56,7 +56,7 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-021', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "京都御苑 近衛邸跡 櫻花", tagIds: ['賞花', '打卡'] },
   { id: 'KG-022', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "京都御苑 縣井 櫻花", tagIds: ['賞花'] },
   { id: 'KG-023', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "上御靈神社", tagIds: ['神社'] },
-  { id: 'KG-024', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "虎屋一條 虎屋寬", tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'KG-024', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "虎屋一条 虎屋寛", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KG-025', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "鶴屋吉信 本店", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KG-027', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "大将軍八神社", tagIds: ['神社', '隱密'] },
   { id: 'KG-028', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "妙蓮寺", tagIds: ['寺院'] },
@@ -80,15 +80,15 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-047', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "西陣 織成館", tagIds: ['打卡'] },
   { id: 'KG-048', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: "西陣 鳥岩樓", tagIds: ['正餐', '名物', '老舖'] },
   { id: 'KG-049', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_MODERN', mapQuery: "京都府庁旧本館", tagIds: ['打卡', '賞花'] },
-  { id: 'KG-050', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "京都御苑 九條池", tagIds: ['庭園'] },
+  { id: 'KG-050', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "京都御苑 九条池", tagIds: ['庭園'] },
   { id: 'KG-051', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "京都御苑 拾翠亭", tagIds: ['打卡', '隱密'] },
   { id: 'KG-052', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "堀川水際公園", tagIds: ['賞花'] },
   { id: 'KG-053', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "晴明神社 陰陽師 聖地", tagIds: ['ACG', '神社'] },
   { id: 'KG-054', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野天満宮 髭切", tagIds: ['ACG', '神社'] },
-  { id: 'KG-055', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "一條戾橋 有頂天家族", tagIds: ['ACG', '打卡'] },
+  { id: 'KG-055', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "一条戻橋 有頂天家族", tagIds: ['ACG', '打卡'] },
   { id: 'KG-056', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_ACG', mapQuery: "西陣 露地 散策", tagIds: ['ACG', '打卡'] },
   { id: 'KG-057', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "同志社大学 彰栄館", tagIds: ['ACG', '打卡'] },
-  { id: 'W_KAMIGYO_IPPODO_KAGI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一保堂茶舖 嘉木', tagIds: ['抹茶', '老舖', '隱密', '喫茶'] },
+  { id: 'W_KAMIGYO_IPPODO_KAGI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一保堂茶舗 嘉木', tagIds: ['抹茶', '老舖', '隱密', '喫茶'] },
   { id: 'W_KAMIGYO_ORYORI_HAYASHI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '御料理 はやし', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_KAMIGYO_CHOGOROMOCHI', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '長五郎餅本舗 北野天満宮', tagIds: ['和菓子', '老舖', '打卡'] },
   { id: 'W_KAMIGYO_FUNAHASHIYA_NIBEI', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '船はしや仁兵衛', tagIds: ['喫茶', '老舖', '隱密', '和菓子'] },
@@ -96,5 +96,5 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-059', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'Le Petit Mec 今出川', tagIds: ['洋菓子', '名物'] },
   { id: 'KG-060', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'KNOT CAFE 西陣', tagIds: ['喫茶', '打卡', '名物'] },
   { id: 'KG-061', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: '山中油店', tagIds: ['老舖', '打卡', '歷史'] },
-  { id: 'KG-062', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一条 惠比壽屋', tagIds: ['和菓子', '隱密'] }
+  { id: 'KG-062', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '一条 恵比寿屋', tagIds: ['和菓子', '隱密'] }
 ];
