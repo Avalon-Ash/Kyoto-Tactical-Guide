@@ -13,7 +13,7 @@ interface SpotCardProps {
   activeTag?: string | null;
 }
 
-const STATIC_NOISE = ['京都府', '京都市'];
+const STATIC_NOISE = ['京都府京都市', '京都府', '京都市'];
 
 export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCardProps) {
   const typeId = spot.typeId;
@@ -47,12 +47,13 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
   const wardJa = WARD_NAMES[spot.wardId].ja;
   const wardZh = WARD_NAMES[spot.wardId].zh;
 
-  // 1. 清理 mapQuery 中所有冗餘地理前綴
-  //    移除：京都府、京都市、行政區名（ja/zh）、多餘空白
+  // 1. 清理 mapQuery 中所有冗餘地理前綴與導航字元
+  //    移除：京都府、京都市、行政區名（ja/zh）、多餘空白、導航觸發字元
   const NOISE_PATTERNS = [...STATIC_NOISE, wardJa, wardZh];
   const cleanQuery = NOISE_PATTERNS
     .reduce((q, p) => q.replace(new RegExp(p, 'g'), ''), spot.mapQuery)
     .replace(/京都(?=\s|$|[^府市御苑駅城大路通院])/g, '')
+    .replace(/[→←↑↓]|から|まで|via|\bto\b|\bfrom\b/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
 
@@ -63,15 +64,16 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
     /[駅寺院社宮堂公園橋通町]$/.test(cleanQuery);
 
   // 3. 組裝最終查詢字串
-  //    採用「景點名, 京都」的結構，避免 Google Maps 誤判為導航
+  //    所有路徑都以「京都市+行政區」作為錨點，明確宣告這是「地點搜尋」
+  const wardSuffix = wardJa;
   const preciseQuery = isProperNoun
-    ? `${cleanQuery}, 京都`
-    : `${cleanQuery}, ${wardJa}, 京都`;
+    ? `${cleanQuery}，京都市${wardSuffix}`
+    : `京都市${wardSuffix} ${cleanQuery}`;
 
   // 4. jaName 輔助：若 cleanQuery 為英文/羅馬拼音內容（ACG 景點等），
-  //    附加日文名提高 Google Maps 識別率
+  //    以日文名稱優先，英文作為輔助識別，避免 Google Maps 誤解為地址或路線指令
   const finalQuery = (spot.jaName && /[a-zA-Z]/.test(cleanQuery))
-    ? `${cleanQuery} ${spot.jaName}, 京都`
+    ? `${spot.jaName} ${cleanQuery}，京都`
     : preciseQuery;
 
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalQuery)}`;

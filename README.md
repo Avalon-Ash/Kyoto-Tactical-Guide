@@ -39,6 +39,26 @@
 - **Systems (系統)**:
   - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
   - **Query Assembly System (`SpotCard.tsx`)**: 負責將原始 `mapQuery` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
+    
+    ## 🗺 Query Assembly System — 地圖搜尋規則
+    **SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
+    
+    組裝流程共四步驟：
+    1. **雜訊清洗（Noise Strip）**：
+       - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`
+       - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
+       - 移除殘留的「京都」（後接非地名漢字時）
+       - 移除導航觸發字元：`→ ← から まで via to from`
+    2. **固有名詞判斷（Proper Noun Detection）**：
+       - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
+       - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
+       - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
+    3. **英文/羅馬字 ACG 景點處理**：
+       - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
+       - 日文名稱永遠在前，英文名稱作輔助識別
+    4. **URL 格式**：
+       - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
+       - **禁止**使用 `maps/dir/`（點對點導航端點）
   - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：
     - `tag` 模式（御秘帖）為第三條獨立導航路徑：使用者在首頁選取全域標籤後，Engine 以 `Promise.all` 並行載入全部 11 個行政區的 FlatSpot，跨行政區篩選符合該 tagId 的景點，結果以全螢幕 Overlay 呈現，不受任何 ward/area 限制。
     - **雙軌 Tag 計數機制**：回傳 `localTags`（當前選定分區/行政區內出現的 tagId 集合，動態重算，供 DetailView 的局部 TagSelector 使用）與 `tagCounts`（以 `loadAllSchemasSync()` 一次性讀取全部 Schema 計算的靜態全域計數，供首頁御秘帖的 badge 數字顯示使用，只計算一次）。
