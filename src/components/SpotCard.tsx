@@ -127,13 +127,8 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
         <div className="relative inline-block w-full">
           <a 
             href={googleMapsUrl}
-            target="_blank"
+            target="_top"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              // Force use Search API with window.open to ensure correct cross-platform behavior
-              e.preventDefault();
-              window.open(googleMapsUrl, '_blank');
-            }}
             style={{
               background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
               border: '1px solid rgba(200,160,74,0.4)',
