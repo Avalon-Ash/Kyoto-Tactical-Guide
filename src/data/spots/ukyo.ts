@@ -24,8 +24,8 @@
 import { SpotSchema } from '../../types';
 
 export const UKYO_SCHEMA: SpotSchema[] = [
-  { id: 'UK-001', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "京福電車 嵐山站", tagIds: ['地鐵'] },
-  { id: 'UK-002', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_HUB', mapQuery: "阪急電車 西院站", tagIds: ['地鐵'] },
+  { id: 'UK-001', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "嵐電 嵐山駅", tagIds: ['鐵道'] },
+  { id: 'UK-002', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_HUB', mapQuery: "京福 嵐電西院駅", tagIds: ['鐵道'] },
   { id: 'UK-003', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "天龍寺", tagIds: ['寺院', '世界遺產', '經典', '打卡'] },
   { id: 'UK-004', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "大覺寺", tagIds: ['寺院', '打卡'] },
   { id: 'UK-005', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "龍安寺", tagIds: ['寺院', '世界遺產', '隱密'] },
@@ -33,8 +33,8 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-007', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山 竹林", tagIds: ['打卡', '自然'] },
   { id: 'UK-008', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "渡月橋", tagIds: ['經典', '打卡'] },
   { id: 'UK-009', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "東映太秦電影村", tagIds: ['打卡', 'ACG'] },
-  { id: 'UK-010', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "JR 嵯峨嵐山站", tagIds: ['地鐵'] },
-  { id: 'UK-011', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "小火車嵯峨站", tagIds: ['地鐵'] },
+  { id: 'UK-010', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "JR 嵯峨嵐山駅", tagIds: ['鐵道'] },
+  { id: 'UK-011', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_HUB', mapQuery: "トロッコ嵯峨駅", tagIds: ['鐵道'] },
   { id: 'UK-012', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "常寂光寺", tagIds: ['寺院', '隱密', '打卡'] },
   { id: 'UK-013', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "落柿舍", tagIds: ['隱密', '打卡'] },
   { id: 'UK-014', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_TEMPLE', mapQuery: "祇王寺", tagIds: ['寺院', '隱密'] },
@@ -44,7 +44,7 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-018', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "妙心寺", tagIds: ['寺院', '隱密'] },
   { id: 'UK-019', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "退藏院", tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'UK-020', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "法金剛院", tagIds: ['寺院', '賞花'] },
-  { id: 'UK-021', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_HUB', mapQuery: "JR 花園站", tagIds: ['地鐵'] },
+  { id: 'UK-021', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_HUB', mapQuery: "JR 花園駅（京都府）", tagIds: ['鐵道'] },
   { id: 'UK-022', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "車折神社", tagIds: ['神社', 'ACG', '打卡'] },
   { id: 'UK-023', wardId: 'W_UKYO', areaId: 'A11', typeId: 'T_TEMPLE', mapQuery: "神護寺", tagIds: ['寺院', '打卡', '山岳'] },
   { id: 'UK-024', wardId: 'W_UKYO', areaId: 'A11', typeId: 'T_TEMPLE', mapQuery: "高山寺", tagIds: ['寺院', '世界遺產', '隱密'] },

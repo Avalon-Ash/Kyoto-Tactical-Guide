@@ -31,6 +31,7 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '老舖':  { id: '老舖',  label: { zh: '老舖', ja: '老舗'   }, group: 'misc', emoji: '🏮' },
   '經典':  { id: '經典',  label: { zh: '經典',  ja: '定番'   }, group: 'misc',   emoji: '✦'  },
   // --- transport group ---
+  '鐵道':  { id: '鐵道',  label: { zh: '鐵道', ja: '鉄道'   }, group: 'transport', emoji: '🚃' },
   '地鐵':  { id: '地鐵',  label: { zh: '地鐵', ja: '地下鉄' }, group: 'transport', emoji: '🚇' },
   '巴士':  { id: '巴士',  label: { zh: '巴士', ja: 'バス'   }, group: 'transport', emoji: '🚌' },
   // --- culture group ---

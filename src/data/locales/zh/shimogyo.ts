@@ -10,7 +10,7 @@ import { SpotLocale } from '../../../types';
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
 export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
-  'SM-001': { name: "京都站", desc: "京都的門戶。現代建築傑作，集結所有交通心臟。", tags: "地鐵" },
+  'SM-001': { name: "京都站", desc: "京都的門戶。現代建築傑作，集結所有交通心臟。", tags: "鐵道" },
   'SM-002': { name: "四條烏丸", desc: "地鐵烏丸線與阪急線的換乘點，商業金融中心。", tags: "地鐵" },
   'SM-003': { name: "西本願寺", desc: "淨土真宗本願寺派總本山。豪華桃山建築風格。", tags: "寺院 世界遺產 經典 打卡" },
   'SM-004': { name: "東本願寺", desc: "擁有全球最大的木造建築之一。秋季銀杏大道壯觀。", tags: "寺院 經典 打卡" },
@@ -19,10 +19,10 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SM-007': { name: "梅小路公園", desc: "京都站旁的城市綠洲，非常適合休閒與散步。", tags: "賞花 自然" },
   'SM-008': { name: "京都鐵道博物館", desc: "日本最大規模鐵博。展示蒸汽火車到新幹線。", tags: "打卡" },
   'SM-009': { name: "京都水族館", desc: "展示大山椒魚等生物。海豚表演深受歡迎。", tags: "打卡" },
-  'SM-010': { name: "京都河原町站", desc: "阪急京都線總站，直通高島屋與繁忙商圈。", tags: "地鐵" },
+  'SM-010': { name: "京都河原町站", desc: "阪急京都線總站，直通高島屋與繁忙商圈。", tags: "鐵道" },
   'SM-011': { name: "五條站", desc: "地鐵烏丸線車站，鄰近本願寺區。", tags: "地鐵" },
-  'SM-012': { name: "大宮站", desc: "阪急與京福（嵐電）轉乘站。周邊美食林立。", tags: "地鐵" },
-  'SM-013': { name: "梅小路京都西站", desc: "JR嵯峨野線新站。文化設施就在門口。", tags: "地鐵" },
+  'SM-012': { name: "大宮站", desc: "阪急與京福（嵐電）轉乘站。周邊美食林立。", tags: "鐵道" },
+  'SM-013': { name: "梅小路京都西站", desc: "JR嵯峨野線新站。文化設施就在門口。", tags: "鐵道" },
   'SM-014': { name: "佛光寺", desc: "隱於心靈的靜謐之地。內有文青風格咖啡廳。", tags: "寺院 打卡" },
   'SM-015': { name: "涉成園", desc: "環境清幽的池泉庭園。京都站門戶旁的世外桃源。", tags: "庭園 打卡" },
   'SM-016': { name: "京都 伊勢丹", desc: "與京都站共構。擁有壯觀流水電梯景觀。", tags: "打卡 購物" },
@@ -32,7 +32,7 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SM-020': { name: "京都市學校歷史博物館", desc: "利用舊校舍改建。展現明智維新起的教育足跡。", tags: "打卡" },
   'SM-021': { name: "文子天滿宮", desc: "北野天滿宮的發源地。守護學業的神祕古蹟。", tags: "神社 隱密" },
   'SM-022': { name: "神明神社", desc: "商圈巷弄內的古老神社。「一願成就」非常靈驗。", tags: "神社 隱密" },
-  'SM-023': { name: "京都中央卸賣市場", desc: "京都的廚房。周邊海鮮料理新鮮超值。", tags: "美食" },
+  'SM-023': { name: "京都中央卸賣市場", desc: "京都的廚房。聚集了大量提供新鮮海味料理的老字號。 ", tags: "正餐 必吃 老舖" },
   'SM-024': { name: "島原 大門", desc: "昔日京都花街島原正門。保留江戶風情。", tags: "打卡 歷史" },
   'SM-025': { name: "角屋", desc: "日本重要文化財。展現江戶時代的高級社交美學。", tags: "打卡 歷史" },
   'SM-026': { name: "輪違屋", desc: "島原碩果僅存的置屋。木造外觀優雅懷舊。", tags: "打卡 歷史" },
@@ -74,5 +74,6 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'W_SHIMOGYO_YOSHINOYA': { name: "吉廼家", desc: "隱身巷弄的和菓子老舖。名物「一休大福」口感Q彈，是許多在地人的心頭好。", tags: "和菓子 老舖 隱密" },
   'W_SHIMOGYO_SARASA_KAYUKOJI': { name: "Sarasa 花遊小路", desc: "Sarasa 系列中氛圍最隱密的分店。隱身窄巷中，提供充滿美式復古風的餐食。", tags: "喫茶 打卡 隱密" },
   'SHIMOGYO_TEMPURA_YOKOTA': { name: '京都駅前 天婦羅 橫田', desc: '京都站徒步即達的老牌天婦羅食堂，旅途最終夜的熱炸慰藉。', tags: '天婦羅 正餐 打卡' },
-  'SHIMOGYO_KYOTO_STATION_BLDG': { name: '京都驛大廈 大空廣場', desc: '原研哉設計監修的京都站內部大廳，挑高空間與幾何格柵構成現代京都的門戶意象，夜間打光尤為壯觀。', tags: '現代 打卡 購物' }
+  'SHIMOGYO_KYOTO_STATION_BLDG': { name: '京都驛大廈 大空廣場', desc: '原研哉設計監修的京都站內部大樓，挑高空間與幾何格柵構成現代京都門戶。', tags: '現代 打卡 購物' },
+  'SM-063': { name: "中村藤吉 京都站店", desc: "位於京都站伊勢丹3樓。提供招牌抹茶聖代與生啫喱，是轉乘途中最完美的甜點補給站。", tags: "抹茶 和菓子 必吃 打卡" }
 };

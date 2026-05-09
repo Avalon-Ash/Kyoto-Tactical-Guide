@@ -10,7 +10,7 @@ import { SpotLocale } from '../../../types';
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
 export const KAMIGYO_ZH: Record<string, SpotLocale> = {
-  'KG-001': { name: "北野天滿宮", desc: "供奉學問之神菅原道真。以梅花與每月25日的「天神市」市集聞名。", tags: "神社 賞花 必吃" },
+  'KG-001': { name: "北野天滿宮", desc: "供奉學問之神菅原道真。以梅花名所與每月25日的「天神市」市集聞名，是京都代表性神社。", tags: "神社 賞花 經典 打卡" },
   'KG-002': { name: "今出川站", desc: "地鐵烏丸線關鍵車站。位於京都御苑北側，緊鄰同志社大學。", tags: "地鐵" },
   'KG-003': { name: "相國寺", desc: "足利義滿創建。法堂天頂的「幡龍圖」拍手會有回音效應。", tags: "寺院 庭園" },
   'KG-004': { name: "廬山寺", desc: "紫式部故居。夏季盛開浪漫紫色的桔梗花。", tags: "寺院 庭園 隱密" },

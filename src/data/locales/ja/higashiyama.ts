@@ -11,8 +11,8 @@ import { SpotLocale } from '../../../types';
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）
  */
 export const HIGASHIYAMA_JA: Record<string, SpotLocale> = {
-  'HY-001': { name: "祇園四条駅", desc: "京阪本線の駅。鴨川にかかる四条大橋のすぐそば。", tags: "地下鉄" },
-  'HY-002': { name: "三条京阪駅", desc: "地下鉄東西線と京阪電車が接続するターミナル。", tags: "地下鉄" },
+  'HY-001': { name: "祇園四条駅", desc: "京阪本線の駅。鴨川にかかる四条大橋のすぐそば。", tags: "鉄道" },
+  'HY-002': { name: "三条京阪駅", desc: "地下鉄東西線と京阪電車が接続するターミナル。", tags: "鉄道" },
   'HY-003': { name: "清水寺", desc: "世界遺産。「清水の舞台」で知られる京都の象徴。", tags: "寺院 世界遺産 定番 映え" },
   'HY-004': { name: "八坂神社", desc: "祇園祭の中心地。厄除けや縁結びで有名。", tags: "神社 定番 映え" },
   'HY-005': { name: "知恩院", desc: "浄土宗の総本山。巨大な三門は見応えあり。", tags: "寺院 映え" },
@@ -71,9 +71,9 @@ export const HIGASHIYAMA_JA: Record<string, SpotLocale> = {
   'HY-061': { name: "茶寮都路里 祗園本店", desc: "宇治抹茶スイーツの最高峰。「特選都路里パフェ」は京都観光の定番。", tags: "抹茶 甘味 必食 映え" },
   'HY-062': { name: "祇園辻利 祇園本店", desc: "1860年創業の老舗茶商。抹茶ソフトクリームは祇園の風物詩。", tags: "抹茶 和菓子 老舗" },
   'HY-063': { name: "中村藤吉 京都祇園店", desc: "宇治の名門茶商。高品質な抹茶スイーツと淹れたての日本茶を提供。", tags: "抹茶 甘味 必食" },
-  'W_HIGASHIYAMA_AKOYA_CHAYA': { name: "阿古屋茶屋", desc: "清水寺近くのお茶漬けバイキングの名店. 数十種類の京漬物と3種類のご飯が食べ放題で、行列が絶えない。", tags: "食事 老舗 穴場 豆腐" },
+  'W_HIGASHIYAMA_AKOYA_CHAYA': { name: "阿古屋茶屋", desc: "清水寺近くのお茶漬けバイキングの名店。数十種類の京漬物と3種類のご飯が食べ放題で人気。", tags: "食事 老舗 定番" },
   'W_HIGASHIYAMA_SHICHIMIYA_HONPO_CHASEKI': { name: "七味家本舗 茶席", desc: "創業350年の七味粉の老舗に併設された茶席. 香ばしい湯豆腐や甘味を産寧坂の景色と共に楽しめる。", tags: "和菓子 老舗 映え" },
-  'W_HIGASHIYAMA_JUNIDANYA': { name: "十二段家 祇園", desc: "しゃぶしゃぶ発祥の店として知られる. 民芸調の落ち着いた店内で、元祖お茶漬定食などが人気。", tags: "和菓子 老舗 必食" },
+  'W_HIGASHIYAMA_JUNIDANYA': { name: "十二段家 祇園本店", desc: "しゃぶしゃぶ発祥の店として知られる。元祖お茶漬定食や牛すき焼きが絶品。", tags: "食事 老舗 必食 定番" },
   'W_HIGASHIYAMA_GION_YATA': { name: "祇をん 八咫", desc: "祇園白川のほとりに佇む京料理店. 「一汁三菜」を基本とした繊細な懐石を、隠れ家的な空間で楽しめる。", tags: "食事 和牛 穴場 懐石" },
-  'HIGASHIYAMA_TEMPURA_ENDO': { name: '祇園 天周', desc: '祇園の石畳の路地裏にある天ぷらの名店。ボリューム満点の穴子天丼で知られる。', tags: '天ぷら 食事 老舗' }
+  'HIGASHIYAMA_TEMPURA_ENDO': { name: '天ぷら 祇園 えんどう', desc: '建仁寺近くの石畳に佇む、数寄屋造りの名店。匠の技で揚げる最高級の天ぷらを堪能。', tags: '天ぷら 食事 老舗' }
 };

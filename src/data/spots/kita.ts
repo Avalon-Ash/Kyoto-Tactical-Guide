@@ -24,7 +24,7 @@
 import { SpotSchema } from '../../types';
 
 export const KITA_SCHEMA: SpotSchema[] = [
-  { id: 'KT-001', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_HUB', mapQuery: "北野白梅町駅", tagIds: ['地鐵'] },
+  { id: 'KT-001', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_HUB', mapQuery: "北野白梅町駅", tagIds: ['鐵道'] },
   { id: 'KT-002', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_HUB', mapQuery: "金閣寺道 バス停", tagIds: ['巴士'] },
   { id: 'KT-003', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_HUB', mapQuery: "金閣寺前 バス停", tagIds: ['巴士'] },
   { id: 'KT-004', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_HUB', mapQuery: "立命館大學前 バス停", tagIds: ['巴士'] },
@@ -69,18 +69,18 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-043', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 半木之道", tagIds: ['賞花', '打卡'] },
   { id: 'KT-044', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "北區役所 京都", tagIds: ['隱密'] },
   { id: 'KT-045', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "鹿苑寺 鏡湖池", tagIds: ['打卡', '世界遺產'] },
-  { id: 'KT-046', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "かざりや 京都", tagIds: ['和菓子', '老舖'] },
+  { id: 'KT-046', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "かざりや", tagIds: ['和菓子', '老舖', '必吃'] },
   { id: 'KT-047', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "中華のサカイ 本店", tagIds: ['正餐', '必吃', '老舖'] },
   { id: 'KT-048', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "グリルはせがわ", tagIds: ['正餐', '打卡'] },
   { id: 'KT-049', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "東洋亭 本店", tagIds: ['正餐', '老舖', '必吃'] },
   { id: 'KT-050', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "船岡山 公園 柯南", tagIds: ['ACG', '打卡'] },
   { id: 'KT-051', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "上賀茂神社 有頂天家族", tagIds: ['ACG', '神社'] },
   { id: 'KT-052', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "佛教大学 紫野キャンパス", tagIds: ['隱密'] },
-  { id: 'KT-053', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野白梅町 K-ON", tagIds: ['ACG', '地鐵'] },
+  { id: 'KT-053', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "北野白梅町駅", tagIds: ['ACG', '鐵道'] },
   { id: 'KT-054', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', mapQuery: "北大路橋 鴨川 輕音部", tagIds: ['ACG', '打卡'] },
   { id: 'KT-055', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "立命館大学 西園寺記念館", tagIds: ['隱密'] },
   { id: 'KT-056', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', mapQuery: "金閣寺 アニメ", tagIds: ['ACG', '打卡'] },
-  { id: 'W_KITA_KAIKADO_CAFE', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: 'Kaikado Café 京都', tagIds: ['喫茶', '打卡', '老舖'] },
+  { id: 'W_KITA_WIFE_AND_HUSBAND', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: 'WIFE & HUSBAND', tagIds: ['喫茶', '打卡', '自然'] },
   { id: 'W_KITA_CHIKUSEI', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '金閣寺 陸舟の松そば 近清', tagIds: ['正餐', '老舖', '打卡', '蕎麥'] },
   { id: 'W_KITA_NISHIJIN_UOSHIN', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '西陣 魚新', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'W_KITA_KAMIGAMO_YAKIMOCHI', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '上賀茂 やきもち總本家', tagIds: ['和菓子', '老舖', '必吃'] }

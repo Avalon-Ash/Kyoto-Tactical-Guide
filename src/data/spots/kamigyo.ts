@@ -24,8 +24,8 @@
 import { SpotSchema } from '../../types';
 
 export const KAMIGYO_SCHEMA: SpotSchema[] = [
-  { id: 'KG-001', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "北野天滿宮", tagIds: ['神社', '賞花', '必吃'] },
-  { id: 'KG-002', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 今出川站", tagIds: ['地鐵'] },
+  { id: 'KG-001', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "北野天満宮", tagIds: ['神社', '賞花', '經典', '打卡'] },
+  { id: 'KG-002', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "今出川駅", tagIds: ['地鐵'] },
   { id: 'KG-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "相國寺", tagIds: ['寺院', '庭園'] },
   { id: 'KG-004', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "廬山寺", tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'KG-005', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "清淨華院", tagIds: ['寺院'] },
@@ -33,13 +33,13 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-007', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "京都御所", tagIds: ['庭園', '打卡'] },
   { id: 'KG-008', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "京都御苑", tagIds: ['賞花', '楓葉'] },
   { id: 'KG-009', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "同志社大學 今出川", tagIds: ['打卡'] },
-  { id: 'KG-010', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 丸太町站", tagIds: ['地鐵'] },
+  { id: 'KG-010', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "丸太町駅", tagIds: ['地鐵'] },
   { id: 'KG-011', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "上七軒", tagIds: ['打卡', '老舖'] },
   { id: 'KG-012', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "晴明神社", tagIds: ['神社', '打卡'] },
   { id: 'KG-013', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "白峯神宮", tagIds: ['神社'] },
   { id: 'KG-014', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "妙顯寺", tagIds: ['寺院', '庭園'] },
   { id: 'KG-015', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "本法寺", tagIds: ['寺院', '庭園'] },
-  { id: 'KG-016', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "一條戾橋", tagIds: ['打卡'] },
+  { id: 'KG-016', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "一条戻橋", tagIds: ['打卡', '歷史'] },
   { id: 'KG-017', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "西陣織會館", tagIds: ['打卡'] },
   { id: 'KG-018', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "堀川商店街", tagIds: ['打卡'] },
   { id: 'KG-019', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "澤屋 粟餅", tagIds: ['和菓子', '老舖', '必吃'] },

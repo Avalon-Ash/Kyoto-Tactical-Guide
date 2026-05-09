@@ -24,7 +24,7 @@
 import { SpotSchema } from '../../types';
 
 export const SAKYO_SCHEMA: SpotSchema[] = [
-  { id: 'SK-001', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "京阪電車 出町柳站", tagIds: ['地鐵'] },
+  { id: 'SK-001', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "京阪本線 出町柳駅", tagIds: ['鐵道'] },
   { id: 'SK-002', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "下鴨神社", tagIds: ['神社', '世界遺產', '打卡'] },
   { id: 'SK-003', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "鴨川三角洲", tagIds: ['打卡', '自然'] },
   { id: 'SK-004', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "南禪寺", tagIds: ['寺院', '打卡', '庭園'] },
@@ -38,8 +38,8 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-012', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: "鞍馬寺", tagIds: ['寺院', '山岳'] },
   { id: 'SK-013', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "三千院", tagIds: ['寺院', '庭園', '楓葉'] },
   { id: 'SK-014', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "瑠璃光院", tagIds: ['寺院', '楓葉', '打卡'] },
-  { id: 'SK-015', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "叡山電車 出町柳站", tagIds: ['地鐵'] },
-  { id: 'SK-016', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 蹴上站", tagIds: ['地鐵'] },
+  { id: 'SK-015', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_HUB', mapQuery: "叡山電車 出町柳駅", tagIds: ['鐵道'] },
+  { id: 'SK-016', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_HUB', mapQuery: "地下鉄 蹴上駅", tagIds: ['地鐵'] },
   { id: 'SK-018', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "河合神社", tagIds: ['神社', '打卡'] },
   { id: 'SK-019', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "真如堂", tagIds: ['寺院', '楓葉', '隱密'] },
   { id: 'SK-020', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "金戒光明寺", tagIds: ['寺院', '隱密'] },
@@ -62,7 +62,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-037', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_NATURE', mapQuery: "貴船川遊步道", tagIds: ['賞花', '自然'] },
   { id: 'SK-038', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_SHOP', mapQuery: "比叡山頂 展望台", tagIds: ['打卡'] },
   { id: 'SK-039', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "比叡山 延曆寺", tagIds: ['寺院', '世界遺產', '山岳'] },
-  { id: 'SK-040', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "叡山索道 ケーブル八瀬駅", tagIds: ['地鐵'] },
+  { id: 'SK-040', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "叡山ケーブル 八瀬駅", tagIds: ['鐵道'] },
   { id: 'SK-041', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "比叡山內巴士 延曆寺巴士站", tagIds: ['巴士'] },
   { id: 'SK-042', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "蓮華寺", tagIds: ['寺院', '隱密'] },
   { id: 'SK-043', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "崇道神社", tagIds: ['神社', '隱密'] },
@@ -81,7 +81,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-056', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "瓢亭 本店", tagIds: ['正餐', '老舖', '必吃', '懷石'] },
   { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋總本店", tagIds: ['和菓子', '老舖', '必吃'] },
   { id: 'SK-058', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市京セラ美術館", tagIds: ['打卡', '現代'] },
-  { id: 'SK-059', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_ACG', mapQuery: "叡山電車 きらら", tagIds: ['ACG', '地鐵'] },
+  { id: 'SK-059', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_ACG', mapQuery: "叡山電車 きらら", tagIds: ['ACG', '鐵道'] },
   { id: 'SK-060', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "下鴨神社 糺之森 有頂天家族", tagIds: ['ACG', '神社'] },
   { id: 'SK-061', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "鴨川三角洲 けいおん", tagIds: ['ACG', '自然'] },
   { id: 'SK-062', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_ACG', mapQuery: "鞍馬寺 有頂天家族", tagIds: ['ACG', '寺院'] },
