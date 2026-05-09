@@ -1,10 +1,34 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, GripHorizontal, AlertCircle, Filter } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
 import { TagSelector } from './TagSelector';
+
+// 主 Tab（typeId）→ 允許的 tag group 白名單對應表
+// SSOT：此表是 TypeId 與 TagGroup 的跨層對應依據，禁止在其他地方硬編碼
+const TYPE_TAG_GROUP_MAP: Record<string, Array<'food' | 'misc' | 'culture' | 'nature' | 'transport' | 'acg'>> = {
+  // T_ALL：全部開放（不過濾）
+  'T_ALL':       ['food', 'misc', 'culture', 'nature', 'transport', 'acg'],
+  // 餐飲類：食物細分 + 旅行特質（老舖、名物等通用旅遊屬性）
+  'T_FOOD':      ['food', 'misc'],
+  // 神社：文化信仰 + 旅行特質
+  'T_SHRINE':    ['culture', 'misc'],
+  // 寺院：文化信仰 + 自然（庭園楓葉常見） + 旅行特質
+  'T_TEMPLE':    ['culture', 'nature', 'misc'],
+  // 庭園：自然 + 文化 + 旅行特質
+  'T_GARDEN':    ['nature', 'culture', 'misc'],
+  // 景點/名所：全開放（景點類型最廣）
+  'T_SPOT':      ['culture', 'nature', 'misc', 'acg'],
+  // 交通：交通 + 旅行特質
+  'T_TRANSPORT': ['transport', 'misc'],
+  // 購物：旅行特質（名物、老舖、打卡等）
+  'T_SHOP':      ['misc'],
+};
+
+// Fallback：若 typeId 不在對應表中，預設顯示 misc + culture
+const DEFAULT_TAG_GROUPS: Array<'food' | 'misc' | 'culture' | 'nature' | 'transport' | 'acg'> = ['misc', 'culture'];
 
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
@@ -24,7 +48,20 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
-  }, [activeType, activeId, activeTag]);
+
+    // 若當前選中的 tag 不屬於新主 Tab 的允許範圍，自動取消選取
+    const allowedGroups = TYPE_TAG_GROUP_MAP[activeType] ?? DEFAULT_TAG_GROUPS;
+    const tagStillValid = activeTag
+      ? localTags.some(t => t.id === activeTag && allowedGroups.includes(t.group))
+      : true;
+    if (!tagStillValid) setActiveTag(null);
+  }, [activeType, activeId, activeTag, localTags, setActiveTag]);
+
+  // 根據當前 activeType，篩選出相關的 localTags 子集
+  const visibleLocalTags = useMemo(() => {
+    const allowedGroups = TYPE_TAG_GROUP_MAP[activeType] ?? DEFAULT_TAG_GROUPS;
+    return localTags.filter(tag => allowedGroups.includes(tag.group));
+  }, [activeType, localTags]);
 
   const handleSpotListMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
@@ -147,7 +184,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
 
         <div className="bg-black/60 border-t border-gold/10">
           <TagSelector 
-            tags={localTags}
+            tags={visibleLocalTags}
             activeTag={activeTag}
             onSelect={setActiveTag}
             lang={lang}
