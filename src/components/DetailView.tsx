@@ -1,3 +1,37 @@
+/**
+ * @layer UI / DetailView（任務列表主介面）
+ * @module DetailView
+ *
+ * 本元件是「洛中洛外」與「名所目録」兩種模式的共用主介面，
+ * 負責渲染主 Tab（A 層）、副標籤列（B 層）與景點卡片格（C 層）。
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 雙層過濾器架構（A × B → C）
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * A 層（主 Tab）：typeId 類型選擇，由 useKyotoEngine.setActiveType 驅動
+ * B 層（副標籤）：tagId 精煉，由 useKyotoEngine.setActiveTag 驅動
+ * C 層（卡片）  ：filteredSpots 渲染，由 useKyotoEngine.filteredSpots 提供
+ *
+ * B 層顯示規則（雙重過濾保護）：
+ *   1. useKyotoEngine.localTags：只含當前 activeId + activeType 範圍內
+ *      景點實際使用的 tagId（資料層保護，防止空結果）
+ *   2. visibleLocalTags（本元件）：對 localTags 再套用 TYPE_TAG_GROUP_MAP
+ *      白名單過濾（語意層保護，防止跨類型標籤出現）
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * TYPE_TAG_GROUP_MAP — SSOT 位置
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 定義於本檔頂部常數，是 typeId → 允許 tag group 的唯一對應表。
+ * 新增 TYPES 時必須同步在此表新增對應白名單。
+ * 禁止在 useKyotoEngine、TagSelector、spots 資料層複製此映射。
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * SSOT 原則與禁則
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - 禁止在本元件直接操作 loadedSpots 或複製 filteredSpots 邏輯
+ * - 禁止將 TYPE_TAG_GROUP_MAP 套用於御秘帖（Tag Mode）的標籤渲染
+ * - 主 Tab 切換時若 activeTag 的 group 不在新白名單中，自動 setActiveTag(null)
+ */
 import React, { useRef, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, GripHorizontal, Filter } from 'lucide-react';

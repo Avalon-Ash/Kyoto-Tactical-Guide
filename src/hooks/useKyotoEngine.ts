@@ -1,3 +1,47 @@
+/**
+ * @layer System / Kyoto Tactical Engine（戰術引擎層）
+ * @module useKyotoEngine
+ *
+ * 本模組是應用程式的核心狀態管理大腦，所有導航狀態、
+ * 過濾邏輯、資料載入皆在此集中協調。
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 管理的核心狀態
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - lang          : 當前語系（'zh' | 'ja'），影響 locale 載入與排序
+ * - mode          : 導航模式（'ward' | 'area' | 'tag'），三條互斥路徑
+ * - activeId      : 當前選中的 wardId 或 areaId（null 表示在首頁）
+ * - activeType    : 主 Tab 類型篩選（'T_ALL' 或具體 typeId）
+ * - activeTag     : 副標籤篩選（null 表示未篩選）
+ * - loadedSpots   : 當前分區的 FlatSpot[]（Lazy Loaded，切換 activeId 觸發）
+ * - allLoadedSpots: 御秘帖模式的全域 FlatSpot[]（有 activeTag 且無 activeId 觸發）
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 回傳的派生計算值
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - filteredSpots : 依 activeType + activeTag 過濾並排序後的景點陣列
+ * - typeCounts    : 各 typeId 在當前 activeId 下的景點計數（附防閃爍快取）
+ * - localTags     : 當前 activeId + activeType 範圍內景點實際使用的 tagId 集合
+ *                   ⚠️ useMemo 依賴陣列必須包含 activeType，缺少會導致 B 層不重算
+ * - tagCounts     : 全域靜態 tagId 計數（loadAllSchemasSync，只計算一次）
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 三條導航路徑說明
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * Ward Mode  : openDetail(wardId, 'ward') → 載入單一行政區資料
+ * Area Mode  : openDetail(areaId, 'area') → 依 WARD_BY_AREA 找出跨 ward 並行載入
+ * Tag Mode   : setActiveTag(tagId) 且 activeId === null → 全域 11 ward 並行載入
+ *              ⚠️ Tag Mode 不得與 activeId 同時成立，否則觸發兩條路徑衝突
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * SSOT 原則與禁則
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - 禁止在 UI 元件層（DetailView / SpotCard）直接操作 loadedSpots
+ * - 禁止在 UI 元件層複製 filteredSpots 的排序邏輯（sortOrder）
+ * - 禁止在 UI 元件層複製 localTags 的 tagId 統計邏輯
+ * - TYPE_TAG_GROUP_MAP 定義於 DetailView.tsx，本 hook 不持有此映射
+ * - tagCounts 使用 loadAllSchemasSync()，依賴陣列為 []，禁止改為動態依賴
+ */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
 import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';

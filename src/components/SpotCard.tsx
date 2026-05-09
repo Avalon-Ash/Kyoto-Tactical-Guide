@@ -1,3 +1,47 @@
+/**
+ * @layer UI / SpotCard（景點任務卡片）
+ * @module SpotCard
+ *
+ * 本元件負責單一 FlatSpot 的視覺渲染，採用「京都漆藝」風格設計。
+ * 同時內建「Query Assembly System」，負責將 mapQuery 組裝為
+ * Google Maps Search URL。
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * Query Assembly System — 組裝流程
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * SSOT 原則：所有關鍵字組裝以日文/日文漢字為唯一基準。
+ *
+ * Step 1 — 雜訊清洗（Noise Strip）：
+ *   移除靜態地理前綴（優先完整前綴：京都府京都市 > 京都府 > 京都市）
+ *   移除行政區名（ja/zh）、孤立「京都」、導航觸發字元（→ ← から まで via）
+ *
+ * Step 2 — 固有名詞判斷（Proper Noun Detection）：
+ *   含日文字元且 ≥ 3 字元，或以地名後綴結尾（駅寺院社宮堂公園橋通町）
+ *   → 固有名詞型：`cleanQuery，京都市{wardJa}`
+ *   → 通用型：`京都市{wardJa} cleanQuery`
+ *
+ * Step 3 — ACG 英文景點處理：
+ *   cleanQuery 含英文且 spot.jaName 有值 → `{jaName} {cleanQuery}，京都`
+ *   日文名稱永遠在前，英文名稱作輔助識別
+ *
+ * Step 4 — URL 組裝：
+ *   固定使用 maps/search/?api=1&query=...
+ *   ⚠️ 禁止使用 maps/dir/（點對點導航端點）
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 印章 Emoji 優先序
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * activeTag 的 emoji > spot 首個 tagId 的 emoji > typeEmoji
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * SSOT 原則與禁則
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - 禁止在本元件硬編碼任何標籤字串，一律透過 TAG_REGISTRY 查詢
+ * - 禁止使用 maps/dir/ 端點
+ * - reservationRequired badge 以 spot.reservationRequired 布林值為唯一判斷基準
+ *   禁止用 tagIds 字串替代此欄位
+ * - readOnly={true} 時省略地圖按鈕與印章，供預覽或靜態展示用途
+ */
 import React from 'react';
 import { motion } from 'motion/react';
 import { FlatSpot, Lang } from '../types';

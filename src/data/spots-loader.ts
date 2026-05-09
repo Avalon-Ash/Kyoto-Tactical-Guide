@@ -1,3 +1,41 @@
+/**
+ * @layer System / Assemble System（組件裝配層）
+ * @module spots-loader
+ *
+ * 本模組負責將 Schema（結構層）與 Locale（內容層）
+ * 動態合併裝配為 UI 消耗的 FlatSpot 物件。
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 核心函式
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * loadSpotsByWard(wardId, lang) : 非同步，依行政區 + 語系載入並合併 FlatSpot[]
+ *                                  結果以 `${wardId}:${lang}` 為 key 快取於模組作用域
+ *                                  ⚠️ 快取為模組生命週期級，HMR 時需手動清除
+ * loadAllSchemasSync()          : 同步，一次性匯入全部 11 個行政區的 SpotSchema[]
+ *                                  僅用於統計計算（tagCounts / wardStats / areaStats）
+ *                                  禁止用於 UI 渲染，資料量過大且不含 locale 資訊
+ * computeWardStats()            : 統計各 wardId 的景點數量
+ * computeAreaStats()            : 統計各 areaId 的景點數量
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * jaName 注入策略
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 所有語系均注入 jaName：
+ * - lang === 'ja' : 值為當前 locale.name（日文原名）
+ * - lang !== 'ja' : 額外載入 ja locale，取 jaLocales[id].name 作為地圖搜尋錨點
+ * 目的：確保 SpotCard 的 Query Assembly System 在 ACG 英文景點下
+ *       仍能取得日文名稱進行 Google Maps 精確定位
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * SSOT 原則與禁則
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * - 禁止在 UI 元件層直接 import spots/ 或 locales/ 資料檔
+ * - Schema 的 wardKey 命名規則：wardId 去除 'W_' 前綴轉小寫（如 W_SAKYO → sakyo）
+ * - Locale 的模組 export 命名規則：`${WARD_KEY}_${LANG.toUpperCase()}`
+ *   （如 SAKYO_ZH、SAKYO_JA）
+ * - 動態 import 路徑含 `.ts` 副檔名，Vite dev 正常；
+ *   production 打包若路徑解析失敗，改為省略副檔名
+ */
 import { FlatSpot, SpotSchema, SpotLocale, WardKey, Lang } from '../types';
 import { TYPES } from './types';
 
