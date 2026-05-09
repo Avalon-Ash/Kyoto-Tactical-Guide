@@ -60,7 +60,9 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
   // 根據當前 activeType，篩選出相關的 localTags 子集
   const visibleLocalTags = useMemo(() => {
     const allowedGroups = TYPE_TAG_GROUP_MAP[activeType] ?? DEFAULT_TAG_GROUPS;
-    return localTags.filter(tag => allowedGroups.includes(tag.group));
+    return localTags
+      .filter(tag => allowedGroups.includes(tag.group))
+      .map(tag => tag.id);   // ← 萃取 id 字串，符合 TagSelector 的 tags: string[] 介面
   }, [activeType, localTags]);
 
   const handleSpotListMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
