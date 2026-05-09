@@ -79,6 +79,97 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 ---
 
+---
+
+## UX 設計原則
+
+本應用的 UI 層遵循「**漸進揭露（Progressive Disclosure）**」原則：
+使用者在每個操作階段只看到與當前情境相關的選項，
+避免資訊過載，降低決策成本。
+
+以下是各核心互動的設計意圖說明，供開發者在修改 UI 邏輯前參照。
+
+---
+
+### 雙層過濾器設計（主 Tab × 副標籤）
+
+**設計意圖**：使用者進入一個行政區或散策區域後，
+面對的是該區數十筆景點。若一次灑出所有類型與所有標籤，
+等同於沒有提供任何導引。
+
+**解法**：將過濾拆為兩層，**主 Tab（類型）先收斂範疇，副標籤再精煉意圖**：
+
+```
+使用者動線範例：
+  進入「東山區」
+    → 主 Tab 選「寺院」（範疇收斂：30 筆 → 12 筆）
+    → 副標籤選「庭園」（意圖精煉：12 筆 → 4 筆）
+    → 得到「東山區有庭園的寺院」
+```
+
+此設計要求副標籤必須**跟隨主 Tab 動態縮減**，
+而非靜態灑出所有 tag。原因：
+- 「食・口福」主 Tab 下出現「山岳」標籤，對使用者毫無意義
+- 無關標籤會稀釋篩選精度，使用者會放棄使用副標籤
+
+**實作依據**：`TYPE_TAG_GROUP_MAP`（`src/components/DetailView.tsx`）
+
+---
+
+### 副標籤的資料來源邏輯（localTags）
+
+**設計意圖**：副標籤列不應顯示「全域所有 tag」，
+而是只顯示**當前區域的景點實際使用到的 tag**，
+確保使用者選擇任何副標籤後，結果集不為空。
+
+**實作邏輯**：
+1. `useKyotoEngine` 的 `localTags`：從當前已載入的 `loadedSpots` 動態統計，
+   僅收錄該區域景點實際標記的 tagId（`string[]`）
+2. `DetailView` 的 `visibleLocalTags`：對 `localTags` 再套用 `TYPE_TAG_GROUP_MAP`
+   白名單過濾，透過 `TAG_REGISTRY` 查詢每個 tagId 的 group
+3. 最終傳入 `TagSelector`：結果為 `string[]`，符合元件介面
+
+**橋接查詢鏈（禁止在其他地方複製）**：
+```
+localTags（string[]）
+  → TAG_REGISTRY[tagId].group     ← 橋接查詢
+  → TYPE_TAG_GROUP_MAP[activeType] ← 白名單過濾
+  → visibleLocalTags（string[]）  → TagSelector
+```
+
+---
+
+### 主 Tab 切換時的狀態清除策略
+
+**設計意圖**：主 Tab 切換代表使用者「改變意圖」，
+先前選中的副標籤若屬於舊 Tab 的分組，
+在新 Tab 下可能不存在或語意不符，應自動清除避免困惑。
+
+**實作規則**：切換 `activeType` 時，若 `activeTag` 的 group
+不在新 `TYPE_TAG_GROUP_MAP[activeType]` 白名單中，自動 `setActiveTag(null)`。
+
+反之，若 tag 的 group 仍在白名單中（例如 `misc` 在大多數 Tab 都開放），
+則保留選取狀態，**不強制清除**，減少使用者重新操作的摩擦。
+
+---
+
+### 御秘帖（Tag Mode）的獨立性
+
+**設計意圖**：御秘帖是**跨區域的主題索引**，
+與洛中洛外 / 名所目録的「先選區域再過濾」流程完全相反——
+使用者從「主題（tag）」出發，系統才展示全洛中符合的景點。
+
+因此御秘帖**不使用雙層過濾器**：
+- 無主 Tab 類型列（不受 `TYPE_TAG_GROUP_MAP` 約束）
+- 標籤選取後直接觸發全域載入（`loadAllSchemasSync`）
+- 呈現 overlay 全螢幕結果，不進入 `DetailView`
+
+**開發禁則**：不得將 `TYPE_TAG_GROUP_MAP` 套用於御秘帖的標籤渲染。
+御秘帖的標籤來源是 `TAG_REGISTRY` 全集 + `PINNED_GLOBAL_TAGS` 排序，
+與 `localTags` 無關。
+
+---
+
 ### DetailView — 主 Tab 與副標籤對應規則（TYPE_TAG_GROUP_MAP）
 
 **SSOT 位置**：`src/components/DetailView.tsx` 頂部常數 `TYPE_TAG_GROUP_MAP`

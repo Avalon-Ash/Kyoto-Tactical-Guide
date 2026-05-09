@@ -33,7 +33,7 @@
 import { SpotSchema } from '../../types';
 
 export const MINAMI_SCHEMA: SpotSchema[] = [
-  { id: 'MN-001', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺", tagIds: ['寺院', '世界遺產', '經典', '打卡'] },
+  { id: 'MN-001', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺", tagIds: ['寺院', '世界遺產', '經典', '打卡', '國寶', '庭園'] },
   { id: 'MN-002', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "伏見稲荷大社 御旅所", tagIds: ['神社', '打卡'] },
   { id: 'MN-003', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "イオンモールKYOTO", tagIds: ['購物', '打卡'] },
   { id: 'MN-004', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "十条駅 京都", tagIds: ['地鐵'] },
@@ -82,7 +82,7 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-047', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都Avanti", tagIds: ['ACG', '購物'] },
   { id: 'MN-048', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "ドン・キホーテ 京都駅八条口店", tagIds: ['購物', '打卡'] },
   { id: 'MN-049', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "丸福樓", tagIds: ['ACG', '打卡'] },
-  { id: 'MN-050_acg', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂開發中心", tagIds: ['ACG', '打卡'] },
+  { id: 'MN-050_acg', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂開発センター", tagIds: ['ACG', '打卡'] },
   { id: 'MN-051', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "九条跨線橋", tagIds: ['ACG', '打卡'] },
   { id: 'MN-052', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "十条通 任天堂", tagIds: ['ACG', '打卡'] },
   { id: 'MN-053', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "東寺餅", tagIds: ['和菓子', '老舖', '名物'] },
@@ -95,5 +95,8 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'W_MINAMI_TEUCHI_SOBA_MARU', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 まる', tagIds: ['正餐', '名物', '蕎麥'] },
   { id: 'W_MINAMI_KYOTO_RAMEN_LAB', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '京都ラーメン研究所', tagIds: ['正餐', '拉麵', '打卡'] },
   { id: 'W_MINAMI_TORIYASA', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '殿田', tagIds: ['正餐', '老舖', '名物', '烏龍'] },
-  { id: 'W_MINAMI_KISSHOKARYO', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '吉祥菓寮 東寺店', tagIds: ['和菓子', '抹茶', '打卡', '名物'] }
+  { id: 'W_MINAMI_KISSHOKARYO', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '吉祥菓寮 東寺店', tagIds: ['和菓子', '抹茶', '打卡', '名物'] },
+  { id: 'MN-FOOD-001', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'ラーメン 霽レ空', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'MN-FOOD-002', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'パティスリー オ・グルニエ・ドール', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'MN-FOOD-003', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'すき焼き 弘', tagIds: ['正餐', '壽喜燒', '燒肉'] },
 ];

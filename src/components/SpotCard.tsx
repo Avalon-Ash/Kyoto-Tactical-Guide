@@ -116,6 +116,11 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
         <span className="text-[clamp(0.6rem,0.9vw,0.85rem)] px-[clamp(0.5rem,1.2vw,1.5rem)] py-[clamp(0.25rem,0.6vw,0.8rem)] bg-shuiro/20 text-[#fff] font-serif font-bold border border-shuiro/30 shadow-inner">
           {typeName}
         </span>
+        {spot.reservationRequired && (
+          <span className="text-[clamp(0.6rem,0.9vw,0.85rem)] px-[clamp(0.5rem,1.2vw,1.5rem)] py-[clamp(0.25rem,0.6vw,0.8rem)] bg-gold/20 text-gold-light font-serif font-bold border border-gold/30 shadow-inner">
+            {lang === 'zh' ? '要預約' : '要予約'}
+          </span>
+        )}
         {spot.tagIds && spot.tagIds.length > 0 ? (
           spot.tagIds.slice(0, 4).map((tid) => {
             const tagMeta = TAG_REGISTRY[tid];

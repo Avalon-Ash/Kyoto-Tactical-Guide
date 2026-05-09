@@ -1,6 +1,6 @@
 {
   "name": "Kyoto Tactical Guide",
-  "description": "An MMORPG-style tactical guide for Kyoto sightseeing, featuring administrative 'Zone' maps and quest-based exploration.",
+  "description": "An MMORPG-style tactical travel guide for Kyoto, featuring dynamic tag filtering (Progressive Disclosure), rich attraction metadata (National Treasures, Museums, Gardens), and precise map search integration.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

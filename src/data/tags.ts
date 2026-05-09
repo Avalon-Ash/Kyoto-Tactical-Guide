@@ -97,11 +97,12 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '温泉'   }, group: 'misc', emoji: '♨️' },
   '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '国宝'   }, group: 'culture', emoji: '💎' },
   '博物館': { id: '博物館', label: { zh: '博物館', ja: '博物館' }, group: 'culture', emoji: '🏛️' },
-  '需預約': { id: '需預約', label: { zh: '需預約', ja: '要予約'   }, group: 'misc', emoji: '🕒' },
 };
 
 // HomeView 首頁展示的固定置頂標籤（全域標籤門戶用）
 export const PINNED_GLOBAL_TAGS: string[] = [
-  '名物', '抹茶', '和菓子', '洋菓子', '懷石', '燒肉', '壽司', '拉麵',
-  '喫茶', '老舖', '打卡', '隱密', '庭園', '世界遺產', 'ACG',
+  '名物', '抹茶', '和菓子', '懷石', '喫茶', '壽司',
+  '拉麵', '蕎麥', '洋菓子', '壽喜燒',
+  '老舖', '打卡', '隱密', '庭園', '世界遺產', 'ACG',
+  '博物館', '國寶',
 ];

@@ -36,9 +36,9 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-001', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "JR 山科駅", tagIds: ['鐵道'] },
   { id: 'YS-002', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "御陵駅", tagIds: ['地鐵'] },
   { id: 'YS-003', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', mapQuery: "小野駅（京都府）", tagIds: ['地鐵'] },
-  { id: 'YS-004', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "毘沙門堂", tagIds: ['寺院', '打卡', '經典'] },
-  { id: 'YS-005', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "勧修寺", tagIds: ['寺院', '庭園', '打卡'] },
-  { id: 'YS-006', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "随心院", tagIds: ['寺院', '賞花', '打卡'] },
+  { id: 'YS-004', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "毘沙門堂", tagIds: ['寺院', '打卡', '經典', '國寶', '庭園'] },
+  { id: 'YS-005', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "勧修寺", tagIds: ['寺院', '庭園', '打卡', '國寶'] },
+  { id: 'YS-006', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "随心院", tagIds: ['寺院', '賞花', '打卡', '國寶', '庭園'] },
   { id: 'YS-007', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', mapQuery: "京都 大石神社", tagIds: ['神社', '隱密'] },
   { id: 'YS-011', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_NATURE', mapQuery: "山科疏水", tagIds: ['自然', '賞花', '打卡'] },
   { id: 'YS-009', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', mapQuery: "清水焼の郷", tagIds: ['購物', '歷史'] },
@@ -96,5 +96,8 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'W_YAMASHINA_FURUKAWAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '追分 三条 古川屋', tagIds: ['正餐', '老舖', '隱密'] },
   { id: 'W_YAMASHINA_SHIBAZUKE_CHAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '山科 醍醐 志ば漬本舗 茶屋', tagIds: ['和菓子', '老舖', '打卡'] },
   { id: 'W_YAMASHINA_LION_CURRY', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'ライオンカレー 山科店', tagIds: ['正餐', '名物'] },
-  { id: 'W_YAMASHINA_FURAIPAN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'ふらいぱん 山科', tagIds: ['正餐', '名物'] }
+  { id: 'W_YAMASHINA_FURAIPAN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'ふらいぱん 山科', tagIds: ['正餐', '名物'] },
+  { id: 'YS-FOOD-001', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '担担麺 胡', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'YS-FOOD-002', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'パティスリー ニュアージュ', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'YS-FOOD-003', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'すき焼き 牛禅 山科', tagIds: ['正餐', '壽喜燒'] },
 ];
