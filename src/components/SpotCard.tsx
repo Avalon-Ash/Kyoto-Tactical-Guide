@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { FlatSpot, Lang } from '../types';
 import { WARD_NAMES, AREA_NAMES, TYPE_NAMES, TYPES } from '../data/index';
@@ -62,19 +63,28 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
     /[駅寺院社宮堂公園橋通町]$/.test(cleanQuery);
 
   // 3. 組裝最終查詢字串
-  //    - 固有名詞型：直接以「京都 + cleanQuery」查詢，不加行政區
-  //    - 短關鍵字型：加上行政區前綴提高精度
+  //    採用「景點名, 京都」的結構，避免 Google Maps 誤判為導航
   const preciseQuery = isProperNoun
-    ? `京都 ${cleanQuery}`
-    : `京都府京都市${wardJa} ${cleanQuery}`;
+    ? `${cleanQuery}, 京都`
+    : `${cleanQuery}, ${wardJa}, 京都`;
 
   // 4. jaName 輔助：若 cleanQuery 為英文/羅馬拼音內容（ACG 景點等），
   //    附加日文名提高 Google Maps 識別率
   const finalQuery = (spot.jaName && /[a-zA-Z]/.test(cleanQuery))
-    ? `${preciseQuery} ${spot.jaName}`
+    ? `${cleanQuery} ${spot.jaName}, 京都`
     : preciseQuery;
 
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalQuery)}`;
+  
+  const handleMapOpen = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = googleMapsUrl;
+    } else {
+      window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <motion.div 
@@ -127,7 +137,7 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
         <div className="relative inline-block w-full">
           <a 
             href={googleMapsUrl}
-            target="_top"
+            onClick={handleMapOpen}
             rel="noopener noreferrer"
             style={{
               background: 'linear-gradient(135deg, #2a1f10 0%, #1a1208 50%, #2c1f0e 100%)',
