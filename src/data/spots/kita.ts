@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/kita.ts
  *   src/data/locales/ja/kita.ts
@@ -32,7 +41,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-006', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大徳寺", tagIds: ['寺院', '庭園'] },
   { id: 'KT-007', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "今宮神社 京都", tagIds: ['神社', '賞花'] },
   { id: 'KT-008', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "平野神社", tagIds: ['神社', '賞花'] },
-  { id: 'KT-009', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "立命館大學 京都", tagIds: ['打卡'] },
+  { id: 'KT-009', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "立命館大学 京都", tagIds: ['打卡'] },
   { id: 'KT-010', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "北大路駅", tagIds: ['地鐵'] },
   { id: 'KT-011', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "北山駅 京都", tagIds: ['地鐵'] },
   { id: 'KT-012', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "鞍馬口駅", tagIds: ['地鐵'] },
@@ -40,7 +49,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-014', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_HUB', mapQuery: "上賀茂神社前 バス停", tagIds: ['巴士'] },
   { id: 'KT-015', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "上賀茂神社", tagIds: ['神社', '世界遺產', '打卡'] },
   { id: 'KT-016', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "建勲神社", tagIds: ['神社', '隱密'] },
-  { id: 'KT-017', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "光悅寺", tagIds: ['寺院', '楓葉', '隱密'] },
+  { id: 'KT-017', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "光悦寺", tagIds: ['寺院', '楓葉', '隱密'] },
   { id: 'KT-018', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "源光庵", tagIds: ['寺院', '楓葉', '打卡'] },
   { id: 'KT-019', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "常照寺", tagIds: ['寺院', '賞花'] },
   { id: 'KT-020', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "船岡山公園", tagIds: ['山岳'] },
@@ -54,7 +63,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-028', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "さらさ西陣", tagIds: ['喫茶', '打卡', '老舖'] },
   { id: 'KT-029', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: "一文字屋和助", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KT-030', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "京都府立植物園", tagIds: ['賞花', '庭園'] },
-  { id: 'KT-031', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "京都府立陶板名畫之庭", tagIds: ['打卡'] },
+  { id: 'KT-031', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "京都府立陶板名画の庭", tagIds: ['打卡'] },
   { id: 'KT-032', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', mapQuery: "堂本印象美術館", tagIds: ['打卡'] },
   { id: 'KT-033', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "等持院", tagIds: ['寺院', '庭園'] },
   { id: 'KT-034', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "正傳寺", tagIds: ['寺院', '庭園'] },
@@ -67,7 +76,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-041', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大德寺 高桐院", tagIds: ['寺院', '庭園', '楓葉'] },
   { id: 'KT-042', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "大德寺 龍源院", tagIds: ['寺院', '庭園'] },
   { id: 'KT-043', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "賀茂川 半木之道", tagIds: ['賞花', '打卡'] },
-  { id: 'KT-044', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "北區役所 京都", tagIds: ['隱密'] },
+  { id: 'KT-044', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "北区役所 京都", tagIds: ['隱密'] },
   { id: 'KT-045', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', mapQuery: "鹿苑寺 鏡湖池", tagIds: ['打卡', '世界遺產'] },
   { id: 'KT-046', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "かざりや", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KT-047', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: "中華のサカイ 本店", tagIds: ['正餐', '老舖', '名物'] },
@@ -84,7 +93,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'W_KITA_WIFE_AND_HUSBAND', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: 'WIFE & HUSBAND', tagIds: ['喫茶', '打卡', '自然'] },
   { id: 'W_KITA_CHIKUSEI', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '金閣寺 陸舟の松そば 近清', tagIds: ['正餐', '老舖', '打卡', '蕎麥'] },
   { id: 'W_KITA_NISHIJIN_UOSHIN', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', mapQuery: '西陣 魚新', tagIds: ['正餐', '懷石', '隱密'] },
-  { id: 'W_KITA_KAMIGAMO_YAKIMOCHI', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '上賀茂 やきもち總本家', tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'W_KITA_KAMIGAMO_YAKIMOCHI', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '上賀茂 やきもち総本家', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KT-057', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '嘯月', tagIds: ['和菓子', '名物', '隱密'] },
   { id: 'KT-058', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '神馬', tagIds: ['正餐', '老舖', '隱密'] },
   { id: 'KT-059', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', mapQuery: '豆禪', tagIds: ['正餐', '豆腐', '拉麵'] },

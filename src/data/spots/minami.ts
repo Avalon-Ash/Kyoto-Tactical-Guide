@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/minami.ts
  *   src/data/locales/ja/minami.ts
@@ -25,9 +34,9 @@ import { SpotSchema } from '../../types';
 
 export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-001', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺", tagIds: ['寺院', '世界遺產', '經典', '打卡'] },
-  { id: 'MN-002', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "伏見稻荷大社 御旅所", tagIds: ['神社', '打卡'] },
-  { id: 'MN-003', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "永旺夢樂城 京都", tagIds: ['購物', '打卡'] },
-  { id: 'MN-004', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "十條站 京都", tagIds: ['地鐵'] },
+  { id: 'MN-002', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "伏見稲荷大社 御旅所", tagIds: ['神社', '打卡'] },
+  { id: 'MN-003', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "イオンモールKYOTO", tagIds: ['購物', '打卡'] },
+  { id: 'MN-004', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "十条駅 京都", tagIds: ['地鐵'] },
   { id: 'MN-005', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "JR 西大路駅", tagIds: ['鐵道'] },
   { id: 'MN-006', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "羅生門址", tagIds: ['打卡', '歷史'] },
   { id: 'MN-010', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "任天堂 本社", tagIds: ['ACG', '打卡'] },
@@ -35,50 +44,50 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-009', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "吉祥院天滿宮", tagIds: ['神社', '賞花'] },
   { id: 'MN-010_alt', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "實相寺", tagIds: ['寺院'] },
   { id: 'MN-011', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "桂川 久世橋", tagIds: ['自然'] },
-  { id: 'MN-012', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "九條通 京都", tagIds: ['打卡'] },
+  { id: 'MN-012', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "九条通 京都", tagIds: ['打卡'] },
   { id: 'MN-013', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "弘法市 東寺", tagIds: ['老舖', '打卡'] },
-  { id: 'MN-014', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺 觀智院", tagIds: ['寺院', '庭園', '隱密'] },
+  { id: 'MN-014', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺 観智院", tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'MN-015', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺 唐門", tagIds: ['寺院', '打卡'] },
-  { id: 'MN-016', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺 寶藏", tagIds: ['寺院', '打卡'] },
+  { id: 'MN-016', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺 宝蔵", tagIds: ['寺院', '打卡'] },
   { id: 'MN-017', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "上鳥羽神社", tagIds: ['神社'] },
   { id: 'MN-018', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "塔之森 公園", tagIds: ['自然'] },
   { id: 'MN-019', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "瓦町公園", tagIds: ['自然'] },
   { id: 'MN-020', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "お好み焼き 吉野", tagIds: ['正餐', '名物'] },
-  { id: 'MN-021', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都市西大路體育館", tagIds: ['打卡'] },
+  { id: 'MN-021', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都市西大路体育館", tagIds: ['打卡'] },
   { id: 'MN-022', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東寺西門", tagIds: ['寺院', '打卡'] },
-  { id: 'MN-023', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "八條大宮 巴士站", tagIds: ['巴士'] },
+  { id: 'MN-023', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "八条大宮 バス停", tagIds: ['巴士'] },
   { id: 'MN-024', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "羅生門 公園", tagIds: ['自然'] },
   { id: 'MN-025', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "戒光寺 南區", tagIds: ['寺院'] },
   { id: 'MN-026', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "嚴島神社 南區", tagIds: ['神社'] },
   { id: 'MN-027', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "おもに 本店", tagIds: ['正餐', '燒肉', '名物'] },
   { id: 'MN-028', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "惠美酒 神社", tagIds: ['神社'] },
-  { id: 'MN-029', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "西大路九條 巴士站", tagIds: ['巴士'] },
-  { id: 'MN-030', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "十條大宮 巴士站", tagIds: ['巴士'] },
-  { id: 'MN-031', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "南十條 公園", tagIds: ['自然'] },
+  { id: 'MN-029', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "西大路九条 バス停", tagIds: ['巴士'] },
+  { id: 'MN-030', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "十条大宮 バス停", tagIds: ['巴士'] },
+  { id: 'MN-031', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "南十条 公園", tagIds: ['自然'] },
   { id: 'MN-032', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鴨川 勧進橋", tagIds: ['自然'] },
   { id: 'MN-033', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "桂川 祥久橋", tagIds: ['自然'] },
   { id: 'MN-034', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鉄 上鳥羽口駅", tagIds: ['鐵道'] },
   { id: 'MN-035', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "地下鉄 竹田駅", tagIds: ['地鐵'] },
-  { id: 'MN-036', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京瓷 本社", tagIds: ['打卡'] },
+  { id: 'MN-036', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京セラ 本社", tagIds: ['打卡'] },
   { id: 'MN-037', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "日本郵便 京都南郵便局", tagIds: ['打卡'] },
   { id: 'MN-038', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "燒肉 弘 上鳥羽店", tagIds: ['正餐', '燒肉', '名物'] },
-  { id: 'MN-039', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "瓦町 纖維街", tagIds: ['購物'] },
+  { id: 'MN-039', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "瓦町 繊維街", tagIds: ['購物'] },
   { id: 'MN-040', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "油小路通", tagIds: ['打卡'] },
   { id: 'MN-041', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都南交流道", tagIds: ['打卡'] },
   { id: 'MN-042', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "山王神社 京都", tagIds: ['神社'] },
   { id: 'MN-043', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "觀進寺", tagIds: ['寺院'] },
   { id: 'MN-044', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "綾戶國中神社", tagIds: ['神社'] },
   { id: 'MN-045', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "藏王堂光福寺", tagIds: ['寺院'] },
-  { id: 'MN-046', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "扭蛋百貨 永旺夢樂城KYOTO店", tagIds: ['ACG', '打卡'] },
+  { id: 'MN-046', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "ガシャポンバンダイオフィシャルショップ イオンモールKYOTO店", tagIds: ['ACG', '打卡'] },
   { id: 'MN-047', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都Avanti", tagIds: ['ACG', '購物'] },
-  { id: 'MN-048', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "唐吉訶德 京都站八條口店", tagIds: ['購物', '打卡'] },
-  { id: 'MN-049', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "丸福樓 (任天堂舊本社)", tagIds: ['ACG', '打卡'] },
+  { id: 'MN-048', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "ドン・キホーテ 京都駅八条口店", tagIds: ['購物', '打卡'] },
+  { id: 'MN-049', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "丸福樓", tagIds: ['ACG', '打卡'] },
   { id: 'MN-050_acg', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂開發中心", tagIds: ['ACG', '打卡'] },
-  { id: 'MN-051', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "九條跨線橋", tagIds: ['ACG', '打卡'] },
-  { id: 'MN-052', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "十條通 任天堂", tagIds: ['ACG', '打卡'] },
+  { id: 'MN-051', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "九条跨線橋", tagIds: ['ACG', '打卡'] },
+  { id: 'MN-052', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_ACG', mapQuery: "十条通 任天堂", tagIds: ['ACG', '打卡'] },
   { id: 'MN-053', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "東寺餅", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'MN-054', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "寿しのむさし 京都駅八条口店", tagIds: ['正餐', '壽司', '老舖'] },
-  { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麵 香來 上鳥羽店", tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'MN-055', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "熟成細麺 香来 上鳥羽店", tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'MN-056', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "鳥羽水環境保全中心 藤", tagIds: ['自然', '賞花'] },
   { id: 'MN-057', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都Terrsa", tagIds: ['打卡'] },
   { id: 'MN-058', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_HUB', mapQuery: "近鉄 十条駅", tagIds: ['鐵道'] },

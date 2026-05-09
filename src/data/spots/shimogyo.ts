@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/shimogyo.ts
  *   src/data/locales/ja/shimogyo.ts
@@ -25,11 +34,11 @@ import { SpotSchema } from '../../types';
 
 export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-001', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_HUB', mapQuery: "JR 京都駅", tagIds: ['鐵道'] },
-  { id: 'SM-002', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 四條站", tagIds: ['地鐵'] },
+  { id: 'SM-002', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_HUB', mapQuery: "京都市営地下鉄 四条駅", tagIds: ['地鐵'] },
   { id: 'SM-003', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "西本願寺", tagIds: ['寺院', '世界遺產', '經典', '打卡'] },
   { id: 'SM-004', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "東本願寺", tagIds: ['寺院', '經典', '打卡'] },
   { id: 'SM-005', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都塔", tagIds: ['地標', '打卡', '現代'] },
-  { id: 'SM-006', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "四條河原町", tagIds: ['經典', '打卡', '購物'] },
+  { id: 'SM-006', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "四条河原町", tagIds: ['經典', '打卡', '購物'] },
   { id: 'SM-007', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_NATURE', mapQuery: "梅小路公園", tagIds: ['賞花', '自然'] },
   { id: 'SM-008', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都鐵道博物館", tagIds: ['打卡', '現代'] },
   { id: 'SM-009', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都水族館", tagIds: ['打卡', '現代'] },
@@ -38,12 +47,12 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-012', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_HUB', mapQuery: "阪急 大宮駅", tagIds: ['鐵道'] },
   { id: 'SM-013', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_HUB', mapQuery: "JR 梅小路京都西駅", tagIds: ['鐵道'] },
   { id: 'SM-014', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "佛光寺", tagIds: ['寺院', '打卡'] },
-  { id: 'SM-015', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "涉成園", tagIds: ['庭園', '打卡'] },
+  { id: 'SM-015', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', mapQuery: "渉成園", tagIds: ['庭園', '打卡'] },
   { id: 'SM-016', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都 伊勢丹", tagIds: ['打卡', '購物'] },
   { id: 'SM-017', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "大丸京都店", tagIds: ['打卡', '購物'] },
   { id: 'SM-018', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "高島屋 京都店", tagIds: ['打卡', '購物'] },
-  { id: 'SM-019', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "龍谷大學 龍谷資料館", tagIds: ['現代', '打卡'] },
-  { id: 'SM-020', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都市學校歷史博物館", tagIds: ['現代', '打卡'] },
+  { id: 'SM-019', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "龍谷大学 龍谷ミュージアム", tagIds: ['現代', '打卡'] },
+  { id: 'SM-020', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都市学校歴史博物館", tagIds: ['現代', '打卡'] },
   { id: 'SM-021', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "文子天滿宮", tagIds: ['神社', '隱密'] },
   { id: 'SM-022', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "神明神社", tagIds: ['神社', '隱密'] },
   { id: 'SM-023', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都中央卸売市場", tagIds: ['正餐', '名物', '老舖'] },
@@ -60,9 +69,9 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-035', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "松原通", tagIds: ['打卡'] },
   { id: 'SM-036', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "西洞院通", tagIds: ['打卡'] },
   { id: 'SM-037', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "堀川通", tagIds: ['打卡'] },
-  { id: 'SM-038', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站大樓 空中徑", tagIds: ['打卡'] },
-  { id: 'SM-039', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 七條大橋", tagIds: ['打卡', '自然'] },
-  { id: 'SM-040', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "七條甘春堂", tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'SM-038', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都駅ビル 空中径路", tagIds: ['打卡'] },
+  { id: 'SM-039', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 七条大橋", tagIds: ['打卡', '自然'] },
+  { id: 'SM-040', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "七条甘春堂", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'SM-041', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: "京都站地下街 Porta", tagIds: ['購物'] },
   { id: 'SM-042', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都伊勢丹 展望台", tagIds: ['打卡'] },
   { id: 'SM-043', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "京都織物問屋街", tagIds: ['打卡'] },
@@ -70,18 +79,18 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-045', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都站 綜合導覽所", tagIds: ['打卡'] },
   { id: 'SM-046', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "Nintendo KYOTO 任天堂京都", tagIds: ['ACG', '打卡', '現代'] },
   { id: 'SM-047', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "任天堂 舊本社大樓 京都", tagIds: ['ACG', '打卡'] },
-  { id: 'SM-048', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "寶可夢中心 京都", tagIds: ['ACG', '打卡'] },
+  { id: 'SM-048', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "ポケモンセンターキョウト", tagIds: ['ACG', '打卡'] },
   { id: 'SM-051', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 京都站前店", tagIds: ['抹茶', '和菓子', '老舖', '名物'] },
   { id: 'SM-052', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "末富", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'SM-054', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "高瀨川", tagIds: ['打卡', '賞花'] },
-  { id: 'SM-055', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都站 大階梯", tagIds: ['ACG', '打卡'] },
-  { id: 'SM-056', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都站 西口廣場 鋼琴", tagIds: ['ACG', '打卡'] },
+  { id: 'SM-055', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都駅 大階段", tagIds: ['ACG', '打卡'] },
+  { id: 'SM-056', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "京都駅 西口広場 ピアノ", tagIds: ['ACG', '打卡'] },
   { id: 'SM-057', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_ACG', mapQuery: "梅小路公園 HELLO WORLD 聖地", tagIds: ['ACG', '賞花'] },
   { id: 'SM-058', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "市比賣神社", tagIds: ['神社', '隱密', '打卡'] },
-  { id: 'SM-059', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "京都拉麵小路", tagIds: ['正餐', '名物', '拉麵'] },
+  { id: 'SM-059', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "京都拉麺小路", tagIds: ['正餐', '名物', '拉麵'] },
   { id: 'SM-060', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "本家 第一旭 本店", tagIds: ['正餐', '名物', '老舖', '拉麵'] },
   { id: 'SM-070', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "新福菜館 本店", tagIds: ['正餐', '名物', '老舖', '拉麵'] },
-  { id: 'SM-061', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都中央郵局", tagIds: ['打卡', '現代'] },
+  { id: 'SM-061', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_MODERN', mapQuery: "京都中央郵便局", tagIds: ['打卡', '現代'] },
   { id: 'SM-062', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "大丸京都店 屋頂庭園", tagIds: ['自然'] },
   { id: 'W_SHIMOGYO_ISETAN_SHOYUKAN', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '伊勢丹 京都店 B1F 食遊館', tagIds: ['和菓子', '老舖', '打卡'] },
   { id: 'W_SHIMOGYO_YOSHINOYA', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '吉廼家', tagIds: ['和菓子', '老舖', '隱密'] },
@@ -97,8 +106,8 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-072', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '瓢斗 京都駅前本店', tagIds: ['正餐', '名物', '涮涮鍋'] },
   { id: 'SM-073', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'とんかつ一番', tagIds: ['正餐', '名物'] },
   { id: 'SM-074', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '山本まんぼ', tagIds: ['正餐', '名物', '老舖'] },
-  { id: 'SM-075', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "燒肉 弘 京都站前店", tagIds: ['正餐', '名物', '燒肉'] },
-  { id: 'SM-076', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "蓮 (Hasu) 涮涮鍋", tagIds: ['正餐', '涮涮鍋'] },
-  { id: 'SM-077', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "壽喜燒 木村", tagIds: ['正餐', '老舖', '壽喜燒'] },
-  { id: 'SM-078', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "壽司 乙羽 四條店", tagIds: ['正餐', '老舖', '壽司'] },
+  { id: 'SM-075', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "焼肉 弘 京都駅前店", tagIds: ['正餐', '名物', '燒肉'] },
+  { id: 'SM-076', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "蓮 (Hasu) しゃぶしゃぶ", tagIds: ['正餐', '涮涮鍋'] },
+  { id: 'SM-077', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: "すき焼き 木村", tagIds: ['正餐', '老舖', '壽喜燒'] },
+  { id: 'SM-078', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "寿司 乙羽 四条店", tagIds: ['正餐', '老舖', '壽司'] },
 ];

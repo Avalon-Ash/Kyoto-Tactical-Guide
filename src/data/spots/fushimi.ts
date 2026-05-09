@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/fushimi.ts
  *   src/data/locales/ja/fushimi.ts
@@ -54,23 +63,23 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-028', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "墨染寺", tagIds: ['寺院', '賞花', '隱密'] },
   { id: 'FS-029', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "藤森神社", tagIds: ['神社', '賞花'] },
   { id: 'FS-030', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "キザクラ 伏見蔵", tagIds: ['打卡'] },
-  { id: 'FS-031', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見夢百眾", tagIds: ['喫茶', '老舖', '打卡'] },
+  { id: 'FS-031', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_SHOP', mapQuery: "伏見夢百衆", tagIds: ['喫茶', '老舖', '打卡'] },
   { id: 'FS-032', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "三棲閘門資料館", tagIds: ['隱密'] },
   { id: 'FS-033', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "西岸寺 油懸地藏", tagIds: ['寺院', '隱密'] },
-  { id: 'FS-034', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "京都府立 桃山高等學校", tagIds: ['隱密'] },
+  { id: 'FS-034', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "京都府立 桃山高等学校", tagIds: ['隱密'] },
   { id: 'FS-035', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_TEMPLE', mapQuery: "荒木神社 伏見稻荷", tagIds: ['神社', '打卡', '隱密'] },
   { id: 'FS-036', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "ちいかわもぐもぐ本舗 伏見稲荷店", tagIds: ['ACG', '打卡'] },
   { id: 'FS-037', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "伏見港公園", tagIds: ['賞花'] },
   { id: 'FS-038', wardId: 'W_FUSHIMI', areaId: 'A08', typeId: 'T_NATURE', mapQuery: "醍醐山 登山道", tagIds: ['山岳', '世界遺產'] },
   { id: 'FS-039', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_NATURE', mapQuery: "鴨川 伏見区段", tagIds: ['賞花', '自然', '打卡'] },
-  { id: 'FS-040', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "京都動畫第一工作室遺址", tagIds: ['ACG', '隱密'] },
+  { id: 'FS-040', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "京都アニメーション第1スタジオ跡地", tagIds: ['ACG', '隱密'] },
   { id: 'FS-041', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "墨染駅 響け！ユーフォニアム", tagIds: ['ACG', '打卡'] },
   { id: 'FS-042', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "三棲閘門 響け！ユーフォニアム 聖地", tagIds: ['ACG', '打卡'] },
   { id: 'FS-043', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_ACG', mapQuery: "伏見稲荷大社 いなり、こんこん、恋いろは。 聖地", tagIds: ['ACG', '神社'] },
   { id: 'FS-044', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "鳥せい 本店", tagIds: ['正餐', '老舖', '名物'] },
-  { id: 'FS-045', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "酒粕拉麵 玄屋", tagIds: ['正餐', '名物', '拉麵'] },
+  { id: 'FS-045', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "酒粕ラーメン 玄屋", tagIds: ['正餐', '名物', '拉麵'] },
   { id: 'FS-046', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "禰ざめや", tagIds: ['正餐', '老舖', '名物', '壽司'] },
-  { id: 'FS-047', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "大黑拉麵", tagIds: ['正餐', '名物', '拉麵'] },
+  { id: 'FS-047', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "大黒ラーメン", tagIds: ['正餐', '名物', '拉麵'] },
   { id: 'FS-048', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伏見 駿河屋", tagIds: ['和菓子', '老舖'] },
   { id: 'FS-049', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_MODERN', mapQuery: "JRA 京都競馬場", tagIds: ['打卡', '現代'] },
   { id: 'FS-050', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: "伊藤久右衛門 JR伏見稻荷店", tagIds: ['抹茶', '和菓子', '名物', '打卡'] },

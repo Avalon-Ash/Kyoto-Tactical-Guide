@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/sakyo.ts
  *   src/data/locales/ja/sakyo.ts
@@ -28,12 +37,12 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-002', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "下鴨神社", tagIds: ['神社', '世界遺產', '打卡'] },
   { id: 'SK-003', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_NATURE', mapQuery: "鴨川三角洲", tagIds: ['打卡', '自然'] },
   { id: 'SK-004', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "南禪寺", tagIds: ['寺院', '打卡', '庭園'] },
-  { id: 'SK-005', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "永觀堂 禪林寺", tagIds: ['寺院', '楓葉', '打卡'] },
+  { id: 'SK-005', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "永観堂 禅林寺", tagIds: ['寺院', '楓葉', '打卡'] },
   { id: 'SK-006', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "銀閣寺", tagIds: ['寺院', '世界遺產', '庭園'] },
-  { id: 'SK-007', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_NATURE', mapQuery: "哲學之道", tagIds: ['賞花', '打卡'] },
+  { id: 'SK-007', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_NATURE', mapQuery: "哲学の道", tagIds: ['賞花', '打卡'] },
   { id: 'SK-008', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "平安神宮", tagIds: ['神社', '賞花', '打卡'] },
   { id: 'SK-009', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_NATURE', mapQuery: "岡崎公園 京都", tagIds: ['賞花'] },
-  { id: 'SK-010', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_MODERN', mapQuery: "京都大學 本部校區", tagIds: ['打卡'] },
+  { id: 'SK-010', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_MODERN', mapQuery: "京都大学 本部キャンパス", tagIds: ['打卡'] },
   { id: 'SK-011', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: "貴船神社", tagIds: ['神社', '打卡', '隱密'] },
   { id: 'SK-012', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: "鞍馬寺", tagIds: ['寺院', '山岳'] },
   { id: 'SK-013', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "三千院", tagIds: ['寺院', '庭園', '楓葉'] },
@@ -46,40 +55,40 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-021', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "法然院", tagIds: ['寺院', '隱密'] },
   { id: 'SK-022', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "水路閣", tagIds: ['打卡'] },
   { id: 'SK-023', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_NATURE', mapQuery: "蹴上傾斜鐵道", tagIds: ['打卡', '賞花'] },
-  { id: 'SK-024', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: "百萬遍知恩寺 手作市集", tagIds: ['打卡'] },
+  { id: 'SK-024', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: "知恩寺 手づくり市", tagIds: ['打卡'] },
   { id: 'SK-025', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "寂光院", tagIds: ['寺院', '隱密'] },
-  { id: 'SK-026', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "寶泉院", tagIds: ['寺院', '庭園', '隱密'] },
-  { id: 'SK-027', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "實光院", tagIds: ['寺院', '庭園'] },
+  { id: 'SK-026', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "宝泉院", tagIds: ['寺院', '庭園', '隱密'] },
+  { id: 'SK-027', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "実光院", tagIds: ['寺院', '庭園'] },
   { id: 'SK-028', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "詩仙堂", tagIds: ['寺院', '庭園'] },
   { id: 'SK-029', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "曼殊院", tagIds: ['寺院', '庭園'] },
-  { id: 'SK-030', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "圓光寺", tagIds: ['寺院', '庭園', '楓葉'] },
-  { id: 'SK-031', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "修學院離宮", tagIds: ['庭園', '世界遺產'] },
+  { id: 'SK-030', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "円光寺", tagIds: ['寺院', '庭園', '楓葉'] },
+  { id: 'SK-031', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_TEMPLE', mapQuery: "修学院離宮", tagIds: ['庭園', '世界遺產'] },
   { id: 'SK-032', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: "出町枡形商店街", tagIds: ['打卡', 'ACG'] },
   { id: 'SK-033', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_SHOP', mapQuery: "一乘寺 惠文社", tagIds: ['打卡'] },
-  { id: 'SK-034', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: "一乘寺 激戰區 麵屋極雞", tagIds: ['正餐', '名物', '打卡', '拉麵'] },
-  { id: 'SK-035', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "茶寮 寶泉", tagIds: ['和菓子', '老舖', '名物', '抹茶'] },
+  { id: 'SK-034', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: "一乗寺 激戦区 麺屋極鶏", tagIds: ['正餐', '名物', '打卡', '拉麵'] },
+  { id: 'SK-035', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "茶寮 宝泉", tagIds: ['和菓子', '老舖', '名物', '抹茶'] },
   { id: 'SK-036', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_NATURE', mapQuery: "白川一乘寺 櫻花", tagIds: ['賞花'] },
   { id: 'SK-037', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_NATURE', mapQuery: "貴船川遊步道", tagIds: ['賞花', '自然'] },
   { id: 'SK-038', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_SHOP', mapQuery: "比叡山頂 展望台", tagIds: ['打卡'] },
   { id: 'SK-039', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "比叡山 延曆寺", tagIds: ['寺院', '世界遺產', '山岳'] },
   { id: 'SK-040', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "叡山ケーブル 八瀬駅", tagIds: ['鐵道'] },
-  { id: 'SK-041', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "比叡山內巴士 延曆寺巴士站", tagIds: ['巴士'] },
+  { id: 'SK-041', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "比叡山内バス 延暦寺バス停", tagIds: ['巴士'] },
   { id: 'SK-042', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "蓮華寺", tagIds: ['寺院', '隱密'] },
   { id: 'SK-043', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "崇道神社", tagIds: ['神社', '隱密'] },
   { id: 'SK-044', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "三宅八幡宮", tagIds: ['神社'] },
-  { id: 'SK-045', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "妙滿寺", tagIds: ['寺院'] },
-  { id: 'SK-046', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "圓通寺", tagIds: ['寺院', '庭園'] },
+  { id: 'SK-045', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_TEMPLE', mapQuery: "妙満寺", tagIds: ['寺院'] },
+  { id: 'SK-046', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', mapQuery: "円通寺", tagIds: ['寺院', '庭園'] },
   { id: 'SK-047', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市動物園", tagIds: ['打卡'] },
   { id: 'SK-048', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', mapQuery: "無鄰菴", tagIds: ['庭園', '打卡'] },
   { id: 'SK-049', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: "泉屋博古館", tagIds: ['隱密'] },
   { id: 'SK-050', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_MODERN', mapQuery: "駒井家住宅", tagIds: ['打卡', '隱密'] },
   { id: 'SK-051', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "進進堂 京大前店", tagIds: ['喫茶', '老舖', '洋菓子', '名物'] },
-  { id: 'SK-052', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "滿月 阿闍梨餅 本店", tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'SK-052', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "満月 阿闍梨餅 本店", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'SK-053', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: "洛北阪急 Square", tagIds: ['打卡'] },
   { id: 'SK-054', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "寶池公園", tagIds: ['自然'] },
-  { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "國立京都國際會館", tagIds: ['打卡'] },
+  { id: 'SK-055', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "国立京都国際会館", tagIds: ['打卡'] },
   { id: 'SK-056', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "瓢亭 本店", tagIds: ['正餐', '老舖', '名物', '懷石'] },
-  { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋總本店", tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'SK-057', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "聖護院八ッ橋総本店", tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'SK-058', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', mapQuery: "京都市京セラ美術館", tagIds: ['打卡', '現代'] },
   { id: 'SK-059', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_ACG', mapQuery: "叡山電車 きらら", tagIds: ['ACG', '鐵道'] },
   { id: 'SK-060', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_ACG', mapQuery: "下鴨神社 糺之森 有頂天家族", tagIds: ['ACG', '神社'] },

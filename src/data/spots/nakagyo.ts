@@ -4,6 +4,15 @@
  * 本檔僅存放機器可讀欄位：id / wardId / areaId / typeId / mapQuery / tagIds
  * 禁止存放任何語言文字（name / desc / tags）。
  *
+ * ⚠ mapQuery 強制規則（SSOT：日文/日文漢字為唯一標準）：
+ *   - mapQuery 只能填「日文原名」或「日文漢字」，嚴禁填入繁體中文
+ *   - 交通站點：使用日文正式名稱，含「駅」字（例：「二条城前駅」非「二條城前站」）
+ *   - 地下鐵：使用「京都市営地下鉄」（非「京都市營地下鐵」）
+ *   - 寺社：使用日文官方漢字（例：「法観寺」「霊山歴史館」非繁體字形）
+ *   - ACG 聖地：景點名用日文，IP 名稱用日文原名（例：「名探偵コナン」非「柯南」）
+ *   - 通路/散策路：使用日文通名（例：「ねねの道」非「寧寧之道」）
+ *   - 欄位值應為 Google Maps 日文搜尋時能直接辨識的官方名稱
+ *
  * 新增一筆時，必須同步維護：
  *   src/data/locales/zh/nakagyo.ts
  *   src/data/locales/ja/nakagyo.ts
@@ -24,9 +33,9 @@
 import { SpotSchema } from '../../types';
 
 export const NAKAGYO_SCHEMA: SpotSchema[] = [
-  { id: 'NC-001', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 二條城前站", tagIds: ['地鐵'] },
-  { id: 'NC-002', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 京都市役所前站", tagIds: ['地鐵'] },
-  { id: 'NC-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市營地下鐵 烏丸御池站", tagIds: ['地鐵'] },
+  { id: 'NC-001', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市営地下鉄 二条城前駅", tagIds: ['地鐵'] },
+  { id: 'NC-002', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市営地下鉄 京都市役所前駅", tagIds: ['地鐵'] },
+  { id: 'NC-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', mapQuery: "京都市営地下鉄 烏丸御池駅", tagIds: ['地鐵'] },
   { id: 'NC-004', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "二條城", tagIds: ['寺院', '世界遺產', '經典', '打卡'] },
   { id: 'NC-005', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "錦市場", tagIds: ['名物', '老舖', '經典', '打卡'] },
   { id: 'NC-006', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "先斗町", tagIds: ['打卡', '正餐', '老舖'] },
@@ -42,15 +51,15 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-016', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: "三條名店街", tagIds: ['打卡'] },
   { id: 'NC-017', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "高瀨川 一之船入", tagIds: ['自然', '打卡'] },
   { id: 'NC-018', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "二條城 二之丸庭園", tagIds: ['庭園', '世界遺產'] },
-  { id: 'NC-019', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "京都國際漫畫博物館", tagIds: ['ACG', '打卡'] },
+  { id: 'NC-019', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "京都国際漫畫博物館", tagIds: ['ACG', '打卡'] },
   { id: 'NC-020', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "八木邸", tagIds: ['打卡', '隱密'] },
   { id: 'NC-021', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_TEMPLE', mapQuery: "前川邸", tagIds: ['打卡', '隱密'] },
   { id: 'NC-022', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "瑞泉寺", tagIds: ['寺院'] },
   { id: 'NC-023', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "酢屋", tagIds: ['老舖', '打卡'] },
   { id: 'NC-024', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "御金神社", tagIds: ['神社', '打卡'] },
-  { id: 'NC-025', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "中京郵局", tagIds: ['打卡'] },
-  { id: 'NC-026', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "三條大橋", tagIds: ['打卡'] },
-  { id: 'NC-027', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 五條大橋至三條大橋", tagIds: ['打卡', '自然'] },
+  { id: 'NC-025', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "中京郵便局", tagIds: ['打卡'] },
+  { id: 'NC-026', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_MODERN', mapQuery: "三条大橋", tagIds: ['打卡'] },
+  { id: 'NC-027', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 三条大橋", tagIds: ['打卡', '自然'] },
   { id: 'NC-028', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "先斗町歌舞練場", tagIds: ['打卡'] },
   { id: 'NC-029', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "錦天滿宮", tagIds: ['神社', '打卡'] },
   { id: 'NC-030', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: "柳小路 京都", tagIds: ['隱密', '打卡'] },
@@ -63,18 +72,18 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NC-037', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "矢田寺", tagIds: ['寺院'] },
   { id: 'NC-038', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "誠心院", tagIds: ['寺院', '隱密'] },
   { id: 'NC-039', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_TEMPLE', mapQuery: "誓願寺", tagIds: ['寺院'] },
-  { id: 'NC-040', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "星巴克咖啡 京都烏丸六角店", tagIds: ['喫茶', '打卡'] },
-  { id: 'NC-041', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "1928大樓", tagIds: ['打卡'] },
-  { id: 'NC-042', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "三條通 近代建築群", tagIds: ['打卡'] },
-  { id: 'NC-043', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "蛸藥師通", tagIds: ['打卡'] },
-  { id: 'NC-044', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "中京區役所", tagIds: ['隱密'] },
-  { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "京福電氣鐵道 西院車庫", tagIds: ['打卡'] },
+  { id: 'NC-040', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "スターバックス 京都烏丸六角店", tagIds: ['喫茶', '打卡'] },
+  { id: 'NC-041', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "1928ビル 京都", tagIds: ['打卡'] },
+  { id: 'NC-042', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "三条通 近代建築群", tagIds: ['打卡'] },
+  { id: 'NC-043', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "蛸薬師通", tagIds: ['打卡'] },
+  { id: 'NC-044', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "中京区役所", tagIds: ['隱密'] },
+  { id: 'NC-045', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', mapQuery: "京福電気鉄道 西院車庫", tagIds: ['打卡'] },
   { id: 'NC-046', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: "アニメイト 京都", tagIds: ['ACG', '打卡'] },
   { id: 'NC-047', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "三嶋亭", tagIds: ['正餐', '老舖', '名物', '打卡', '壽喜燒'] },
   { id: 'NC-048', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "モリタ屋 木屋町本店", tagIds: ['正餐', '老舖', '名物', '壽喜燒'] },
   { id: 'NC-049', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "京の燒肉處 弘 三條木屋町店", tagIds: ['正餐', '名物', '打卡', '燒肉'] },
   { id: 'NC-050', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: "六曜社珈琲店", tagIds: ['喫茶', '老舖', '打卡'] },
-  { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: '吉伊卡哇專賣店 京都', tagIds: ['ACG', '打卡'] },
+  { id: 'NC-052', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_ACG', mapQuery: 'ちいかわ専門店 京都', tagIds: ['ACG', '打卡'] },
   { id: 'NC-053', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "鴨川 納涼床", tagIds: ['打卡', '正餐'] },
   { id: 'NC-054', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_NATURE', mapQuery: "神泉苑 法成橋", tagIds: ['賞花', '打卡'] },
   { id: 'NC-055', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_NATURE', mapQuery: "高瀨川 櫻花並木", tagIds: ['賞花', '打卡'] },
