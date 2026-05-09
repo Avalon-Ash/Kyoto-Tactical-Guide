@@ -38,12 +38,12 @@
 **渲染方式**：`HomeView.tsx` 直接渲染列表 → 點擊進入 `DetailView`（area 模式）
 
 以京都觀光慣用的散策區域（Area）為索引，將全市細分為更小的遊覽單元
-（例：嵐山、金閣寺周邊、祇園・清水等），共 15 個區域（`A01`–`A15`）。
+（例：嵐山、金閣寺周邊、祇園・清水等），共 19 個區域（`A01`–`A19`）。
 Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 **規則與禁則：**
 - 每個景點必須歸屬唯一的 `areaId`（於 `spots/*.ts` 的 `areaId` 欄位定義）
-- 合法 areaId 為 `A01`–`A15`，定義於 `src/data/index.ts`，禁止自創編號
+- 合法 areaId 為 `A01`–`A19`，定義於 `src/data/index.ts`，禁止自創編號
 - 一個景點只能同時屬於一個 Ward 與一個 Area，禁止多重歸屬
 - Area 的中文顯示名稱（`AREA_NAMES`）為 UI 顯示層，不可與 `areaId` 混用作為外鍵
 
@@ -76,8 +76,6 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 - `T_FOOD` 類型景點禁用「世界遺產」標籤
 - 單一景點的 `tagIds` 建議不超過 5 個，避免標籤膨脹稀釋篩選精度
 - `PINNED_GLOBAL_TAGS` 控制御秘帖首頁的置頂展示順序，修改不影響資料完整性
-
----
 
 ---
 
@@ -124,18 +122,23 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 **實作邏輯**：
 1. `useKyotoEngine` 的 `localTags`：從當前已載入的 `loadedSpots` 動態統計，
-   僅收錄該區域景點實際標記的 tagId（`string[]`）
+   僅收錄該區域景點實際標記的 tagId（`string[]`）；
+   若當前主 Tab 為非 `T_ALL` 的特定類型，則只收錄該類型景點的 tagId，
+   確保副標籤列不會出現點擊後結果為空的情況。
 2. `DetailView` 的 `visibleLocalTags`：對 `localTags` 再套用 `TYPE_TAG_GROUP_MAP`
    白名單過濾，透過 `TAG_REGISTRY` 查詢每個 tagId 的 group
 3. 最終傳入 `TagSelector`：結果為 `string[]`，符合元件介面
 
 **橋接查詢鏈（禁止在其他地方複製）**：
 ```
-localTags（string[]）
+loadedSpots（依 activeType 過濾後）→ localTags（string[]）
   → TAG_REGISTRY[tagId].group     ← 橋接查詢
   → TYPE_TAG_GROUP_MAP[activeType] ← 白名單過濾
   → visibleLocalTags（string[]）  → TagSelector
 ```
+
+⚠️ `localTags` 的 useMemo 依賴陣列必須包含 `activeType`，
+缺少此依賴會導致 A 切換後 B 不重算的 bug。
 
 ---
 
@@ -145,34 +148,30 @@ localTags（string[]）
 先前選中的副標籤若屬於舊 Tab 的分組，
 在新 Tab 下可能不存在或語意不符，應自動清除避免困惑。
 
-**實作規則**：切換 `activeType` 時，若 `activeTag` 的 group
-不在新 `TYPE_TAG_GROUP_MAP[activeType]` 白名單中，自動 `setActiveTag(null)`。
+**實�  - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
 
-反之，若 tag 的 group 仍在白名單中（例如 `misc` 在大多數 Tab 都開放），
-則保留選取狀態，**不強制清除**，減少使用者重新操作的摩擦。
+### 🗺 Query Assembly System — 地圖搜尋規則
 
----
+**SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
 
-### 御秘帖（Tag Mode）的獨立性
+組裝流程共四步驟：
+1. **雜訊清洗（Noise Strip）**：
+   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
+   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
+   - 移除殘留的「京都」（後接非地名漢字時）
+   - 移除導航觸發字元：`→ ← から まで via to from`
+2. **固有名詞判斷（Proper Noun Detection）**：
+   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
+   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
+   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
+3. **英文/羅馬字 ACG 景點處理**：
+   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
+   - 日文名稱永遠在前，英文名稱作輔助識別
+4. **URL 格式**：
+   - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
+   - **禁止**使用 `maps/dir/`（點對點導航端點）
 
-**設計意圖**：御秘帖是**跨區域的主題索引**，
-與洛中洛外 / 名所目録的「先選區域再過濾」流程完全相反——
-使用者從「主題（tag）」出發，系統才展示全洛中符合的景點。
-
-因此御秘帖**不使用雙層過濾器**：
-- 無主 Tab 類型列（不受 `TYPE_TAG_GROUP_MAP` 約束）
-- 標籤選取後直接觸發全域載入（`loadAllSchemasSync`）
-- 呈現 overlay 全螢幕結果，不進入 `DetailView`
-
-**開發禁則**：不得將 `TYPE_TAG_GROUP_MAP` 套用於御秘帖的標籤渲染。
-御秘帖的標籤來源是 `TAG_REGISTRY` 全集 + `PINNED_GLOBAL_TAGS` 排序，
-與 `localTags` 無關。
-
----
-
-### DetailView — 主 Tab 與副標籤對應規則（TYPE_TAG_GROUP_MAP）
-
-**SSOT 位置**：`src/components/DetailView.tsx` 頂部常數 `TYPE_TAG_GROUP_MAP`
+- **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：SSOT 位置**：`src/components/DetailView.tsx` 頂部常數 `TYPE_TAG_GROUP_MAP`
 
 進入「洛中洛外」或「名所目録」的 DetailView 後，
 副標籤列（TagSelector）會依據當前選中的主 Tab（typeId）動態縮減，
@@ -225,39 +224,37 @@ localTags（string[]）
 - **Components (組件)**:
   - **Spatial**: `wardId`, `areaId` (導航與地理屬性)
   - **Categorical**: `typeId` (分類屬性，如寺社、咖啡、現代設施)。對應的 `SpotTypeMetadata` 還包含 `sortOrder`（整數，決定 filteredSpots 的類型排序順序）與 `emoji`（類型圖示，供 SpotCard 印章顯示備選）。
+  - **Reservation**: `reservationRequired?: true`（選填布林值，景點有預約需求時設為 true；SpotCard.tsx 會依此值渲染「要預約」badge，禁止用 tagIds 字串替代此欄位。）
   - **Map**: `mapQuery`（Google Maps 搜尋關鍵字，由 SpotCard 的 Query Assembly System 清洗組裝後使用）
-  - **Presentation**: 由語系層動態混入的 `name`, `desc`, `tags`。合併後的 FlatSpot 另含選填的 `jaName`，供 Query Assembly System 在非日文模式下輔助地圖搜尋精度。
-    > 注意：`jaName` 在**所有語系**（`lang === 'zh'` 與 `lang === 'ja'`）下均會注入，
-    > 差異在於值的來源不同——日文模式下取 `locale.name`（日文原名），
-    > 中文模式下同樣取 `locale.name` 作為 Query Assembly 的日文錨點輔助。
-    > 此欄位存在的目的是確保 SpotCard 的 Query Assembly System
-    > 在景點名稱為英文/羅馬字時（ACG 聖地等）仍能取得日文名稱作為地圖搜尋錨點。
+  - **Presentation**: 由語系層動態混入的 `name`, `desc`, `tags`。合併後的 FlatSpot 另含選填的 `jaName`，供 Query Assembly System 作為日文地名錨點。`jaName` 在所有語系下均會注入：
+    - `lang === 'ja'`：值為日文 locale 的 name（原生日文名）
+    - `lang === 'zh'`：值同樣取自日文 locale 的 name，作為 ACG 景點等英文/羅馬字景點的地圖搜尋日文錨點。
 - **Systems (系統)**:
   - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
   - **Query Assembly System (`SpotCard.tsx`)**: 負責將原始 `mapQuery` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
-    
-    ## 🗺 Query Assembly System — 地圖搜尋規則
-    **SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
-    
-    組裝流程共四步驟：
-    1. **雜訊清洗（Noise Strip）**：
-       - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`
-       - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
-       - 移除殘留的「京都」（後接非地名漢字時）
-       - 移除導航觸發字元：`→ ← から まで via to from`
-    2. **固有名詞判斷（Proper Noun Detection）**：
-       - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
-       - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
-       - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
-    3. **英文/羅馬字 ACG 景點處理**：
-       - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
-       - 日文名稱永遠在前，英文名稱作輔助識別
-    4. **URL 格式**：
-       - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
-       - **禁止**使用 `maps/dir/`（點對點導航端點）
   - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：
     - `tag` 模式（御秘帖）為第三條獨立導航路徑：使用者在首頁選取全域標籤後，Engine 以 `Promise.all` 並行載入全部 11 個行政區的 FlatSpot，跨行政區篩選符合該 tagId 的景點，結果以全螢幕 Overlay 呈現，不受任何 ward/area 限制。
     - **雙軌 Tag 計數機制**：回傳 `localTags`（當前選定分區/行政區內出現的 tagId 集合，動態重算，供 DetailView 的局部 TagSelector 使用）與 `tagCounts`（以 `loadAllSchemasSync()` 一次性讀取全部 Schema 計算的靜態全域計數，供首頁御秘帖的 badge 數字顯示使用，只計算一次）。
+
+### 🗺 Query Assembly System — 地圖搜尋規則
+**SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
+
+組裝流程共四步驟：
+1. **雜訊清洗（Noise Strip）**：
+   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
+   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
+   - 移除殘留的「京都」（後接非地名漢字時）
+   - 移除導航觸發字元：`→ ← から まで via to from`
+2. **固有名詞判斷（Proper Noun Detection）**：
+   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
+   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
+   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
+3. **英文/羅馬字 ACG 景點處理**：
+   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
+   - 日文名稱永遠在前，英文名稱作輔助識別
+4. **URL 格式**：
+   - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
+   - **禁止**使用 `maps/dir/`（點對點導航端點）
 
 ---
 
