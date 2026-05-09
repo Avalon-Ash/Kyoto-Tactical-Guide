@@ -5,6 +5,80 @@
 
 ---
 
+## 三大核心檢索模式
+
+本應用提供三種互斥的檢索模式，透過頂部導航列（`HomeView.tsx`）切換，
+各模式共用同一批 `filteredSpots` 狀態，由 `useKyotoEngine` 統一管理。
+
+---
+
+### 洛中洛外（Ward Mode）
+
+**入口**：`mode === 'ward'`  
+**資料來源**：`WARD_NAMES`（`src/data/index.ts`）、`getWardStats()`  
+**渲染元件**：`MapCanvas.tsx`
+
+以京都傳統地理分區「洛中・洛外」為索引，將全市分為 11 個行政區（Ward），
+對應江戶時代的城市空間概念。使用者點擊地圖上的行政區塊即可進入該區的
+`DetailView`，查看該區所有景點清單。
+
+**規則與禁則：**
+- 每個景點必須歸屬唯一的 `wardId`（於 `spots/*.ts` 的 `wardId` 欄位定義）
+- `wardId` 的合法值集合定義於 `src/data/index.ts` 的 `WARD_NAMES`，
+  禁止在資料檔中使用未登記的 wardId
+- `MapCanvas` 的 SVG 區塊 id 必須與 `wardId` 精確對應，兩端需同步維護
+- 行政區統計數字（`getWardStats()`）為動態計算，修改 spots 資料後自動反映
+
+---
+
+### 名所目録（Area Mode）
+
+**入口**：`mode === 'area'`  
+**資料來源**：`AREA_KEYS`、`AREA_NAMES`、`getAreaStats()`（`src/data/index.ts`）  
+**渲染方式**：`HomeView.tsx` 直接渲染列表 → 點擊進入 `DetailView`（area 模式）
+
+以京都觀光慣用的散策區域（Area）為索引，將全市細分為更小的遊覽單元
+（例：嵐山、金閣寺周邊、祇園・清水等），共 15 個區域（`A01`–`A15`）。
+Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
+
+**規則與禁則：**
+- 每個景點必須歸屬唯一的 `areaId`（於 `spots/*.ts` 的 `areaId` 欄位定義）
+- 合法 areaId 為 `A01`–`A15`，定義於 `src/data/index.ts`，禁止自創編號
+- 一個景點只能同時屬於一個 Ward 與一個 Area，禁止多重歸屬
+- Area 的中文顯示名稱（`AREA_NAMES`）為 UI 顯示層，不可與 `areaId` 混用作為外鍵
+
+---
+
+### 御秘帖（Tag Mode）
+
+**入口**：`mode === 'tag'`  
+**資料來源**：`TAG_REGISTRY`、`PINNED_GLOBAL_TAGS`（`src/data/tags.ts`）  
+**渲染方式**：`HomeView.tsx` 渲染標籤選擇器 → 選中標籤後以全螢幕 overlay 展示結果
+
+以「風物筆記」為隱喻的跨區域主題索引系統。使用者選擇標籤後，
+系統從所有行政區中橫向篩選出符合條件的景點，不受地理分區限制，
+適合以「目的」而非「位置」來規劃旅程（例：查詢全洛中的隱密老舖抹茶）。
+
+**標籤分組（6 組）：**
+| group | 中文顯示 | 說明 |
+|---|---|---|
+| `food` | 口福・食處 | 餐飲類型：正餐、懷石、抹茶、和菓子等 |
+| `misc` | 旅行特質 | 旅遊屬性：名物、打卡、隱密、老舖等 |
+| `culture` | 文化・信仰 | 人文歷史：神社、寺院、世界遺產、庭園等 |
+| `nature` | 自然・風景 | 自然景觀：賞花、楓葉、山岳等 |
+| `transport` | 交通要道 | 交通節點：鐵道、地鐵、巴士 |
+| `acg` | 次文化 | ACG 聖地・動漫遊戲巡禮景點 |
+
+**規則與禁則：**
+- 標籤定義的唯一來源（SSOT）為 `src/data/tags.ts`，禁止在任何其他檔案硬編碼標籤字串
+- `spots/*.ts` 中的 `tagIds` 陣列只能使用 `TAG_REGISTRY` 中已登記的 `id` 值
+- 禁止使用語意模糊的標籤（如「美食」）；食物類應指定具體類型（如「拉麵」「懷石」）
+- `T_FOOD` 類型景點禁用「世界遺產」標籤
+- 單一景點的 `tagIds` 建議不超過 5 個，避免標籤膨脹稀釋篩選精度
+- `PINNED_GLOBAL_TAGS` 控制御秘帖首頁的置頂展示順序，修改不影響資料完整性
+
+---
+
 ## 🏗️ 核心架構：ECS 與 SSOT 原則
 
 本專案採用 **ECS (Entity Component System)** 的設計思想來管理繁雜的旅遊資料，並嚴格遵守 **SSOT (Single Source of Truth)** 確保資料的一致性與可維護性。
