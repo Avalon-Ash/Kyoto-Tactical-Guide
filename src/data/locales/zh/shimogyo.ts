@@ -97,10 +97,10 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SM-FOOD-008': { name: "Kurasu Kyoto Stand", desc: "知名咖啡品牌經營的極簡咖啡站。販售自家烘焙豆。", tags: "咖啡 打卡" },
   'SM-FOOD-010': { name: "Len Kyoto Kawaramachi", desc: "結合咖啡廳、酒吧與青旅。氣氛輕鬆，適合交流。", tags: "咖啡 喫茶 打卡" },
   'SM-083': { name: "BOOKOFF PLUS", desc: "大型二手店。除了書籍精品，還有二手服飾專區。", tags: "購物 打卡" },
-  'SM-084': { name: "LIFE 下京圖書館前店", desc: "大型超市。生鮮食品種類豐富，設有大型烘焙坊。", tags: "超市" },
-  'SM-085': { name: "Fresco 河原町五條店", desc: "位於河原町與五條交界。提供當季生鮮與熟食便當。", tags: "超市" },
+  'SM-084': { name: "Fresco 五條店", desc: "位於五條通的便利超市，提供新鮮蔬果與各式民生用品。", tags: "超市" },
+  'SM-085': { name: "Fresco 五條大橋店", desc: "鄰近五條大橋，跨越鴨川前的補給點，提供24小時服務。", tags: "超市" },
+  'SM-086': { name: "LIFE 四條烏丸店", desc: "位於市中心的大型超市。生鮮食品豐富，生活用品齊全。", tags: "超市" },
   'SM-087': { name: "Pantry 伊勢丹店", desc: "高品質超市。提供優質生鮮食材與各地名產。", tags: "超市" },
   'SM-088': { name: "成城石井 京都站店", desc: "高端連鎖超市。提供進口精品與精緻熟食甜點。", tags: "超市" },
-  'SM-089': { name: "Fresco Petit 塩小路店", desc: "位於京都站東側的小型超市（營業至21:00）。是離「谷町君」飯店最近的高效率採買點。", tags: "超市" },
 
 };

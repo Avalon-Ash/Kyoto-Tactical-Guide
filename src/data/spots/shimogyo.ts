@@ -121,9 +121,9 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-FOOD-008', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'Kurasu Kyoto Stand', tagIds: ['喫茶', '打卡'] },
   { id: 'SM-FOOD-010', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: 'Len Kyoto Kawaramachi', tagIds: ['喫茶', '打卡'] },
   { id: 'SM-083', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: 'ブックオフプラス 四条河原町店', tagIds: ['購物', '打卡'] },
-  { id: 'SM-084', wardId: 'W_SHIMOGYO', areaId: 'A11', typeId: 'T_SHOP', mapQuery: 'ライフ 下京図書館前店', tagIds: ['超市'] },
-  { id: 'SM-085', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: 'フレスコ 河原町五条店', tagIds: ['超市'] },
+  { id: 'SM-084', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: 'フレスコ 五条店', tagIds: ['超市'] },
+  { id: 'SM-085', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: 'フレスコ 五条大橋店', tagIds: ['超市'] },
+  { id: 'SM-086', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: 'ライフ 四条烏丸店', tagIds: ['超市'] },
   { id: 'SM-087', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: 'パントリー JR京都伊勢丹店', tagIds: ['超市'] },
   { id: 'SM-088', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: '成城石井 京都駅店', tagIds: ['超市'] },
-  { id: 'SM-089', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: 'フレスコプチ 塩小路店', tagIds: ['超市'] },
 ];
