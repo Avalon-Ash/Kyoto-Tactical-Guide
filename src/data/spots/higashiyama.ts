@@ -24,9 +24,10 @@
  * 類型禁則：通道散策路→T_SHOP非T_HUB / 橋梁河畔→T_NATURE非T_SHOP / 展望台廣場→T_MODERN非T_NATURE
  *
  * 合法 tagIds（從此集合選用）：
- *   地鐵 巴士 寺院 神社 世界遺產 庭園 山岳 歷史 自然 賞花 楓葉 打卡
- *   正餐 甜點 喫茶 和菓子 抹茶 老舖 必吃 壽司 拉麵 烏龍 天婦羅
+ *   地鐵 巴士 鐵道 寺院 神社 世界遺產 庭園 山岳 歷史 自然 賞花 楓葉 打卡
+ *   正餐 喫茶 和菓子 抹茶 老舖 必吃 壽司 拉麵 烏龍 天婦羅 燒肉
  *   壽喜燒 涮涮鍋 懷石 豆腐 洋菓子 蕎麥 ACG 購物 現代 經典 隱密
+ *   名物 地標 溫泉 國寶 博物館 超市 展望
  *
  * 禁則：T_FOOD 禁用「世界遺產」標籤 / 禁用模糊標籤「美食」
  */
@@ -42,8 +43,8 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-007', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "三十三間堂", tagIds: ['寺院', '經典', '國寶'] },
   { id: 'HY-008', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "祇園 花見小路", tagIds: ['經典', '打卡'] },
   { id: 'HY-009', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "産寧坂", tagIds: ['經典', '打卡'] },
-  { id: 'HY-010', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市巴士 東山安井", tagIds: ['巴士'] },
-  { id: 'HY-011', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市巴士 清水道", tagIds: ['巴士'] },
+  { id: 'HY-010', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市バス 東山安井", tagIds: ['巴士'] },
+  { id: 'HY-011', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市バス 清水道", tagIds: ['巴士'] },
   { id: 'HY-012', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "高台寺", tagIds: ['寺院', '庭園', '打卡'] },
   { id: 'HY-013', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "円徳院", tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'HY-014', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "安井金比羅宮", tagIds: ['神社', '打卡'] },
@@ -51,20 +52,20 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-016', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "養源院", tagIds: ['寺院', '隱密'] },
   { id: 'HY-017', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_MODERN', mapQuery: "京都国立博物館", tagIds: ['打卡', '博物館'] },
   { id: 'HY-060', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_HUB', mapQuery: "京都市営地下鉄 東山駅", tagIds: ['地鐵'] },
-  { id: 'HY-018', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "白川一本橋", tagIds: ['自然', '打卡'] },
-  { id: 'HY-019', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "円山公園 桜", tagIds: ['賞花', '打卡'] },
-  { id: 'HY-020', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "法観寺 八坂の塔", tagIds: ['打卡', '經典'] },
-  { id: 'HY-021', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_MODERN', mapQuery: "霊山歴史館", tagIds: ['打卡'] },
-  { id: 'HY-022', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "京都霊山護国神社", tagIds: ['神社'] },
-  { id: 'HY-023', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "地主神社", tagIds: ['神社', '打卡'] },
-  { id: 'HY-024', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "音羽の滝 清水寺", tagIds: ['自然', '打卡'] },
+  { id: 'HY-018', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "白川一本橋", tagIds: ['自然', '打卡'] },
+  { id: 'HY-019', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "円山公園 桜", tagIds: ['賞花', '打卡'] },
+  { id: 'HY-020', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "法観寺 (八坂の塔)", tagIds: ['打卡', '經典'] },
+  { id: 'HY-021', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "霊山歴史館", tagIds: ['打卡'] },
+  { id: 'HY-022', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "京都霊山護国神社", tagIds: ['神社'] },
+  { id: 'HY-023', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "地主神社", tagIds: ['神社', '打卡'] },
+  { id: 'HY-024', wardId: 'W_HIGASHIYAMA', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "音羽の滝 清水寺", tagIds: ['自然', '打卡'] },
   { id: 'HY-025', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "六波羅蜜寺", tagIds: ['寺院'] },
   { id: 'HY-026', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "六道珍皇寺", tagIds: ['寺院', '隱密'] },
   { id: 'HY-027', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "宮川町", tagIds: ['打卡'] },
   { id: 'HY-028', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "京都惠美須神社", tagIds: ['神社'] },
   { id: 'HY-029', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "仲源寺", tagIds: ['寺院'] },
   { id: 'HY-030', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_TEMPLE', mapQuery: "辰巳大明神", tagIds: ['神社', '打卡'] },
-  { id: 'HY-031', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_NATURE', mapQuery: "白川南通", tagIds: ['打卡', '賞花'] },
+  { id: 'HY-031', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "白川南通", tagIds: ['打卡', '賞花'] },
   { id: 'HY-032', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "石塀小路", tagIds: ['打卡', '隱密'] },
   { id: 'HY-033', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_SHOP', mapQuery: "ねねの道", tagIds: ['打卡', '經典'] },
   { id: 'HY-034', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', mapQuery: "豊国神社", tagIds: ['神社'] },
@@ -82,7 +83,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-046', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "茶寮都路里 高台寺店", tagIds: ['抹茶', '和菓子', '名物'] },
   { id: 'HY-047', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: "長楽館", tagIds: ['打卡', '正餐', '喫茶'] },
   { id: 'HY-050', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_NATURE', mapQuery: "九条池 東福寺", tagIds: ['自然'] },
-  { id: 'HY-051', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "清水寺 舞台 名探偵コナン", tagIds: ['ACG', '寺院'] },
+  { id: 'HY-051', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "清水寺 名探偵コナン", tagIds: ['ACG', '寺院'] },
   { id: 'HY-052', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "八坂神社 舞殿 刀剣乱舞", tagIds: ['ACG', '神社'] },
   { id: 'HY-053', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "巽橋 有頂天家族", tagIds: ['ACG', '打卡'] },
   { id: 'HY-054', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_ACG', mapQuery: "建仁寺 双龍図 呪術廻戦", tagIds: ['ACG', '寺院'] },

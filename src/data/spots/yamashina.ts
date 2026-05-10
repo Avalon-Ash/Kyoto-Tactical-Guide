@@ -90,7 +90,7 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-055', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_MODERN', mapQuery: "京都市山科圖書館", tagIds: ['打卡'] },
   { id: 'YS-056', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "GiGO 山科", tagIds: ['ACG', '打卡'] },
   { id: 'YS-057', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "Joshin 山科店", tagIds: ['ACG', '打卡'] },
-  { id: 'YS-058', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "TSUTAYA 山科站前店", tagIds: ['ACG', '打卡'] },
+  { id: 'YS-058', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_ACG', mapQuery: "TSUTAYA 山科駅前店", tagIds: ['ACG', '打卡'] },
   { id: 'W_YAMASHINA_RYUGETSUDO', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '山科 柳月堂', tagIds: ['喫茶', '老舖', '隱密'] },
   { id: 'W_YAMASHINA_BISHAMON_MONZEN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '毘沙門堂 門前甘味処 やましな', tagIds: ['和菓子', '打卡', '抹茶'] },
   { id: 'W_YAMASHINA_FURUKAWAYA', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '追分 三条 古川屋', tagIds: ['正餐', '老舖', '隱密'] },
