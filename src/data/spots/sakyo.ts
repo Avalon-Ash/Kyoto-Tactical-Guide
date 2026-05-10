@@ -69,7 +69,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-035', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', mapQuery: "茶寮 宝泉", tagIds: ['和菓子', '老舖', '名物', '抹茶'] },
   { id: 'SK-036', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_NATURE', mapQuery: "白川一乗寺 桜", tagIds: ['賞花'] },
   { id: 'SK-037', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_NATURE', mapQuery: "貴船川遊步道", tagIds: ['賞花', '自然'] },
-  { id: 'SK-038', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_SHOP', mapQuery: "比叡山頂 展望台", tagIds: ['打卡'] },
+  { id: 'SK-038', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', mapQuery: "比叡山頂 展望台", tagIds: ['打卡'] },
   { id: 'SK-039', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', mapQuery: "比叡山 延曆寺", tagIds: ['寺院', '世界遺產', '山岳'] },
   { id: 'SK-040', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "叡山ケーブル 八瀬駅", tagIds: ['鐵道'] },
   { id: 'SK-041', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_HUB', mapQuery: "比叡山内バス 延暦寺バス停", tagIds: ['巴士'] },
