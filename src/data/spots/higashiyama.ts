@@ -114,4 +114,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-FOOD-002', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 権兵衛', tagIds: ['正餐', '蕎麥', '老舖'] },
   { id: 'HY-FOOD-003', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '三嶋亭 髙島屋京都店', tagIds: ['正餐', '壽喜燒', '老舖'] },
   { id: 'HY-FOOD-004', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'マールブランシュ 加加阿365祇園店', tagIds: ['甜點', '洋菓子', '名物'] },
+  { id: 'HY-076', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', mapQuery: 'ハッピー六原', tagIds: ['超市'] },
+  { id: 'HY-077', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', mapQuery: 'フレスコ 今熊野店', tagIds: ['超市'] },
+  { id: 'HY-078', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', mapQuery: 'フレスコ 五条大橋店', tagIds: ['超市'] },
 ];

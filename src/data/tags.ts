@@ -89,7 +89,7 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   'ACG':   { id: 'ACG',   label: { zh: 'ACG',  ja: 'ACG'    }, group: 'acg', emoji: '🎮' },
   // --- added missing ---
   '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歷史'   }, group: 'culture', emoji: '📜' },
-  '購物':   { id: '購物',   label: { zh: '購物', ja: '購物'   }, group: 'misc', emoji: '🛍️' },
+  '購物':   { id: '購物',   label: { zh: '購物', ja: 'ショッピング'   }, group: 'misc', emoji: '🛍️' },
   '展望':   { id: '展望',   label: { zh: '展望', ja: '展望'   }, group: 'nature', emoji: '🔭' },
   '現代':   { id: '現代',   label: { zh: '現代', ja: '現代'   }, group: 'misc',   emoji: '🏗️' },
   '涮涮鍋': { id: '涮涮鍋', label: { zh: '涮涮鍋', ja: 'しゃぶしゃぶ' }, group: 'food', emoji: '🍲' },
@@ -97,6 +97,7 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '溫泉'   }, group: 'misc', emoji: '♨️' },
   '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '國寶'   }, group: 'culture', emoji: '💎' },
   '博物館': { id: '博物館', label: { zh: '博物館', ja: '博物館' }, group: 'culture', emoji: '🏛️' },
+  '超市':   { id: '超市',   label: { zh: '超市', ja: 'スーパー' }, group: 'misc', emoji: '🛒' },
 };
 
 export const TAG_GROUP_LABELS: Record<string, I18nText> = {

@@ -116,4 +116,7 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-FOOD-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '河道屋 養老別館', tagIds: ['正餐', '蕎麥', '老舖'] },
   { id: 'NK-FOOD-004', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 豚しゃぶ 英', tagIds: ['正餐', '名物', '涮涮鍋'] },
   { id: 'NK-FOOD-005', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 瓢斗 四条烏丸店', tagIds: ['正餐', '名物', '涮涮鍋'] },
+  { id: 'NC-076', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: 'セカンドストリート 京都三条店', tagIds: ['購物', '打卡'] },
+  { id: 'NC-077', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', mapQuery: '古着屋JAM 京都三条店', tagIds: ['購物', '打卡'] },
+  { id: 'NC-078', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: 'フレスコ 御池店', tagIds: ['超市'] },
 ];

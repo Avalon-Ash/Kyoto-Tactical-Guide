@@ -99,4 +99,6 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-FOOD-001', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'ラーメン 霽レ空', tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'MN-FOOD-002', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'パティスリー オ・グルニエ・ドール', tagIds: ['甜點', '洋菓子', '打卡'] },
   { id: 'MN-FOOD-003', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'すき焼き 弘', tagIds: ['正餐', '壽喜燒', '燒肉'] },
+  { id: 'MN-060', wardId: 'W_MINAMI', areaId: 'A06', typeId: 'T_SHOP', mapQuery: '東寺 弘法市', tagIds: ['購物', '名物', '打卡', '老舖'] },
+  { id: 'MN-061', wardId: 'W_MINAMI', areaId: 'A06', typeId: 'T_SHOP', mapQuery: 'イオンモールKYOTO', tagIds: ['購物', '現代'] },
 ];

@@ -102,4 +102,5 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-FOOD-003', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '焼肉 弘 千本中立売店', tagIds: ['正餐', '燒肉', '名物'] },
   { id: 'KG-FOOD-004', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 拍銚子', tagIds: ['正餐', '蕎麥'] },
   { id: 'KG-FOOD-005', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'すき焼き 木村', tagIds: ['正餐', '壽喜燒', '老舖'] },
+  { id: 'KG-063', wardId: 'W_KAMIGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: '北野天満宮 天神市', tagIds: ['購物', '名物', '打卡'] },
 ];

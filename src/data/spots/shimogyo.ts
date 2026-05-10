@@ -117,4 +117,10 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-FOOD-001', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: 'パティスリー・エス', tagIds: ['甜點', '洋菓子', '打卡'] },
   { id: 'SM-FOOD-002', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '拳ラーメン', tagIds: ['正餐', '拉麵', '打卡'] },
   { id: 'SM-FOOD-003', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 実延', tagIds: ['正餐', '蕎麥'] },
+  { id: 'SM-083', wardId: 'W_SHIMOGYO', areaId: 'A07', typeId: 'T_SHOP', mapQuery: 'ブックオフプラス 四条河原町店', tagIds: ['購物', '打卡'] },
+  { id: 'SM-084', wardId: 'W_SHIMOGYO', areaId: 'A11', typeId: 'T_SHOP', mapQuery: 'ライフ 下京図書館前店', tagIds: ['超市'] },
+  { id: 'SM-085', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: 'フレスコ 七条店', tagIds: ['超市'] },
+  { id: 'SM-086', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_SHOP', mapQuery: 'フレスコ 河原町七条店', tagIds: ['超市'] },
+  { id: 'SM-087', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: 'パントリー JR京都伊勢丹店', tagIds: ['超市'] },
+  { id: 'SM-088', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_SHOP', mapQuery: '成城石井 京都駅店', tagIds: ['超市'] },
 ];

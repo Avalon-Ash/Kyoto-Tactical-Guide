@@ -114,4 +114,6 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-FOOD-003', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '三九二そば', tagIds: ['正餐', '蕎麥'] },
   { id: 'SK-071', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: '大悲山 峰定寺', tagIds: ['寺院', '隱密', '山岳', '國寶'] },
   { id: 'SK-072', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_NATURE', mapQuery: '花背 交流の森', tagIds: ['自然', '打卡'] },
+  { id: 'SK-073', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: '百万遍知恩寺 手づくり市', tagIds: ['購物', '名物', '打卡'] },
+  { id: 'SK-074', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', mapQuery: 'ライフ 川端店', tagIds: ['超市'] },
 ];
