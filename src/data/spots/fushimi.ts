@@ -93,6 +93,6 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-054', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: 'お食事処 山本浜', tagIds: ['正餐', '名物'] },
   { id: 'FS-055', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '伏見 辻利兵衛本店', tagIds: ['和菓子', '老舖', '抹茶'] },
   { id: 'FS-FOOD-001', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: '地球規模で考えろ', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'FS-FOOD-002', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: 'パティスリー ラ ベルダン', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'FS-FOOD-002', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: 'パティスリー ラ ベルダン', tagIds: ['洋菓子', '打卡'] },
   { id: 'FS-FOOD-003', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', mapQuery: 'そば処 手打ち 楽礼', tagIds: ['正餐', '蕎麥'] },
 ];

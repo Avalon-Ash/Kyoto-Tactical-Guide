@@ -112,7 +112,7 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NAKAGYO_TEMPURA_TAIAN', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '天ぷら 大安 錦', tagIds: ['天婦羅', '正餐', '名物'] },
   { id: 'NAKAGYO_SHINPUHKAN', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', mapQuery: '新風館 京都', tagIds: ['現代', '購物', '打卡'] },
   { id: 'NK-FOOD-001', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '龍旗信 京都店', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'NK-FOOD-002', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'La Maison JOUVAUD 京都祇園店', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'NK-FOOD-002', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: 'La Maison JOUVAUD 京都祇園店', tagIds: ['洋菓子', '打卡'] },
   { id: 'NK-FOOD-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', mapQuery: '河道屋 養老別館', tagIds: ['正餐', '蕎麥', '老舖'] },
   { id: 'NK-FOOD-004', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 豚しゃぶ 英', tagIds: ['正餐', '名物', '涮涮鍋'] },
   { id: 'NK-FOOD-005', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '京都 瓢斗 四条烏丸店', tagIds: ['正餐', '名物', '涮涮鍋'] },

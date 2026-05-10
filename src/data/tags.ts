@@ -65,6 +65,8 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '抹茶':  { id: '抹茶',  label: { zh: '抹茶', ja: '抹茶'   }, group: 'food', emoji: '🍵' },
   '和菓子': { id: '和菓子', label: { zh: '和菓子', ja: '和菓子' }, group: 'food', emoji: '🍡' },
   '洋菓子': { id: '洋菓子', label: { zh: '洋菓子', ja: '洋菓子' }, group: 'food', emoji: '🍰' },
+  '早餐':  { id: '早餐',  label: { zh: '早餐',  ja: '朝食'   }, group: 'food', emoji: '🍳' },
+  '咖啡':  { id: '咖啡',  label: { zh: '咖啡',  ja: 'コーヒー' }, group: 'food', emoji: '☕' },
   // --- misc group ---
   '名物':  { id: '名物',  label: { zh: '名物', ja: '名物'   }, group: 'misc', emoji: '⭐' },
   '打卡':  { id: '打卡',  label: { zh: '打卡', ja: '映え'   }, group: 'misc', emoji: '📸' },
@@ -74,9 +76,9 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   // --- transport group ---
   '鐵道':  { id: '鐵道',  label: { zh: '鐵道', ja: '鉄道'   }, group: 'transport', emoji: '🚃' },
   '地鐵':  { id: '地鐵',  label: { zh: '地鐵', ja: '地下鉄' }, group: 'transport', emoji: '🚇' },
-  '巴士':  { id: '巴士',  label: { zh: '巴士', ja: '巴士'   }, group: 'transport', emoji: '🚌' },
+  '巴士':  { id: '巴士',  label: { zh: '巴士', ja: 'バス'   }, group: 'transport', emoji: '🚌' },
   // --- culture group ---
-  '世界遺產':{ id: '世界遺產',label:{ zh: '世界遺產',ja: '世界遺產'}, group: 'culture', emoji: '🌐' },
+  '世界遺產':{ id: '世界遺產',label:{ zh: '世界遺產',ja: '世界遺産'}, group: 'culture', emoji: '🌐' },
   '庭園':  { id: '庭園',  label: { zh: '庭園', ja: '庭園'   }, group: 'culture', emoji: '🪴' },
   '神社':  { id: '神社',  label: { zh: '神社', ja: '神社'   }, group: 'culture', emoji: '⛩️' },
   '寺院':  { id: '寺院',  label: { zh: '寺院', ja: '寺院'   }, group: 'culture', emoji: '🛕' },
@@ -88,14 +90,14 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   // --- acg group ---
   'ACG':   { id: 'ACG',   label: { zh: 'ACG',  ja: 'ACG'    }, group: 'acg', emoji: '🎮' },
   // --- added missing ---
-  '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歷史'   }, group: 'culture', emoji: '📜' },
+  '歷史':   { id: '歷史',   label: { zh: '歷史', ja: '歴史'   }, group: 'culture', emoji: '📜' },
   '購物':   { id: '購物',   label: { zh: '購物', ja: 'ショッピング'   }, group: 'misc', emoji: '🛍️' },
-  '展望':   { id: '展望',   label: { zh: '展望', ja: '展望'   }, group: 'nature', emoji: '🔭' },
-  '現代':   { id: '現代',   label: { zh: '現代', ja: '現代'   }, group: 'misc',   emoji: '🏗️' },
+  '展望':   { id: '展望',   label: { zh: '展望', ja: '展望台'   }, group: 'nature', emoji: '🔭' },
+  '現代':   { id: '現代',   label: { zh: '現代', ja: '近代'   }, group: 'misc',   emoji: '🏗️' },
   '涮涮鍋': { id: '涮涮鍋', label: { zh: '涮涮鍋', ja: 'しゃぶしゃぶ' }, group: 'food', emoji: '🍲' },
-  '地標':   { id: '地標',   label: { zh: '地標', ja: '地標'   }, group: 'misc', emoji: '🗼' },
-  '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '溫泉'   }, group: 'misc', emoji: '♨️' },
-  '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '國寶'   }, group: 'culture', emoji: '💎' },
+  '地標':   { id: '地標',   label: { zh: '地標', ja: 'ランドマーク'   }, group: 'misc', emoji: '🗼' },
+  '溫泉':   { id: '溫泉',   label: { zh: '溫泉', ja: '温泉'   }, group: 'misc', emoji: '♨️' },
+  '國寶':   { id: '國寶',   label: { zh: '國寶', ja: '国宝'   }, group: 'culture', emoji: '💎' },
   '博物館': { id: '博物館', label: { zh: '博物館', ja: '博物館' }, group: 'culture', emoji: '🏛️' },
   '超市':   { id: '超市',   label: { zh: '超市', ja: 'スーパー' }, group: 'misc', emoji: '🛒' },
 };

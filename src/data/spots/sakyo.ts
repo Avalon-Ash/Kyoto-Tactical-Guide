@@ -110,7 +110,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-069', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '奥丹 南禅寺店', tagIds: ['正餐', '老舖', '豆腐'], reservationRequired: true },
   { id: 'SK-070', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: '天ぷら 円堂 岡崎店', tagIds: ['天婦羅', '正餐', '名物'] },
   { id: 'SK-FOOD-001', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '一乗寺 豚人', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'SK-FOOD-002', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: 'パティスリー タンドレス', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'SK-FOOD-002', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: 'パティスリー タンドレス', tagIds: ['洋菓子', '打卡'] },
   { id: 'SK-FOOD-003', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', mapQuery: '三九二そば', tagIds: ['正餐', '蕎麥'] },
   { id: 'SK-071', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_TEMPLE', mapQuery: '大悲山 峰定寺', tagIds: ['寺院', '隱密', '山岳', '國寶'] },
   { id: 'SK-072', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_NATURE', mapQuery: '花背 交流の森', tagIds: ['自然', '打卡'] },

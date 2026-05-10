@@ -113,7 +113,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-FOOD-001', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 麺処 むらじ', tagIds: ['正餐', '拉麵', '名物', '打卡'] },
   { id: 'HY-FOOD-002', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '祇園 権兵衛', tagIds: ['正餐', '蕎麥', '老舖'] },
   { id: 'HY-FOOD-003', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: '三嶋亭 髙島屋京都店', tagIds: ['正餐', '壽喜燒', '老舖'] },
-  { id: 'HY-FOOD-004', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'マールブランシュ 加加阿365祇園店', tagIds: ['甜點', '洋菓子', '名物'] },
+  { id: 'HY-FOOD-004', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', mapQuery: 'マールブランシュ 加加阿365祇園店', tagIds: ['洋菓子', '名物'] },
   { id: 'HY-FOOD-005', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_FOOD', mapQuery: '喫茶 アマゾン', tagIds: ['早餐', '名物', '打卡'] },
   { id: 'HY-FOOD-006', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_FOOD', mapQuery: 'Veg Out', tagIds: ['早餐', '咖啡', '打卡'] },
   { id: 'HY-FOOD-007', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_FOOD', mapQuery: 'お好み焼き 吉野', tagIds: ['正餐', '名物'] },
