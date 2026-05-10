@@ -33,7 +33,7 @@ export const AREA_BY_WARD: Record<WardKey, string[]> = {
   W_SAKYO: ['A02', 'A05', 'A06', 'A14', 'A15', 'A16', 'A17'],
   W_NAKAGYO: ['A01', 'A03', 'A04'],
   W_HIGASHIYAMA: ['A05', 'A06', 'A07', 'A13'],
-  W_SHIMOGYO: ['A01', 'A04', 'A05'],
+  W_SHIMOGYO: ['A01', 'A04'],
   W_MINAMI: ['A04', 'A10'],
   W_UKYO: ['A09', 'A11', 'A12', 'A18'],
   W_NISHIKYO: ['A09', 'A10', 'A19'],
