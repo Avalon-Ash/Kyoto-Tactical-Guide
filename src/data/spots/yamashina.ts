@@ -98,6 +98,6 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'W_YAMASHINA_LION_CURRY', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'ライオンカレー 山科店', tagIds: ['正餐', '名物'] },
   { id: 'W_YAMASHINA_FURAIPAN', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'ふらいぱん 山科', tagIds: ['正餐', '名物'] },
   { id: 'YS-FOOD-001', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: '担担麺 胡', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'YS-FOOD-002', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'パティスリー ニュアージュ', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'YS-FOOD-002', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'パティスリー ニュアージュ', tagIds: ['洋菓子', '打卡'] },
   { id: 'YS-FOOD-003', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', mapQuery: 'すき焼き 牛禅 山科', tagIds: ['正餐', '壽喜燒'] },
 ];

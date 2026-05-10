@@ -95,7 +95,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'W_NISHIKYO_MUSETTE', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'パティスリー ミュゼット', tagIds: ['洋菓子', '打卡'] },
   { id: 'NISHIKYO_PASS_THE_BATON', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_SHOP', mapQuery: 'アミティエ 嵐山 カフェ', tagIds: ['現代', '打卡', '洋菓子'] },
   { id: 'NX-FOOD-001', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'らーめん ぎん琉', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'NX-FOOD-002', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '菓子工房 & カフェ KINEEL', tagIds: ['甜點', '洋菓子', '打卡'] },
+  { id: 'NX-FOOD-002', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: '菓子工房 & カフェ KINEEL', tagIds: ['洋菓子', '打卡'] },
   { id: 'NX-FOOD-003', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', mapQuery: 'すき焼き はり重 桂', tagIds: ['正餐', '壽喜燒', '老舖'] },
   { id: 'NK-060', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: '長岡天滿宮', tagIds: ['神社', '賞花', '打卡'] },
   { id: 'NK-061', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', mapQuery: '光明寺 長岡京', tagIds: ['寺院', '楓葉', '打卡'] },

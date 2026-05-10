@@ -117,7 +117,7 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SM-FOOD-001', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: 'パティスリー・エス', tagIds: ['洋菓子', '打卡'] },
   { id: 'SM-FOOD-002', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: '拳ラーメン', tagIds: ['正餐', '拉麵', '打卡'] },
   { id: 'SM-FOOD-003', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', mapQuery: '手打ち蕎麦 実延', tagIds: ['正餐', '蕎麥'] },
-  { id: 'SM-FOOD-008', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'Kurasu Kyoto Stand', tagIds: ['咖啡', '打卡'] },
+  { id: 'SM-FOOD-008', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', mapQuery: 'Kurasu Kyoto Stand', tagIds: ['喫茶', '打卡'] },
   { id: 'SM-FOOD-010', wardId: 'W_SHIMOGYO', areaId: 'A05', typeId: 'T_FOOD', mapQuery: 'Len Kyoto Kawaramachi', tagIds: ['喫茶', '打卡'] },
   { id: 'SM-083', wardId: 'W_SHIMOGYO', areaId: 'A07', typeId: 'T_SHOP', mapQuery: 'ブックオフプラス 四条河原町店', tagIds: ['購物', '打卡'] },
   { id: 'SM-084', wardId: 'W_SHIMOGYO', areaId: 'A11', typeId: 'T_SHOP', mapQuery: 'ライフ 下京図書館前店', tagIds: ['超市'] },
