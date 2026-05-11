@@ -159,21 +159,17 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 **SSOT 原則：所有搜尋關鍵字組裝必須以 `spot.jaName`（來自 JA locale 的 `name`）為唯一事實來源與地理錨點。**
 
-組裝流程共四步驟：
+組裝流程共三步驟：
 1. **雜訊清洗（Noise Strip）**：
    - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
    - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
    - 移除殘留的「京都」（後接非地名漢字時）
    - 移除導航觸發字元：`→ ← から まで via to from`
-2. **固有名詞判斷（Proper Noun Detection）**：
-   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
-   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
-   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
-3. **英文/羅馬字 ACG 景點處理**：
-   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
-   - 日文名稱永遠在前，英文名稱作輔助識別
-4. **URL 格式**：
-   - 固定使用 Google Maps Search API 網址封裝 `finalQuery`。
+2. **降維組裝（Reduced Hierarchy Assembly）**：
+   - 廢除固有名詞的前後綴切換與全形逗號。
+   - 統一格式：`京都市{行政區日文名} {cleanQuery}`。這在 Google Maps 中具有最高的地理定位成功率。
+3. **URL 格式**：
+   - 固定使用 Google Maps Search API 網址封裝 `finalQuery`：`https://www.google.com/maps/search/?api=1&query=...`
    - **禁止**使用 `maps/dir/`（點對點導航端點）。
 
 ## 🛠 技術堆疊

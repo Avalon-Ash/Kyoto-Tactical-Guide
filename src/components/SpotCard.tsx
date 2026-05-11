@@ -15,10 +15,9 @@
  *   移除靜態地理前綴（優先完整前綴：京都府京都市 > 京都府 > 京都市）
  *   移除行政區名（ja/zh）、孤立「京都」、導航觸發字元（→ ← から まで via）
  *
- * Step 2 — 固有名詞判斷（Proper Noun Detection）：
- *   含日文字元且 ≥ 3 字元，或以地名後綴結尾（駅寺院社宮堂公園橋通町）
- *   → 固有名詞型：`cleanQuery，京都市${wardJa}`
- *   → 通用型：`京都市${wardJa} cleanQuery`
+ * Step 2 — 降維組裝：
+ *   統一採用「京都市${wardJa} ${cleanQuery}」格式。
+ *   廢除固有名詞判斷與全形逗號。
  *
  * Step 3 — URL 組裝：
  *   固定使用 maps/search/?api=1&query=...
@@ -97,19 +96,11 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
     .replace(/\s{2,}/g, ' ')
     .trim();
 
-  // 2. 判斷是否為「固有名詞型」查詢（已含地點性質，不需前綴強化）
-  //    條件：cleanQuery >= 3 字元且含日文，或以常見地名後綴結尾
-  const isProperNoun = 
-    (cleanQuery.length >= 3 && /[\u3040-\u9FFF]/.test(cleanQuery)) ||
-    /[駅寺院社宮堂公園橋通町]$/.test(cleanQuery);
+  // 2. 降維組裝：廢除固有名詞的前後綴切換與全形逗號
+  //    統一採用「行政區前綴 + 空格 + 乾淨景點名」，這是 Google Maps 解析最精準的格式
+  const finalQuery = `京都市${wardJa} ${cleanQuery}`.trim();
 
-  // 3. 組裝最終查詢字串
-  //    所有路徑都以「京都市+行政區」作為錨點，明確宣告這是「地點搜尋」
-  const wardSuffix = wardJa;
-  const finalQuery = isProperNoun
-    ? `${cleanQuery}，京都市${wardSuffix}`
-    : `京都市${wardSuffix} ${cleanQuery}`;
-
+  // 3. 修復 URL 樣板（嚴格使用官方 Search API 端點）
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalQuery)}`;
   
   const handleMapOpen = (e: React.MouseEvent) => {
