@@ -82,7 +82,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 | `misc` | 旅行特質 | 名物・打卡・隱密・老舖・經典・購物・地標・溫泉・現代・超市 |
 | `culture` | 文化・信仰 | 世界遺產・庭園・神社・寺院・歷史・博物館・國寶 |
 | `nature` | 自然・風景 | 楓葉・賞花・山岳・自然・展望 |
-| `transport` | 交通要道 | 鐵道・地鐵・巴士 |
+| `transport` | 交通道 | 鐵道・地鐵・巴士 |
 | `acg` | 次文化 | ACG |
 
 > 新增標籤請依 `tags.ts` 規定由 Ash 審查後統一登記，
@@ -100,96 +100,6 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 避免資訊過載，降低決策成本。
 
 以下是各核心互動的設計意圖說明，供開發者在修改 UI 邏輯前參照。
-
----
-
-### 雙層過濾器設計（主 Tab × 副標籤）
-
-**設計意圖**：使用者進入一個行政區或散策區域後，
-面對的是該區數十筆景點。若一次灑出所有類型與所有標籤，
-等同於沒有提供任何導引。
-
-**解法**：將過濾拆為兩層，**主 Tab（類型）先收斂範疇，副標籤再精煉意圖**：
-
-```
-使用者動線範例：
-  進入「東山區」
-    → 主 Tab 選「寺院」（範疇收斂：30 筆 → 12 筆）
-    → 副標籤選「庭園」（意圖精煉：12 筆 → 4 筆）
-    → 得到「東山區有庭園的寺院」
-```
-
-此設計要求副標籤必須**跟隨主 Tab 動態縮減**，
-而非靜態灑出所有 tag。原因：
-- 「食・口福」主 Tab 下出現「山岳」標籤，對使用者毫無意義
-- 無關標籤會稀釋篩選精度，使用者會放棄使用副標籤
-
-**實作依據**：`TYPE_TAG_GROUP_MAP`（`src/components/DetailView.tsx`）
-
----
-
-### 副標籤的資料來源邏輯（localTags）
-
-**設計意圖**：副標籤列不應顯示「全域所有 tag」，
-而是只顯示**當前區域的景點實際使用到的 tag**，
-確保使用者選擇任何副標籤後，結果集不為空。
-
-**實作邏輯**：
-1. `useKyotoEngine` 的 `localTags`：從當前已載入的 `loadedSpots` 動態統計，
-   僅收錄該區域景點實際標記的 tagId（`string[]`）；
-   若當前主 Tab 為非 `T_ALL` 的特定類型，則只收錄該類型景點的 tagId，
-   確保副標籤列不會出現點擊後結果為空的情況。
-2. `DetailView` 的 `visibleLocalTags`：對 `localTags` 再套用 `TYPE_TAG_GROUP_MAP`
-   白名單過濾，透過 `TAG_REGISTRY` 查詢每個 tagId 的 group
-3. 最終傳入 `TagSelector`：結果為 `string[]`，符合元件介面
-
-**橋接查詢鏈（禁止在其他地方複製）**：
-```
-loadedSpots（依 activeType 過濾後）→ localTags（string[]）
-  → TAG_REGISTRY[tagId].group     ← 橋接查詢
-  → TYPE_TAG_GROUP_MAP[activeType] ← 白名單過濾
-  → visibleLocalTags（string[]）  → TagSelector
-```
-
-⚠️ `localTags` 的 useMemo 依賴陣列必須包含 `activeType`，
-缺少此依賴會導致 A 切換後 B 不重算的 bug。
-
----
-
-### 主 Tab 切換時的狀態清除策略
-
-**設計意圖**：主 Tab 切換代表使用者「改變意圖」，
-先前選中的副標籤若屬於舊 Tab 的分組，
-在新 Tab 下可能不存在或語意不符，應自動清除避免困惑。
-
-**實�  - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
-
-### 🗺 Qu- **Systems (系統)**:
-  - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
-  - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：
-    - `tag` 模式（御秘帖）為第三條獨立導航路徑：使用者在首頁選取全域標籤後，Engine 以 `Promise.all` 並行載入全部 11 個行政區的 FlatSpot，跨行政區篩選符合該 tagId 的景點，結果以全螢幕 Overlay 呈現，不受任何 ward/area 限制。
-    - **雙軌 Tag 計數機制**：回傳 `localTags`（當前選定分區/行政區內出現的 tagId 集合，動態重算，供 DetailView 的局部 TagSelector 使用）與 `tagCounts`（以 `loadAllSchemasSync()` 一次性讀取全部 Schema 計算的靜態全域計數，供首頁御秘帖的 badge 數字顯示使用，只計算一次）。
-
-### 🗺 Query Assembly System — 地圖搜尋規則
-
-**SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
-
-組裝流程共四步驟：
-1. **雜訊清洗（Noise Strip）**：
-   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
-   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
-   - 移除殘留的「京都」（後接非地名漢字時）
-   - 移除導航觸發字元：`→ ← から まで via to from`
-2. **固有名詞判斷（Proper Noun Detection）**：
-   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
-   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
-   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
-3. **英文/羅馬字 ACG 景點處理**：
-   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
-   - 日文名稱永遠在前，英文名稱作輔助識別
-4. **URL 格式**：
-   - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
-   - **禁止**使用 `maps/dir/`（點對點導航端點）濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：SSOT 位置**：`src/components/DetailView.tsx` 頂部常數 `TYPE_TAG_GROUP_MAP`
 
 進入「洛中洛外」或「名所目録」的 DetailView 後，
 副標籤列（TagSelector）會依據當前選中的主 Tab（typeId）動態縮減，
@@ -211,69 +121,6 @@ loadedSpots（依 activeType 過濾後）→ localTags（string[]）
 - 新增 TYPES（新 typeId）時，必須同步在 `TYPE_TAG_GROUP_MAP` 新增對應白名單
 - 切換主 Tab 時，若當前已選中的副標籤不屬於新白名單，系統自動清除選取狀態
 - 此表禁止在 `useKyotoEngine`、`TagSelector`、spots 資料層複製或重新實作
-
----
-
-## 🏗️ 核心架構：ECS 與 SSOT 原則
-
-本專案採用 **ECS (Entity Component System)** 的設計思想來管理繁雜的旅遊資料，並嚴格遵守 **SSOT (Single Source of Truth)** 確保資料的一致性與可維護性。
-
-### 1. SSOT (唯一事實來源) 原則
-為了應對多語系與大量景點資料，我們將「結構」與「內容」徹底解耦：
-- **Schema (結構層)**: 存放於 `src/data/spots/`。這裡定義了景點的「實體識別資訊」：ID、wardId、areaId、typeId、mapQuery。所有視覺呈現屬性（如類型顏色）均由 TYPES 元數據動態衍生，Schema 不含任何渲染指令。它是統計運算與邏輯判斷的唯一基準。
-- **Locales (內容層)**: 存放於 `src/data/locales/`。按語系與行政區拆分，僅存放與 ID 對應的翻譯文字（名稱、描述、標籤串）。
-- **Metadata (元數據)**: 行政區 (Wards)、分區 (Areas)、類型 (Types) 各自擁有獨立的設定檔，確保全域定義統一，避免硬編碼。
-- **Tags (標籤元數據)**：存放於 `src/data/tags.ts`。定義 `TAG_REGISTRY`，
-  包含每個 tagId 的多語系 label（I18nText）、分組（food/transport/culture/
-  nature/acg/misc）與顯示 emoji。另有 `PINNED_GLOBAL_TAGS` 陣列，
-  定義首頁御秘帖模式的固定置頂標籤順序。
-
-  **雙層 Tags 設計（重要）**：
-  - `schema.tagIds`（中文 key，如 `['和菓子', '老舖']`）：篩選系統的唯一基準，
-    供 `useKyotoEngine` 的 filter、`localTags`、`tagCounts` 使用，語系無關。
-  - `locale.tags`（各語系顯示文字）：純顯示用途，渲染於 SpotCard 的 tag chip，
-    不參與任何篩選邏輯。
-    ZH locale 的 tags 須與 schema.tagIds 鏡射（key 完全相同）；
-    JA locale 的 tags 使用對應日文（映え / 穴場 / 甘味 等），
-    與 schema.tagIds 語意對應但字面不同，此為刻意的多語系設計。
-
-### 2. ECS (實體組件系統) 架構
-將旅遊景點視為「遊戲物體 (Game Objects)」，而非傳統的網頁元件：
-- **Entities (實體)**: 每個「景點 (Spot)」本質上只是一個 ID。
-- **Components (組件)**:
-  - **Spatial**: `wardId`, `areaId` (導航與地理屬性)
-  - **Categorical**: `typeId` (分類屬性，如寺社、咖啡、現代設施)。對應的 `SpotTypeMetadata` 還包含 `sortOrder`（整數，決定 filteredSpots 的類型排序順序）與 `emoji`（類型圖示，供 SpotCard 印章顯示備選）。
-  - **Reservation**: `reservationRequired?: true`（選填布林值，景點有預約需求時設為 true；SpotCard.tsx 會依此值渲染「要預約」badge，禁止用 tagIds 字串替代此欄位。）
-  - **Map**: `mapQuery`（Google Maps 搜尋關鍵字，由 SpotCard 的 Query Assembly System 清洗組裝後使用）
-  - **Presentation**: 由語系層動態混入的 `name`, `desc`, `tags`。合併後的 FlatSpot 另含選填的 `jaName`，供 Query Assembly System 作為日文地名錨點。`jaName` 在所有語系下均會注入：
-    - `lang === 'ja'`：值為日文 locale 的 name（原生日文名）
-    - `lang === 'zh'`：值同樣取自日文 locale 的 name，作為 ACG 景點等英文/羅馬字景點的地圖搜尋日文錨點。
-- **Systems (系統)**:
-  - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
-  - **Query Assembly System (`SpotCard.tsx`)**: 負責將原始 `mapQuery` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
-  - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。管理的導航模式包含 `'ward' | 'area' | 'tag'`：
-    - `tag` 模式（御秘帖）為第三條獨立導航路徑：使用者在首頁選取全域標籤後，Engine 以 `Promise.all` 並行載入全部 11 個行政區的 FlatSpot，跨行政區篩選符合該 tagId 的景點，結果以全螢幕 Overlay 呈現，不受任何 ward/area 限制。
-    - **雙軌 Tag 計數機制**：回傳 `localTags`（當前選定分區/行政區內出現的 tagId 集合，動態重算，供 DetailView 的局部 TagSelector 使用）與 `tagCounts`（以 `loadAllSchemasSync()` 一次性讀取全部 Schema 計算的靜態全域計數，供首頁御秘帖的 badge 數字顯示使用，只計算一次）。
-
-### 🗺 Query Assembly System — 地圖搜尋規則
-**SSOT 原則：所有搜尋關鍵字組裝必須以日文/日文漢字為唯一基準。**
-
-組裝流程共四步驟：
-1. **雜訊清洗（Noise Strip）**：
-   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
-   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
-   - 移除殘留的「京都」（後接非地名漢字時）
-   - 移除導航觸發字元：`→ ← から まで via to from`
-2. **固有名詞判斷（Proper Noun Detection）**：
-   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
-   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
-   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
-3. **英文/羅馬字 ACG 景點處理**：
-   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
-   - 日文名稱永遠在前，英文名稱作輔助識別
-4. **URL 格式**：
-   - 固定使用 `https://www.google.com/maps/search/?api=1&query={encodeURIComponent(finalQuery)}`
-   - **禁止**使用 `maps/dir/`（點對點導航端點）
 
 ---
 
@@ -388,15 +235,6 @@ src/
 
 ---
 
-### mapQuery 規則（SSOT）
-
-`mapQuery` 欄位唯一標準為**日文原名或日文漢字**，供 Google Maps 日文在地化搜尋使用。
-
-- ✅ 正字：`伏見稲荷大社`、`哲学の道`、`トロッコ嵯峨駅`
-- ❌ 禁止：繁體中文字形（`嵐山音樂盒博物館`）、偽日文（`鴨川 伏見区段`）
-
----
-
 ### tagId 規則（SSOT）
 
 合法 tagId 集合定義於各 ward schema 檔頭，並與本 README 保持同步。
@@ -435,7 +273,7 @@ src/
 | `src/data/spots/*.ts` | 新增 `SpotSchema` 條目 |
 | `src/data/locales/zh/*.ts` | 新增／修改 ZH `SpotLocale` |
 | `src/data/locales/ja/*.ts` | 新增／修改 JA `SpotLocale` |
-| 現有 `SpotSchema` 的 `tagIds`、`mapQuery`、`reservationRequired` | 修改 |
+| 現有 `SpotSchema` 的 `tagIds`、`reservationRequired` | 修改 |
 | 現有 `SpotLocale` 的 `name`、`desc`、`tags` | 修改 |
 
 ---
@@ -473,15 +311,6 @@ src/
 
 ---
 
-### `mapQuery` 填寫規則
-
-- 必須為**日文字串**（含漢字或假名），這是 Query Assembly System 的 SSOT 輸入
-- 使用景點的官方日文地名，不得使用中文、英文或羅馬拼音
-- 不確定時填入最接近的官方地名並在回報中標記「待確認」
-- 禁止包含導航觸發字元（`→ ← から まで via to from`）
-
----
-
 ### 執行前自我檢查清單
 
 代理人每次 push 前必須完成以下驗證，並在回報中列出結果：
@@ -491,7 +320,6 @@ src/
 - [ ] 所有新 `SpotSchema` 的 `typeId` 存在於 `TYPES`
 - [ ] 所有新 `SpotSchema` 的 `tagIds` 每一個都存在於 `TAG_REGISTRY`
 - [ ] 所有新 `SpotSchema` 都有對應的 ZH 與 JA locale 條目
-- [ ] `mapQuery` 為日文字串
 - [ ] 本次修改未動到 `tags.ts` / `types.ts` / `areas.ts` / `wards.ts`
 
 任何一項未通過 → 停止 push，先向 Ash 報告。

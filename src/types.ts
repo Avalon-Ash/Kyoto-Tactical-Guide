@@ -15,7 +15,6 @@ export interface SpotSchema {
   wardId: string;
   areaId: string;
   typeId: string;
-  mapQuery: string;
   tagIds?: string[]; // 新增：machine-readable 標籤陣列
   reservationRequired?: true;
 }
