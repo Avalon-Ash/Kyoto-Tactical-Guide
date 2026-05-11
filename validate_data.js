@@ -19,7 +19,7 @@ const areaByWard = {
   W_SAKYO: ['A02', 'A05', 'A06', 'A14', 'A15', 'A16', 'A17'],
   W_NAKAGYO: ['A01', 'A03', 'A04'],
   W_HIGASHIYAMA: ['A05', 'A06', 'A07', 'A13'],
-  W_SHIMOGYO: ['A01', 'A04', 'A05'],
+  W_SHIMOGYO: ['A01', 'A04'],
   W_MINAMI: ['A04', 'A10'],
   W_UKYO: ['A09', 'A11', 'A12', 'A18'],
   W_NISHIKYO: ['A09', 'A10', 'A19'],
@@ -33,7 +33,7 @@ const validTagIds = [
   '正餐', '喫茶', '懷石', '燒肉', '壽喜燒', '拉麵', '烏龍', '壽司', '蕎麥', '豆腐',
   '天婦羅', '抹茶', '和菓子', '洋菓子', '名物', '打卡', '隱密', '老舖', '經典',
   '鐵道', '地鐵', '巴士', '世界遺產', '庭園', '神社', '寺院', '楓葉', '賞花',
-  '山岳', '自然', 'ACG', '歷史', '購物', '展望', '現代', '涮涮鍋', '地標', '溫泉', '國寶', '博物館'
+  '山岳', '自然', 'ACG', '歷史', '購物', '展望', '現代', '涮涮鍋', '地標', '溫泉', '國寶', '博物館', '超市'
 ];
 
 const spotsDir = './src/data/spots';
@@ -47,15 +47,14 @@ function validate() {
     const wardName = file.replace('.ts', '');
     const content = fs.readFileSync(path.join(spotsDir, file), 'utf8');
     
-    // Simple regex to parse spots from file
-    // Assumes format: { id: '...', wardId: '...', areaId: '...', typeId: '...', mapQuery: '...', tagIds: [...] }
-    const spotRegex = /\{\s*id:\s*['"]([^'"]+)['"],\s*wardId:\s*['"]([^'"]+)['"],\s*areaId:\s*['"]([^'"]+)['"],\s*typeId:\s*['"]([^'"]+)['"],\s*mapQuery:\s*['"]([^'"]+)['"],\s*tagIds:\s*\[([^\]]*)\]\s*\}/g;
+    // Improved regex to parse spots from file (handles optional fields by matching specific keys)
+    const spotRegex = /\{\s*id:\s*['"]([^'"]+)['"],\s*wardId:\s*['"]([^'"]+)['"],\s*areaId:\s*['"]([^'"]+)['"],\s*typeId:\s*['"]([^'"]+)['"],\s*tagIds:\s*\[([^\]]*)\].*?\}/gs;
     
     let match;
     const idsInFile = new Set();
     
     while ((match = spotRegex.exec(content)) !== null) {
-      const [full, id, wardId, areaId, typeId, mapQuery, tagIdsStr] = match;
+      const [full, id, wardId, areaId, typeId, tagIdsStr] = match;
       const tagIds = tagIdsStr.split(',').map(t => t.trim().replace(/['"]/g, '')).filter(t => t);
 
       // Check wardId

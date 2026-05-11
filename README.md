@@ -124,6 +124,58 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 ---
 
+
+## 🏗️ 核心架構：ECS 與 SSOT 原則
+
+本專案採用 **ECS (Entity Component System)** 的設計思想來管理繁雜的旅遊資料，並嚴格遵守 **SSOT (Single Source of Truth)** 確保資料的一致性與可維護性。
+
+### 1. SSOT (唯一事實來源) 原則
+為了應對多語系與大量景點資料，我們將「結構」與「內容」徹底解耦：
+- **Schema (結構層)**: 存放於 `src/data/spots/`。這裡定義了景點的「實體識別資訊」：ID、wardId、areaId、typeId。所有視覺呈現屬性（如類型顏色）均由 TYPES 元數據動態衍生，Schema 不含任何渲染指令。它是統計運算與邏輯判斷的唯一基準。
+- **Locales (內容層)**: 存放於 `src/data/locales/`。按語系與行政區拆分，僅存放與 ID 對應的翻譯文字（名稱、描述、標籤串）。
+- **Metadata (元數據)**: 行政區 (Wards)、分區 (Areas)、類型 (Types) 各自擁有獨立的設定檔，確保全域定義統一，避免硬編碼。
+- **Tags (標籤元數據)**：存放於 `src/data/tags.ts`。定義 `TAG_REGISTRY`，包含每個 tagId 的多語系 label、分組與顯示 emoji。另有 `PINNED_GLOBAL_TAGS` 陣列，定義首頁御秘帖模式的固定置頂標籤順序。
+
+  **雙層 Tags 設計（重要）**：
+  - `schema.tagIds`（中文 key，如 `['和菓子', '老舖']`）：篩選系統的唯一基準，供 `useKyotoEngine` 邏輯使用，語系無關。
+  - `locale.tags`（各語系顯示文字）：純顯示用途，渲染於 SpotCard 的 tag chip，不參與任何篩選邏輯。
+
+### 2. ECS (實體組件系統) 架構
+將旅遊景點視為「遊戲物體 (Game Objects)」，而非傳統的網頁元件：
+- **Entities (實體)**: 每個「景點 (Spot)」本質上只是一個 ID。
+- **Components (組件)**:
+  - **Spatial**: `wardId`, `areaId` (導航與地理屬性)
+  - **Categorical**: `typeId` (分類屬性)
+  - **Reservation**: `reservationRequired?: true`（選填布林值）
+  - **Presentation**: 由語系層動態混入的 `name`, `desc`, `tags`。合併後的 FlatSpot 另含選填的 `jaName`，供 Query Assembly System 作為日文地名錨點。`jaName` 在所有語系下均會注入：
+    - `lang === 'ja'`：值為日文 locale 的 name（原生日文名）
+    - `lang === 'zh'`：值同樣取自日文 locale 的 name，作為 ACG 景點等英文/羅馬字景點的地圖搜尋日文錨點。
+- **Systems (系統)**:
+  - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
+  - **Query Assembly System (`SpotCard.tsx`)**: 負責將 `spot.jaName` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
+  - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。
+
+### 🗺 Query Assembly System — 地圖搜尋規則
+
+**SSOT 原則：所有搜尋關鍵字組裝必須以 `spot.jaName`（來自 JA locale 的 `name`）為唯一事實來源與地理錨點。**
+
+組裝流程共四步驟：
+1. **雜訊清洗（Noise Strip）**：
+   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
+   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
+   - 移除殘留的「京都」（後接非地名漢字時）
+   - 移除導航觸發字元：`→ ← から まで via to from`
+2. **固有名詞判斷（Proper Noun Detection）**：
+   - 條件：cleanQuery ≥ 3 字元且含日文字元，或以常見地名後綴結尾（駅寺院社宮堂公園橋通町）
+   - 固有名詞型：`cleanQuery，京都市{行政區日文名}` （日文錨點在後）
+   - 通用型：`京都市{行政區日文名} cleanQuery` （行政區前綴增強定位）
+3. **英文/羅馬字 ACG 景點處理**：
+   - 當 cleanQuery 含英文且 `spot.jaName` 有值時：`{jaName} {cleanQuery}，京都`
+   - 日文名稱永遠在前，英文名稱作輔助識別
+4. **URL 格式**：
+   - 固定使用 Google Maps Search API 網址封裝 `finalQuery`。
+   - **禁止**使用 `maps/dir/`（點對點導航端點）。
+
 ## 🛠 技術堆疊
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
