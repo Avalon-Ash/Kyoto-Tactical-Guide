@@ -57,7 +57,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NS-016', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "華厳寺 鈴虫寺", tagIds: ['寺院', '打卡', '經典'] },
   { id: 'NS-017', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', mapQuery: "虚空蔵法輪寺", tagIds: ['寺院', '歷史'] },
   { id: 'NS-018', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "桂川 嵐山東公園", tagIds: ['自然'] },
-  { id: 'NS-019', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山中之島公園 (西京区)", tagIds: ['自然', '自然'] },
+  { id: 'NS-019', wardId: 'W_NISHIKYO', areaId: 'A09', typeId: 'T_NATURE', mapQuery: "嵐山中之島公園 (西京区)", tagIds: ['自然'] },
   { id: 'NS-020', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHOP', mapQuery: "洛西地下街", tagIds: ['購物'] },
   { id: 'NS-021', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', mapQuery: "西山公園", tagIds: ['自然'] },
   { id: 'NS-022', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', mapQuery: "沓掛交流道", tagIds: ['打卡'] },
