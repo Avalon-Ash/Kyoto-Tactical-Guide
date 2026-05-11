@@ -100,7 +100,7 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
   //    統一採用「行政區前綴 + 空格 + 乾淨景點名」，這是 Google Maps 解析最精準的格式
   const finalQuery = ('京都市' + wardJa + ' ' + cleanQuery).trim();
 
-  // 3. 修復 URL 樣板（改用拼接法以避開沙盒轉譯錯誤）
+  // 3. 修復 URL 樣板（使用官方 Search API 端點與字串拼接）
   const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(finalQuery);
   
   const handleMapOpen = (e: React.MouseEvent) => {
