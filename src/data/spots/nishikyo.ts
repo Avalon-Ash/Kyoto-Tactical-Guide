@@ -54,7 +54,6 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NS-022', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', tagIds: ['打卡'] },
   { id: 'NS-023', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', tagIds: ['打卡'] },
   { id: 'NS-024', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '壽司'] },
-  { id: 'NS-025', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', tagIds: ['展望', '打卡'] },
   { id: 'NS-026', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', tagIds: ['展望', '打卡'] },
   { id: 'NS-027', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', tagIds: ['自然', '隱密'] },
   { id: 'NS-028', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', tagIds: ['賞花', '打卡'] },
