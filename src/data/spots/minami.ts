@@ -96,6 +96,6 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-064', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'MN-065', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡'] },
   { id: 'MN-066', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '壽喜燒', '燒肉'] },
-  { id: 'MN-067', wardId: 'W_MINAMI', areaId: 'A06', typeId: 'T_SHOP', tagIds: ['購物', '名物', '打卡', '老舖'] },
-  { id: 'MN-068', wardId: 'W_MINAMI', areaId: 'A06', typeId: 'T_SHOP', tagIds: ['購物', '現代'] },
+  { id: 'MN-067', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', tagIds: ['購物', '名物', '打卡', '老舖'] },
+  { id: 'MN-068', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', tagIds: ['購物', '現代'] },
 ];
