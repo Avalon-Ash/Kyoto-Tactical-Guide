@@ -88,7 +88,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 > 新增標籤請依 `tags.ts` 規定由 Ash 審查後統一登記，
 > 代理人禁止自行擴充 TAG_REGISTRY。
 - `T_FOOD` 類型景點禁用「世界遺產」標籤
-- 單一景點的 `tagIds` 建議不超過 5 個，避免標籤膨脹稀釋篩選精度
+- 單一景點的 `tagIds` 上限為 **6 個**，避免標籤膨脹稀釋篩選精度
 - `PINNED_GLOBAL_TAGS` 控制御秘帖首頁的置頂展示順序，修改不影響資料完整性
 
 ---
@@ -195,16 +195,17 @@ loadedSpots（依 activeType 過濾後）→ localTags（string[]）
 副標籤列（TagSelector）會依據當前選中的主 Tab（typeId）動態縮減，
 僅顯示與該類型語意相關的標籤分組，避免無效的跨類型標籤干擾。
 
-| typeId | 允許的 tag group |
-|---|---|
-| `T_ALL` | 全部（food / misc / culture / nature / transport / acg） |
-| `T_FOOD` | food、misc |
-| `T_SHRINE` | culture、misc |
-| `T_TEMPLE` | culture、nature、misc |
-| `T_GARDEN` | nature、culture、misc |
-| `T_SPOT` | culture、nature、misc、acg |
-| `T_TRANSPORT` | transport、misc |
-| `T_SHOP` | misc |
+| typeId | 中文顯示名 | 允許的 tag group |
+|---|---|---|
+| `T_ALL` | 總覽 | 全部（food / misc / culture / nature / transport / acg） |
+| `T_HUB` | 交通要津 | transport、misc |
+| `T_TEMPLE` | 寺社・名所 | culture、nature、misc |
+| `T_SHOP` | 商肆・茶寮 | misc、food |
+| `T_MODERN` | 近代設施 | misc、culture |
+| `T_NATURE` | 山水・風雅 | nature、misc |
+| `T_FOOD` | 口福・食處 | food、misc |
+| `T_ACG` | 幻夢・繪草子 | acg、misc |
+
 
 **維護規則：**
 - 新增 TYPES（新 typeId）時，必須同步在 `TYPE_TAG_GROUP_MAP` 新增對應白名單
@@ -402,6 +403,22 @@ src/
 現有全量 tag 即為合法集合，**沒有重複且語意無歧義的 tag 視為合法**。
 新增 tag 前需先確認集合內無近義詞，並同步更新所有 ward 檔頭與本 README。
 
+---
+**ward 檔頭 tagId 分組（僅供人類閱讀，不影響 TAG_REGISTRY group 欄位）：**
+
+各 ward schema 檔頭將合法 tagId 依語意分為以下視覺分組，方便代理人快速選用：
+
+| 分組標籤 | 涵蓋 tagId |
+|---|---|
+| 交通 | 地鐵・巴士・鐵道 |
+| 文化 | 寺院・神社・世界遺產・庭園・山岳・歷史・國寶 |
+| 自然 | 自然・賞花・楓葉 |
+| 體驗 | 打卡・ACG・現代・經典・隱密 |
+| 飲食 | 正餐・喫茶・和菓子・抹茶・老舖・名物・壽司・拉麵・烏龍・天婦羅・壽喜燒・涮涮鍋・懷石・豆腐・洋菓子・蕎麥・燒肉 |
+| 商業 | 購物・超市・博物館 |
+| 地物 | 地標・溫泉・展望 |
+
+> 此分組僅為 JSDoc 說明文件的視覺輔助，`TAG_REGISTRY` 中每個 tagId 的實際 `group` 欄位（food/misc/culture/nature/transport/acg）保持不變，以 `src/data/tags.ts` 為準。
 ---
 
 ## 🤖 資料錄入規範（代理人行為約束）
