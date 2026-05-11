@@ -83,13 +83,10 @@ export const FUSHIMI_SCHEMA: SpotSchema[] = [
   { id: 'FS-051', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '老舖', '經典'] },
   { id: 'FS-052', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '懷石', '老舖'], reservationRequired: true },
   { id: 'FS-053', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '隱密'] },
-  { id: 'FS-054', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['天婦羅', '打卡', '名物'] },
   { id: 'FS-055', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
   { id: 'FS-056', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'FS-057', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '拉麵'] },
-  { id: 'FS-058', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '名物'] },
   { id: 'FS-059', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '抹茶'] },
-  { id: 'FS-060', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
   { id: 'FS-061', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡'] },
   { id: 'FS-062', wardId: 'W_FUSHIMI', areaId: 'A13', typeId: 'T_FOOD', tagIds: ['正餐', '蕎麥'] },
 ];
