@@ -312,76 +312,47 @@ src/
 > 本章節是資料層的 SSOT 行為約束文件。  
 > AI 代理人在操作 `src/data/` 下任何檔案前，必須完整閱讀本章節。
 
----
+### 1. 權限邊界（開放與封閉操作）
 
-### 開放操作（代理人可自行執行）
+**開放操作（代理人可自行執行）**：
+- `src/data/spots/*.ts`：新增 / 修改 `SpotSchema` 條目。
+- `src/data/locales/zh/*.ts`：新增 / 修改 ZH `SpotLocale`。
+- `src/data/locales/ja/*.ts`：新增 / 修改 JA `SpotLocale`。
 
-| 檔案路徑 | 允許操作 |
-|---|---|
-| `src/data/spots/*.ts` | 新增 `SpotSchema` 條目 |
-| `src/data/locales/zh/*.ts` | 新增／修改 ZH `SpotLocale` |
-| `src/data/locales/ja/*.ts` | 新增／修改 JA `SpotLocale` |
-| 現有 `SpotSchema` 的 `tagIds`、`reservationRequired` | 修改 |
-| 現有 `SpotLocale` 的 `name`、`desc`、`tags` | 修改 |
+**封閉操作（需 Ash 人工審查，代理人禁止自行修改）**：
+- `TAG_REGISTRY` (`src/data/tags.ts`)：標籤白名單擴充。
+- `TYPES` (`src/data/types.ts`)：景點分類擴充。
+- `AREA_NAMES` / `WARD_NAMES` (`src/data/areas.ts`, `wards.ts`)：分區定義與地理映射邏輯。
+- `src/data/index.ts`：匯出模組的任何異動。
 
----
+### 2. 結構層 Schema 錄入絕對禁則 (Zero-Trust)
+- **純粹空間節點**：`SpotSchema` 僅允許定義 `id`, `wardId`, `areaId`, `typeId`, `tagIds`，以及選填的 `reservationRequired`。
+- **文字剝離**：**絕對禁止**在 Schema 中寫入任何在地化文字資料（包含已被廢除的 `mapQuery`，或是 `name`、`desc` 等）。
+- **空間歸屬驗證**：景點的 `areaId` 必須合法隸屬於該 `wardId` 轄區內（依據 `areas.ts` 的 `AREA_BY_WARD` 映射表）。嚴禁地理越界。
 
-### 封閉操作（需 Ash 人工審查，代理人禁止自行執行）
+### 3. 內容層 Locale 命名絕對約束 (SSOT 錨點)
+- **JA Name 為唯一事實來源**：JA Locale (`ja/*.ts`) 中的 `name` 欄位，是 Query Assembly System 組裝 Google Maps 定位網址的**唯一地理錨點**。
+- **命名防呆**：此欄位必須填寫「能在 Google Maps 上精確檢索到的官方 / 實體日文名稱」。禁止為了 UI 排版美觀而加入無效的視覺後綴（例：禁止填寫「清水寺 (秋季夜觀)」，必須填寫乾淨的「清水寺」）。
+- **鏡射同步**：新增或刪除景點時，ZH 與 JA Locale 必須與 Schema 檔同步異動相同 ID 的物件，嚴禁出現孤立節點。
 
-| 檔案 | 封閉原因 |
-|---|---|
-| `src/data/tags.ts` — `TAG_REGISTRY` | tagId 白名單由 Ash 維護，擴充是架構決策 |
-| `src/data/types.ts` — `TYPES` | typeId 是系統級定義，不是資料決策 |
-| `src/data/areas.ts` — `AREA_NAMES` / `AREA_KEYS` | 分區定義由 Ash 維護 |
-| `src/data/wards.ts` — `WARD_NAMES` / `WARD_KEYS` | 行政區定義由 Ash 維護 |
-| `src/data/index.ts` | re-export 清單異動需審查 |
+### 4. `tagIds` 填寫規則
+1. **限用白名單**：只能使用 `TAG_REGISTRY` 內已登記的鍵名，未登記標籤將導致系統阻擋。
+2. **數量上限**：單一景點的 `tagIds` 上限為 **6 個**。優先標註最具識別度的特徵。
+3. **類型禁則約束**：遵守檔頭宣告的邏輯約束（例如：`T_FOOD` 類型禁止標註「世界遺產」標籤）。
+4. **雙軌標籤機制**：若無適合的系統邏輯標籤（Schema `tagIds`），請在 Schema 中省略該特徵，並將描述性標籤直接以逗號分隔寫在 Locale 的 `tags` 字串中（僅供 UI 渲染顯示）。代理人**禁止自行判定並擴充 `TAG_REGISTRY`**。
 
----
+### 5. 執行前自我檢查與回報 (Automated Validation)
 
-### `tagIds` 填寫規則
-
-1. **只能使用 `TAG_REGISTRY` 現有鍵名**  
-   執行前讀取 `src/data/tags.ts`，以當下版本為準。  
-   使用不存在的 tagId 會靜默失敗，屬資料汙染。
-
-2. **上限 6 個**  
-   超過 6 個代表語意不精確，應挑選最相關者。
-
-3. **優先序**  
-   最具識別度的特徵 → 類型輔助 → 通用特質  
-   禁止堆砌所有「可能相關」的標籤。
-
-4. **找不到對應 tag 時**  
-   - `tagIds` 省略該項目  
-   - 在 ZH locale 的 `tags` 欄位用中文描述（純顯示用）  
-   - 在回報中標記「建議新增 tag：XXX」，由 Ash 決定是否擴充  
-   - **禁止自行新增到 `TAG_REGISTRY`**
-
----
-
-### 執行前自我檢查清單
-
-代理人每次 push 前必須完成以下驗證，並在回報中列出結果：
-
-- [ ] 所有新 `SpotSchema` 的 `wardId` 存在於 `WardKey` 型別
-- [ ] 所有新 `SpotSchema` 的 `areaId` 存在於 `AREA_KEYS`
-- [ ] 所有新 `SpotSchema` 的 `typeId` 存在於 `TYPES`
-- [ ] 所有新 `SpotSchema` 的 `tagIds` 每一個都存在於 `TAG_REGISTRY`
-- [ ] 所有新 `SpotSchema` 都有對應的 ZH 與 JA locale 條目
-- [ ] 本次修改未動到 `tags.ts` / `types.ts` / `areas.ts` / `wards.ts`
-
-任何一項未通過 → 停止 push，先向 Ash 報告。
-
----
-
-### 回報格式
-
-每次完成後，代理人必須用以下格式回報：
-
+代理人每次完成資料 I/O 寫入、準備 Push 前，**強制執行**以下指令：
+```bash
+npx tsx validate_data.js
 ```
-新增景點：{數量} 筆
-  - {spot.id} / {wardId} / {areaId} / tagIds: {數量} 個
-待確認項目：（無 或 列出）
-建議新增 tag：（無 或 列出建議 tagId 與理由）
-自我檢查：全部通過 ✓ / 未通過項目：...
+必須確認終端機輸出 `Health Check Passed`。若出現任何報錯（如映射越界、幽靈標籤、Locale 缺漏），必須自行修正資料層，直至驗證通過為止。
+
+**標準回報格式**：
+```text
+變更景點：{數量} 筆
+- [{動作}] {spot.id} / {wardId} / {areaId} / {JA Name}
+資料健康檢查：✅ 通過 (已執行 npx tsx validate_data.js)
+建議擴充 Tag：（無 或 列出建議及理由，交由 Ash 裁決）
 ```
