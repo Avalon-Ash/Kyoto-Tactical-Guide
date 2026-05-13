@@ -8,6 +8,8 @@
  *   src/data/locales/zh/kamigyo.ts
  *   src/data/locales/ja/kamigyo.ts
  *
+ * 食處查核規則：所有與「食」相關（T_FOOD / 餐飲標籤）之新增修改，必須與 tabelog.com 進行事實查核，嚴禁停業舊資料。
+ *
  * 合法 typeId：
  *   T_HUB=交通要津  T_TEMPLE=寺社名所  T_SHOP=商肆茶寮
  *   T_FOOD=口福食處  T_NATURE=山水風景  T_MODERN=近代設施  T_ACG=ACG聖地

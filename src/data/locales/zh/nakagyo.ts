@@ -5,6 +5,7 @@ import { SpotLocale } from '../../../types';
  * @ward W_NAKAGYO — 中京區
  * Key 必須與 src/data/spots/nakagyo.ts 的 id 完全一致。
  * 必須與 locales/ja/nakagyo.ts 同步新增。
+ * 食處查核規則：所有與「食」相關之新增修改，必須與 tabelog.com 進行事實查核，嚴禁停業舊資料。
  * tags 欄位使用中文標籤（與 schema.tagIds 鏡射，同時作為 SpotCard 顯示文字與篩選 key）。
  *
  * 欄位：name（20字內）/ desc（40~60字）/ tags（空格分隔，與 schema tagIds 鏡射）

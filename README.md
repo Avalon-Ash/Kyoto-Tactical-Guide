@@ -318,6 +318,7 @@ src/
 - `src/data/spots/*.ts`：新增 / 修改 `SpotSchema` 條目。
 - `src/data/locales/zh/*.ts`：新增 / 修改 ZH `SpotLocale`。
 - `src/data/locales/ja/*.ts`：新增 / 修改 JA `SpotLocale`。
+- **食處查核規範**：所有與「食」相關（`T_FOOD` 或包含餐飲標籤）的資料新增、修改或遷入，**必須**與 [Tabelog](https://tabelog.com/) 進行事實查核，嚴禁使用已停業、地址變更或歇業中的舊資料。
 
 **封閉操作（需 Ash 人工審查，代理人禁止自行修改）**：
 - `TAG_REGISTRY` (`src/data/tags.ts`)：標籤白名單擴充。

@@ -5,6 +5,7 @@ import { SpotLocale } from '../../../types';
  * @ward W_MINAMI — 南區
  * Key 必須與 src/data/spots/minami.ts 的 id 完全一致。
  * 必須與 locales/zh/minami.ts 同步新增。
+ * 食處查核規則：所有與「食」相關之新增修改，必須與 tabelog.com 進行事實查核，嚴禁停業舊資料。
  * tags 欄位使用日文標籤供顯示用途（SpotCard tag chip 顯示）。
  * 篩選系統以 schema.tagIds（中文 key）運作，locale.tags 不參與篩選邏輯。
  *

@@ -4,6 +4,7 @@ import { SpotLocale } from '../../../types';
  * @layer Locale（ZH 內容層）
  * @ward W_NISHIKYO — 西京區
  * Key 必須與 src/data/spots/nishikyo.ts 的 id 完全一致。
+ * 食處查核規則：所有與「食」相關之新增修改，必須與 tabelog.com 進行事實查核，嚴禁停業舊資料。
  */
 export const NISHIKYO_ZH: Record<string, SpotLocale> = {
   'NS-001': { name: "阪急 嵐山站", desc: "阪急嵐山線終點站。前往渡月橋南側的最佳路徑，車站散發濃厚復古風情。", tags: "鐵道" },
