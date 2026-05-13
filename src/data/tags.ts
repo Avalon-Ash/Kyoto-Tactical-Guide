@@ -65,13 +65,6 @@ export const TAG_REGISTRY: Record<string, TagMeta> = {
   '抹茶':  { id: '抹茶',  label: { zh: '抹茶', ja: '抹茶'   }, group: 'food', emoji: '🍵' },
   '和菓子': { id: '和菓子', label: { zh: '和菓子', ja: '和菓子' }, group: 'food', emoji: '🍡' },
   '洋菓子': { id: '洋菓子', label: { zh: '洋菓子', ja: '洋菓子' }, group: 'food', emoji: '🍰' },
-  '甘味':  { id: '甘味',  label: { zh: '甘味',  ja: '甘味'   }, group: 'food', emoji: '🍮' },
-  '麵包':  { id: '麵包',  label: { zh: '麵包',  ja: 'パン'   }, group: 'food', emoji: '🍞' },
-  '定食':  { id: '定食',  label: { zh: '定食',  ja: '定食'   }, group: 'food', emoji: '🍲' },
-  '中菜':  { id: '中菜',  label: { zh: '中菜',  ja: '中華'   }, group: 'food', emoji: '🥢' },
-  '洋食':  { id: '洋食',  label: { zh: '洋食',  ja: '洋食'   }, group: 'food', emoji: '🍳' },
-  '義式':  { id: '義式',  label: { zh: '義式',  ja: 'イタリアン' }, group: 'food', emoji: '🍝' },
-  '串燒':  { id: '串燒',  label: { zh: '串燒',  ja: '焼き鳥' }, group: 'food', emoji: '🍢' },
   // --- misc group ---
   '名物':  { id: '名物',  label: { zh: '名物', ja: '名物'   }, group: 'misc', emoji: '⭐' },
   '打卡':  { id: '打卡',  label: { zh: '打卡', ja: '映え'   }, group: 'misc', emoji: '📸' },
