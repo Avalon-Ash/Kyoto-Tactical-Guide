@@ -81,7 +81,7 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-056', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', tagIds: ['ACG', '打卡'] },
   { id: 'KT-057', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '隱密'] },
   { id: 'KT-058', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡', '自然'] },
-  { id: 'KT-059', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', tagIds: ['正餐', '老舖', '打卡', '蕎麥'] },
+  { id: 'KT-059', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡', '自然'] },
   { id: 'KT-060', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', tagIds: ['正餐', '懷石', '隱密'] },
   { id: 'KT-061', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'KT-062', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_FOOD', tagIds: ['和菓子', '名物', '隱密'], reservationRequired: true },
