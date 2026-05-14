@@ -115,4 +115,5 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-081', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '名物'] },
   { id: 'UK-082', wardId: 'W_UKYO', areaId: 'A18', typeId: 'T_TEMPLE', tagIds: ['寺院', '賞花', '楓葉', '隱密', '國寶'] },
   { id: 'UK-083', wardId: 'W_UKYO', areaId: 'A18', typeId: 'T_SHOP', tagIds: ['名物', '打卡', '購物'] },
+  { id: 'UK-084', wardId: 'W_UKYO', areaId: 'A12', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡', '隱密'] },
 ];

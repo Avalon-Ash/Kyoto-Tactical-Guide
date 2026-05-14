@@ -114,4 +114,13 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SG-092', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '洋菓子', '放題', '打卡'] },
   { id: 'SG-093', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
   { id: 'SG-094', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '涮涮鍋', '壽喜燒', '放題'] },
+  { id: 'SG-095', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '現代', '打卡'] },
+  { id: 'SG-096', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡'] },
+  { id: 'SG-097', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '現代', '打卡'] },
+  { id: 'SG-098', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
+  { id: 'SG-099', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密'] },
+  { id: 'SG-100', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '現代', '打卡'] },
+  { id: 'SG-101', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['喫茶', '老舖', '打卡'] },
+  { id: 'SG-102', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '現代', '打卡'] },
+  { id: 'SG-103', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密'] },
 ];
