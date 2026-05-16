@@ -118,6 +118,8 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-091', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_FOOD', tagIds: ['正餐', '壽喜燒', '放題'], reservationRequired: true },
   { id: 'HY-092', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_FOOD', tagIds: ['正餐', '涮涮鍋', '壽喜燒', '放題'] },
   { id: 'HY-093', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', tagIds: ['正餐', '放題'] },
+  { id: 'HY-094', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '名物'] },
+  { id: 'HY-095', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
   { id: 'HY-088', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', tagIds: ['超市'] },
   { id: 'HY-089', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', tagIds: ['超市'] },
   { id: 'YS-030', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '打卡', '展望'] },

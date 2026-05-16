@@ -123,4 +123,6 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SG-101', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['喫茶', '老舖', '打卡'] },
   { id: 'SG-102', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '現代', '打卡'] },
   { id: 'SG-103', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密'] },
+  { id: 'SG-104', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
+  { id: 'SG-105', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
 ];
