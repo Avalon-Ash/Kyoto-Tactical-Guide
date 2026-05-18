@@ -41,6 +41,10 @@ import { TYPES } from './types';
 
 const _cache = new Map<string, FlatSpot[]>();
 
+const SCHEMA_MODULES = import.meta.glob('./spots/*.ts', { eager: false });
+const LOCALE_ZH_MODULES = import.meta.glob('./locales/zh/*.ts', { eager: false });
+const LOCALE_JA_MODULES = import.meta.glob('./locales/ja/*.ts', { eager: false });
+
 /**
  * 景點資料載入器
  * 核心目標：實現「Schema 不含語系文字、語系資料按需載入」
@@ -58,17 +62,34 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
 
   try {
     // 1. 動態 import 對應的 schema 檔
-    const schemaModule = await import(`./spots/${wardFile}`);
+    const schemaPath = `./spots/${wardFile}.ts`;
+    if (!SCHEMA_MODULES[schemaPath]) {
+      console.error(`Glob key not found: ${schemaPath}`);
+      return [];
+    }
+    const schemaModule = await SCHEMA_MODULES[schemaPath]() as any;
     const schemaSpots: SpotSchema[] = schemaModule[`${wardKey}_SCHEMA`];
 
     // 2. 動態 import 對應語系的 locale 檔
-    const localeModule = await import(`./locales/${lang}/${wardFile}`);
+    const localePath = `./locales/${lang}/${wardFile}.ts`;
+    const LOCALE_MODULE_MAP = (lang === 'zh') ? LOCALE_ZH_MODULES : LOCALE_JA_MODULES;
+    
+    if (!LOCALE_MODULE_MAP[localePath]) {
+      console.error(`Glob key not found: ${localePath}`);
+      return [];
+    }
+    const localeModule = await LOCALE_MODULE_MAP[localePath]() as any;
     const locales: Record<string, SpotLocale> = localeModule[`${wardKey}_${lang.toUpperCase()}`];
 
     // 2.5 動態載入日文 locale 用於地圖搜尋 (若當前不是日文)
     let jaLocales: Record<string, SpotLocale> = locales;
     if (lang !== 'ja') {
-      const jaModule = await import(`./locales/ja/${wardFile}`);
+      const jaPath = `./locales/ja/${wardFile}.ts`;
+      if (!LOCALE_JA_MODULES[jaPath]) {
+        console.error(`Glob key not found: ${jaPath}`);
+        return [];
+      }
+      const jaModule = await LOCALE_JA_MODULES[jaPath]() as any;
       jaLocales = jaModule[`${wardKey}_JA`];
     }
 
