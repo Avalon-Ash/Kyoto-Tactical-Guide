@@ -11,6 +11,7 @@ import { TYPES, TYPE_NAMES, TYPE_KEYS } from './types';
  */
 let _wardStats: Record<string, number> | null = null;
 let _areaStats: Record<string, number> | null = null;
+let _tagCounts: Record<string, number> | null = null;
 
 export function getWardStats(): Record<string, number> {
   if (!_wardStats) _wardStats = computeWardStats();
@@ -20,6 +21,20 @@ export function getWardStats(): Record<string, number> {
 export function getAreaStats(): Record<string, number> {
   if (!_areaStats) _areaStats = computeAreaStats();
   return _areaStats;
+}
+
+export function getTagCounts(): Record<string, number> {
+  if (!_tagCounts) {
+    const allSchemas = loadAllSchemasSync();
+    const counts: Record<string, number> = {};
+    allSchemas.forEach(s => {
+      s.tagIds?.forEach(tid => {
+        counts[tid] = (counts[tid] ?? 0) + 1;
+      });
+    });
+    _tagCounts = counts;
+  }
+  return _tagCounts;
 }
 
 /**

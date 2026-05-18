@@ -66,6 +66,7 @@ export interface SpotSchema {
   typeId: string;
   tagIds?: string[]; // 新增：machine-readable 標籤陣列
   reservationRequired?: true;
+  mapsPlaceId?: string;
 }
 
 // 單一語系的文字包

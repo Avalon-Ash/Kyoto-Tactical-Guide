@@ -44,7 +44,7 @@
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
-import { UI_DICT, loadSpotsByWard, WARD_BY_AREA } from '../data/index';
+import { UI_DICT, loadSpotsByWard, WARD_BY_AREA, getTagCounts } from '../data/index';
 import { loadAllSchemasSync, computeWardStats } from '../data/spots-loader';
 import { TYPES } from '../data/types';
 
@@ -217,16 +217,7 @@ export function useKyotoEngine() {
     return Array.from(tagSet);
   }, [loadedSpots, activeId, mode, activeType]);
 
-  const tagCounts = useMemo<Record<string, number>>(() => {
-    const allSchemas = loadAllSchemasSync();
-    const counts: Record<string, number> = {};
-    allSchemas.forEach(s => {
-      s.tagIds?.forEach(tid => {
-        counts[tid] = (counts[tid] ?? 0) + 1;
-      });
-    });
-    return counts;
-  }, []);
+  const tagCounts = useMemo<Record<string, number>>(() => getTagCounts(), []);
 
   const clearTag = () => setActiveTag(null);
 
@@ -240,6 +231,10 @@ export function useKyotoEngine() {
   const closeDetail = () => {
     setActiveId(null);
     setActiveTag(null);
+    // 防護性修改：返回 HomeView 時，若 mode 為 'tag' 則重置為 'ward'
+    if (mode === 'tag') {
+      setMode('ward');
+    }
   };
 
   return {
