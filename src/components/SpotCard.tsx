@@ -11,15 +11,13 @@
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * SSOT 原則：所有關鍵字組裝以 spot.jaName (JA locale name) 為唯一事實來源。
  *
- * Step 1 — 雜訊清洗（Noise Strip）：
- *   移除靜態地理前綴（優先完整前綴：京都府京都市 > 京都府 > 京都市）
- *   移除行政區名（ja/zh）、孤立「京都」、導航觸發字元（→ ← から まで via）
+ * Step 1 — Query 組裝：
+ *   以 spot.jaName（JA locale name）為主詞，
+ *   附加行政區日文名稱（wardJa）與「京都」為地域錨點。
+ *   格式：{JA名稱}+{行政區日文}+京都
  *
- * Step 2 — 降維組裝：
- *   統一採用「京都市${wardJa} ${cleanQuery}」格式。
- *   廢除固有名詞判斷與全形逗號。
- *
- * Step 3 — URL 組裝：
+ * Step 2 — URL 組裝：
+ *   所有參數經 encodeURIComponent 處理後以 + 串接。
  *   固定使用 maps/search/?api=1&query=...
  *   ⚠️ 禁止使用 maps/dir/（點對點導航端點）
  *
