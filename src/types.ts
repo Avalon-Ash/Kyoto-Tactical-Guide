@@ -66,7 +66,6 @@ export interface SpotSchema {
   typeId: string;
   tagIds?: string[]; // 新增：machine-readable 標籤陣列
   reservationRequired?: true;
-  mapsPlaceId?: string; // Google Maps Place ID（ChIJ...）。設定時 place_id クエリ優先。
 }
 
 // 單一語系的文字包

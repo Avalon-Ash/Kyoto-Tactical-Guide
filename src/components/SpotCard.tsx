@@ -83,10 +83,6 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
 
   // Google Maps URL Assembly logic
   const getGoogleMapsUrl = () => {
-    if (spot.mapsPlaceId) {
-      return `https://www.google.com/maps/place/?q=place_id:${spot.mapsPlaceId}`;
-    }
-    
     // Query Assembly System — 預設組裝規則
     // 1. JA locale 的 spot.name
     // 2. 行政區日文名稱

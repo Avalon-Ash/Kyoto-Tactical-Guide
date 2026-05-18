@@ -62,7 +62,7 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
 
   try {
     // 1. 動態 import 對應的 schema 檔
-    const schemaPath = `./spots/${wardFile}`;
+    const schemaPath = `./spots/${wardFile}.ts`;
     if (!SCHEMA_MODULES[schemaPath]) {
       console.error(`Glob key not found: ${schemaPath}`);
       return [];
@@ -71,7 +71,7 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
     const schemaSpots: SpotSchema[] = schemaModule[`${wardKey}_SCHEMA`];
 
     // 2. 動態 import 對應語系的 locale 檔
-    const localePath = `./locales/${lang}/${wardFile}`;
+    const localePath = `./locales/${lang}/${wardFile}.ts`;
     const LOCALE_MODULE_MAP = (lang === 'zh') ? LOCALE_ZH_MODULES : LOCALE_JA_MODULES;
     
     if (!LOCALE_MODULE_MAP[localePath]) {
@@ -84,7 +84,7 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
     // 2.5 動態載入日文 locale 用於地圖搜尋 (若當前不是日文)
     let jaLocales: Record<string, SpotLocale> = locales;
     if (lang !== 'ja') {
-      const jaPath = `./locales/ja/${wardFile}`;
+      const jaPath = `./locales/ja/${wardFile}.ts`;
       if (!LOCALE_JA_MODULES[jaPath]) {
         console.error(`Glob key not found: ${jaPath}`);
         return [];
