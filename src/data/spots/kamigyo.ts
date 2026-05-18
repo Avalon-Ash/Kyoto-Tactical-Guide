@@ -72,7 +72,7 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-039', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['神社', '隱密'] },
   { id: 'KG-040', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
   { id: 'KG-045', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_MODERN', tagIds: ['打卡', '博物館'] },
-  { id: 'KG-046', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '老舖'], reservationRequired: true },
+  { id: 'KG-046', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '老舖', '打卡'], reservationRequired: true },
   { id: 'KG-047', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_MODERN', tagIds: ['打卡', '賞花'] },
   { id: 'KG-048', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', tagIds: ['庭園'] },
   { id: 'KG-049', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_NATURE', tagIds: ['打卡', '隱密'] },
@@ -102,7 +102,6 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-073', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密', '老舖'] },
   { id: 'KG-074', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
   { id: 'KG-075', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
-  { id: 'KG-076', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '老舖', '打卡'] },
   { id: 'KT-028', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', tagIds: ['喫茶', '打卡', '老舖'] },
   { id: 'KT-063', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐', '老舖', '隱密'], reservationRequired: true },
 ];

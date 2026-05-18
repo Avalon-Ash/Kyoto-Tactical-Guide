@@ -127,7 +127,6 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-098', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
   { id: 'SK-099', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡', '隱密'] },
   { id: 'SK-100', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '打卡'] },
-  { id: 'YS-046', wardId: 'W_SAKYO', areaId: 'A17', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡', '名物'] },
-  { id: 'KT-039', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
-  { id: 'KT-064', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['正餐', '豆腐', '拉麵'] },
+  { id: 'SK-131', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
+  { id: 'SK-132', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['正餐', '豆腐', '拉麵'] },
 ];

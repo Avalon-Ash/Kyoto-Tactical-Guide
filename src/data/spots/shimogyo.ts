@@ -69,7 +69,7 @@ export const SHIMOGYO_SCHEMA: SpotSchema[] = [
   { id: 'SG-042', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_SHOP', tagIds: ['打卡'] },
   { id: 'SG-043', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
   { id: 'SG-045', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', tagIds: ['ACG', '打卡', '現代'] },
-  { id: 'MN-049', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', tagIds: ['ACG', '打卡'] },
+  { id: 'SG-046', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', tagIds: ['ACG', '打卡'] },
   { id: 'SG-047', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_ACG', tagIds: ['ACG', '打卡'] },
   { id: 'SG-048', wardId: 'W_SHIMOGYO', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['抹茶', '和菓子', '老舖', '名物'] },
   { id: 'SG-049', wardId: 'W_SHIMOGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
