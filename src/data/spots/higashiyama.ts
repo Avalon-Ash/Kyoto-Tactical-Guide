@@ -120,5 +120,5 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-095', wardId: 'W_HIGASHIYAMA', areaId: 'A06', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
   { id: 'HY-088', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', tagIds: ['超市'] },
   { id: 'HY-089', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_SHOP', tagIds: ['超市'] },
-  { id: 'YS-030', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '打卡', '展望'] },
+  { id: 'HY-096', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '打卡', '展望'] },
 ];
