@@ -41,9 +41,9 @@ import { TYPES } from './types';
 
 const _cache = new Map<string, FlatSpot[]>();
 
-const SCHEMA_MODULES = import.meta.glob('./spots/*', { eager: false });
-const LOCALE_ZH_MODULES = import.meta.glob('./locales/zh/*', { eager: false });
-const LOCALE_JA_MODULES = import.meta.glob('./locales/ja/*', { eager: false });
+const SCHEMA_MODULES = import.meta.glob('./spots/*.ts', { eager: false });
+const LOCALE_ZH_MODULES = import.meta.glob('./locales/zh/*.ts', { eager: false });
+const LOCALE_JA_MODULES = import.meta.glob('./locales/ja/*.ts', { eager: false });
 
 /**
  * 景點資料載入器
