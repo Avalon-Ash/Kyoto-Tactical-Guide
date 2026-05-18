@@ -81,16 +81,25 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
 
   const wardJa = WARD_NAMES[spot.wardId].ja;
 
-  // Query Assembly System — 新規組裝規則
-  // 1. JA locale 的 spot.name
-  // 2. 行政區日文名稱
-  // 3. "京都"
-  const queryParts = [spot.jaName || '', wardJa, '京都'];
-  const finalQuery = queryParts.map(p => encodeURIComponent(p.trim())).join('+');
-  
-  // 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
-  const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');
-  const googleMapsUrl = baseUrl + finalQuery;
+  // Google Maps URL Assembly logic
+  const getGoogleMapsUrl = () => {
+    if (spot.mapsPlaceId) {
+      return `https://www.google.com/maps/place/?q=place_id:${spot.mapsPlaceId}`;
+    }
+    
+    // Query Assembly System — 預設組裝規則
+    // 1. JA locale 的 spot.name
+    // 2. 行政區日文名稱
+    // 3. "京都"
+    const queryParts = [spot.jaName || '', wardJa, '京都'];
+    const finalQuery = queryParts.map(p => encodeURIComponent(p.trim())).join('+');
+    
+    // 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
+    const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');
+    return baseUrl + finalQuery;
+  };
+
+  const googleMapsUrl = getGoogleMapsUrl();
   
   const handleMapOpen = (e: React.MouseEvent) => {
     e.preventDefault();

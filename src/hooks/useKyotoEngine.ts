@@ -231,10 +231,7 @@ export function useKyotoEngine() {
   const closeDetail = () => {
     setActiveId(null);
     setActiveTag(null);
-    // 防護性修改：返回 HomeView 時，若 mode 為 'tag' 則重置為 'ward'
-    if (mode === 'tag') {
-      setMode('ward');
-    }
+    setMode('ward');  // 防護的リセット
   };
 
   return {
