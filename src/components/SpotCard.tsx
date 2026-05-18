@@ -52,8 +52,6 @@ interface SpotCardProps {
   activeTag?: string | null;
 }
 
-const STATIC_NOISE = ['京都府京都市', '京都府', '京都市'];
-
 export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCardProps) {
   const typeId = spot.typeId;
   const typeName = t(typeId, TYPE_NAMES);
@@ -84,30 +82,17 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
   const displayEmoji = tagEmoji ?? spotFirstTagEmoji ?? typeEmoji;
 
   const wardJa = WARD_NAMES[spot.wardId].ja;
-  const wardZh = WARD_NAMES[spot.wardId].zh;
 
-  // 1. 優先使用 mapsPlaceId (由 Repair D 注入)
-  let googleMapsUrl = '';
-  if (spot.mapsPlaceId) {
-    googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${spot.mapsPlaceId}`;
-  } else {
-    // 否則，執行現有的 Noise Strip & Assembly 流程
-    // 1a. 清理 jaName 中所有冗餘地理前綴與導航字元
-    const NOISE_PATTERNS = [...STATIC_NOISE, wardJa, wardZh];
-    const cleanQuery = NOISE_PATTERNS
-      .reduce((q, p) => q.replace(new RegExp(p, 'g'), ''), spot.jaName || '')
-      .replace(/京都(?=\s|$|[^府市御苑駅城大路通院])/g, '')
-      .replace(/[→←↑↓]|から|まで|via|\bto\b|\bfrom\b/gi, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-
-    // 1b. 降維組裝：採用「行政區前綴 + 空格 + 乾淨景點名」
-    const finalQuery = ('京都市' + wardJa + ' ' + cleanQuery).trim();
-
-    // 1c. 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
-    const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');
-    googleMapsUrl = baseUrl + encodeURIComponent(finalQuery);
-  }
+  // Query Assembly System — 新規組裝規則
+  // 1. JA locale 的 spot.name
+  // 2. 行政區日文名稱
+  // 3. "京都"
+  const queryParts = [spot.jaName || '', wardJa, '京都'];
+  const finalQuery = queryParts.map(p => encodeURIComponent(p.trim())).join('+');
+  
+  // 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
+  const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');
+  const googleMapsUrl = baseUrl + finalQuery;
   
   const handleMapOpen = (e: React.MouseEvent) => {
     e.preventDefault();

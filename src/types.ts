@@ -18,7 +18,7 @@
  * SpotSchema — 結構層的唯一實體定義
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * SpotSchema 僅允許以下欄位（Zero-Trust 原則）：
- *   id, wardId, areaId, typeId, tagIds?, reservationRequired?, mapsPlaceId?
+ *   id, wardId, areaId, typeId, tagIds?, reservationRequired?
  *
  * 絕對禁止在此介面新增任何語意文字、URL 或渲染相關屬性，
  * 包含已廢除的 mapQuery、name、desc 等欄位。
@@ -66,11 +66,6 @@ export interface SpotSchema {
   typeId: string;
   tagIds?: string[]; // 新增：machine-readable 標籤陣列
   reservationRequired?: true;
-  mapsPlaceId?: string;
-  // 選填。Google Maps Place ID（格式：ChIJ...）
-  // 有值時 SpotCard.tsx 優先使用 place_id 查詢，精度優於 Query Assembly。
-  // 食處景點強烈建議填入；同名景點（多神社等）必填。
-  // 空值時自動 fallback 至現有 Query Assembly System。
 }
 
 // 單一語系的文字包

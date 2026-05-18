@@ -359,20 +359,3 @@ npx tsx validate_data.js
 ```
 
 ---
-
-### 6. 【Place ID 錄入指引（選填強建議）】
-
-新增或修改景點時，若能在 Google Maps 上找到精確場所，
-請同步於 Schema 填入 mapsPlaceId 欄位（Google Place ID，格式：ChIJ...）。
-
-**查找方式：**
-1. 在 Google Maps 搜尋景點，確認正確場所
-2. 點擊分享，複製連結，連結中包含 place_id 參數值；或
-3. 使用 Google Maps Platform Place Search 查詢官方 Place ID
-
-**優先級：**
-- 所有 T_FOOD 類型景點：強制要求填入（食處資訊易變，Place ID 可降低定位錯誤）
-- T_TEMPLE / T_SHOP 同名景點（如多個「○○神社」）：強烈建議填入
-- 其他景點：有即填，沒有由 Query Assembly System fallback 處理
-
-禁止填入明顯錯誤的 Place ID，寧可留空走 fallback，也不要填入可信度低的值。

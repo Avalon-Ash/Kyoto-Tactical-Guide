@@ -88,8 +88,8 @@ export const MINAMI_SCHEMA: SpotSchema[] = [
   { id: 'MN-070', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉', '放題'] },
   { id: 'MN-072', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_TEMPLE', tagIds: ['寺院', '歷史', '隱密'] },
   { id: 'MN-073', wardId: 'W_MINAMI', areaId: 'A10', typeId: 'T_NATURE', tagIds: ['自然', '賞花'] },
-  { id: 'MN-074', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'], mapsPlaceId: 'ChIJEZs12ykDChIi5TZ2-P62Fba' },
-  { id: 'MN-075', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'], mapsPlaceId: 'ChIJyXGkP8-6AWARfE7Qt8XSJSr' },
+  { id: 'MN-074', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'MN-075', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'MN-076', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_MODERN', tagIds: ['地標', '現代'] },
   { id: 'MN-077', wardId: 'W_MINAMI', areaId: 'A04', typeId: 'T_SHOP', tagIds: ['購物', '現代'] },
 ];

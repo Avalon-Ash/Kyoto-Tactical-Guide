@@ -87,7 +87,7 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-067', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', tagIds: ['和菓子', '老舖', '名物'] },
   { id: 'YS-068', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', tagIds: ['懷石', '隱密'] },
   { id: 'YS-071', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
-  { id: 'YS-072', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡', '名物'], mapsPlaceId: 'ChIJ6yQiY9r62eV5LRN3fLOQynP' },
+  { id: 'YS-072', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_FOOD', tagIds: ['洋菓子', '打卡', '名物'] },
   { id: 'YS-074', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
   { id: 'YS-075', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_MODERN', tagIds: ['現代', '打卡'] },
 ];
