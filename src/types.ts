@@ -11,7 +11,7 @@
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * 本檔屬於「封閉操作」範圍，代理人禁止自行新增、刪除或修改任何型別定義。
  * 所有型別異動均需 Ash 人工審查後方可執行。
- * 違反此規則的型別擴充會導致 spots-loader、validate_data、
+ * 違反此規則的型別擴充會導致 spots-loader、
  * useKyotoEngine 等多個下游系統靜默失效。
  *
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -45,7 +45,6 @@
  *   - src/data/spots/*.ts         （schema 資料檔）
  *   - src/hooks/useKyotoEngine.ts （篩選邏輯）
  *   - src/components/SpotCard.tsx （Query Assembly）
- *   - validate_data.js             （驗證腳本）
  */
 export type Lang = 'zh' | 'ja';
 
