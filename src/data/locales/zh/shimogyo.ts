@@ -107,4 +107,5 @@ export const SHIMOGYO_ZH: Record<string, SpotLocale> = {
   'SG-107': { name: "DRUM TAO THEATER KYOTO", desc: "風靡全球的和太鼓娛樂表演「DRUM TAO」的常設劇場。在京都感受充滿爆發力與和風美學的震撼舞台。", tags: "現代 打卡" },
   'SG-108': { name: "鬼とうふ (Oni Tofu)", desc: "位於五條區域的手作豆腐專門店。以能品嚐到濃郁大豆鮮甜的美味豆腐與定食廣受在地人喜愛。", tags: "正餐 豆腐" },
   'SG-109': { name: "WIFE&HUSBAND ROASTERY DAUGHTER", desc: "鄰近京都站的WIFE&HUSBAND自家烘焙所兼咖啡廳。在擺滿古董傢俱的沉穩空間中，品飲極致的杯中風景。", tags: "喫茶 打卡" },
+  'SG-110': { name: "原了郭 京都車站八條口店", desc: "位於 JR 京都車站 1 階「新幹線八條口改札口」旁的「Otenotenashi 小路/款待小路」內，是由創業於 1703 年的原了郭所經營的餐飲處（同時附設伴手禮物販）。其店內提供特製香濃咖哩與辛辣出汁拉麵，也是目前官方旗下唯一提供熱食餐飲、能當場體驗宮廷御用級「黑七味」等各種頂級藥味辛料的獨家店舖。", tags: "正餐 拉麵 名物 打卡" },
 };
