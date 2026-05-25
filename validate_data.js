@@ -27,8 +27,8 @@ async function run() {
 
     const schema = module[exportName];
     
-    const invalidTags = schema.flatMap((spot: any) => spot.tagIds)
-      .filter((tag: string) => !validTags.has(tag));
+    const invalidTags = schema.flatMap((spot) => spot.tagIds)
+      .filter((tag) => !validTags.has(tag));
 
     if (invalidTags.length > 0) {
       console.error(`❌ Invalid tags in ${file}:`, [...new Set(invalidTags)]);
