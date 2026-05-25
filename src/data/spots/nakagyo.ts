@@ -23,7 +23,7 @@
  *   ── 體驗 ──  打卡  ACG  現代  經典  隱密
  *   ── 飲食 ──  正餐  喫茶  和菓子  抹茶  老舖  名物
  *               壽司  拉麵  烏龍  天婦羅  壽喜燒  涮涮鍋  懷石
- *               豆腐  洋菓子  蕎麥  燒肉
+ *               豆腐  洋菓子  蕎麥  燒肉  放題
  *   ── 商業 ──  購物  超市  博物館
  *   ── 地物 ──  地標  溫泉  展望
  *
@@ -92,7 +92,6 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-064', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['洋菓子', '名物', '打卡'] },
   { id: 'NK-065', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['喫茶', '老舖', '名物'] },
   { id: 'NK-066', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['天婦羅', '懷石', '老舖'] },
-  { id: 'NK-067', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '拉麵'] },
   { id: 'NK-068', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密', '打卡'] },
   { id: 'NK-069', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '燒肉'] },
   { id: 'NK-070', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '老舖', '壽喜燒'] },
