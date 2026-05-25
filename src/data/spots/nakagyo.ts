@@ -148,4 +148,12 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-122', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密'] },
   { id: 'NK-123', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', tagIds: ['購物', '老舖'] },
   { id: 'NK-124', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
+  { id: 'NK-125', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', tagIds: ['地鐵'] },
+  { id: 'NK-126', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['抹茶', '老舖', '隱密', '喫茶'] },
+  { id: 'NK-127', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['喫茶', '老舖', '隱密', '和菓子'] },
+  { id: 'NK-128', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐'] },
+  { id: 'NK-129', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'NK-130', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐'] },
+  { id: 'NK-131', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐'] },
+  { id: 'NK-132', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_FOOD', tagIds: ['抹茶', '喫茶', '現代'] },
 ];
