@@ -69,7 +69,7 @@ export const HIGASHIYAMA_SCHEMA: SpotSchema[] = [
   { id: 'HY-037', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['打卡'] },
   { id: 'HY-038', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '楓葉', '庭園'] },
   { id: 'HY-039', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_NATURE', tagIds: ['楓葉', '打卡'] },
-  { id: 'HY-040', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['楓葉', '打卡'] },
+  { id: 'HY-040', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_NATURE', tagIds: ['楓葉', '打卡'] },
   { id: 'HY-041', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '庭園', '隱密'] },
   { id: 'HY-042', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
   { id: 'HY-043', wardId: 'W_HIGASHIYAMA', areaId: 'A07', typeId: 'T_TEMPLE', tagIds: ['寺院', '楓葉'] },
