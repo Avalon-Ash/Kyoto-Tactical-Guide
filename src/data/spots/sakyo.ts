@@ -52,7 +52,7 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-018', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', tagIds: ['寺院', '楓葉', '隱密'] },
   { id: 'SK-019', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
   { id: 'SK-020', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
-  { id: 'SK-021', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_TEMPLE', tagIds: ['打卡'] },
+  { id: 'SK-021', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', tagIds: ['打卡', '現代'] },
   { id: 'SK-022', wardId: 'W_SAKYO', areaId: 'A05', typeId: 'T_MODERN', tagIds: ['打卡', '賞花'] },
   { id: 'SK-023', wardId: 'W_SAKYO', areaId: 'A02', typeId: 'T_SHOP', tagIds: ['打卡'] },
   { id: 'SK-024', wardId: 'W_SAKYO', areaId: 'A16', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
