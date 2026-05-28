@@ -119,33 +119,23 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   }, [mode, activeId]);
 
   const clusters = useMemo(() => {
-    if (mode === 'ward' && activeId) {
-      const groups: Record<string, typeof filteredSpots> = {};
-      filteredSpots.forEach(spot => {
-        if (!groups[spot.areaId]) groups[spot.areaId] = [];
-        groups[spot.areaId].push(spot);
-      });
-      return Object.entries(groups).map(([areaId, spots]) => {
-        const { lat, lng } = getLatLng(areaId, 'ward', activeId as string);
-        return {
-          key: areaId,
-          label: t(areaId, AREA_NAMES),
-          pos: [lat, lng] as [number, number],
-          spots
-        };
-      });
-    } else {
-      return filteredSpots.map(spot => {
-        const { lat, lng } = getLatLng(spot.id, 'area', activeId as string);
-        return {
-          key: spot.id,
-          label: lang === 'zh' ? spot.name.zh : spot.name.ja,
-          pos: [lat, lng] as [number, number],
-          spots: [spot],
-          spotRef: spot 
-        };
-      });
-    }
+    // 統一所有模式皆以「微觀分區 (areaId)」為單位進行叢集。
+    // 因為在缺乏全部精確坐標的情況下，散佈單一景點沒有意義。
+    const groups: Record<string, typeof filteredSpots> = {};
+    filteredSpots.forEach(spot => {
+      if (!groups[spot.areaId]) groups[spot.areaId] = [];
+      groups[spot.areaId].push(spot);
+    });
+
+    return Object.entries(groups).map(([areaId, spots]) => {
+      const { lat, lng } = getLatLng(areaId, 'ward', activeId as string);
+      return {
+        key: areaId,
+        label: t(areaId, AREA_NAMES),
+        pos: [lat, lng] as [number, number],
+        spots
+      };
+    });
   }, [mode, activeId, filteredSpots, lang, t]);
 
   const selectedSpots = useMemo(() => {
