@@ -99,6 +99,14 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 使用者在每個操作階段只看到與當前情境相關的選項，
 避免資訊過載，降低決策成本。
 
+### 真實地圖引擎與空間映射 (Spatial Mapping Engine)
+
+應用採用了整合 CartoDB/OpenStreetMap 的 Leaflet 真實地圖庫，提供更直覺的地理導航體驗：
+- **SSOT 座標設定 (`map-centers.ts`)**：統一維護「行政區下的區塊(Area)」或「特定重要景點」的真實經緯度座標 (Lat/Lng)。若未定義單一景點坐標，系統會以雜湊(Hash)算法對其歸屬區塊中心點進行微幅散射 (Scatter fallback)，確保叢集地圖點位能均勻呈現而不互相重疊。
+- **動態渲染與邊界適應**：依據當前選取的行政區，自動呼叫 Nominatim API 獲取該區的真實 GeoJSON 邊界資料，並在圖面上以紅線描繪輪廓。同時會運算當前所有標記點，自動適應縮放並平移地圖至最佳觀看範圍 (Bounds)。
+- **日夜視界切換**：地圖內建「日輪 (Day)」與「夜巡 (Night)」深淺兩色的即時圖資切換，配合應用程式本身的漆黑質感。
+- **UX 邏輯**：在 `DetailView` 中可透過浮動切換按鈕快速在「卡片/地圖」兩種視圖間切換。地圖點位以群集 (Cluster) 呈現資料筆數，點擊單一群集即可滑出該清單，直接點選清單中卡片右上角的「導航浮動按鈕」，即可帶入正確的日文地名與行政區精準跳轉至 Google Maps App。
+
 以下是各核心互動的設計意圖說明，供開發者在修改 UI 邏輯前參照。
 
 進入「洛中洛外」或「名所目録」的 DetailView 後，
@@ -216,18 +224,20 @@ src/
 │   ├── useKyotoEngine.ts    # 【系統層】資料篩選與狀態管理樞紐
 │   └── useWindowSize.ts     # 響應式佈局監聽
 ├── data/
-│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式，使用模組作用域快取，初次呼叫時才執行統計並快取結果，後續呼叫直接返回快取。注意：`tags.ts` 的 `TAG_REGISTRY` 與 `PINNED_GLOBAL_TAGS` 未在 `index.ts` re-export，`SpotCard.tsx` 與 `HomeView.tsx` 直接從 `../data/tags` 引用，是此統一入口原則的唯一例外。
+│   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式...
+│   ├── map-centers.ts       # 【SSOT: 地圖】抽象叢集地圖中心點座標設定
 │   ├── spots-loader.ts      # 【組件裝配層】實現 Schema 與 Locale 的合併負載
-│   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義；定義 A01–A19 共 19 個分區，AREA_BY_WARD / WARD_BY_AREA 互為逆映射，處理分區跨行政區的雙向歸屬。
-│   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義、分組與 emoji；PINNED_GLOBAL_TAGS 置頂順序
+│   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義...
+│   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義...
 │   ├── types.ts             # 【元數據】景點分類定義 (HUB, SHOP, TEMPLE...)
 │   ├── i18n.ts              # UI 介面靜態翻譯
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
 │   ├── MapCanvas.tsx   # 行政區 SVG 分區地圖 (世界地圖入口)
+│   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
-│   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與搜尋)
+│   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
 │   ├── SpotCard.tsx    # 景點任務卡片 (漆藝視覺風格)
 │   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條，支援 variant: 'global'|'local'
 └── lib/

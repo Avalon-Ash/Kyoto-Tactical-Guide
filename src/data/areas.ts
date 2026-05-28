@@ -1,3 +1,16 @@
+/**
+ * ==============================================================================
+ * 【SSOT: 空間架構元數據】 (System Architecture Metadata)
+ * 此檔案是整個京都觀光引擎 (Kyoto Engine) 中，掌管「行政區 (Ward)」與「微觀分區 (Area)」
+ * 的單一事實來源 (Single Source of Truth, SSOT)。
+ * 
+ * 核心職責：
+ * 1. 定義全市 19 個 Area 的顯示名稱 (`AREA_NAMES`)。
+ * 2. 定義 Ward 與 Area 之間的雙向地理從屬關係 (`AREA_BY_WARD`, `WARD_BY_AREA`)。
+ * 3. 為雙軌檢索模式 (洛中洛外 Ward Mode / 名所目錄 Area Mode) 提供運算基準。
+ * 4. 嚴格防止跨區越界或無效 ID (Schema 防呆)。
+ * ==============================================================================
+ */
 import { I18nText, WardKey } from '../types';
 
 export const AREA_KEYS = [

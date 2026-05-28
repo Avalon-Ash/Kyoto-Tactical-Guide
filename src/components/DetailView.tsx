@@ -32,14 +32,15 @@
  * - 禁止將 TYPE_TAG_GROUP_MAP 套用於御秘帖（Tag Mode）的標籤渲染
  * - 主 Tab 切換時若 activeTag 的 group 不在新白名單中，自動 setActiveTag(null)
  */
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, GripHorizontal, Filter } from 'lucide-react';
+import { ChevronLeft, GripHorizontal, Filter, Map } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
 import { TagSelector } from './TagSelector';
 import { TAG_REGISTRY } from '../data/tags';
+import { ClusterMap } from './ClusterMap';
 
 // 主 Tab（typeId）→ 允許的 tag group 白名單對應表
 // SSOT：此表是 TypeId 與 TagGroup 的跨層對應依據，禁止在其他地方硬編碼
@@ -75,6 +76,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     lang, mode, activeId, activeType, isLoading, activeTag, setActiveTag, localTags,
     t, toggleLang, closeDetail, filteredSpots, typeCounts 
   } = engine;
+  const [viewMode, setViewMode] = useState<'card' | 'map'>('card');
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -182,9 +184,15 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
             >
               {t('btn_lang')}
             </button>
-            <div className="hanko-stamp text-xs sm:text-xl w-6 sm:w-10 h-6 sm:h-10 shrink-0 flex items-center justify-center">
-              京
-            </div>
+            <button 
+              onClick={() => setViewMode(v => v === 'card' ? 'map' : 'card')}
+              className="hanko-stamp flex flex-col items-center justify-center gap-0.5 text-[0.6rem] sm:text-xs w-8 sm:w-12 h-8 sm:h-12 shrink-0 cursor-pointer hover:bg-shuiro hover:text-white transition-all overflow-hidden relative group"
+            >
+              <div className="flex flex-col items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
+                <span className="leading-none">{viewMode === 'card' ? '地圖' : '卡片'}</span>
+                {width >= 400 && <span className="leading-none mt-0.5 opacity-80">{viewMode === 'card' ? '叢集' : '叢集'}</span>}
+              </div>
+            </button>
           </div>
         </div>
 
@@ -246,6 +254,10 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
             <div className="hanko-stamp text-4xl w-16 h-16 mb-6 flex items-center justify-center animate-spin-slow">京</div>
             <p className="font-serif tracking-[0.5em] text-gold-light/40">{t('loading') || '展卷中，稍候片刻…'}</p>
           </div>
+        ) : viewMode === 'map' ? (
+          <div className="p-4 sm:p-6 lg:p-8">
+            <ClusterMap engine={engine} width={width} />
+          </div>
         ) : (
           <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
             {filteredSpots.length > 0 ? (
@@ -259,6 +271,23 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
                 <Filter size={clampSize(40, 64)} className="text-gold-light/20 mb-8" />
                 <p className="font-serif tracking-[0.4em] text-sm sm:text-lg text-gold-light/50">{t('empty_msg')}</p>
               </div>
+            )}
+            
+            {/* Quick Map Floating Toggle */}
+            {filteredSpots.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                className="fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-[100]"
+              >
+                <button
+                  onClick={() => setViewMode('map')}
+                  className="flex items-center gap-2 bg-shuiro text-white px-5 py-3 rounded-full shadow-[0_10px_30px_rgba(225,81,65,0.4)] border border-white/20 active:scale-95 transition-all text-sm font-serif tracking-widest uppercase font-bold"
+                >
+                  <Map size={18} />切換地圖
+                </button>
+              </motion.div>
             )}
           </main>
         )}
