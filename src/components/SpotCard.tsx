@@ -85,6 +85,9 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
   const getGoogleMapsUrl = () => {
     let queryName = spot.jaName || '';
     
+    // 移除括號內的補充說明，例如 "(けいおん!聖地)"、"(禅林寺)"，避免干擾 Google Maps 精準搜尋
+    queryName = queryName.replace(/[\(（].*?[\)）]/g, '').trim();
+
     // 特例處理：先斗町在 Google Maps 搜尋經常失效，替換為具體的「先斗町公園」作為錨點
     if (queryName === '先斗町') {
       queryName = '先斗町公園';
