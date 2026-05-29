@@ -356,7 +356,12 @@ src/
 ### 5. 地標景點真確性定位約束 (Landmark Coordinates)
 當新增或修改具有「世界遺產」、「國寶」、「經典寺院 / 神社」等超重要地位的景點時（如金閣寺、清水寺、平安神宮等），**強制必須**在 `src/data/map-centers.ts` 的 `SPOT_POSITIONS` 常數中，新增該 `spot.id` 對應的真實經緯度坐標。以利 `ClusterMap.tsx` 在地圖上直接繪製專屬的地名圖示（Landmark Icon + Name）。
 
-### 6. 執行前自我檢查與回報 (Automated Validation)
+### 6. 歲時記季節祭典子系統 (Seasonal Page)
+為了補齊主要名所導覽外的短期時效性活動，系統內建可抽換式的「歲時記」獨立頁面 (`/public/seasonal.html`)。
+- **架構優勢**：獨立的純 HTML/JS/Tailwind CSS 實現，不會干擾主要 React 應用的複雜度，後續接手人可以直接抽換 `seasonal.html` 的內容，來對應不同季節（如楓葉季、櫻花季、初夏祭典等）。
+- **觸發位置**：在主要模組的 `HomeView` 頂部右側（地球/語言切換鈕旁），以另開新分頁方式(`target="_blank"`) 顯示，維持行動裝置上的高彈性體驗。
+
+### 7. 執行前自我檢查與回報 (Automated Validation)
 
 代理人每次完成資料 I/O 寫入、準備 Push 前，**強制執行**以下指令：
 ```bash

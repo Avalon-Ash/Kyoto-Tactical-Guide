@@ -33,7 +33,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
       className="flex flex-col h-full bg-transparent relative overflow-hidden"
     >
       <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
-        <div className="flex items-center gap-2 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-6 flex-1">
           <div className="hanko-stamp text-base sm:text-2xl w-7 sm:w-12 h-7 sm:h-12 shadow-lg flex items-center justify-center">
             京
           </div>
@@ -47,12 +47,22 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
             </div>
           </div>
         </div>
-        <button 
-          onClick={toggleLang}
-          className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.75rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0 min-w-[44px]"
-        >
-          {width < 400 ? (lang === 'zh' ? '日' : '中') : t('btn_lang')}
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/seasonal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-serif font-bold tracking-widest text-shuiro border border-shuiro/30 bg-shuiro/5 rounded hover:bg-shuiro hover:text-white transition-all shadow-md mr-1 sm:mr-3 uppercase"
+          >
+            <span>🌸 初夏歲時記</span>
+          </a>
+          <button 
+            onClick={toggleLang}
+            className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.75rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0 min-w-[44px]"
+          >
+            {width < 400 ? (lang === 'zh' ? '日' : '中') : t('btn_lang')}
+          </button>
+        </div>
       </header>
 
       <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
