@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="h-full">
+<html lang="zh-TW" class="h-[100dvh]">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
   <title>6/5~6/16 京・宇・奈初夏祭典導覽</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,13 +14,13 @@
   <style>
     /* 全局無障礙大字體配適與象彥漆器配色 */
     html {
-      font-size: 18px; /* 提升基礎字級，緩解閱讀疲勞 */
-      height: 100%;
+      font-size: 16px; /* 基礎字級配適 */
     }
     body {
       font-family: 'Noto Sans TC', sans-serif;
       background-color: #080808; /* 蒔繪漆黑 */
       color: #F5F5F5; /* 溫潤宣紙白 */
+      height: 100dvh; /* 動態視區高度配適行動瀏覽器工具列 */
     }
     .serif-title {
       font-family: 'Noto Serif TC', serif;
@@ -54,24 +54,24 @@
     }
   </style>
 </head>
-<body class="flex flex-col h-full overflow-hidden pb-safe">
+<body class="flex flex-col overflow-hidden">
 
   <!-- 頂部消金飾條 -->
-  <div class="h-2 w-full zohiko-gold-bg shrink-0"></div>
+  <div class="h-1 lg:h-2 w-full zohiko-gold-bg shrink-0"></div>
 
   <!-- 頂部標題區域 -->
-  <header class="bg-[#0c0c0c] border-b border-neutral-800/80 px-4 py-4 shrink-0">
-    <div class="max-w-md mx-auto flex justify-between items-center">
-      <div>
-        <span class="zohiko-gold text-xs tracking-[0.2em] uppercase font-bold">2026 初夏歲時記</span>
-        <h1 class="text-xl font-bold serif-title text-neutral-100 tracking-wide mt-0.5">
+  <header class="bg-[#0c0c0c] border-b border-neutral-800/80 px-3 py-3 md:px-4 md:py-4 shrink-0">
+    <div class="max-w-md mx-auto flex justify-between items-center gap-2">
+      <div class="flex-1 min-w-0">
+        <span class="zohiko-gold text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold block truncate">2026 初夏歲時記</span>
+        <h1 class="text-base md:text-xl font-bold serif-title text-neutral-100 tracking-wide mt-0.5 leading-tight truncate">
           京・宇・奈初夏祭典導覽
         </h1>
       </div>
       <!-- 機場航班小提示 -->
-      <div class="text-[11px] text-neutral-400 text-right bg-neutral-900/60 p-2 rounded border border-neutral-800/80">
-        <span class="block">🛫 6/4 19:00 KIX 進</span>
-        <span class="block">🛬 6/17 21:05 KIX 出</span>
+      <div class="text-[10px] md:text-[11px] text-neutral-400 text-right bg-neutral-900/60 p-1.5 md:p-2 rounded border border-neutral-800/80 shrink-0">
+        <span class="block whitespace-nowrap">🛫 6/4 19:00 KIX</span>
+        <span class="block whitespace-nowrap">🛬 6/17 21:05 KIX</span>
       </div>
     </div>
   </header>
@@ -79,21 +79,21 @@
   <!-- 主功能雙 TAB 切換器 -->
   <nav class="bg-[#0c0c0c] border-b border-neutral-800 shrink-0" role="tablist">
     <div class="max-w-md mx-auto flex">
-      <button id="tab-btn-explore" class="flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all" onclick="switchMainView('explore')">
+      <button id="tab-btn-explore" class="flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all" onclick="switchMainView('explore')">
         ✦ 全景歲時記 (全清單)
       </button>
-      <button id="tab-btn-calendar" class="flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all" onclick="switchMainView('calendar')">
+      <button id="tab-btn-calendar" class="flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all" onclick="switchMainView('calendar')">
         ✦ 日曆摺頁冊 (行事曆)
       </button>
     </div>
   </nav>
 
   <!-- 視圖 A：全景歲時記 (原活動探索，包含可展開的圖表卡片) -->
-  <section id="view-explore" class="flex-1 overflow-y-auto px-4 py-6">
-    <div class="max-w-md mx-auto space-y-6 pb-20">
+  <section id="view-explore" class="flex-1 overflow-y-auto px-3 sm:px-4 py-4 md:py-6">
+    <div class="max-w-md mx-auto space-y-4 md:space-y-6 pb-28">
       
       <!-- 提示語 -->
-      <div class="p-4 bg-neutral-950 border border-neutral-900 rounded text-xs text-neutral-400 leading-relaxed-large">
+      <div class="p-4 bg-neutral-950 border border-neutral-900 rounded text-xs text-neutral-400 leading-relaxed-large shadow-sm">
         <span class="zohiko-gold font-bold">💡 歲時全景模式：</span>
         此處彙整了本次旅程中所有核心歲時祭典。點擊下方卡片可展開查看<span class="zohiko-gold">「由來與歲時」</span>、<span class="zohiko-gold">「交通末班」</span>與<span class="zohiko-gold">「歷史人潮混雜圖表」</span>，方便快速預習並進行事實查核。
       </div>
@@ -109,18 +109,18 @@
   <!-- 視圖 B：日曆摺頁冊 (包含頂部 14 天日曆條與單日時間軸) -->
   <section id="view-calendar" class="hidden flex-col h-full overflow-hidden">
     <!-- 頂部 14 天滑動日曆橫軸 (iPhone 觸控優化) -->
-    <nav class="bg-[#090909] border-b border-neutral-850 py-3 px-4 shrink-0 overflow-x-auto flex gap-3 snap-x scrollbar-none">
-      <div id="calendar-stripe" class="flex gap-2.5 mx-auto"></div>
+    <nav class="bg-[#090909] border-b border-neutral-850 py-2.5 px-3 md:px-4 shrink-0 overflow-x-auto flex gap-2 snap-x scrollbar-none">
+      <div id="calendar-stripe" class="flex gap-2 mx-auto"></div>
     </nav>
 
     <!-- 中間主內容滾動區 -->
-    <main class="flex-1 overflow-y-auto px-4 py-6" id="calendar-content-scroll">
-      <div class="max-w-md mx-auto space-y-6 pb-20">
+    <main class="flex-1 overflow-y-auto px-3 sm:px-4 py-4 md:py-6" id="calendar-content-scroll">
+      <div class="max-w-md mx-auto space-y-5 md:space-y-6 pb-28">
         
-        <!-- 當日日期大標 -->
-        <div class="border-b border-neutral-800 pb-3 flex justify-between items-baseline">
-          <h2 id="active-date-title" class="text-2xl font-bold serif-title zohiko-gold">6月5日 (五)</h2>
-          <span id="active-date-info" class="text-sm text-neutral-400">當日行程規劃</span>
+        <!-- 當日日期大標 (行動版堆疊，避免擁擠) -->
+        <div class="border-b border-neutral-800 pb-2 md:pb-3 flex flex-col sm:flex-row justify-between sm:items-baseline gap-1.5 md:gap-3">
+          <h2 id="active-date-title" class="text-xl md:text-2xl font-bold serif-title zohiko-gold shrink-0">6月5日 (五)</h2>
+          <span id="active-date-info" class="text-[13px] md:text-sm text-neutral-400 leading-snug">當日行程規劃</span>
         </div>
 
         <!-- 當日行程時間軸容器 -->
@@ -758,13 +758,13 @@
       const viewCalendar = document.getElementById('view-calendar');
 
       if (view === 'explore') {
-        btnExplore.className = "flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all";
-        btnCalendar.className = "flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all";
+        btnExplore.className = "flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all";
+        btnCalendar.className = "flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all";
         viewExplore.classList.remove('hidden');
         viewCalendar.classList.add('hidden');
       } else {
-        btnExplore.className = "flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all";
-        btnCalendar.className = "flex-1 py-3 text-center text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all";
+        btnExplore.className = "flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 border-transparent text-neutral-400 hover:text-neutral-200 transition-all";
+        btnCalendar.className = "flex-1 py-2.5 md:py-3 text-center text-[13px] md:text-sm font-medium tracking-wider border-b-2 zohiko-gold-border zohiko-gold transition-all";
         viewExplore.classList.add('hidden');
         viewCalendar.classList.remove('hidden');
         viewCalendar.classList.add('flex'); // 確保 flex-col 生效
@@ -793,24 +793,24 @@
 
         card.innerHTML = `
           <!-- 第一層：摺疊標題列 (觸控高度 ≥ 48px) -->
-          <div class="p-5 flex items-center justify-between gap-4 cursor-pointer select-none" onclick="toggleExploreCard('${ev.id}')">
-            <div class="flex-1">
+          <div class="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 cursor-pointer select-none relative" onclick="toggleExploreCard('${ev.id}')">
+            <div class="flex-1 pr-6">
               <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span class="text-xs tracking-wider zohiko-gold border zohiko-gold-border px-2 py-0.5 rounded font-bold bg-neutral-950">${ev.area}</span>
-                <span class="text-xs font-bold text-neutral-400 font-mono">${ev.displayDate}</span>
+                <span class="text-xs tracking-wider zohiko-gold border zohiko-gold-border px-1.5 md:px-2 py-[1px] md:py-0.5 rounded font-bold bg-neutral-950">${ev.area}</span>
+                <span class="text-xs font-bold text-neutral-400 font-mono">${ev.displayDate.split(' ')[0]}</span>
               </div>
-              <h3 class="text-lg font-bold text-neutral-100 hover:zohiko-gold transition-colors serif-title leading-snug">${ev.title}</h3>
+              <h3 class="text-[17px] md:text-lg font-bold text-neutral-100 hover:zohiko-gold transition-colors serif-title leading-snug">${ev.title}</h3>
               
               <!-- 官方網站快連按鈕 (阻止事件冒泡以避免觸發卡片折疊) -->
-              <div class="mt-2.5">
+              <div class="mt-2 md:mt-2.5">
                 <a href="${ev.officialSite}" target="_blank" onclick="event.stopPropagation();" 
-                   class="inline-flex items-center gap-1.5 text-xs font-bold zohiko-gold hover:underline bg-neutral-950 px-2.5 py-1.5 rounded border border-neutral-800 focus:outline-none">
+                   class="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-bold zohiko-gold hover:underline bg-neutral-950 px-2.5 py-1.5 rounded border border-neutral-800 focus:outline-none">
                   🌐 官方網站連結 ↗
                 </a>
               </div>
             </div>
             <!-- 展開狀態箭頭 -->
-            <span id="arrow-${ev.id}" class="text-neutral-500 hover:text-neutral-200 transition-transform duration-300 text-sm shrink-0">
+            <span id="arrow-${ev.id}" class="absolute right-4 top-1/2 -translate-y-1/2 md:static md:translate-y-0 text-neutral-500 hover:text-neutral-200 transition-transform duration-300 text-sm md:text-base shrink-0">
               ▼
             </span>
           </div>
@@ -818,37 +818,37 @@
           <!-- 第二層：漸進式水平分頁內容 (預設隱藏) -->
           <div id="details-${ev.id}" class="hidden border-t border-neutral-850 bg-neutral-950/40 transition-all">
             <!-- 內嵌子標籤頁切換列 -->
-            <div class="flex border-b border-neutral-850 px-3 text-xs md:text-sm">
-              <button id="btn-sub-${ev.id}-history" class="py-3 px-4 border-b-2 zohiko-gold-border zohiko-gold font-bold" onclick="switchSubTab('${ev.id}', 'history')">
+            <div class="flex border-b border-neutral-850 px-2 md:px-3 text-[11px] md:text-sm">
+              <button id="btn-sub-${ev.id}-history" class="py-2.5 md:py-3 px-2 md:px-4 border-b-2 zohiko-gold-border zohiko-gold font-bold outline-none flex-1 text-center truncate" onclick="switchSubTab('${ev.id}', 'history')">
                 由來與歲時
               </button>
-              <button id="btn-sub-${ev.id}-transit" class="py-3 px-4 border-b-2 border-transparent text-neutral-400 font-bold" onclick="switchSubTab('${ev.id}', 'transit')">
+              <button id="btn-sub-${ev.id}-transit" class="py-2.5 md:py-3 px-2 md:px-4 border-b-2 border-transparent text-neutral-400 font-bold outline-none flex-1 text-center truncate" onclick="switchSubTab('${ev.id}', 'transit')">
                 軌道與末班
               </button>
-              <button id="btn-sub-${ev.id}-crowd" class="py-3 px-4 border-b-2 border-transparent text-neutral-400 font-bold" onclick="switchSubTab('${ev.id}', 'crowd')">
-                流向與混雜
+              <button id="btn-sub-${ev.id}-crowd" class="py-2.5 md:py-3 px-2 md:px-4 border-b-2 border-transparent text-neutral-400 font-bold outline-none flex-1 text-center truncate" onclick="switchSubTab('${ev.id}', 'crowd')">
+                流向與歷史
               </button>
             </div>
 
             <!-- 子分頁內文展示區 -->
-            <div class="p-5 text-sm md:text-base leading-relaxed-large text-neutral-200 space-y-4">
+            <div class="p-4 md:p-5 text-[13px] md:text-base leading-relaxed-large text-neutral-200 space-y-4">
               <!-- 由來與歲時 -->
               <div id="content-sub-${ev.id}-history" class="space-y-4">
-                <div class="p-4 bg-neutral-900/40 border-l-3 zohiko-gold-border rounded-r">
-                  <h4 class="text-xs uppercase tracking-widest text-neutral-500 mb-1 font-bold">祭典由來與概要</h4>
-                  <p class="text-neutral-200 whitespace-pre-line text-sm md:text-base">${ev.desc}</p>
+                <div class="p-3 md:p-4 bg-neutral-900/40 border-l-3 zohiko-gold-border rounded-r">
+                  <h4 class="text-[10px] md:text-xs uppercase tracking-widest text-neutral-500 mb-1 font-bold">祭典由來與概要</h4>
+                  <p class="text-neutral-200 whitespace-pre-line">${ev.desc}</p>
                 </div>
                 
                 <!-- 內文再備份連結 -->
-                <div class="pt-1">
-                  <a href="${ev.officialSite}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold zohiko-gold hover:underline">
+                <div class="pt-0.5">
+                  <a href="${ev.officialSite}" target="_blank" class="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-bold zohiko-gold hover:underline">
                     ℹ️ 拜訪官方網站獲得最即時歲時公告 ↗
                   </a>
                 </div>
 
-                <div class="space-y-1.5 pt-2">
-                  <h4 class="text-xs uppercase tracking-widest text-neutral-500 font-bold">✦ 參觀儀軌與禁忌</h4>
-                  <ul class="space-y-1 text-xs md:text-sm text-neutral-400 list-disc pl-4 leading-relaxed-large">
+                <div class="space-y-1.5 pt-1 md:pt-2">
+                  <h4 class="text-[10px] md:text-xs uppercase tracking-widest text-neutral-500 font-bold">✦ 參觀儀軌與禁忌</h4>
+                  <ul class="space-y-1 text-neutral-400 list-disc pl-4 leading-relaxed-large">
                     ${ev.etiquette.split('\n').map(item => `<li>${item.replace(/^\d+\.\s*/, '')}</li>`).join('')}
                   </ul>
                 </div>
@@ -856,20 +856,20 @@
 
               <!-- 軌道與末班 -->
               <div id="content-sub-${ev.id}-transit" class="hidden space-y-3">
-                <div class="p-4 bg-red-950/10 border-l-3 zohiko-vermilion-border rounded-r">
-                  <h4 class="text-xs uppercase tracking-widest zohiko-vermilion font-bold mb-1">📍 交通手段與核心時刻表</h4>
-                  <p class="text-xs md:text-sm text-neutral-300 whitespace-pre-line leading-relaxed-large">${ev.transit}</p>
+                <div class="p-3 md:p-4 bg-red-950/10 border-l-3 zohiko-vermilion-border rounded-r">
+                  <h4 class="text-[10px] md:text-xs uppercase tracking-widest zohiko-vermilion font-bold mb-1">📍 交通手段與時刻指引</h4>
+                  <p class="text-neutral-300 whitespace-pre-line leading-relaxed-large">${ev.transit}</p>
                 </div>
               </div>
 
               <!-- 流向與混雜 (圖表加文字) -->
               <div id="content-sub-${ev.id}-crowd" class="hidden space-y-4">
-                <div class="h-[180px] w-full">
+                <div class="h-[160px] md:h-[180px] w-full">
                   <canvas id="chart-${ev.id}"></canvas>
                 </div>
-                <div class="p-3.5 bg-neutral-900/60 border border-neutral-850 rounded">
-                  <span class="text-xs text-neutral-500 block font-bold">人潮飽和時間段預警</span>
-                  <span class="text-sm font-bold zohiko-gold mt-1 block">${ev.peakTip}</span>
+                <div class="p-2.5 md:p-3.5 bg-neutral-900/60 border border-neutral-850 rounded">
+                  <span class="text-[10px] md:text-xs text-neutral-500 block font-bold">人潮飽和時間段預警</span>
+                  <span class="text-[13px] md:text-sm font-bold zohiko-gold mt-1 block leading-snug">${ev.peakTip}</span>
                 </div>
               </div>
             </div>
@@ -904,7 +904,7 @@
         const content = document.getElementById(`content-sub-${id}-${tab}`);
 
         if (tab === type) {
-          btn.className = "py-3 px-4 border-b-2 zohiko-gold-border zohiko-gold font-bold";
+          btn.className = "py-2.5 md:py-3 px-2 md:px-4 border-b-2 zohiko-gold-border zohiko-gold font-bold outline-none flex-1 text-center truncate";
           content.classList.remove('hidden');
           if (tab === 'crowd') {
             setTimeout(() => {
@@ -912,7 +912,7 @@
             }, 50);
           }
         } else {
-          btn.className = "py-3 px-4 border-b-2 border-transparent text-neutral-400 font-bold";
+          btn.className = "py-2.5 md:py-3 px-2 md:px-4 border-b-2 border-transparent text-neutral-400 font-bold outline-none flex-1 text-center truncate";
           content.classList.add('hidden');
         }
       });
@@ -993,7 +993,7 @@
 
       CALENDAR_DAYS.forEach(day => {
         const btn = document.createElement('button');
-        btn.className = `flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-lg transition-all border snap-center scroll-mx-4 ${
+        btn.className = `flex flex-col items-center justify-center min-w-[48px] md:min-w-[54px] h-[64px] md:h-[72px] rounded-lg transition-all border snap-center scroll-mx-4 ${
           day.date === activeCalendarDate 
             ? 'zohiko-gold-border bg-neutral-900 shadow-[0_0_10px_rgba(229,193,88,0.3)]' 
             : 'border-neutral-800 bg-neutral-950/40 hover:border-neutral-700'
@@ -1003,16 +1003,16 @@
 
         let dotHtml = '';
         if (day.isPeak) {
-          dotHtml = `<span class="w-1.5 h-1.5 rounded-full zohiko-vermilion-bg mt-1"></span>`;
+          dotHtml = `<span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full zohiko-vermilion-bg mt-1"></span>`;
         } else if (day.hasEvent) {
-          dotHtml = `<span class="w-1.5 h-1.5 rounded-full zohiko-gold-bg mt-1"></span>`;
+          dotHtml = `<span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full zohiko-gold-bg mt-1"></span>`;
         } else {
-          dotHtml = `<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-1"></span>`;
+          dotHtml = `<span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-transparent mt-1"></span>`;
         }
 
         btn.innerHTML = `
-          <span class="text-[11px] text-neutral-500 font-medium block">${day.week}</span>
-          <span class="text-base font-bold font-mono mt-0.5 ${day.date === activeCalendarDate ? 'zohiko-gold' : 'text-neutral-200'}">${day.label.split('/')[1]}</span>
+          <span class="text-[10px] md:text-[11px] text-neutral-500 font-medium block">${day.week}</span>
+          <span class="text-sm md:text-base font-bold font-mono mt-0.5 ${day.date === activeCalendarDate ? 'zohiko-gold' : 'text-neutral-200'}">${day.label.split('/')[1]}</span>
           ${dotHtml}
         `;
         container.appendChild(btn);
@@ -1022,7 +1022,7 @@
     function selectCalendarDate(date) {
       const prevActive = document.getElementById(`cal-btn-${activeCalendarDate}`);
       if (prevActive) {
-        prevActive.className = "flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-lg transition-all border snap-center border-neutral-800 bg-neutral-950/40 hover:border-neutral-700";
+        prevActive.className = "flex flex-col items-center justify-center min-w-[48px] md:min-w-[54px] h-[64px] md:h-[72px] rounded-lg transition-all border snap-center border-neutral-800 bg-neutral-950/40 hover:border-neutral-700";
         prevActive.querySelector('.font-mono').classList.remove('zohiko-gold');
         prevActive.querySelector('.font-mono').classList.add('text-neutral-200');
       }
@@ -1030,7 +1030,7 @@
       activeCalendarDate = date;
       const nextActive = document.getElementById(`cal-btn-${activeCalendarDate}`);
       if (nextActive) {
-        nextActive.className = "flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-lg transition-all border snap-center zohiko-gold-border bg-neutral-900 shadow-[0_0_10px_rgba(229,193,88,0.3)]";
+        nextActive.className = "flex flex-col items-center justify-center min-w-[48px] md:min-w-[54px] h-[64px] md:h-[72px] rounded-lg transition-all border snap-center zohiko-gold-border bg-neutral-900 shadow-[0_0_10px_rgba(229,193,88,0.3)]";
         nextActive.querySelector('.font-mono').classList.add('zohiko-gold');
         nextActive.querySelector('.font-mono').classList.remove('text-neutral-200');
         nextActive.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -1063,65 +1063,65 @@
 
       data.events.forEach((ev, index) => {
         const item = document.createElement('div');
-        item.className = "relative pl-6 border-l-2 border-neutral-800/80 last:border-l-transparent pb-4";
+        item.className = "relative pl-5 md:pl-6 border-l-2 border-neutral-800/80 last:border-l-transparent pb-4 md:pb-5";
 
         let dotClass = "absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-neutral-800 border-2 border-neutral-500";
         if (ev.isFixed) {
-          dotClass = "absolute -left-[11px] top-1 w-5 h-5 rounded-full zohiko-vermilion-bg border-2 border-neutral-950 shadow-[0_0_12px_rgba(200,46,46,0.6)] flex items-center justify-center";
+          dotClass = "absolute -left-[11px] md:-left-[11px] top-1 w-5 h-5 rounded-full zohiko-vermilion-bg border-2 border-neutral-950 shadow-[0_0_12px_rgba(200,46,46,0.6)] flex items-center justify-center";
         } else {
           dotClass = "absolute -left-[9px] top-1.5 w-4 h-4 rounded-full zohiko-gold-bg border-2 border-neutral-950 shadow-[0_0_10px_rgba(229,193,88,0.4)]";
         }
 
-        let fixedBadge = ev.isFixed ? `<span class="text-xs px-2.5 py-0.5 rounded-full zohiko-vermilion-bg text-white font-bold ml-2">固定預約行程</span>` : '';
+        let fixedBadge = ev.isFixed ? `<span class="text-[10px] md:text-xs px-2 py-0.5 rounded zohiko-vermilion-bg text-white font-bold ml-2 shrink-0">固定行程</span>` : '';
 
         const formattedContent = ev.content.replace(/\n/g, '<br>');
         const formattedTransit = ev.transit.replace(/\n/g, '<br>');
 
         item.innerHTML = `
           <span class="${dotClass}"></span>
-          <div class="p-6 rounded-lg border ${ev.isFixed ? 'zohiko-vermilion-border/40' : 'zohiko-gold-border/20'} bg-[#0d0d0d] makie-gradient gold-glow space-y-4">
+          <div class="p-4 md:p-6 rounded-lg border flex flex-col ${ev.isFixed ? 'zohiko-vermilion-border/40' : 'zohiko-gold-border/20'} bg-[#0d0d0d] makie-gradient gold-glow gap-4 md:gap-5">
             
             <!-- 時間與地點 -->
-            <div class="flex justify-between items-baseline border-b border-neutral-850 pb-3 flex-wrap gap-2">
-              <span class="text-lg font-bold font-mono zohiko-gold tracking-wide">${ev.time}</span>
-              <div class="flex items-center">
-                <span class="text-xs text-neutral-500 font-mono">${ev.location.split('(')[0]}</span>
+            <div class="flex flex-col gap-1 border-b border-neutral-850 pb-3">
+              <div class="flex flex-wrap items-center">
+                <span class="text-base md:text-lg font-bold font-mono zohiko-gold tracking-wide">${ev.time}</span>
                 ${fixedBadge}
               </div>
+              <span class="text-xs text-neutral-500 font-mono line-clamp-1">${ev.location.split('(')[0]}</span>
             </div>
 
             <!-- 活動大標 -->
-            <div class="space-y-2">
-              <h3 class="text-xl md:text-2xl font-bold text-neutral-100 serif-title leading-snug">
+            <div class="space-y-1.5 md:space-y-2">
+              <h3 class="text-[18px] md:text-2xl font-bold text-neutral-100 serif-title leading-snug">
                 ${ev.title}
               </h3>
               
-              <!-- 官方網站連結按鈕 (日曆摺頁手帳模式 - 無障礙觸控配適) -->
+              <!-- 官方網站連結按鈕 -->
               <div class="pt-1">
                 <a href="${ev.officialSite}" target="_blank" 
-                   class="inline-flex items-center gap-1.5 text-xs md:text-sm font-bold zohiko-gold hover:underline bg-neutral-950 px-3.5 py-2 rounded border border-neutral-850 focus:outline-none">
+                   class="inline-flex items-center gap-1.5 text-[11px] md:text-sm font-bold zohiko-gold hover:underline bg-neutral-950 px-3 py-1.5 md:px-3.5 md:py-2 rounded border border-neutral-850 focus:outline-none w-max">
                   🌐 官方網站連結 ↗
                 </a>
               </div>
             </div>
 
             <!-- 大字體主內容 -->
-            <div class="text-[16px] md:text-[17px] text-neutral-200 leading-relaxed-large space-y-3">
+            <div class="text-[14px] sm:text-[15px] md:text-[17px] text-neutral-200 leading-relaxed-large space-y-3">
               <p>${formattedContent}</p>
             </div>
 
             <!-- 交通與末班安全預警 -->
-            <div class="p-4 rounded border ${ev.transit.includes('⚠️') || ev.transit.includes('🚨') ? 'zohiko-vermilion-border/30 bg-red-950/10' : 'border-neutral-850 bg-neutral-950'} space-y-2">
-              <span class="text-xs uppercase tracking-widest text-neutral-400 font-bold block">
-                ${ev.transit.includes('⚠️') || ev.transit.includes('🚨') ? '🚨 交通特急安全預警' : '🚃 推薦交通與時刻指引'}
+            <div class="p-3 md:p-4 rounded border ${ev.transit.includes('⚠️') || ev.transit.includes('🚨') ? 'zohiko-vermilion-border/30 bg-red-950/10' : 'border-neutral-850 bg-neutral-950'} space-y-1.5 md:space-y-2">
+              <span class="text-[10px] md:text-xs uppercase tracking-widest text-neutral-400 font-bold block">
+                ${ev.transit.includes('⚠️') || ev.transit.includes('🚨') ? '🚨 交通與末班預警' : '🚃 推薦交通與指引'}
               </span>
-              <p class="text-xs md:text-sm text-neutral-300 leading-relaxed-large whitespace-pre-line">${formattedTransit}</p>
+              <p class="text-[13px] md:text-sm text-neutral-300 leading-relaxed-large whitespace-pre-line">${formattedTransit}</p>
             </div>
 
             <!-- 歲時慢旅深度指引 -->
-            <div class="p-4 bg-neutral-900/60 rounded border border-neutral-850 space-y-2 text-xs md:text-sm">
-              <span class="zohiko-gold font-bold block">✦ 歲時慢旅深度指引</span>
-              <p class="text-neutral-400 leading-relaxed-large whitespace-pre-line">${ev.slowTravel}</p>
+            <div class="p-3 md:p-4 bg-neutral-900/60 rounded border border-neutral-850 space-y-1.5 md:space-y-2">
+              <span class="zohiko-gold font-bold block text-xs md:text-sm">✦ 歲時慢旅深度指引</span>
+              <p class="text-neutral-400 text-[13px] md:text-sm leading-relaxed-large whitespace-pre-line">${ev.slowTravel}</p>
             </div>
 
           </div>
@@ -1131,13 +1131,13 @@
         // 同日跨城動線過渡卡 (6/5 平安神宮 ➔ 宇治縣祭)
         if (date === "2026-06-05" && index === 0) {
           const transCard = document.createElement('div');
-          transCard.className = "relative pl-6 border-l-2 border-dashed zohiko-vermilion-border/40 pb-4";
+          transCard.className = "relative pl-5 md:pl-6 border-l-2 border-dashed zohiko-vermilion-border/40 pb-4 md:pb-5";
           transCard.innerHTML = `
             <span class="absolute -left-[5px] top-4 w-2 h-2 rounded-full zohiko-vermilion-bg"></span>
-            <div class="p-4 rounded border zohiko-vermilion-border/30 bg-red-950/5 text-xs md:text-sm">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-lg">🚃</span>
-                <span class="zohiko-vermilion font-bold serif-title">同日跨城轉場：京都市 ➔ 宇治市</span>
+            <div class="p-3 md:p-4 rounded border zohiko-vermilion-border/30 bg-red-950/5 text-xs md:text-sm">
+              <div class="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
+                <span class="text-base md:text-lg">🚃</span>
+                <span class="zohiko-vermilion font-bold serif-title text-[13px] md:text-[15px]">同日跨城轉場：京都市 ➔ 宇治市</span>
               </div>
               <p class="text-neutral-400 leading-relaxed-large">
                 當日行程跨越兩個城市。建議於 <strong class="text-neutral-200">14:15</strong> 離開京都兩足院或平安神宮，步行至祇園四條，搭乘京阪本線前往 <strong class="text-neutral-200">中書島</strong>，再轉宇治線至 <strong class="text-neutral-200">宇治站</strong>。抵達宇治約為 15:30，正好可在表參道悠閒散步，隨後等待深夜大祭。
