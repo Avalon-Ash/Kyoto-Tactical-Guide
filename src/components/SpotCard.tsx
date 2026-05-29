@@ -83,12 +83,26 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
 
   // Google Maps URL Assembly logic
   const getGoogleMapsUrl = () => {
-    // Query Assembly System — 預設組裝規則
+    let queryName = spot.jaName || '';
+    
+    // 特例處理：先斗町在 Google Maps 搜尋經常失效，替換為具體的「先斗町公園」作為錨點
+    if (queryName === '先斗町') {
+      queryName = '先斗町公園';
+    }
+
+    // Query Assembly System — 預設組裝規則與例外策略
+    // 依固有名詞特徵判斷查詢策略：若為特定廣域名稱或街道，排除行政區以避免 Google Maps 搜尋失敗
+    const standaloneNames = ['先斗町公園', '嵐山', '祇園', '哲学の道', '鴨川'];
+    const isStandalone = standaloneNames.some(name => queryName.includes(name));
+
     // 1. JA locale 的 spot.name
-    // 2. 行政區日文名稱
+    // 2. 行政區日文名稱 (若為 isStandalone 則排除)
     // 3. "京都"
-    const queryParts = [spot.jaName || '', wardJa, '京都'];
-    const finalQuery = queryParts.map(p => encodeURIComponent(p.trim())).join('+');
+    const queryParts = isStandalone 
+      ? [queryName, '京都']
+      : [queryName, wardJa, '京都'];
+      
+    const finalQuery = queryParts.filter(Boolean).map(p => encodeURIComponent(p.trim())).join('+');
     
     // 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
     const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');

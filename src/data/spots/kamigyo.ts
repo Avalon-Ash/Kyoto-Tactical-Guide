@@ -87,7 +87,7 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-061', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['洋菓子', '名物'] },
   { id: 'KG-062', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['正餐'] },
   { id: 'KG-063', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_SHOP', tagIds: ['老舖', '打卡', '歷史'] },
-  { id: 'KG-064', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_FOOD', tagIds: ['和菓子', '隱密'] },
+  { id: 'KG-064', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['和菓子', '隱密'] },
   { id: 'KG-070', wardId: 'W_KAMIGYO', areaId: 'A12', typeId: 'T_SHOP', tagIds: ['購物', '名物', '打卡'] },
   { id: 'KG-072', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡'] },
   { id: 'KG-073', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_FOOD', tagIds: ['喫茶', '隱密', '老舖'] },

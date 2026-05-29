@@ -37,7 +37,7 @@ export const NAKAGYO_SCHEMA: SpotSchema[] = [
   { id: 'NK-003', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', tagIds: ['地鐵'] },
   { id: 'NK-004', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院', '世界遺產', '經典', '打卡', '國寶'] },
   { id: 'NK-005', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', tagIds: ['名物', '老舖', '經典', '打卡'] },
-  { id: 'NK-006', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_SHOP', tagIds: ['打卡', '正餐', '老舖'] },
+  { id: 'NK-006', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', tagIds: ['打卡', '正餐', '老舖'] },
   { id: 'NK-007', wardId: 'W_NAKAGYO', areaId: 'A01', typeId: 'T_SHOP', tagIds: ['打卡', '賞花'] },
   { id: 'NK-008', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_MODERN', tagIds: ['打卡', '博物館'] },
   { id: 'NK-009', wardId: 'W_NAKAGYO', areaId: 'A03', typeId: 'T_HUB', tagIds: ['鐵道'] },
