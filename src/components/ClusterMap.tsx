@@ -47,15 +47,15 @@ const MapController = ({ center, bounds, geoJsonLayer }: { center: [number, numb
 
 const createClusterIcon = (count: number, label: string, isSelected: boolean) => {
   const html = `
-    <div class="flex flex-col items-center group -ml-[50%] -mt-[50%] w-max">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-lg transition-all ${
+    <div class="flex flex-col items-center group w-max" style="transform: translate(-50%, -16px); position: absolute; pointer-events: none;">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-lg transition-all pointer-events-auto ${
         isSelected 
           ? 'bg-shuiro border-shuiro text-white scale-110 shadow-[0_0_15px_rgba(225,81,65,0.5)]' 
           : 'bg-[#151515] border-gold/40 text-gold-light opacity-90'
       }">
         <span class="font-serif text-xs font-bold leading-none">${count}</span>
       </div>
-      <div class="mt-1 font-serif text-[0.7rem] px-2 py-0.5 rounded backdrop-blur-sm whitespace-nowrap tracking-widest transition-all ${
+      <div class="mt-1 font-serif text-[0.7rem] px-2 py-0.5 rounded backdrop-blur-sm whitespace-nowrap tracking-widest transition-all pointer-events-auto ${
         isSelected ? 'bg-shuiro/90 text-white' : 'bg-black/80 text-gold-light opacity-90'
       }">
         ${label}
