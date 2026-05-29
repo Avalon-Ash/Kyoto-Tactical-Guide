@@ -5,6 +5,8 @@
  *
  * 架構特徵與技術棧：
  * - 真實坐標映射：透過 `src/data/map-centers.ts` SSOT 獲取所有叢集站點/獨立景點的真實經緯度。
+ * - 世界遺產與國寶標記 (Landmarks)：具備絕對經緯度（於 `SPOT_POSITIONS` 定義）的重要名勝，
+ *   會特別渲染為「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點。
  * - OSM GeoJSON 邊界：若在行政區模式下，會呼叫 Nominatim API 動態繪製該區虛線邊界，並自動適應縮放 (fitBounds)。
  * - 響應式日夜主題：內建 CartoDB Dark Matter (夜巡) 與 Carto Voyager/OSM (日輪) 的即時圖資切換。
  * - UX 體驗：自定義 Marker 繪製數量群集標籤，點擊 Marker 後從下方滑出該區景點詳細列表，
@@ -14,7 +16,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
-import { getLatLng } from '../data/map-centers';
+import { getLatLng, SPOT_POSITIONS } from '../data/map-centers';
 import { AREA_NAMES, WARD_NAMES } from '../data/index';
 import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
 import { SpotCard } from './SpotCard';
@@ -66,6 +68,39 @@ const createClusterIcon = (count: number, label: string, isSelected: boolean) =>
     html,
     className: '', 
     iconSize: [0, 0], 
+    iconAnchor: [0, 0]
+  });
+};
+
+const createLandmarkIcon = (label: string, typeId: string = '') => {
+  // Simple temple/shrine icon SVG
+  const svgIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="w-6 h-6 text-[#4a4a4a] drop-shadow-md">
+      <path d="M12 2L2 9h2v11h16V9h2L12 2zm0 2.5l6 4.2V20H6V8.7l6-4.2zM8 12h8v2H8v-2zm0 4h8v2H8v-2z" />
+    </svg>
+  `;
+
+  // A temple svg looking like the google maps one (multi-tier roof)
+  const templeSvg = `
+    <svg viewBox="0 0 24 24" fill="#4a4a4a" class="w-7 h-7 drop-shadow-sm">
+      <path d="M12,2L5,6V7H19V6L12,2M8,8V12H16V8H8M4,13V14H20V13H4M6,15V19H18V15H6M3,20V22H21V20H3Z" />
+    </svg>
+  `;
+
+  const html = `
+    <div class="flex flex-col items-center group w-max" style="transform: translate(-50%, -50%); position: absolute; pointer-events: none;">
+      <div class="mb-0.5">
+        ${templeSvg}
+      </div>
+      <div class="font-sans text-[0.7rem] font-bold tracking-wider text-[#4a4a4a]" style="text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff, 1px 0 0 #fff;">
+        ${label}
+      </div>
+    </div>
+  `;
+  return L.divIcon({
+    html,
+    className: '',
+    iconSize: [0, 0],
     iconAnchor: [0, 0]
   });
 };
@@ -137,6 +172,15 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
       };
     });
   }, [mode, activeId, filteredSpots, lang, t]);
+
+  const landmarks = useMemo(() => {
+    return filteredSpots
+      .filter(spot => SPOT_POSITIONS[spot.id])
+      .map(spot => ({
+        ...spot,
+        pos: [SPOT_POSITIONS[spot.id].lat, SPOT_POSITIONS[spot.id].lng] as [number, number]
+      }));
+  }, [filteredSpots]);
 
   const selectedSpots = useMemo(() => {
     return clusters.find(c => c.key === selectedClusterKey)?.spots || [];
@@ -215,6 +259,15 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
               }}
             />
           )}
+
+          {landmarks.map(spot => (
+            <Marker
+              key={`landmark-${spot.id}`}
+              position={spot.pos}
+              icon={createLandmarkIcon(spot.name)}
+              interactive={false}
+            />
+          ))}
           
           {clusters.map((cluster) => {
             const isSelected = selectedClusterKey === cluster.key;

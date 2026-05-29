@@ -123,4 +123,5 @@ export const SAKYO_SCHEMA: SpotSchema[] = [
   { id: 'SK-141', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_MODERN', tagIds: ['打卡', '博物館'] },
   { id: 'SK-142', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_NATURE', tagIds: ['賞花', '打卡'] },
   { id: 'SK-143', wardId: 'W_SAKYO', areaId: 'A15', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
+  { id: 'SK-144', wardId: 'W_SAKYO', areaId: 'A14', typeId: 'T_TEMPLE', tagIds: ['神社', '國寶', '打卡'] },
 ];
