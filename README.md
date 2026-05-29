@@ -164,6 +164,12 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
   - **Query Assembly System (`SpotCard.tsx`)**: 負責將 `spot.jaName` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
   - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。
 
+### 3. 可抽換式季節子系統 (Seasonal Architecture)
+為主應用 (React SPA) 之外獨立運作的純 Vanilla HTML/JS 模組 (`public/seasonal.html`)，專門用於處理高時效性、特定季節的祭典及活動導覽。
+- **解耦設計 (Decoupling)**：徹底脫離 React 生命週期與構建機制 (Build pipeline)，採用純 HTML/JS 及 Tailwind CDN 渲染。此設計避免了短期活動污染核心旅遊資料 Schema 的複雜性，極大降低維護與廢棄成本。
+- **快速佈署與抽換**：當季節更迭（如秋季楓葉季取代初夏紫陽花季）時，開發者可直接替換整個 `seasonal.html` 內容，無需修改核心引擎邏輯或進行資料結構審核。
+- **無縫橋接**：在 `HomeView` 頂部導航列以 `target="_blank"` 的方式另開分頁呼叫此獨立頁面。在行動裝置上可擁有原生的多視窗操作體驗，避免雙重視窗狀態管理的干擾。
+
 ### 🗺 Query Assembly System — 地圖搜尋規則
 
 **SSOT 原則：所有搜尋關鍵字組裝必須以 `spot.jaName`（來自 JA locale 的 `name`）為唯一事實來源與地理錨點。**
@@ -243,6 +249,8 @@ src/
 │   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條，支援 variant: 'global'|'local'
 └── lib/
     └── numerals.ts     # 漢數字轉換工具
+public/
+└── seasonal.html       # 【子系統】歲時記季節祭典獨立頁面 (純 HTML/JS)
 ```
 
 ---
