@@ -21,8 +21,8 @@
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * TYPE_TAG_GROUP_MAP — SSOT 位置
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- * 定義於本檔頂部常數，是 typeId → 允許 tag group 的唯一對應表。
- * 新增 TYPES 時必須同步在此表新增對應白名單。
+ * 定義於 src/data/type-tag-groups.ts，是 typeId → 允許 tag group 的唯一對應表。
+ * 新增 TYPES 時必須同步在該表新增對應白名單（validate_data.js 會檢查）。
  * 禁止在 useKyotoEngine、TagSelector、spots 資料層複製此映射。
  *
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -41,30 +41,7 @@ import { SpotCard } from './SpotCard';
 import { TagSelector } from './TagSelector';
 import { TAG_REGISTRY } from '../data/tags';
 import { ClusterMap } from './ClusterMap';
-
-// 主 Tab（typeId）→ 允許的 tag group 白名單對應表
-// SSOT：此表是 TypeId 與 TagGroup 的跨層對應依據，禁止在其他地方硬編碼
-const TYPE_TAG_GROUP_MAP: Record<string, Array<'food' | 'misc' | 'culture' | 'nature' | 'transport' | 'acg'>> = {
-  // T_ALL：全部開放（不過濾）
-  'T_ALL':       ['food', 'misc', 'culture', 'nature', 'transport', 'acg'],
-  // 餐飲類：食物細分 + 旅行特質（老舖、名物等通用旅遊屬性）
-  'T_FOOD':      ['food', 'misc'],
-  // 神社：文化信仰 + 旅行特質
-  'T_SHRINE':    ['culture', 'misc'],
-  // 寺院：文化信仰 + 自然（庭園楓葉常見） + 旅行特質
-  'T_TEMPLE':    ['culture', 'nature', 'misc'],
-  // 庭園：自然 + 文化 + 旅行特質
-  'T_GARDEN':    ['nature', 'culture', 'misc'],
-  // 景點/名所：全開放（景點類型最廣）
-  'T_SPOT':      ['culture', 'nature', 'misc', 'acg'],
-  // 交通：交通 + 旅行特質
-  'T_TRANSPORT': ['transport', 'misc'],
-  // 購物：旅行特質（名物、老舖、打卡等）
-  'T_SHOP':      ['misc'],
-};
-
-// Fallback：若 typeId 不在對應表中，預設顯示 misc + culture
-const DEFAULT_TAG_GROUPS: Array<'food' | 'misc' | 'culture' | 'nature' | 'transport' | 'acg'> = ['misc', 'culture'];
+import { TYPE_TAG_GROUP_MAP, DEFAULT_TAG_GROUPS } from '../data/type-tag-groups';
 
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;

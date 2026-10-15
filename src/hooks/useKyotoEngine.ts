@@ -39,7 +39,7 @@
  * - 禁止在 UI 元件層（DetailView / SpotCard）直接操作 loadedSpots
  * - 禁止在 UI 元件層複製 filteredSpots 的排序邏輯（sortOrder）
  * - 禁止在 UI 元件層複製 localTags 的 tagId 統計邏輯
- * - TYPE_TAG_GROUP_MAP 定義於 DetailView.tsx，本 hook 不持有此映射
+ * - TYPE_TAG_GROUP_MAP 定義於 src/data/type-tag-groups.ts（由 DetailView 使用），本 hook 不持有此映射
  * - tagCounts 使用 loadAllSchemasSync()，依賴陣列為 []，禁止改為動態依賴
  */
 import { useState, useMemo, useEffect, useRef } from 'react';

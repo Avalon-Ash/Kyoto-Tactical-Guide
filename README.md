@@ -105,7 +105,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 - **SSOT 座標設定 (`map-centers.ts`)**：統一維護「行政區下的區塊(Area)」或「特定重要景點」的真實經緯度座標 (Lat/Lng)。若未定義單一景點坐標，系統會以雜湊(Hash)算法對其歸屬區塊中心點進行微幅散射 (Scatter fallback)，確保叢集地圖點位能均勻呈現而不互相重疊。
 - **世界遺產與國寶標記 (Landmark Icons) 優先級**：各行政區內名勝古蹟（如金閣寺、清水寺、各種世界遺產、國寶建築等）**必須**定義絕對中心點於 `SPOT_POSITIONS`。當景點屬於此清單時，地圖會渲染獨立的「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點，藉此彰顯其重要地位。
 - **動態渲染與邊界適應**：依據當前選取的行政區，自動呼叫 Nominatim API 獲取該區的真實 GeoJSON 邊界資料，並在圖面上以紅線描繪輪廓。同時會運算當前所有標記點，自動適應縮放並平移地圖至最佳觀看範圍 (Bounds)。
-- **日夜視界切換**：地圖內建「日輪 (Day)」與「夜巡 (Night)」深淺兩色的即時圖資切換，配合應用程式本身的漆黑質感。
+- **日夜視界切換**：地圖內建「日輪 (Day)」與「夜巡 (Night)」深淺兩色的即時圖資切換，配合應用程式本身的漆黑質感。兩者皆使用免金鑰的 OSM 標準圖磚，夜巡以 CSS 濾鏡（`.map-tiles-night`）轉為暗色調。
 - **UX 邏輯**：在 `DetailView` 中可透過浮動切換按鈕快速在「卡片/地圖」兩種視圖間切換。地圖點位以群集 (Cluster) 呈現資料筆數，點擊單一群集即可滑出該清單，直接點選清單中卡片右上角的「導航浮動按鈕」，即可帶入正確的日文地名與行政區精準跳轉至 Google Maps App。
 
 以下是各核心互動的設計意圖說明，供開發者在修改 UI 邏輯前參照。
@@ -127,7 +127,8 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 
 **維護規則：**
-- 新增 TYPES（新 typeId）時，必須同步在 `TYPE_TAG_GROUP_MAP` 新增對應白名單
+- 本表定義於 `src/data/type-tag-groups.ts`（`TYPE_TAG_GROUP_MAP`），由 `DetailView` 使用
+- 新增 TYPES（新 typeId）時，必須同步在 `TYPE_TAG_GROUP_MAP` 新增對應白名單（`validate_data.js` 會檢查兩端是否同步）
 - 切換主 Tab 時，若當前已選中的副標籤不屬於新白名單，系統自動清除選取狀態
 - 此表禁止在 `useKyotoEngine`、`TagSelector`、spots 資料層複製或重新實作
 
@@ -236,6 +237,7 @@ src/
 │   ├── spots-loader.ts      # 【組件裝配層】實現 Schema 與 Locale 的合併負載
 │   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義...
 │   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義...
+│   ├── type-tag-groups.ts   # 【元數據】TYPE_TAG_GROUP_MAP：主 Tab → 副標籤 group 白名單
 │   ├── types.ts             # 【元數據】景點分類定義 (HUB, SHOP, TEMPLE...)
 │   ├── i18n.ts              # UI 介面靜態翻譯
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
@@ -377,6 +379,10 @@ public/
 npx tsx validate_data.js
 ```
 必須確認終端機輸出 `Health Check Passed`。若出現任何報測（如映射越界、幽靈標籤、Locale 缺漏），必須自行修正資料層，直至驗證通過為止。
+
+- **ERROR（❌，阻擋）**：id 格式/前綴/重複、ward/area/type 未登記、Area 越界、Schema 禁止欄位、幽靈標籤、標籤超量、T_FOOD 禁則、Locale 缺漏或孤立、map-centers 失效座標、`TYPE_TAG_GROUP_MAP` 與 `TYPES` 不同步。
+- **WARN（⚠️，資料品質）**：ZH tags 未鏡射 schema、世界遺產/國寶未註冊 `SPOT_POSITIONS`、JA name 帶括號後綴或重名。預設不阻擋；加上 `--strict` 時一併視為失敗。
+- 新增或修改的景點不得新增 WARN。
 
 **標準回報格式**：
 ```text

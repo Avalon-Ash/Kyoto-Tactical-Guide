@@ -8,7 +8,8 @@
  * - 世界遺產與國寶標記 (Landmarks)：具備絕對經緯度（於 `SPOT_POSITIONS` 定義）的重要名勝，
  *   會特別渲染為「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點。
  * - OSM GeoJSON 邊界：若在行政區模式下，會呼叫 Nominatim API 動態繪製該區虛線邊界，並自動適應縮放 (fitBounds)。
- * - 響應式日夜主題：內建 CartoDB Dark Matter (夜巡) 與 Carto Voyager/OSM (日輪) 的即時圖資切換。
+ * - 響應式日夜主題：日輪使用 OSM 標準圖磚；夜巡同樣使用 OSM 圖磚，再以 CSS 濾鏡 (`.map-tiles-night`)
+ *   轉為暗色漆黑調（CARTO dark_all 已要求 API key，故不再使用）。
  * - UX 體驗：自定義 Marker 繪製數量群集標籤，點擊 Marker 後從下方滑出該區景點詳細列表，
  *   並支援單一卡片快速導航與 Google Maps API 深度整合。
  * ==============================================================================
@@ -19,7 +20,7 @@ import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { getLatLng, SPOT_POSITIONS } from '../data/map-centers';
 import { AREA_NAMES, WARD_NAMES } from '../data/index';
 import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
-import { SpotCard } from './SpotCard';
+import { SpotCard, buildGoogleMapsUrl } from './SpotCard';
 import { MapContainer, TileLayer, Marker, useMap, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -72,17 +73,14 @@ const createClusterIcon = (count: number, label: string, isSelected: boolean) =>
   });
 };
 
-const createLandmarkIcon = (label: string, typeId: string = '') => {
-  // Simple temple/shrine icon SVG
-  const svgIcon = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="w-6 h-6 text-[#4a4a4a] drop-shadow-md">
-      <path d="M12 2L2 9h2v11h16V9h2L12 2zm0 2.5l6 4.2V20H6V8.7l6-4.2zM8 12h8v2H8v-2zm0 4h8v2H8v-2z" />
-    </svg>
-  `;
+const createLandmarkIcon = (label: string, theme: 'light' | 'dark') => {
+  // 夜巡模式下改用金色字 + 黑色描邊，避免灰字白邊在暗底上不可讀
+  const ink = theme === 'light' ? '#4a4a4a' : '#e6c27a';
+  const halo = theme === 'light' ? '#fff' : '#000';
 
   // A temple svg looking like the google maps one (multi-tier roof)
   const templeSvg = `
-    <svg viewBox="0 0 24 24" fill="#4a4a4a" class="w-7 h-7 drop-shadow-sm">
+    <svg viewBox="0 0 24 24" fill="${ink}" class="w-7 h-7 drop-shadow-sm">
       <path d="M12,2L5,6V7H19V6L12,2M8,8V12H16V8H8M4,13V14H20V13H4M6,15V19H18V15H6M3,20V22H21V20H3Z" />
     </svg>
   `;
@@ -92,7 +90,7 @@ const createLandmarkIcon = (label: string, typeId: string = '') => {
       <div class="mb-0.5">
         ${templeSvg}
       </div>
-      <div class="font-sans text-[0.7rem] font-bold tracking-wider text-[#4a4a4a]" style="text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff, 1px 0 0 #fff;">
+      <div class="font-sans text-[0.7rem] font-bold tracking-wider" style="color: ${ink}; text-shadow: 1px 1px 0 ${halo}, -1px -1px 0 ${halo}, 1px -1px 0 ${halo}, -1px 1px 0 ${halo}, 0 1px 0 ${halo}, 0 -1px 0 ${halo}, -1px 0 0 ${halo}, 1px 0 0 ${halo};">
         ${label}
       </div>
     </div>
@@ -210,13 +208,9 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
     return null;
   }, [dynamicBounds, clusters]);
 
-  const tileUrl = mapTheme === 'light'
-    ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-  
-  const attribution = mapTheme === 'light' 
-    ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    : '&copy; <a href="https://carto.com/attributions">CARTO</a>';
+  // 日夜共用 OSM 圖磚；夜巡由 TileLayer className 套用 CSS 濾鏡轉暗
+  const tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   return (
     <div className="relative w-full h-[65vh] sm:h-[75vh] bg-[#0a0a0a] rounded-xl border border-gold/20 overflow-hidden flex flex-col shadow-2xl">
@@ -241,8 +235,10 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
           style={{ height: '100%', width: '100%', background: mapTheme === 'dark' ? '#0a0a0a' : '#f0f0f0' }}
         >
           <TileLayer
+            key={mapTheme}
             url={tileUrl}
             attribution={attribution}
+            className={mapTheme === 'dark' ? 'map-tiles-night' : ''}
           />
           <MapController center={mapCenter} bounds={effectiveBounds} geoJsonLayer={geoJsonData} />
           
@@ -264,7 +260,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             <Marker
               key={`landmark-${spot.id}`}
               position={spot.pos}
-              icon={createLandmarkIcon(spot.name)}
+              icon={createLandmarkIcon(spot.name, mapTheme)}
               interactive={false}
             />
           ))}
@@ -322,7 +318,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
                   {/* Google Maps floating action over the card */}
                   <div className="absolute top-4 right-4 z-10 flex gap-2">
                     <a 
-                      href={['https://www.google.com/maps/search/?api=1&query=', encodeURIComponent(spot.jaName + '+' + WARD_NAMES[spot.wardId].ja + '+京都')].join('')}
+                      href={buildGoogleMapsUrl(spot)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center p-2 rounded-full border border-gold/40 bg-black/80 text-[#1A73E8] backdrop-blur shadow-lg hover:scale-110 hover:bg-[#1A73E8] hover:text-white transition-all group/nav"

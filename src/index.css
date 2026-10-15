@@ -325,3 +325,8 @@
 }
 .pos-fushimi { top: 83%; left: 20%; width: 60%; height: 15%; }
 
+
+/* 夜巡圖磚：將 OSM 標準圖磚反相為暗色，並帶入些微金褐色調以配合漆藝主題 */
+.map-tiles-night {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) sepia(0.25) saturate(0.7);
+}

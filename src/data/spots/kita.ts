@@ -82,7 +82,6 @@ export const KITA_SCHEMA: SpotSchema[] = [
   { id: 'KT-070', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_TEMPLE', tagIds: ['神社', '隱密', '經典'] },
   { id: 'KT-071', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_MODERN', tagIds: ['庭園', '打卡', '現代'] },
   { id: 'KT-072', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_SHOP', tagIds: ['購物', 'ACG', '現代'] },
-  { id: 'KT-073', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_ACG', tagIds: ['ACG', '打卡', '神社'] },
   { id: 'KT-074', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_ACG', tagIds: ['ACG', '打卡'] },
   { id: 'KT-075', wardId: 'W_KITA', areaId: 'A14', typeId: 'T_NATURE', tagIds: ['自然', '賞花'] },
   { id: 'KT-076', wardId: 'W_KITA', areaId: 'A12', typeId: 'T_FOOD', tagIds: ['喫茶', '打卡', '老舖'] },

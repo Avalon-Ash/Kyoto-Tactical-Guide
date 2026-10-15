@@ -62,7 +62,7 @@ export const NISHIKYO_SCHEMA: SpotSchema[] = [
   { id: 'NS-031', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_NATURE', tagIds: ['打卡', '自然'] },
   { id: 'NS-032', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', tagIds: ['博物館', '打卡'] },
   { id: 'NS-033', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', tagIds: ['寺院', '展望', '隱密'] },
-  { id: 'NS-034', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_SHRINE', tagIds: ['神社', '賞花', '隱密', '歷史'] },
+  { id: 'NS-034', wardId: 'W_NISHIKYO', areaId: 'A19', typeId: 'T_TEMPLE', tagIds: ['神社', '賞花', '隱密', '歷史'] },
   { id: 'NS-036', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', tagIds: ['賞花', '打卡'] },
   { id: 'NS-037', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_TEMPLE', tagIds: ['神社', '楓葉', '打卡'] },
   { id: 'NS-038', wardId: 'W_NISHIKYO', areaId: 'A10', typeId: 'T_MODERN', tagIds: ['溫泉', '打卡'] },
