@@ -752,7 +752,7 @@ commit：<hash> <message>
 | T2.3 ClusterMap 延遲載入 | ✅ | 61a0a28 |
 | T2.4 spots-loader 靜態 schema | ✅ | 09a4a4b |
 | T2.5 地圖文字 i18n | ✅ | 1c24cc1 |
-| T2.6 README 對齊 | ✅ | 見本輪紀錄 |
+| T2.6 README 對齊 | ✅ | 8e086dd |
 | T3.1 繪圖工具 | ☐ | |
 | T3.2 真實輪廓首頁地圖 | ☐ | |
 | T3.3 屏風美術層 | ☐ | |
