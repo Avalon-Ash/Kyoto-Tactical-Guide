@@ -196,81 +196,6 @@
   mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
-.map-canvas {
-  position: relative;
-  width: 100%;
-  max-width: min(95vw, 650px); /* Smaller on mobile for better touch coverage */
-  aspect-ratio: 4 / 5;
-  margin: 0 auto;
-  background-color: #1a1714;
-  background-image: 
-    radial-gradient(circle at 50% 50%, #1a1714 0%, #0c0b0a 100%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
-  border: 4px double rgba(200, 160, 74, 0.5);
-  padding: clamp(8px, 1.5vw, 32px);
-  overflow: hidden;
-  box-shadow: 
-    inset 0 0 100px rgba(0,0,0,0.5),
-    0 30px 60px rgba(0,0,0,0.8);
-}
-
-.ward-area {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(26, 23, 20, 0.9);
-  border: 1px solid rgba(200, 160, 74, 0.45);
-  color: #e6c27a;
-  font-family: var(--font-serif);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 6px;
-  cursor: pointer;
-  box-shadow: 
-    0 4px 15px rgba(0,0,0,0.5),
-    inset 0 0 0 1px rgba(242, 237, 228, 0.04);
-  min-width: 44px;
-  min-height: 44px;
-}
-
-.ward-area:hover, .ward-area:active {
-  background-color: #b1352b;
-  color: #fff;
-  border-color: #fff;
-  box-shadow: 
-    0 0 30px rgba(177, 53, 43, 0.6),
-    0 0 0 1px rgba(255,255,255,0.2);
-  z-index: 50;
-}
-
-@media (hover: hover) {
-  .ward-area:hover {
-    transform: scale(1.1);
-  }
-}
-
-.ward-label-text {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  letter-spacing: 0.15em;
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.ward-count-text {
-  font-family: var(--font-serif);
-  font-size: 0.55rem;
-  margin-top: 2px;
-  opacity: 0.5;
-  writing-mode: horizontal-tb;
-}
-
-.ward-area:hover .ward-count-text {
-  opacity: 1;
-}
-
 .hanko-stamp {
   display: inline-flex;
   align-items: center;
@@ -306,27 +231,56 @@
   line-height: 1.2;
 }
 
-/* Kyoto Ward Physical Geography Mapping (Approximate %) */
-.pos-kita { top: 5%; left: 35%; width: 25%; height: 20%; }
-.pos-sakyo { top: 5%; left: 62%; width: 33%; height: 35%; }
-.pos-ukyo { top: 5%; left: 5%; width: 28%; height: 40%; }
-.pos-kamigyo { top: 27%; left: 35%; width: 25%; height: 12%; }
-.pos-nakagyo { top: 41%; left: 35%; width: 25%; height: 12%; }
-.pos-higashiyama { top: 41%; left: 62%; width: 16%; height: 25%; }
-.pos-shimogyo { top: 55%; left: 35%; width: 25%; height: 12%; }
-.pos-yamashina { 
-  top: 42%; left: 80%; width: 15%; height: 25%; 
-  min-width: 44px; min-height: 44px; padding: 8px;
-}
-.pos-nishikyo { top: 47%; left: 5%; width: 28%; height: 25%; }
-.pos-minami { 
-  top: 69%; left: 20%; width: 40%; height: 12%; 
-  min-width: 44px; min-height: 44px; padding: 8px;
-}
-.pos-fushimi { top: 83%; left: 20%; width: 60%; height: 15%; }
-
-
 /* 夜巡圖磚：將 OSM 標準圖磚反相為暗色，並帶入些微金褐色調以配合漆藝主題 */
 .map-tiles-night {
   filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) sepia(0.25) saturate(0.7);
+}
+
+/* 洛中洛外図 — actual ward silhouettes, with a full-size directory for small wards. */
+.byobu-atlas { width: 100%; max-width: 1020px; border: 1px solid #8b713b70; background: #12130f; box-shadow: 0 22px 60px #0008; }
+.atlas-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 28px; border-bottom:1px solid #c8a04a40; }
+.atlas-kicker { display:block; font-size:10px; letter-spacing:0.3em; color:#baaa83; margin-bottom:6px; }
+.atlas-heading h2 { font-family:var(--font-serif); color:#e6c27a; font-size:25px; letter-spacing:0.25em; }
+.atlas-edition { font-family:var(--font-serif); color:#c9b68c; font-size:12px; letter-spacing:0.12em; }
+.atlas-body { display:grid; grid-template-columns:minmax(0,1fr) 250px; }
+.ward-map { position:relative; min-width:0; overflow:hidden; background:radial-gradient(ellipse at 48% 40%,#24271d,#10120e 75%); border:4px double #9c804352; }
+.ward-map-svg { display:block; width:100%; height:auto; }
+.ward { cursor:pointer; outline:none; }
+.ward-fill { stroke:#b69a585e; stroke-width:1.5; transition:fill .4s ease; }
+.ward-outline { fill:none; stroke:#edcc83; stroke-width:2.5; stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset .6s ease-out; pointer-events:none; }
+.ward:hover .ward-fill, .ward:focus-visible .ward-fill, .ward[data-active="true"] .ward-fill { fill:#8c3029; }
+.ward:hover .ward-outline, .ward:focus-visible .ward-outline, .ward[data-active="true"] .ward-outline { stroke-dashoffset:0; }
+.ward:focus-visible .ward-outline { stroke:#fff5d7; stroke-width:4; }
+.ward-label { font-family:var(--font-serif); font-size:27px; font-weight:700; letter-spacing:3px; fill:#e4d6b7; paint-order:stroke; stroke:#11150f; stroke-width:5px; }
+.ward-labels [data-active="true"] .ward-label { fill:#fff; }
+.ward-seal rect { fill:#a6372b; stroke:#f1d7b080; stroke-width:1; }
+.ward-seal text { font-family:var(--font-serif); font-size:13px; font-weight:700; fill:#fff2dc; }
+.atlas-compass { stroke:#c6ac70; fill:#c6ac70; stroke-width:1; opacity:.8; }
+.atlas-compass text { font-size:20px; font-family:var(--font-serif); stroke:none; }
+.ward-map-attribution { position:absolute; right:6px; bottom:4px; padding:2px 5px; font-size:9px; background:#10120ee6; color:#d1c5a3; }
+.ward-map-attribution a:focus-visible { outline:2px solid #e6c27a; }
+.atlas-directory { padding:24px 22px; border-left:1px solid #c8a04a30; background:linear-gradient(150deg,#1b1a13,#10110e); }
+.directory-heading { display:flex; justify-content:space-between; font-family:var(--font-serif); font-size:12px; color:#cab98e; padding-bottom:14px; border-bottom:1px solid #c8a04a40; }
+.directory-heading span:last-child { font-size:9px; letter-spacing:1px; opacity:.65; }
+.ward-directory-grid { display:grid; }
+.ward-entry { display:flex; align-items:center; gap:12px; min-height:44px; border-bottom:1px solid #c8a04a20; padding:8px 2px; cursor:pointer; color:#e5d8bb; text-align:left; font-family:var(--font-serif); font-size:14px; transition:color .2s, background .2s; }
+.ward-entry-number { font-family:var(--font-sans); font-size:9px; color:#aa8f57; }
+.ward-entry-count { margin-left:auto; font-size:11px; color:#ba9b59; }
+.ward-entry:hover, .ward-entry:focus-visible, .ward-entry[data-active="true"] { color:#fff5d7; background:#b1352b38; }
+.ward-entry:focus-visible { outline:2px solid #e6c27a; outline-offset:2px; }
+.atlas-caption { margin-top:24px; color:#b6ad96; font-size:11px; font-family:var(--font-serif); line-height:1.9; }
+@media (max-width:899px) {
+  .byobu-atlas { max-width:600px; }
+  .atlas-body { grid-template-columns:1fr; }
+  .atlas-directory { border-left:0; border-top:1px solid #c8a04a30; padding:18px; }
+  .ward-directory-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px; }
+  .ward-entry { gap:6px; font-size:13px; }
+  .ward-entry-number { display:none; }
+  .atlas-heading { padding:16px 18px; }
+  .atlas-heading h2 { font-size:23px; }
+  .atlas-edition { writing-mode:vertical-rl; font-size:10px; max-height:66px; }
+  .atlas-caption { margin-top:16px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .ward-fill, .ward-outline, .ward-entry { transition:none; }
 }

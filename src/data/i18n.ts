@@ -21,5 +21,9 @@ export const UI_DICT: Record<string, I18nText> = {
   map_day: { zh: "日輪", ja: "日輪" },
   map_night: { zh: "夜巡", ja: "夜巡" },
   btn_back_map: { zh: "返回地圖", ja: "地図に戻る" },
+  byobu_title: { zh: "洛中洛外圖", ja: "洛中洛外図" },
+  byobu_edition: { zh: "山川之間 · 十一行政域", ja: "山川を巡る · 十一行政区" },
+  ward_directory: { zh: "擇一區，展卷入境", ja: "区を選び、京を歩く" },
+  byobu_note: { zh: "市中心略圖。北部山區未完整顯示；各區詳圖可查看完整區界。", ja: "市街地を中心とした略図。北部山間域を省略しています。各区の地図で全域をご覧いただけます。" },
   no_results: { zh: "此間無跡", ja: "跡なし" }
 };
