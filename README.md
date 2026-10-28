@@ -355,7 +355,7 @@ public/
 
 ### 3. 內容層 Locale 命名絕對約束 (SSOT 錨點)
 - **JA Name 為唯一事實來源**：JA Locale (`ja/*.ts`) 中的 `name` 欄位，是 Query Assembly System 組裝 Google Maps 定位網址的**唯一地理錨點**。
-- **官方全名防呆**：店家與景點資料必須使用 SSOT 官方全名，絕對禁止自我拼湊錯漏字。此欄位必須填寫「能在 Google Maps 或官方網站上精確檢索到的實體日文名稱」。禁止為了 UI 排版美觀而加入無效的視覺後綴（例：禁止填寫「清水寺 (秋季夜觀)」，必須填寫乾淨的「清水寺」）。
+- **官方全名防呆**：店家與景點資料必須使用 SSOT 官方全名，絕對禁止自我拼湊錯漏字。此欄位必須填寫「能在 Google Maps 或官方網站上精確檢索到的實體日文名稱」。括號附註僅允許用於消歧義（如車站業者「嵐山駅 (阪急)」、別名「東寺 (教王護国寺)」、ACG 聖地標記「晴明神社 (ACG聖地)」）；Query Assembly System（`buildGoogleMapsUrl`）會自動剝除括號內容。仍禁止純裝飾用途的後綴（例：禁止「清水寺 (秋季夜觀)」，必須填寫「清水寺」）。
 - **鏡射同步**：新增或刪除景點時，ZH 與 JA Locale 必須與 Schema 檔同步異動相同 ID 的物件，嚴禁出現孤立節點。
 
 ### 4. `tagIds` 填寫規則
@@ -381,7 +381,7 @@ npx tsx validate_data.js
 必須確認終端機輸出 `Health Check Passed`。若出現任何報測（如映射越界、幽靈標籤、Locale 缺漏），必須自行修正資料層，直至驗證通過為止。
 
 - **ERROR（❌，阻擋）**：id 格式/前綴/重複、ward/area/type 未登記、Area 越界、Schema 禁止欄位、幽靈標籤、標籤超量、T_FOOD 禁則、Locale 缺漏或孤立、map-centers 失效座標、`TYPE_TAG_GROUP_MAP` 與 `TYPES` 不同步。
-- **WARN（⚠️，資料品質）**：ZH tags 未鏡射 schema、世界遺產/國寶未註冊 `SPOT_POSITIONS`、JA name 帶括號後綴或重名。預設不阻擋；加上 `--strict` 時一併視為失敗。
+- **WARN（⚠️，資料品質）**：ZH tags 未鏡射 schema、世界遺產/國寶未註冊 `SPOT_POSITIONS`、JA name 重名。預設不阻擋；加上 `--strict` 時一併視為失敗。
 - 新增或修改的景點不得新增 WARN。
 
 **標準回報格式**：

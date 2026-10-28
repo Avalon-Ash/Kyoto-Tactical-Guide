@@ -15,7 +15,7 @@
  * WARN（資料品質規範，預設不阻擋；加 --strict 時一併視為失敗）：
  *   - ZH locale.tags 未與 schema.tagIds 鏡射
  *   - 世界遺產 / 國寶景點未在 SPOT_POSITIONS 註冊座標
- *   - JA name 帶括號後綴、JA name 重複
+ *   - JA name 重複
  */
 import fs from 'fs';
 import path from 'path';
@@ -107,7 +107,6 @@ async function run() {
         }
       }
       if (jaLoc) {
-        if (/[()（）]/.test(jaLoc.name)) warn(`${s.id}: JA name 帶括號後綴「${jaLoc.name}」`);
         if (jaNameOwner.has(jaLoc.name)) warn(`${s.id}: JA name「${jaLoc.name}」與 ${jaNameOwner.get(jaLoc.name)} 重複`);
         jaNameOwner.set(jaLoc.name, s.id);
       }
