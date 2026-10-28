@@ -61,7 +61,7 @@ export const KAMIGYO_SCHEMA: SpotSchema[] = [
   { id: 'KG-026', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['神社', '隱密'] },
   { id: 'KG-027', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
   { id: 'KG-028', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院', '賞花', '隱密'] },
-  { id: 'KG-029', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
+  { id: 'KG-029', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院', '國寶'] },
   { id: 'KG-030', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
   { id: 'KG-031', wardId: 'W_KAMIGYO', areaId: 'A03', typeId: 'T_TEMPLE', tagIds: ['寺院', '隱密'] },
   { id: 'KG-032', wardId: 'W_KAMIGYO', areaId: 'A02', typeId: 'T_TEMPLE', tagIds: ['神社', '隱密'] },

@@ -101,7 +101,7 @@ export const UKYO_SCHEMA: SpotSchema[] = [
   { id: 'UK-072', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '打卡'] },
   { id: 'UK-073', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '蕎麥', '名物', '打卡'] },
   { id: 'UK-074', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '懷石', '名物', '經典'] },
-  { id: 'UK-075', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '豆腐'] },
+  { id: 'UK-075', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '名物', '豆腐', '老舖'] },
   { id: 'UK-076', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '隱密'] },
   { id: 'UK-077', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '蕎麥'] },
   { id: 'UK-078', wardId: 'W_UKYO', areaId: 'A09', typeId: 'T_FOOD', tagIds: ['正餐', '拉麵', '名物'] },
