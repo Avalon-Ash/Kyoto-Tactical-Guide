@@ -15,7 +15,7 @@
  * ==============================================================================
  */
 import React, { useMemo, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { getLatLng, SPOT_POSITIONS } from '../data/map-centers';
 import { AREA_NAMES } from '../data/index';
@@ -24,6 +24,7 @@ import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react
 import { SpotCard, buildGoogleMapsUrl } from './SpotCard';
 import { MapContainer, TileLayer, Marker, useMap, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
+import { createOutsideMask } from '../lib/map-geometry';
 import 'leaflet/dist/leaflet.css';
 
 interface ClusterMapProps {
@@ -33,13 +34,14 @@ interface ClusterMapProps {
 
 const MapController = ({ center, bounds }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null }) => {
   const map = useMap();
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
     if (bounds) {
-      map.fitBounds(bounds, { animate: true, padding: [40, 40] });
+      map.fitBounds(bounds, { animate: !reducedMotion, padding: [40, 40] });
     } else {
-      map.setView(center, map.getZoom(), { animate: true });
+      map.setView(center, map.getZoom(), { animate: !reducedMotion });
     }
-  }, [bounds, center, map]);
+  }, [bounds, center, map, reducedMotion]);
 
   return null;
 };
@@ -101,6 +103,7 @@ const createLandmarkIcon = (label: string, theme: 'light' | 'dark') => {
 
 export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   const { lang, mode, activeId, filteredSpots, t } = engine;
+  const reducedMotion = useReducedMotion();
   const [selectedClusterKey, setSelectedClusterKey] = useState<string | null>(null);
   // 切換行政區／分區時關閉面板。
   useEffect(() => {
@@ -112,6 +115,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
     () => mode === 'ward' && activeId ? WARD_BOUNDARIES[activeId] ?? null : null,
     [mode, activeId]
   );
+  const outsideMask = useMemo(() => createOutsideMask(geoJsonData), [geoJsonData]);
   const dynamicBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
     if (!geoJsonData) return null;
     const bounds = L.geoJSON(geoJsonData).getBounds();
@@ -212,24 +216,20 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             key={mapTheme}
             url={tileUrl}
             attribution={attribution}
-            className={mapTheme === 'dark' ? 'map-tiles-night' : ''}
+            className={mapTheme === 'dark' ? 'map-tiles-night' : 'map-tiles-day'}
           />
           <MapController center={mapCenter} bounds={effectiveBounds} />
           
-          {geoJsonData && (
-            <GeoJSON
-              key={activeId ?? ''}
-              data={geoJsonData} 
-              style={{
-                color: '#e15141',
-                weight: 2,
-                opacity: 0.8,
-                dashArray: '5, 8',
-                fillColor: '#e15141',
-                fillOpacity: 0.05
-              }}
-            />
+          {outsideMask && (
+            <GeoJSON key={`mask-${activeId}-${mapTheme}`} data={outsideMask} interactive={false}
+              style={{ className: 'ward-outside-mask', stroke: false, fillColor: mapTheme === 'dark' ? '#000' : '#302c20', fillOpacity: mapTheme === 'dark' ? 0.6 : 0.35, fillRule: 'evenodd' }} />
           )}
+          {geoJsonData && <>
+            <GeoJSON key={`halo-${activeId}`} data={geoJsonData} interactive={false}
+              style={{ className: 'ward-boundary-halo', color: '#c8a04a', weight: 7, opacity: 0.3, fill: false }} />
+            <GeoJSON key={`line-${activeId}`} data={geoJsonData} interactive={false}
+              style={{ className: 'ward-boundary-line', color: '#e6c27a', weight: 1.5, opacity: 0.95, fill: false }} />
+          </>}
 
           {landmarks.map(spot => (
             <Marker
@@ -267,10 +267,10 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
       <AnimatePresence>
         {selectedClusterKey && (
           <motion.div 
-            initial={{ y: '100%' }}
+            initial={reducedMotion ? false : { y: '100%' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            exit={reducedMotion ? { opacity: 0 } : { y: '100%' }}
+            transition={reducedMotion ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 200 }}
             className="absolute bottom-0 left-0 right-0 top-auto bg-[#0d0a07]/95 backdrop-blur-xl border-t border-gold/30 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] px-4 max-h-full flex flex-col z-[500] shadow-[0_-20px_50px_rgba(0,0,0,0.6)]"
           >
             <div className="flex justify-between items-start sm:items-center mb-4 shrink-0 px-2 gap-4">

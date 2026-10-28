@@ -317,3 +317,6 @@
   .clouds-drift-a, .clouds-drift-b { animation:none; }
   .atlas-rivers { filter:none; }
 }
+
+/* 日輪：暖色和紙；濾鏡只作用在圖磚，不影響金色區界與標記。 */
+.map-tiles-day { filter:sepia(.35) saturate(.6) brightness(1.02) contrast(.95); }
