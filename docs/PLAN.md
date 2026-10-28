@@ -801,8 +801,8 @@ commit：<hash> <message>
 
 | 任務 | 狀態 | commit |
 |---|---|---|
-| T0.1 依賴 + lock 檔 + .gitignore | ✅ | 本任務提交；hash 見執行紀錄 |
-| T1.1 ZH tags 補齊 | ☐ | |
+| T0.1 依賴 + lock 檔 + .gitignore | ✅ | b634381 |
+| T1.1 ZH tags 補齊 | ◐ SK-078 待決，其餘完成 | 見執行紀錄 |
 | T1.2 schema 補標籤（D1） | ☐ | |
 | T1.3 地標座標 | ☐ | |
 | T1.4 二条城標籤（D3） | ☐ | |
