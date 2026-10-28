@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { selectWard, validateGeometry } from './fetch-ward-geo.mjs';
+import { selectWard, validateGeometry, publishArtifacts } from './fetch-ward-geo.mjs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 const shell = [[135.7,35], [135.8,35], [135.8,35.1], [135.7,35.1], [135.7,35]];
 const bbox = [35,35.1,135.7,135.8];
@@ -36,3 +39,32 @@ test('preserve holes and multipolygons; reject a hole outside its shell', () => 
   const second = shell.map(([x,y]) => [x+0.15,y]);
   assert.equal(validateGeometry({type:'MultiPolygon',coordinates:[[shell],[second]]},[35,35.1,135.7,135.95]).polygons,2);
 });
+
+for (const failAt of ['stage', 'publish', 'none']) {
+  test(`paired publication preserves original bytes on ${failAt} failure`, async t => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'kyoto-geo-test-'));
+    // The fixture only writes flat files; no recursive filesystem removal.
+    t.after(async () => {
+      for (const name of await fs.readdir(dir)) await fs.unlink(path.join(dir, name));
+      await fs.rmdir(dir);
+    });
+    const files = [path.join(dir,'geometry.ts'), path.join(dir,'sources.json')];
+    for (const file of files) await fs.writeFile(file, 'old:' + file);
+    const io = {
+      ...fs,
+      writeFile: async (file, body) => {
+        if (failAt === 'stage' && file === files[1] + '.tmp') throw Object.assign(new Error('simulated write failure'), { code:'ENOSPC' });
+        return fs.writeFile(file,body);
+      },
+      rename: async (from,to) => {
+        if (failAt === 'publish' && from === files[1] + '.tmp') throw Object.assign(new Error('simulated rename failure'), { code:'EPERM' });
+        return fs.rename(from,to);
+      },
+    };
+    const run = publishArtifacts(files.map(file=>({file,body:'new:'+file})),io);
+    if (failAt === 'none') await run;
+    else await assert.rejects(run);
+    for (const file of files) assert.equal(await fs.readFile(file,'utf8'), (failAt === 'none' ? 'new:' : 'old:') + file);
+    assert.deepEqual((await fs.readdir(dir)).sort(),['geometry.ts','sources.json']);
+  });
+}
