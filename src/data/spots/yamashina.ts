@@ -60,7 +60,6 @@ export const YAMASHINA_SCHEMA: SpotSchema[] = [
   { id: 'YS-027', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_HUB', tagIds: ['鐵道'] },
   { id: 'YS-028', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_NATURE', tagIds: ['自然', '賞花'] },
   { id: 'YS-029', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_SHOP', tagIds: ['購物', '打卡'] },
-  { id: 'YS-031', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', tagIds: ['寺院'] },
   { id: 'YS-032', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', tagIds: ['歷史'] },
   { id: 'YS-033', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', tagIds: ['神社'] },
   { id: 'YS-034', wardId: 'W_YAMASHINA', areaId: 'A08', typeId: 'T_TEMPLE', tagIds: ['神社'] },
