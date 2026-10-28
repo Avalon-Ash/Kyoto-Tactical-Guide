@@ -40,8 +40,11 @@ import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, ge
 import { SpotCard } from './SpotCard';
 import { TagSelector } from './TagSelector';
 import { TAG_REGISTRY } from '../data/tags';
-import { ClusterMap } from './ClusterMap';
 import { TYPE_TAG_GROUP_MAP, DEFAULT_TAG_GROUPS } from '../data/type-tag-groups';
+
+const ClusterMap = React.lazy(() =>
+  import('./ClusterMap').then(module => ({ default: module.ClusterMap }))
+);
 
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
@@ -233,7 +236,13 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
           </div>
         ) : viewMode === 'map' ? (
           <div className="p-4 sm:p-6 lg:p-8">
-            <ClusterMap engine={engine} width={width} />
+            <React.Suspense fallback={
+              <div role="status" className="h-[65vh] flex items-center justify-center font-serif tracking-[0.5em] text-gold-light/40">
+                {t('loading')}
+              </div>
+            }>
+              <ClusterMap engine={engine} width={width} />
+            </React.Suspense>
           </div>
         ) : (
           <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
