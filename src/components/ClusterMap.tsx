@@ -192,12 +192,12 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
         <button
           onClick={(e) => {
              e.preventDefault();
-             setMapTheme(t => t === 'light' ? 'dark' : 'light');
+             setMapTheme(prev => prev === 'light' ? 'dark' : 'light');
           }}
           className="bg-black/70 backdrop-blur border border-gold/30 text-gold-light p-2 rounded tracking-widest font-serif text-xs px-3 hover:bg-gold/20 transition flex items-center gap-2 cursor-pointer pointer-events-auto shadow-lg"
         >
           {mapTheme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
-          {mapTheme === 'light' ? '夜巡' : '日輪'}
+          {mapTheme === 'light' ? t('map_night') : t('map_day')}
         </button>
       </div>
 
@@ -282,7 +282,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
                  onClick={() => setSelectedClusterKey(null)}
                  className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 text-gold-light/70 hover:text-white hover:bg-shuiro/80 transition-all rounded-full border border-gold/20 hover:border-shuiro text-xs font-serif tracking-widest uppercase cursor-pointer shrink-0"
                >
-                 返回地圖 <ChevronDown size={14} />
+                 {t('btn_back_map')} <ChevronDown size={14} />
                </button>
             </div>
             

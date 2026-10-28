@@ -14,5 +14,12 @@ export const UI_DICT: Record<string, I18nText> = {
   unit_spot: { zh: "處", ja: "件" },
   loading: { zh: "展卷中，稍候片刻…", ja: "巻物を広げています…" },
   btn_close: { zh: "收卷・歸", ja: "巻を閉じる" },
+  view_map: { zh: "地圖", ja: "地図" },
+  view_card: { zh: "卡片", ja: "カード" },
+  view_hint: { zh: "叢集", ja: "一覧" },
+  btn_to_map: { zh: "切換地圖", ja: "地図に切替" },
+  map_day: { zh: "日輪", ja: "日輪" },
+  map_night: { zh: "夜巡", ja: "夜巡" },
+  btn_back_map: { zh: "返回地圖", ja: "地図に戻る" },
   no_results: { zh: "此間無跡", ja: "跡なし" }
 };

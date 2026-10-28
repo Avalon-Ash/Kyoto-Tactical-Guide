@@ -169,8 +169,8 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
               className="hanko-stamp flex flex-col items-center justify-center gap-0.5 text-[0.6rem] sm:text-xs w-8 sm:w-12 h-8 sm:h-12 shrink-0 cursor-pointer hover:bg-shuiro hover:text-white transition-all overflow-hidden relative group"
             >
               <div className="flex flex-col items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
-                <span className="leading-none">{viewMode === 'card' ? '地圖' : '卡片'}</span>
-                {width >= 400 && <span className="leading-none mt-0.5 opacity-80">{viewMode === 'card' ? '叢集' : '叢集'}</span>}
+                <span className="leading-none">{t(viewMode === 'card' ? 'view_map' : 'view_card')}</span>
+                {width >= 400 && <span className="leading-none mt-0.5 opacity-80">{t('view_hint')}</span>}
               </div>
             </button>
           </div>
@@ -271,7 +271,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
                   onClick={() => setViewMode('map')}
                   className="flex items-center gap-2 bg-shuiro text-white px-5 py-3 rounded-full shadow-[0_10px_30px_rgba(225,81,65,0.4)] border border-white/20 active:scale-95 transition-all text-sm font-serif tracking-widest uppercase font-bold"
                 >
-                  <Map size={18} />切換地圖
+                  <Map size={18} />{t('btn_to_map')}
                 </button>
               </motion.div>
             )}
