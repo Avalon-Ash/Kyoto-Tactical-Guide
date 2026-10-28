@@ -62,7 +62,9 @@ commit：<hash> <message>
 
 ---
 
-## Phase 1 — 資料品質清理（目標：WARN 91 → 0）
+## Phase 1 — 資料品質清理（核准目標：WARN 91 → 1）
+
+> 2026-10-28 使用者追加決策 D6：SK-078 營運狀況未確認，保留原資料、列待查；接受該筆 1 個 ZH 鏡射警告。其餘目標維持不變，收尾預期 810 / ERROR 0 / WARN 1。
 
 ### T1.1 ZH tags 補齊 schema 已有的標籤
 - **檔案**：`src/data/locales/zh/*.ts`（只改 `tags` 字串）
@@ -89,9 +91,9 @@ commit：<hash> <message>
 | UK-075 | zh/ukyo.ts | 名物 |
 
 - **另外兩筆是「改寫」**：
-  - `SK-078`（zh/sakyo.ts）：`tags` 改為 `"洋菓子 打卡"`（移除未登記的「甜點」）
+  - `SK-078`（zh/sakyo.ts）：原訂改為 `"洋菓子 打卡"`；依 D6 **本輪保留原資料，不執行此修改**。
   - `UK-077`（zh/ukyo.ts）：`tags` 改為 `"正餐 蕎麥"`（「蕎麦」「老舗」是錯字/未登記）
-- **驗收**：`npx tsx validate_data.js` 中上列 ID 的「ZH tags 未鏡射」警告消除，**UK-075 除外**：它的「老舖」差異要等 T1.2 補入 schema 才消除。
+- **驗收**：`npx tsx validate_data.js` 中上列 ID 的「ZH tags 未鏡射」警告消除，**SK-078（D6 保留）及 UK-075 除外**：它的「老舖」差異要等 T1.2 補入 schema 才消除。
 - **commit**：`fix(T1.1): mirror ZH tags to schema tagIds`
 
 ### T1.2 【Ash 決策 D1】把 ZH 已有的已登記標籤補進 schema
@@ -111,10 +113,12 @@ commit：<hash> <message>
 
 - 若 D1 決定為「從 ZH 刪掉」：改為從對應 ZH `tags` 刪除這些字，schema 不動。
 - **注意**：KG-029 加上「國寶」後，會產生一個新的「未註冊 SPOT_POSITIONS」警告，這在 T1.3 會補上，屬正常現象。
-- **驗收**：「ZH tags 未鏡射」警告數量 = 0。
+- **驗收**：「ZH tags 未鏡射」警告只剩 SK-078（D6）。
 - **commit**：`fix(T1.2): add registered tags from ZH locale into schema`
 
 ### T1.3 地標座標：修正錯位 + 補齊 14 個世界遺產/國寶
+
+> 2026-10-28 已執行：下表為歷史候選值，部分已證實偏離。實際登記值與來源見 `docs/agent-runs/2026-10-28-landmarks.md`，維護以 `map-centers.ts` 為準，不得重新套用本表候選值。
 - **檔案**：`src/data/map-centers.ts`（只改 `SPOT_POSITIONS`）
 - **步驟 1（修 bug）**：`'NK-006': { lat: 35.0142, lng: 135.7482 }, // 二条城` 的 key 是錯的（NK-006 是先斗町），改成 `'NK-004'`，註解保留「二条城」。
 - **步驟 2（順手修註解）**：`'KT-005'` 那行註解改為 `// 金閣寺`，並把整行移到 `// Kita` 區塊（`'KT-015'` 下一行）。
@@ -160,7 +164,7 @@ commit：<hash> <message>
      > 括號附註僅允許用於**消歧義**（如車站業者「嵐山駅 (阪急)」、別名「東寺 (教王護国寺)」、ACG 聖地標記「晴明神社 (ACG聖地)」）；Query Assembly System（`buildGoogleMapsUrl`）會自動剝除括號內容。仍禁止純裝飾用途的後綴（例：禁止「清水寺 (秋季夜觀)」，必須填寫「清水寺」）。
   3. 同步修改 README「7. 執行前自我檢查」中 WARN 項目的描述（拿掉「帶括號後綴」）。
 - **D2 = B 時**：跳過本任務並回報，由 Ash 另行指定改名清單。
-- **驗收**：WARN 只剩 1（正法寺重名，T1.6 處理）。
+- **驗收**：WARN 只剩 2（正法寺重名由 T1.6 處理；SK-078 依 D6 保留）。
 - **commit**：`docs(T1.5): allow disambiguation brackets in JA names`
 
 ---
@@ -169,7 +173,7 @@ commit：<hash> <message>
 - **檔案**：`src/data/spots/yamashina.ts`、`src/data/locales/zh/yamashina.ts`、`src/data/locales/ja/yamashina.ts`
 - **做法**：三個檔案中各刪除 `'YS-031'` 那**一整行**。不要動 NS-010，也不要把後面的 ID 重新編號（ID 允許跳號）。
 - **刪除前確認**：全專案 grep `YS-031`，除了這三個檔案和 `docs/PLAN.md` 之外不應有其他引用；若有，停止並回報。
-- **驗收**：`npx tsx validate_data.js` 輸出 `ERROR：0　WARN：0`，景點總數 811 → 810。
+- **驗收**：`npx tsx validate_data.js` 輸出 `ERROR：0　WARN：1`（只允許 D6 的 SK-078），景點總數 811 → 810；strict 預期 exit 1 且原因只能是此筆。
 - **commit**：`fix(T1.6): remove unverifiable YS-031 duplicate 正法寺`
 
 ---
@@ -802,9 +806,9 @@ commit：<hash> <message>
 | 任務 | 狀態 | commit |
 |---|---|---|
 | T0.1 依賴 + lock 檔 + .gitignore | ✅ | b634381 |
-| T1.1 ZH tags 補齊 | ◐ SK-078 待決，其餘完成 | 見執行紀錄 |
-| T1.2 schema 補標籤（D1） | ✅ 8 筆完成；SK-078 為 T1.1 待決 | 見執行紀錄 |
-| T1.3 地標座標 | ☐ | |
+| T1.1 ZH tags 補齊 | ✅ D6 核准保留 SK-078，其餘完成 | 見執行紀錄 |
+| T1.2 schema 補標籤（D1） | ✅ 8 筆完成；D6 例外 | 見執行紀錄 |
+| T1.3 地標座標 | ✅ 來源查證完成 | 見執行紀錄 |
 | T1.4 二条城標籤（D3） | ☐ | |
 | T1.5 JA 括號規則（D2） | ☐ | |
 | T1.6 刪除 YS-031（D4） | ☐ | |

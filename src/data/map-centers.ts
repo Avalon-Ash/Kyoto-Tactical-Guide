@@ -30,16 +30,24 @@ export const AREA_CENTERS: Record<string, { lat: number, lng: number }> = {
 
 // 特定點位座標覆寫區 (針對單獨景點的真實座標)
 // 格式: 'spot_id': { lat, lng }
+// 2026-10-28 補登來源與錨點語意見 docs/agent-runs/2026-10-28-landmarks.md；園內錨點不代表幾何中心。
 export const SPOT_POSITIONS: Record<string, { lat: number, lng: number }> = {
   // Kita
+  'KT-006': { lat: 35.044258, lng: 135.744919 }, // 大徳寺
+  'KT-005': { lat: 35.0394, lng: 135.7292 }, // 金閣寺
   'KT-015': { lat: 35.0594, lng: 135.7516 }, // 上賀茂神社
 
   // Kamigyo
+  'KG-029': { lat: 35.031864, lng: 135.739865 }, // 千本釋迦堂（大報恩寺本堂）
+  'KG-003': { lat: 35.033409, lng: 135.760574 }, // 相國寺
   'KG-001': { lat: 35.0314, lng: 135.7352 }, // 北野天滿宮
   'KG-007': { lat: 35.0249, lng: 135.7621 }, // 京都御所
   'KG-012': { lat: 35.0264, lng: 135.7514 }, // 晴明神社
 
   // Sakyo
+  'SK-038': { lat: 35.070463, lng: 135.841128 }, // 比叡山 延暦寺（實際位於大津市）
+  'SK-080': { lat: 35.235772, lng: 135.793888 }, // 大悲山 峰定寺
+  'SK-005': { lat: 35.014173, lng: 135.7954022 }, // 永観堂
   'SK-006': { lat: 35.0269, lng: 135.7982 }, // 銀閣寺
   'SK-008': { lat: 35.0159, lng: 135.7824 }, // 平安神宮
   'SK-012': { lat: 35.1171, lng: 135.7712 }, // 鞍馬寺
@@ -49,10 +57,12 @@ export const SPOT_POSITIONS: Record<string, { lat: number, lng: number }> = {
   'SK-004': { lat: 35.0116, lng: 135.7937 }, // 南禅寺
 
   // Nakagyo
-  'NK-006': { lat: 35.0142, lng: 135.7482 }, // 二条城
+  'NK-018': { lat: 35.0131667, lng: 135.7495 }, // 二条城 二の丸庭園（園内指定石碑）
+  'NK-004': { lat: 35.01263, lng: 135.7503 }, // 二条城（二の丸御殿唐門）
   'NK-005': { lat: 35.0049, lng: 135.7649 }, // 錦市場
 
   // Higashiyama
+  'HY-006': { lat: 35.0010773, lng: 135.7739072 }, // 建仁寺
   'HY-003': { lat: 34.9948, lng: 135.7850 }, // 清水寺
   'HY-004': { lat: 35.0036, lng: 135.7785 }, // 八坂神社
   'HY-005': { lat: 35.0059, lng: 135.7830 }, // 知恩院
@@ -67,7 +77,9 @@ export const SPOT_POSITIONS: Record<string, { lat: number, lng: number }> = {
   'MN-001': { lat: 34.9810, lng: 135.7476 }, // 東寺
 
   // Ukyo
-  'KT-005': { lat: 35.0394, lng: 135.7292 }, // 金閣寺 (actually Kita technically, but fine)
+  'UK-024': { lat: 35.060564, lng: 135.678454 }, // 高山寺
+  'UK-082': { lat: 35.200915, lng: 135.685366 }, // 常照皇寺
+  'UK-004': { lat: 35.028292, lng: 135.6779631 }, // 大覚寺
   'UK-007': { lat: 35.0175, lng: 135.6720 }, // 竹林の小径
   'UK-003': { lat: 35.0157, lng: 135.6737 }, // 天龍寺
   'UK-005': { lat: 35.0345, lng: 135.7182 }, // 龍安寺
@@ -78,6 +90,8 @@ export const SPOT_POSITIONS: Record<string, { lat: number, lng: number }> = {
   'FS-007': { lat: 34.9506, lng: 135.8197 }, // 醍醐寺
 
   // Yamashina
+  'YS-006': { lat: 34.959499, lng: 135.816287 }, // 隨心院
+  'YS-005': { lat: 34.961773, lng: 135.8075725 }, // 勧修寺
   'YS-004': { lat: 35.0028, lng: 135.8197 }, // 毘沙門堂
 
   // Nishikyo
