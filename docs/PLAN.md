@@ -801,7 +801,7 @@ commit：<hash> <message>
 
 | 任務 | 狀態 | commit |
 |---|---|---|
-| T0.1 依賴 + lock 檔 + .gitignore | ☐ | |
+| T0.1 依賴 + lock 檔 + .gitignore | ✅ | 本任務提交；hash 見執行紀錄 |
 | T1.1 ZH tags 補齊 | ☐ | |
 | T1.2 schema 補標籤（D1） | ☐ | |
 | T1.3 地標座標 | ☐ | |
