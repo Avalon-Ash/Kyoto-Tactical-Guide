@@ -30,7 +30,7 @@ interface ClusterMapProps {
   width: number;
 }
 
-const MapController = ({ center, bounds, geoJsonLayer }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null, geoJsonLayer?: any }) => {
+const MapController = ({ center, bounds }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null }) => {
   const map = useMap();
   useEffect(() => {
     if (bounds) {
@@ -39,11 +39,6 @@ const MapController = ({ center, bounds, geoJsonLayer }: { center: [number, numb
       map.setView(center, map.getZoom(), { animate: true });
     }
   }, [bounds, center, map]);
-
-  useEffect(() => {
-    // If we have a GeoJSON layer, bounds are usually handled by the bounds prop above.
-    // This is just to ensure it re-renders context if needed.
-  }, [geoJsonLayer, map]);
 
   return null;
 };
@@ -106,6 +101,11 @@ const createLandmarkIcon = (label: string, theme: 'light' | 'dark') => {
 export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   const { lang, mode, activeId, filteredSpots, t } = engine;
   const [selectedClusterKey, setSelectedClusterKey] = useState<string | null>(null);
+  // 切換行政區／分區時關閉面板。
+  useEffect(() => {
+    setSelectedClusterKey(null);
+  }, [activeId, mode]);
+
   const [mapTheme, setMapTheme] = useState<'light' | 'dark'>('light');
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
   const [dynamicBounds, setDynamicBounds] = useState<L.LatLngBoundsExpression | null>(null);
@@ -170,6 +170,13 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
       };
     });
   }, [mode, activeId, filteredSpots, lang, t]);
+
+  // 篩選後叢集消失時清除選取，避免空面板殘留。
+  useEffect(() => {
+    if (selectedClusterKey && !clusters.some(cluster => cluster.key === selectedClusterKey)) {
+      setSelectedClusterKey(null);
+    }
+  }, [clusters, selectedClusterKey]);
 
   const landmarks = useMemo(() => {
     return filteredSpots
@@ -240,7 +247,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             attribution={attribution}
             className={mapTheme === 'dark' ? 'map-tiles-night' : ''}
           />
-          <MapController center={mapCenter} bounds={effectiveBounds} geoJsonLayer={geoJsonData} />
+          <MapController center={mapCenter} bounds={effectiveBounds} />
           
           {geoJsonData && (
             <GeoJSON 
