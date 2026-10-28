@@ -7,7 +7,7 @@
  * - 真實坐標映射：透過 `src/data/map-centers.ts` SSOT 獲取所有叢集站點/獨立景點的真實經緯度。
  * - 世界遺產與國寶標記 (Landmarks)：具備絕對經緯度（於 `SPOT_POSITIONS` 定義）的重要名勝，
  *   會特別渲染為「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點。
- * - OSM GeoJSON 邊界：若在行政區模式下，會呼叫 Nominatim API 動態繪製該區虛線邊界，並自動適應縮放 (fitBounds)。
+ * - OSM GeoJSON 邊界：使用 src/data/geo/ward-boundaries.ts 靜態邊界（scripts/fetch-ward-geo.mjs 產生），並自動適應縮放。
  * - 響應式日夜主題：日輪使用 OSM 標準圖磚；夜巡同樣使用 OSM 圖磚，再以 CSS 濾鏡 (`.map-tiles-night`)
  *   轉為暗色漆黑調（CARTO dark_all 已要求 API key，故不再使用）。
  * - UX 體驗：自定義 Marker 繪製數量群集標籤，點擊 Marker 後從下方滑出該區景點詳細列表，
@@ -18,7 +18,8 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { getLatLng, SPOT_POSITIONS } from '../data/map-centers';
-import { AREA_NAMES, WARD_NAMES } from '../data/index';
+import { AREA_NAMES } from '../data/index';
+import { WARD_BOUNDARIES } from '../data/geo/ward-boundaries';
 import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
 import { SpotCard, buildGoogleMapsUrl } from './SpotCard';
 import { MapContainer, TileLayer, Marker, useMap, GeoJSON } from 'react-leaflet';
@@ -107,49 +108,15 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   }, [activeId, mode]);
 
   const [mapTheme, setMapTheme] = useState<'light' | 'dark'>('light');
-  const [geoJsonData, setGeoJsonData] = useState<any>(null);
-  const [dynamicBounds, setDynamicBounds] = useState<L.LatLngBoundsExpression | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    if (mode === 'ward' && activeId) {
-      const wardName = WARD_NAMES[activeId as keyof typeof WARD_NAMES]?.ja;
-      if (wardName) {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(wardName + ', 京都市')}&format=json&polygon_geojson=1`;
-        fetch(url)
-          .then(res => res.json())
-          .then(data => {
-             if (!isMounted) return;
-             const boundary = data.find((d: any) => d.osm_type === 'relation' && d.class === 'boundary') || data[0];
-             if (boundary && boundary.geojson) {
-                setGeoJsonData(boundary.geojson);
-                const b = boundary.boundingbox;
-                if (b) {
-                  setDynamicBounds([
-                    [parseFloat(b[0]), parseFloat(b[2])], // South-West
-                    [parseFloat(b[1]), parseFloat(b[3])]  // North-East
-                  ]);
-                }
-             } else {
-               setGeoJsonData(null);
-               setDynamicBounds(null);
-             }
-          }).catch(() => {
-             if (isMounted) {
-               setGeoJsonData(null); setDynamicBounds(null);
-             }
-          });
-      }
-    } else if (mode === 'area') {
-      // In Area mode, GeoJSON isn't needed, but we can compute bounds from the spots
-      setGeoJsonData(null);
-      setDynamicBounds(null); // will fallback to center or we can calc here
-    } else {
-      setGeoJsonData(null);
-      setDynamicBounds(null);
-    }
-    return () => { isMounted = false; };
-  }, [mode, activeId]);
+  const geoJsonData = useMemo(
+    () => mode === 'ward' && activeId ? WARD_BOUNDARIES[activeId] ?? null : null,
+    [mode, activeId]
+  );
+  const dynamicBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
+    if (!geoJsonData) return null;
+    const bounds = L.geoJSON(geoJsonData).getBounds();
+    return bounds.isValid() ? bounds : null;
+  }, [geoJsonData]);
 
   const clusters = useMemo(() => {
     // 統一所有模式皆以「微觀分區 (areaId)」為單位進行叢集。
@@ -250,7 +217,8 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
           <MapController center={mapCenter} bounds={effectiveBounds} />
           
           {geoJsonData && (
-            <GeoJSON 
+            <GeoJSON
+              key={activeId ?? ''}
               data={geoJsonData} 
               style={{
                 color: '#e15141',

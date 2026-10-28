@@ -1,0 +1,274 @@
+{
+  "licence": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "polygonThreshold": 0.0005,
+  "transform": "Nominatim simplification only; no rounding or clipping",
+  "wards": {
+    "W_KITA": {
+      "name": "北区",
+      "relation": 357805,
+      "fetchedAt": "2026-10-28T15:45:22.103Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "北区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "北区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 218,
+      "polygons": 1,
+      "bbox": [
+        35.022427,
+        35.171509,
+        135.646965,
+        135.772509
+      ]
+    },
+    "W_KAMIGYO": {
+      "name": "上京区",
+      "relation": 357817,
+      "fetchedAt": "2026-10-28T15:47:07.322Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "上京区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "上京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 33,
+      "polygons": 1,
+      "bbox": [
+        35.014914,
+        35.039188,
+        135.732936,
+        135.771628
+      ]
+    },
+    "W_SAKYO": {
+      "name": "左京区",
+      "relation": 357798,
+      "fetchedAt": "2026-10-28T15:47:08.326Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E5%B7%A6%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "左京区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "左京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 352,
+      "polygons": 1,
+      "bbox": [
+        35.006424,
+        35.3212207,
+        135.72564,
+        135.860755
+      ]
+    },
+    "W_NAKAGYO": {
+      "name": "中京区",
+      "relation": 357816,
+      "fetchedAt": "2026-10-28T15:47:09.406Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E4%B8%AD%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "中京区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "中京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 35,
+      "polygons": 1,
+      "bbox": [
+        34.996403,
+        35.022544,
+        135.724032,
+        135.771628
+      ]
+    },
+    "W_HIGASHIYAMA": {
+      "name": "東山区",
+      "relation": 357840,
+      "fetchedAt": "2026-10-28T15:47:10.568Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E6%9D%B1%E5%B1%B1%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "東山区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "東山区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 44,
+      "polygons": 1,
+      "bbox": [
+        34.969955,
+        35.010854,
+        135.764644,
+        135.791137
+      ]
+    },
+    "W_SHIMOGYO": {
+      "name": "下京区",
+      "relation": 358601,
+      "fetchedAt": "2026-10-28T15:47:11.207Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "下京区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "下京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 30,
+      "polygons": 1,
+      "bbox": [
+        34.981467,
+        35.004001,
+        135.727291,
+        135.7715691
+      ]
+    },
+    "W_MINAMI": {
+      "name": "南区",
+      "relation": 358594,
+      "fetchedAt": "2026-10-28T15:47:12.422Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E5%8D%97%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "南区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "南区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 68,
+      "polygons": 1,
+      "bbox": [
+        34.9418438,
+        34.985798,
+        135.7048204,
+        135.767804
+      ]
+    },
+    "W_UKYO": {
+      "name": "右京区",
+      "relation": 357795,
+      "fetchedAt": "2026-10-28T15:47:13.829Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E5%8F%B3%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "右京区, 京都市, 京都府, 616-0000, 日本",
+      "address": {
+        "suburb": "右京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "postcode": "616-0000",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 381,
+      "polygons": 1,
+      "bbox": [
+        34.980049,
+        35.267766,
+        135.559006,
+        135.77536
+      ]
+    },
+    "W_NISHIKYO": {
+      "name": "西京区",
+      "relation": 357815,
+      "fetchedAt": "2026-10-28T15:47:14.572Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E8%A5%BF%E4%BA%AC%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "西京区, 京都市, 京都府, 615-0000, 日本",
+      "address": {
+        "suburb": "西京区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "postcode": "615-0000",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 136,
+      "polygons": 1,
+      "bbox": [
+        34.927259,
+        35.030564,
+        135.599314,
+        135.722029
+      ]
+    },
+    "W_YAMASHINA": {
+      "name": "山科区",
+      "relation": 357839,
+      "fetchedAt": "2026-10-28T15:47:16.080Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E5%B1%B1%E7%A7%91%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "山科区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "山科区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 96,
+      "polygons": 1,
+      "bbox": [
+        34.950349,
+        35.016605,
+        135.786609,
+        135.863411
+      ]
+    },
+    "W_FUSHIMI": {
+      "name": "伏見区",
+      "relation": 358575,
+      "fetchedAt": "2026-10-28T15:47:16.753Z",
+      "query": "https://nominatim.openstreetmap.org/search?q=%E4%BC%8F%E8%A6%8B%E5%8C%BA%2C+%E4%BA%AC%E9%83%BD%E5%B8%82%2C+%E4%BA%AC%E9%83%BD%E5%BA%9C%2C+%E6%97%A5%E6%9C%AC&format=jsonv2&countrycodes=jp&accept-language=ja&addressdetails=1&namedetails=1&extratags=1&polygon_geojson=1&polygon_threshold=0.0005&limit=10",
+      "displayName": "伏見区, 京都市, 京都府, 日本",
+      "address": {
+        "suburb": "伏見区",
+        "city": "京都市",
+        "province": "京都府",
+        "ISO3166-2-lvl4": "JP-26",
+        "country": "日本",
+        "country_code": "jp"
+      },
+      "adminLevel": "8",
+      "vertices": 213,
+      "polygons": 1,
+      "bbox": [
+        34.874916,
+        34.97718,
+        135.703174,
+        135.878442
+      ]
+    }
+  }
+}

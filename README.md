@@ -104,7 +104,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 應用採用了整合 CartoDB/OpenStreetMap 的 Leaflet 真實地圖庫，提供更直覺的地理導航體驗：
 - **SSOT 座標設定 (`map-centers.ts`)**：統一維護「行政區下的區塊(Area)」或「特定重要景點」的真實經緯度座標 (Lat/Lng)。若未定義單一景點坐標，系統會以雜湊(Hash)算法對其歸屬區塊中心點進行微幅散射 (Scatter fallback)，確保叢集地圖點位能均勻呈現而不互相重疊。
 - **世界遺產與國寶標記 (Landmark Icons) 優先級**：各行政區內名勝古蹟（如金閣寺、清水寺、各種世界遺產、國寶建築等）**必須**定義絕對中心點於 `SPOT_POSITIONS`。當景點屬於此清單時，地圖會渲染獨立的「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點，藉此彰顯其重要地位。
-- **動態渲染與邊界適應**：依據當前選取的行政區，自動呼叫 Nominatim API 獲取該區的真實 GeoJSON 邊界資料，並在圖面上以紅線描繪輪廓。同時會運算當前所有標記點，自動適應縮放並平移地圖至最佳觀看範圍 (Bounds)。
+- **靜態區界與邊界適應**：行政區地圖使用 `src/data/geo/ward-boundaries.ts` 的 11 區 GeoJSON，依區界自動縮放；前端不查詢 Nominatim。區界以紅色虛線顯示，切換行政區會重建對應圖層。來源為 © OpenStreetMap contributors（ODbL 1.0），[資料授權、查核與重建說明](src/data/geo/README.md)。開發時執行 `node scripts/fetch-ward-geo.mjs`，已取得回應會從持久快取重建；可用 `--offline` 禁止網路。不可加入 CI、定期工作或前端呼叫。
 - **日夜視界切換**：地圖內建「日輪 (Day)」與「夜巡 (Night)」深淺兩色的即時圖資切換，配合應用程式本身的漆黑質感。兩者皆使用免金鑰的 OSM 標準圖磚，夜巡以 CSS 濾鏡（`.map-tiles-night`）轉為暗色調。
 - **UX 邏輯**：在 `DetailView` 中可透過浮動切換按鈕快速在「卡片/地圖」兩種視圖間切換。地圖點位以群集 (Cluster) 呈現資料筆數，點擊單一群集即可滑出該清單，直接點選清單中卡片右上角的「導航浮動按鈕」，即可帶入正確的日文地名與行政區精準跳轉至 Google Maps App。
 
