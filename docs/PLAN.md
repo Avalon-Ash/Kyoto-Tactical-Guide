@@ -8,6 +8,8 @@
 
 ## 0. 執行者守則（每個任務前必讀）
 
+> 2026-10-28 補充：先讀根目錄 `AGENTS.md` 與 `docs/AGENT_EXECUTION_PLAN.md`。前者是執行合約，後者定義任務類型、建議模型／強度、並行與升級規則。本文件保留功能清單；子代理只交 diff，由主代理整合。此次文件更新不表示已啟動實作。
+
 1. **一次只做一個任務**，依編號順序執行。不得合併任務、不得跳號、不得「順手」修改任務未列出的檔案。
 2. 每個任務完成後執行 **驗收指令**，全部通過才 commit：
    ```bash
@@ -18,12 +20,12 @@
    - `npm run lint` = `tsc --noEmit`。**不要用 `npx tsc`**：沒裝依賴時 npx 會下載到同名的錯誤套件 `tsc@2.0.4`。
    - `validate_data.js` 必須輸出 `Health Check Passed`，且 **WARN 數量不得高於任務開始前**。
 3. **每個任務一個 commit**，訊息格式：`<type>(<task-id>): <摘要>`，例如 `fix(T1.1): mirror ZH tags to schema`。
-   **不要 push**，push 由 Ash 決定。
+   子代理不 commit；主代理取得該輪提交授權後依任務分批 commit。進度表可同次打勾，該次 commit hash 在後續紀錄補上，不反覆 amend 尋求自我引用。**不要 push**，push 由 Ash 決定。
 4. **禁止修改**（README「封閉操作」）：`src/data/tags.ts`、`src/data/types.ts`、`src/data/areas.ts`、`src/data/wards.ts`、`src/data/index.ts`、`src/types.ts`。本計畫沒有任何任務需要改它們。
 5. 不得 commit `.claude/`、`dist/`、`node_modules/`。
 6. 同一任務驗收失敗 **兩次** → 停止，依「回報格式」回報錯誤訊息，不要自行改變計畫。
 7. 標示 **【Ash 決策】** 的項目：先看「決策點」區的決定欄；若決定欄是空的，**跳過該項**並在回報中列出。
-8. 程式碼片段已盡量寫完整；照抄後只需調整 import 路徑。不要改寫成其他寫法。
+8. 程式碼片段為實作參考；在指定範圍內可修正型別、生命週期、平台語法問題並記錄原因。不得以照抄為由保留錯誤，亦不得擴張功能範圍。
 
 ### 回報格式（每個任務結束時輸出）
 ```text
@@ -89,7 +91,7 @@ commit：<hash> <message>
 - **另外兩筆是「改寫」**：
   - `SK-078`（zh/sakyo.ts）：`tags` 改為 `"洋菓子 打卡"`（移除未登記的「甜點」）
   - `UK-077`（zh/ukyo.ts）：`tags` 改為 `"正餐 蕎麥"`（「蕎麦」「老舗」是錯字/未登記）
-- **驗收**：`npx tsx validate_data.js` 中不再出現上列 ID 的「ZH tags 未鏡射」警告。
+- **驗收**：`npx tsx validate_data.js` 中上列 ID 的「ZH tags 未鏡射」警告消除，**UK-075 除外**：它的「老舖」差異要等 T1.2 補入 schema 才消除。
 - **commit**：`fix(T1.1): mirror ZH tags to schema tagIds`
 
 ### T1.2 【Ash 決策 D1】把 ZH 已有的已登記標籤補進 schema
@@ -134,7 +136,7 @@ commit：<hash> <message>
 | YS-005 | 勧修寺 | 34.9513 | 135.8073 | Yamashina |
 | YS-006 | 隨心院 | 34.9424 | 135.8164 | Yamashina |
 
-- **校對**：若執行環境能上網，逐筆用 Google Maps 搜尋名稱核對，誤差 > 0.002 度就改用 Google Maps 的值。**SK-080、UK-082 為山區寺院，必須校對**；無法上網時保留表中數值，並在回報中標註「未校對」。
+- **校對**：若執行環境能上網，逐筆用 Google Maps 搜尋名稱核對，誤差 > 0.002 度就改用 Google Maps 的值。**SK-080、UK-082 為山區寺院，必須校對**。表中數值是候選值，不是已核實資料；記錄來源與查核日期。無法核實時保留原資料、列為未完成，不把估計值寫入並宣稱驗收通過。
 - 格式範例：`'KT-006': { lat: 35.0437, lng: 135.7462 }, // 大徳寺`
 - **驗收**：「未在 SPOT_POSITIONS 註冊座標」警告數 = 0。
 - **commit**：`fix(T1.3): fix NK-004 landmark key and register missing landmark coordinates`
@@ -613,7 +615,7 @@ commit：<hash> <message>
   - 首頁「洛中洛外」顯示 11 區真實輪廓，標籤都落在各自區內，計數朱印正確。
   - 滑鼠懸停：該區變朱色、金框沿輪廓畫出；點擊進入該區 DetailView。
   - 鍵盤 Tab 可依序聚焦各區、Enter 進入。
-  - 手機寬度（375px）下東山、下京等小區仍可點擊（若太小，把該區 `WARD_LABELS` 字改小並回報，不要改投影範圍）。
+  - 手機寬度（375px）下東山、下京等小區仍可點擊（若命中範圍太小，調整可點擊區或提供明確的行政區清單入口；不得只縮小文字當作解決。若需新增未列出的檔案，由主代理補充派工範圍）。
 - **commit**：`feat(T3.2): render home ward map from real boundaries`
 
 ### T3.3 屏風美術層：和紙、山稜、河川、金雲
