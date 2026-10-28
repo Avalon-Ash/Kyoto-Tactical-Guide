@@ -33,17 +33,41 @@
  * - Schema 的 wardKey 命名規則：wardId 去除 'W_' 前綴轉小寫（如 W_SAKYO → sakyo）
  * - Locale 的模組 export 命名規則：`${WARD_KEY}_${LANG.toUpperCase()}`
  *   （如 SAKYO_ZH、SAKYO_JA）
- * - 動態 import 路徑含 `.ts` 副檔名，Vite dev 正常；
- *   production 打包若路徑解析失敗，改為省略副檔名
+ * - Schema 為靜態匯入（統計需要全量）；Locale 依語系 lazy 載入
  */
 import { FlatSpot, SpotSchema, SpotLocale, WardKey, Lang } from '../types';
-import { TYPES } from './types';
+import { KITA_SCHEMA } from './spots/kita';
+import { KAMIGYO_SCHEMA } from './spots/kamigyo';
+import { NAKAGYO_SCHEMA } from './spots/nakagyo';
+import { SAKYO_SCHEMA } from './spots/sakyo';
+import { HIGASHIYAMA_SCHEMA } from './spots/higashiyama';
+import { SHIMOGYO_SCHEMA } from './spots/shimogyo';
+import { MINAMI_SCHEMA } from './spots/minami';
+import { UKYO_SCHEMA } from './spots/ukyo';
+import { NISHIKYO_SCHEMA } from './spots/nishikyo';
+import { YAMASHINA_SCHEMA } from './spots/yamashina';
+import { FUSHIMI_SCHEMA } from './spots/fushimi';
 
 const _cache = new Map<string, FlatSpot[]>();
 
-const SCHEMA_MODULES = import.meta.glob('./spots/*.ts', { eager: false });
-const LOCALE_ZH_MODULES = import.meta.glob('./locales/zh/*.ts', { eager: false });
-const LOCALE_JA_MODULES = import.meta.glob('./locales/ja/*.ts', { eager: false });
+const SCHEMAS_BY_WARD: Record<WardKey, SpotSchema[]> = {
+  W_KITA: KITA_SCHEMA,
+  W_KAMIGYO: KAMIGYO_SCHEMA,
+  W_NAKAGYO: NAKAGYO_SCHEMA,
+  W_SAKYO: SAKYO_SCHEMA,
+  W_HIGASHIYAMA: HIGASHIYAMA_SCHEMA,
+  W_SHIMOGYO: SHIMOGYO_SCHEMA,
+  W_MINAMI: MINAMI_SCHEMA,
+  W_UKYO: UKYO_SCHEMA,
+  W_NISHIKYO: NISHIKYO_SCHEMA,
+  W_YAMASHINA: YAMASHINA_SCHEMA,
+  W_FUSHIMI: FUSHIMI_SCHEMA,
+};
+
+type LocaleModule = Record<string, Record<string, SpotLocale>>;
+
+const LOCALE_ZH_MODULES = import.meta.glob<LocaleModule>('./locales/zh/*.ts', { eager: false });
+const LOCALE_JA_MODULES = import.meta.glob<LocaleModule>('./locales/ja/*.ts', { eager: false });
 
 /**
  * 景點資料載入器
@@ -61,14 +85,12 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
   const wardKey = wardId.replace('W_', '');
 
   try {
-    // 1. 動態 import 對應的 schema 檔
-    const schemaPath = `./spots/${wardFile}.ts`;
-    if (!SCHEMA_MODULES[schemaPath]) {
-      console.error(`Glob key not found: ${schemaPath}`);
+    // 1. 取得對應行政區的靜態 schema
+    const schemaSpots = SCHEMAS_BY_WARD[wardId];
+    if (!schemaSpots) {
+      console.error(`Unknown wardId: ${wardId}`);
       return [];
     }
-    const schemaModule = await SCHEMA_MODULES[schemaPath]() as any;
-    const schemaSpots: SpotSchema[] = schemaModule[`${wardKey}_SCHEMA`];
 
     // 2. 動態 import 對應語系的 locale 檔
     const localePath = `./locales/${lang}/${wardFile}.ts`;
@@ -78,7 +100,7 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
       console.error(`Glob key not found: ${localePath}`);
       return [];
     }
-    const localeModule = await LOCALE_MODULE_MAP[localePath]() as any;
+    const localeModule = await LOCALE_MODULE_MAP[localePath]();
     const locales: Record<string, SpotLocale> = localeModule[`${wardKey}_${lang.toUpperCase()}`];
 
     // 2.5 動態載入日文 locale 用於地圖搜尋 (若當前不是日文)
@@ -89,7 +111,7 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
         console.error(`Glob key not found: ${jaPath}`);
         return [];
       }
-      const jaModule = await LOCALE_JA_MODULES[jaPath]() as any;
+      const jaModule = await LOCALE_JA_MODULES[jaPath]();
       jaLocales = jaModule[`${wardKey}_JA`];
     }
 
@@ -132,24 +154,8 @@ export async function loadSpotsByWard(wardId: WardKey, lang: Lang): Promise<Flat
 /**
  * 同步載入所有 Schema (用於統計計算)
  */
-import { KITA_SCHEMA } from './spots/kita';
-import { KAMIGYO_SCHEMA } from './spots/kamigyo';
-import { NAKAGYO_SCHEMA } from './spots/nakagyo';
-import { SAKYO_SCHEMA } from './spots/sakyo';
-import { HIGASHIYAMA_SCHEMA } from './spots/higashiyama';
-import { SHIMOGYO_SCHEMA } from './spots/shimogyo';
-import { MINAMI_SCHEMA } from './spots/minami';
-import { UKYO_SCHEMA } from './spots/ukyo';
-import { NISHIKYO_SCHEMA } from './spots/nishikyo';
-import { YAMASHINA_SCHEMA } from './spots/yamashina';
-import { FUSHIMI_SCHEMA } from './spots/fushimi';
-
 export function loadAllSchemasSync(): SpotSchema[] {
-  return [
-    ...KITA_SCHEMA, ...KAMIGYO_SCHEMA, ...NAKAGYO_SCHEMA, ...SAKYO_SCHEMA, 
-    ...HIGASHIYAMA_SCHEMA, ...SHIMOGYO_SCHEMA, ...MINAMI_SCHEMA, ...UKYO_SCHEMA, 
-    ...NISHIKYO_SCHEMA, ...YAMASHINA_SCHEMA, ...FUSHIMI_SCHEMA
-  ];
+  return Object.values(SCHEMAS_BY_WARD).flat();
 }
 
 /**
