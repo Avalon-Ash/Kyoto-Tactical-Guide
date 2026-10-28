@@ -26,7 +26,7 @@
 - 每個景點必須歸屬唯一的 `wardId`（於 `spots/*.ts` 的 `wardId` 欄位定義）
 - `wardId` 的合法值集合定義於 `src/data/index.ts` 的 `WARD_NAMES`，
   禁止在資料檔中使用未登記的 wardId
-- `MapCanvas` 的 SVG 區塊 id 必須與 `wardId` 精確對應，兩端需同步維護
+- `MapCanvas` 的行政區元素以 `wardId` 呼叫 `onOpen`；目前以 CSS 定位的 div 呈現，真實輪廓 SVG 屏風為 Phase 3 計畫
 - 行政區統計數字（`getWardStats()`）為動態計算，修改 spots 資料後自動反映
 
 ---
@@ -162,7 +162,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
     - `lang === 'zh'`：值同樣取自日文 locale 的 name，作為 ACG 景點等英文/羅馬字景點的地圖搜尋日文錨點。
 - **Systems (系統)**:
   - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
-  - **Query Assembly System (`SpotCard.tsx`)**: 負責將 `spot.jaName` 清洗、去除冗餘地理前綴、依固有名詞特徵判斷查詢策略，並拼接 Google Maps Search API URL。
+  - **Query Assembly System (`SpotCard.tsx`)**: 透過共用的 `buildGoogleMapsUrl` 剝除 `spot.jaName` 的括號附註、套用先斗町與廣域名稱規則，並組裝 Google Maps Search URL；卡片與叢集面板共用。
   - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。
 
 ### 3. 可抽換式季節子系統 (Seasonal Architecture)
@@ -175,18 +175,14 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 **SSOT 原則：所有搜尋關鍵字組裝必須以 `spot.jaName`（來自 JA locale 的 `name`）為唯一事實來源與地理錨點。**
 
-組裝流程共三步驟：
-1. **雜訊清洗（Noise Strip）**：
-   - 移除靜態地理前綴：`京都府京都市`、`京都府`、`京都市`（順序重要：優先匹配完整前綴 `京都府京都市`，防止分段移除後殘留孤立的「市」字）
-   - 移除當前行政區的日文名與中文名（來自 `WARD_NAMES` SSOT）
-   - 移除殘留的「京都」（後接非地名漢字時）
-   - 移除導航觸發字元：`→ ← から まで via to from`
-2. **降維組裝（Reduced Hierarchy Assembly）**：
-   - 廢除固有名詞的前後綴切換與全形逗號。
-   - 統一格式：`京都市{行政區日文名} {cleanQuery}`。這在 Google Maps 中具有最高的地理定位成功率。
-3. **URL 格式**：
-   - 固定使用 Google Maps Search API 網址封裝 `finalQuery`：`https://www.google.com/maps/search/?api=1&query=...`
-   - **禁止**使用 `maps/dir/`（點對點導航端點）。
+實作入口為 `src/components/SpotCard.tsx` 的 `buildGoogleMapsUrl`，SpotCard 與 ClusterMap 共用：
+
+1. 剝除半形／全形括號附註並 trim，名稱來自 `spot.jaName`。
+2. 完全等於「先斗町」時改用「先斗町公園」作為搜尋錨點。
+3. 「先斗町公園、嵐山、祇園、哲学の道、鴨川」只附加「京都」；其他名稱附加 `WARD_NAMES[wardId].ja` 與「京都」。
+4. 各片段經 `encodeURIComponent` 後以 `+` 串接，使用 `https://www.google.com/maps/search/?api=1&query=...`，不使用 `maps/dir/`。
+
+例如二条城使用「二条城 + 中京区 + 京都」，嵐山使用「嵐山 + 京都」。目前函式不做地理前綴或方向詞的額外清洗；文件不可把尚未實作的規則當成現況。
 
 ## 🛠 技術堆疊
 
@@ -203,22 +199,11 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 ### ⚠️ 已知技術注意事項
 
-1. **動態 import 含 `.ts` 副檔名**（`spots-loader.ts`）：
-   Vite 開發環境正常運作，部分 production 打包設定可能找不到路徑，
-   建議改為省略副檔名：`` `./spots/${wardFile}` ``。
-
-2. **`tagCounts` 在 React StrictMode 下執行兩次**：
-   `useMemo(fn, [])` 包住 `loadAllSchemasSync()`，StrictMode 下會執行兩次，
-   建議移至模組頂層 lazy getter（與 `_wardStats` 同樣模式）。
-
-3. **`closeDetail()` 不重置 `mode`**：
-   返回 HomeView 時保留上一次的 ward/area 值，屬預期行為。
-   若日後新增「從 Tag Overlay 進入 DetailView」路徑，
-   需在 `closeDetail()` 補充 mode 重置，防止 `mode==='tag'` 與 `activeId!==null` 同時成立。
-
-4. **`lib/numerals.ts` 三位數邊界值**：
-   `toChineseNumerals()` 對 100 以上數字可能省略百位「一」，
-   現行景點數不超過兩位數，不影響功能，擴充時需注意。
+- `closeDetail()` 清除 activeId、activeTag，並將 mode 重置為 `'ward'`。
+- Schema 為統計所需而靜態匯入；ZH／JA locale 仍使用 Vite lazy glob。`getTagCounts()` 已是模組層 lazy getter，不需要為 StrictMode 再造另一份快取。
+- ClusterMap、Leaflet 與靜態區界在首次切換地圖時延遲載入，等待時顯示目前語系的 loading 訊息。
+- `toChineseNumerals(101)` 為「一百零一」、`110` 為「一百一十」；已移除原文件不正確的三位數缺陷說明。
+- 資料稽核目前為 810 筆／ERROR 0／WARN 1：SK-078 依 D6 保留原資料、營運待查；`--strict` 因此仍回傳失敗。座標來源與既有文化資產描述疑問見 `docs/agent-runs/2026-10-28-landmarks.md`。
 
 ---
 
@@ -234,7 +219,8 @@ src/
 ├── data/
 │   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式...
 │   ├── map-centers.ts       # 【SSOT: 地圖】抽象叢集地圖中心點座標設定
-│   ├── spots-loader.ts      # 【組件裝配層】實現 Schema 與 Locale 的合併負載
+│   ├── geo/                 # ODbL 靜態區界、來源紀錄與重建說明
+│   ├── spots-loader.ts      # 靜態 Schema + lazy Locale 裝配
 │   ├── wards.ts / areas.ts  # 【元數據】行政區與地圖分區定義...
 │   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義...
 │   ├── type-tag-groups.ts   # 【元數據】TYPE_TAG_GROUP_MAP：主 Tab → 副標籤 group 白名單
@@ -243,7 +229,7 @@ src/
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
-│   ├── MapCanvas.tsx   # 行政區 SVG 分區地圖 (世界地圖入口)
+│   ├── MapCanvas.tsx   # 行政區 CSS 定位區塊 (首頁入口；SVG 輪廓待 Phase 3)
 │   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
 │   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
@@ -251,6 +237,9 @@ src/
 │   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條，支援 variant: 'global'|'local'
 └── lib/
     └── numerals.ts     # 漢數字轉換工具
+scripts/
+├── fetch-ward-geo.mjs      # 開發時抓取／離線重建 11 區邊界
+└── fetch-ward-geo.test.mjs # 幾何與身分拒收測試
 public/
 └── seasonal.html       # 【子系統】歲時記季節祭典獨立頁面 (純 HTML/JS)
 ```
