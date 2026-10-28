@@ -22,9 +22,11 @@ import { AREA_NAMES } from '../data/index';
 import { WARD_BOUNDARIES } from '../data/geo/ward-boundaries';
 import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
 import { SpotCard, buildGoogleMapsUrl } from './SpotCard';
-import { MapContainer, TileLayer, Marker, useMap, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents, GeoJSON, Polyline, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import { createOutsideMask } from '../lib/map-geometry';
+import { placeMapLabels, mapLabelWidth, escapeMapLabel } from '../lib/map-labels';
+import { toChineseNumerals } from '../lib/numerals';
 import 'leaflet/dist/leaflet.css';
 
 interface ClusterMapProps {
@@ -46,60 +48,73 @@ const MapController = ({ center, bounds }: { center: [number, number], bounds?: 
   return null;
 };
 
-const createClusterIcon = (count: number, label: string, isSelected: boolean) => {
-  const html = `
-    <div class="flex flex-col items-center group w-max" style="transform: translate(-50%, -16px); position: absolute; pointer-events: none;">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-lg transition-all pointer-events-auto ${
-        isSelected 
-          ? 'bg-shuiro border-shuiro text-white scale-110 shadow-[0_0_15px_rgba(225,81,65,0.5)]' 
-          : 'bg-[#151515] border-gold/40 text-gold-light opacity-90'
-      }">
-        <span class="font-serif text-xs font-bold leading-none">${count}</span>
-      </div>
-      <div class="mt-1 font-serif text-[0.7rem] px-2 py-0.5 rounded backdrop-blur-sm whitespace-nowrap tracking-widest transition-all pointer-events-auto ${
-        isSelected ? 'bg-shuiro/90 text-white' : 'bg-black/80 text-gold-light opacity-90'
-      }">
-        ${label}
-      </div>
-    </div>
-  `;
+const createClusterIcon = (count: number, label: string, selected: boolean, dx: number, dy: number) => {
+  const width = mapLabelWidth(label);
   return L.divIcon({
-    html,
-    className: '', 
-    iconSize: [0, 0], 
-    iconAnchor: [0, 0]
+    html: `<div class="map-cluster ${selected ? 'is-selected' : ''}"><span class="map-cluster-seal">${toChineseNumerals(count)}</span><span class="map-marker-caption">${escapeMapLabel(label)}</span></div>`,
+    className: 'map-cluster-icon', iconSize: [width, 70], iconAnchor: [width / 2 - dx, 22 - dy],
   });
 };
 
-const createLandmarkIcon = (label: string, theme: 'light' | 'dark') => {
-  // 夜巡模式下改用金色字 + 黑色描邊，避免灰字白邊在暗底上不可讀
-  const ink = theme === 'light' ? '#4a4a4a' : '#e6c27a';
-  const halo = theme === 'light' ? '#fff' : '#000';
-
-  // A temple svg looking like the google maps one (multi-tier roof)
-  const templeSvg = `
-    <svg viewBox="0 0 24 24" fill="${ink}" class="w-7 h-7 drop-shadow-sm">
-      <path d="M12,2L5,6V7H19V6L12,2M8,8V12H16V8H8M4,13V14H20V13H4M6,15V19H18V15H6M3,20V22H21V20H3Z" />
-    </svg>
-  `;
-
-  const html = `
-    <div class="flex flex-col items-center group w-max" style="transform: translate(-50%, -50%); position: absolute; pointer-events: none;">
-      <div class="mb-0.5">
-        ${templeSvg}
-      </div>
-      <div class="font-sans text-[0.7rem] font-bold tracking-wider" style="color: ${ink}; text-shadow: 1px 1px 0 ${halo}, -1px -1px 0 ${halo}, 1px -1px 0 ${halo}, -1px 1px 0 ${halo}, 0 1px 0 ${halo}, 0 -1px 0 ${halo}, -1px 0 0 ${halo}, 1px 0 0 ${halo};">
-        ${label}
-      </div>
-    </div>
-  `;
+const createLandmarkIcon = (label: string, theme: 'light' | 'dark', dx: number, dy: number) => {
+  const width = mapLabelWidth(label);
   return L.divIcon({
-    html,
-    className: '',
-    iconSize: [0, 0],
-    iconAnchor: [0, 0]
+    html: `<div class="map-landmark ${theme === 'dark' ? 'is-night' : ''}" title="${escapeMapLabel(label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2L5,6V7H19V6L12,2M8,8V12H16V8H8M4,13V14H20V13H4M6,15V19H18V15H6M3,20V22H21V20H3Z" /></svg><span>${escapeMapLabel(label)}</span></div>`,
+    className: 'map-landmark-icon', iconSize: [width, 44], iconAnchor: [width / 2 - dx, 22 - dy],
   });
 };
+
+type MapCluster = { key: string; label: string; pos: [number, number]; spots: { id: string }[] };
+type MapLandmark = { id: string; name: string; pos: [number, number] };
+function MapMarkers({ clusters, landmarks, selected, theme, onSelect }: {
+  clusters: MapCluster[]; landmarks: MapLandmark[]; selected: string | null;
+  theme: 'light' | 'dark'; onSelect: (key: string) => void;
+}) {
+  const [, setRevision] = useState(0);
+  const map = useMapEvents({
+    zoomend: () => setRevision(v => v + 1), moveend: () => setRevision(v => v + 1), resize: () => setRevision(v => v + 1),
+  });
+  const entries = [
+    ...landmarks.map(spot => ({ id: `landmark-${spot.id}`, pos: spot.pos, label: spot.name, height: 44 })),
+    ...clusters.map(cluster => ({ id: `cluster-${cluster.key}`, pos: cluster.pos, label: cluster.label, height: 70 })),
+  ];
+  const size = map.getSize();
+  const placements = placeMapLabels(entries.map(entry => {
+    const point = map.latLngToContainerPoint(entry.pos);
+    return { id: entry.id, x: point.x, y: point.y, width: mapLabelWidth(entry.label), height: entry.height, anchorY: 22 };
+  }), size.x, size.y);
+  return <>
+    {entries.map(entry => {
+      const { dx, dy } = placements[entry.id];
+      if (Math.abs(dx) + Math.abs(dy) < 2) return null;
+      const anchor = map.latLngToContainerPoint(entry.pos);
+      const target = map.containerPointToLatLng([anchor.x + dx, anchor.y + dy]);
+      return <React.Fragment key={`leader-${entry.id}`}>
+        <Polyline positions={[entry.pos, target]} interactive={false} pathOptions={{ color: theme === 'dark' ? '#e6c27a' : '#6d532b', weight: 1, opacity: 0.7, dashArray: '3, 4' }} />
+        <CircleMarker center={entry.pos} radius={2.5} interactive={false} pathOptions={{ color: '#b1352b', weight: 1, fillOpacity: 1 }} />
+      </React.Fragment>;
+    })}
+    {landmarks.map(spot => {
+      const { dx, dy } = placements[`landmark-${spot.id}`];
+      return <Marker key={`landmark-${spot.id}`} position={spot.pos} icon={createLandmarkIcon(spot.name, theme, dx, dy)} interactive={false} keyboard={false} />;
+    })}
+    {clusters.map(cluster => {
+      const { dx, dy } = placements[`cluster-${cluster.key}`];
+      return <Marker key={cluster.key} position={cluster.pos} title={`${cluster.label} (${cluster.spots.length})`}
+        icon={createClusterIcon(cluster.spots.length, cluster.label, selected === cluster.key, dx, dy)}
+        eventHandlers={{
+          click: () => onSelect(cluster.key),
+          keydown: event => {
+            const key = event.originalEvent.key;
+            if (key === 'Enter' || key === ' ') {
+              event.originalEvent.preventDefault();
+              onSelect(cluster.key);
+            }
+          },
+        }} />;
+    })}
+  </>;
+}
 
 export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   const { lang, mode, activeId, filteredSpots, t } = engine;
@@ -221,7 +236,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
           <MapController center={mapCenter} bounds={effectiveBounds} />
           
           {outsideMask && (
-            <GeoJSON key={`mask-${activeId}-${mapTheme}`} data={outsideMask} interactive={false}
+            <GeoJSON key={`mask-${activeId}`} data={outsideMask} interactive={false}
               style={{ className: 'ward-outside-mask', stroke: false, fillColor: mapTheme === 'dark' ? '#000' : '#302c20', fillOpacity: mapTheme === 'dark' ? 0.6 : 0.35, fillRule: 'evenodd' }} />
           )}
           {geoJsonData && <>
@@ -231,28 +246,8 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
               style={{ className: 'ward-boundary-line', color: '#e6c27a', weight: 1.5, opacity: 0.95, fill: false }} />
           </>}
 
-          {landmarks.map(spot => (
-            <Marker
-              key={`landmark-${spot.id}`}
-              position={spot.pos}
-              icon={createLandmarkIcon(spot.name, mapTheme)}
-              interactive={false}
-            />
-          ))}
-          
-          {clusters.map((cluster) => {
-            const isSelected = selectedClusterKey === cluster.key;
-            return (
-              <Marker 
-                key={cluster.key} 
-                position={cluster.pos}
-                icon={createClusterIcon(cluster.spots.length, cluster.label, isSelected)}
-                eventHandlers={{
-                  click: () => setSelectedClusterKey(cluster.key)
-                }}
-              />
-            );
-          })}
+          <MapMarkers clusters={clusters} landmarks={landmarks} selected={selectedClusterKey}
+            theme={mapTheme} onSelect={setSelectedClusterKey} />
         </MapContainer>
 
         {clusters.length === 0 && (
