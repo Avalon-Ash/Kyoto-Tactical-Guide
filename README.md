@@ -26,7 +26,8 @@
 - 每個景點必須歸屬唯一的 `wardId`（於 `spots/*.ts` 的 `wardId` 欄位定義）
 - `wardId` 的合法值集合定義於 `src/data/index.ts` 的 `WARD_NAMES`，
   禁止在資料檔中使用未登記的 wardId
-- `MapCanvas` 的行政區元素以 `wardId` 呼叫 `onOpen`；目前以 CSS 定位的 div 呈現，真實輪廓 SVG 屏風為 Phase 3 計畫
+- `MapCanvas.tsx` 以 `src/data/geo/ward-boundaries.ts` 真實輪廓繪製 SVG；每區為 `<g class="ward">`，以 `wardId` 呼叫 `onOpen`，支援 Enter／空白鍵。手機另提供至少 44px 高的 11 區按鈕清單。
+- 首頁為市中心藝術裁切，省略北部山區；行政區詳細地圖仍顯示完整區界。河川、山稜與金雲是程序繪製的示意裝飾，不能用來導航。
 - 行政區統計數字（`getWardStats()`）為動態計算，修改 spots 資料後自動反映
 
 ---
@@ -102,11 +103,11 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 ### 真實地圖引擎與空間映射 (Spatial Mapping Engine)
 
 應用採用了整合 CartoDB/OpenStreetMap 的 Leaflet 真實地圖庫，提供更直覺的地理導航體驗：
-- **SSOT 座標設定 (`map-centers.ts`)**：統一維護「行政區下的區塊(Area)」或「特定重要景點」的真實經緯度座標 (Lat/Lng)。若未定義單一景點坐標，系統會以雜湊(Hash)算法對其歸屬區塊中心點進行微幅散射 (Scatter fallback)，確保叢集地圖點位能均勻呈現而不互相重疊。
+- **SSOT 座標設定 (`map-centers.ts`)**：統一維護分區中心點與重要景點經緯度。叢集按 areaId 放在分區中心，地標使用 `SPOT_POSITIONS`；現行 ClusterMap 不使用單點散射。標記避讓依螢幕像素矩形計算，引線連回原點，縮放／移動／尺寸改變時重算，不移動資料座標。
 - **世界遺產與國寶標記 (Landmark Icons) 優先級**：各行政區內名勝古蹟（如金閣寺、清水寺、各種世界遺產、國寶建築等）**必須**定義絕對中心點於 `SPOT_POSITIONS`。當景點屬於此清單時，地圖會渲染獨立的「地標圖示加名稱 (Icon + Name)」 SVG 標記，而非一般的群集點，藉此彰顯其重要地位。
-- **靜態區界與邊界適應**：行政區地圖使用 `src/data/geo/ward-boundaries.ts` 的 11 區 GeoJSON，依區界自動縮放；前端不查詢 Nominatim。區界以紅色虛線顯示，切換行政區會重建對應圖層。來源為 © OpenStreetMap contributors（ODbL 1.0），[資料授權、查核與重建說明](src/data/geo/README.md)。開發時執行 `node scripts/fetch-ward-geo.mjs`，已取得回應會從持久快取重建；可用 `--offline` 禁止網路。不可加入 CI、定期工作或前端呼叫。
-- **日夜視界切換**：地圖內建「日輪 (Day)」與「夜巡 (Night)」深淺兩色的即時圖資切換，配合應用程式本身的漆黑質感。兩者皆使用免金鑰的 OSM 標準圖磚，夜巡以 CSS 濾鏡（`.map-tiles-night`）轉為暗色調。
-- **UX 邏輯**：在 `DetailView` 中可透過浮動切換按鈕快速在「卡片/地圖」兩種視圖間切換。地圖點位以群集 (Cluster) 呈現資料筆數，點擊單一群集即可滑出該清單，直接點選清單中卡片右上角的「導航浮動按鈕」，即可帶入正確的日文地名與行政區精準跳轉至 Google Maps App。
+- **靜態區界與邊界適應**：行政區地圖使用 `src/data/geo/ward-boundaries.ts` 的 11 區 GeoJSON，依區界自動縮放；前端不查詢 Nominatim。金色區線與暈光搭配區外暗化遮罩，保留 Polygon 洞與 MultiPolygon 分量；分區模式不套行政區遮罩。來源為 © OpenStreetMap contributors（ODbL 1.0），[資料授權、查核與重建說明](src/data/geo/README.md)。開發時執行 `node scripts/fetch-ward-geo.mjs`，已取得回應會從持久快取重建；可用 `--offline` 禁止網路。不可加入 CI、定期工作或前端呼叫。
+- **日夜視界切換**：兩者皆使用 OSM 標準圖磚，日輪以 `.map-tiles-day` 呈現和紙暖色，夜巡以 `.map-tiles-night` 轉為暗色；濾鏡不作用在金線與標記。
+- **UX 邏輯**：`DetailView` 可切換卡片／地圖；朱印標記以漢字呈現叢集筆數，點擊或 Enter／空白鍵開啟清單。卡片導航共用 `buildGoogleMapsUrl`；減少動態設定會停用程式平移與面板動畫。
 
 以下是各核心互動的設計意圖說明，供開發者在修改 UI 邏輯前參照。
 
@@ -201,7 +202,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 - `closeDetail()` 清除 activeId、activeTag，並將 mode 重置為 `'ward'`。
 - Schema 為統計所需而靜態匯入；ZH／JA locale 仍使用 Vite lazy glob。`getTagCounts()` 已是模組層 lazy getter，不需要為 StrictMode 再造另一份快取。
-- ClusterMap、Leaflet 與靜態區界在首次切換地圖時延遲載入，等待時顯示目前語系的 loading 訊息。
+- ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；靜態區界因首頁 SVG 共用，已進入首頁包。
 - `toChineseNumerals(101)` 為「一百零一」、`110` 為「一百一十」；已移除原文件不正確的三位數缺陷說明。
 - 資料稽核目前為 810 筆／ERROR 0／WARN 1：SK-078 依 D6 保留原資料、營運待查；`--strict` 因此仍回傳失敗。座標來源與既有文化資產描述疑問見 `docs/agent-runs/2026-10-28-landmarks.md`。
 
@@ -229,14 +230,17 @@ src/
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
-│   ├── MapCanvas.tsx   # 行政區 CSS 定位區塊 (首頁入口；SVG 輪廓待 Phase 3)
+│   ├── MapCanvas.tsx   # 真實區界 SVG 屏風與 11 區鍵盤入口
 │   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
 │   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
 │   ├── SpotCard.tsx    # 景點任務卡片 (漆藝視覺風格)
 │   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條，支援 variant: 'global'|'local'
 └── lib/
-    └── numerals.ts     # 漢數字轉換工具
+    ├── numerals.ts     # 漢數字轉換工具
+    ├── geo-svg.ts      # 投影、輪廓與固定 seed 的程序繪圖
+    ├── map-geometry.ts # 保留洞與 MultiPolygon 的區外遮罩
+    └── map-labels.ts   # 螢幕像素標記避讓，不更改地理座標
 scripts/
 ├── fetch-ward-geo.mjs      # 開發時抓取／離線重建 11 區邊界
 └── fetch-ward-geo.test.mjs # 幾何與身分拒收測試
@@ -252,6 +256,8 @@ public/
 - **底色 (漆道)**：深沉的炭黑與暗紅背景。
 - **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
 - **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
+- **屏風地圖**：真實行政區輪廓上疊加和紙肌理、山稜、示意河道、金雲與切金紋。`geo-svg.ts` 使用固定 seed 794，重繪不會隨機跳動；裝飾不攔截操作。桌機旁列行政區目錄，手機改為下方三欄清單。
+- **動態與效能**：「靜止畫面」可停止金雲與描邊動畫，亦遵循 `prefers-reduced-motion`；手機省略河川位移濾鏡。首頁直接顯示，避免淡入延後主要內容繪製。完整驗收與限制見 [Phase 3 紀錄](docs/agent-runs/2026-10-29-phase03.md)。
 
 ---
 

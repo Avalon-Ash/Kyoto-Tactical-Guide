@@ -27,7 +27,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
   return (
     <motion.div 
       key="home"
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="flex flex-col h-full bg-transparent relative overflow-hidden"

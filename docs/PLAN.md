@@ -720,11 +720,13 @@ commit：<hash> <message>
   - 目錄結構加入 `scripts/fetch-ward-geo.mjs`、`src/data/geo/`、`src/lib/geo-svg.ts`。
   - 「🎨 視覺風格」節加入「屏風地圖」一段（引用本文件 Phase 3 視覺規格表）。
 - **檢查清單**（全部通過才 commit，結果寫入回報）：
-  - [ ] Chrome 桌機 1440px、手機模擬 375px 首頁地圖顯示完整、無橫向捲動
-  - [ ] Safari/iOS（若可）SVG 濾鏡正常
-  - [ ] Lighthouse Performance 分數不低於 Phase 3 開始前 −5 分
-  - [ ] `npm run build` 主程式包大小記錄於回報
+  - [x] Chromium IAB 桌機 1440px、手機模擬 375px 首頁地圖顯示完整、無橫向捲動（窄版清單可向下捲動）
+  - [ ] Safari/iOS（本環境不可測，未宣稱通過）
+  - [x] Chrome Lighthouse 13.6.0 mobile 預設 Performance 94 → 94，達到不低於基準 −5 分
+  - [x] `npm run build` 主程式包大小記錄於回報
 - **commit**：`docs(T3.6): document byobu map and finalize phase 3`
+
+**2026-10-29 實作差異與驗收**：見 [Phase 3 執行紀錄](agent-runs/2026-10-29-phase03.md)。T3.2 加入 11 區原生按鈕清單；T3.3 手動靜止模式與手機輕量濾鏡；T3.4 遮罩保留所有環、洞與分量；T3.5 使用像素矩形避讓及引線，取代固定經緯度閾值，不搬動真實座標。T3.6 移除首頁整頁淡入以恢復效能。無新增繪圖依賴；Safari/iOS 與真實 OS reduced-motion 切換列為未測，靜止控制與 CSS/程式分支已驗證。
 
 ---
 
@@ -753,9 +755,9 @@ commit：<hash> <message>
 | T2.4 spots-loader 靜態 schema | ✅ | 09a4a4b |
 | T2.5 地圖文字 i18n | ✅ | 1c24cc1 |
 | T2.6 README 對齊 | ✅ | 8e086dd |
-| T3.1 繪圖工具 | ☐ | |
-| T3.2 真實輪廓首頁地圖 | ☐ | |
-| T3.3 屏風美術層 | ☐ | |
-| T3.4 日間和紙 + 聚光 | ☐ | |
-| T3.5 朱印標記 | ☐ | |
-| T3.6 收尾 | ☐ | |
+| T3.1 繪圖工具 | ✅ | 7181500 |
+| T3.2 真實輪廓首頁地圖 | ✅ | c39aca7 |
+| T3.3 屏風美術層 | ✅ | fe09459 |
+| T3.4 日間和紙 + 聚光 | ✅ | bd19e7a；圖層修正在 7fe4bc0 |
+| T3.5 朱印標記 | ✅ | 7fe4bc0 |
+| T3.6 收尾 | ✅ 可用環境驗收完成；平台限制見紀錄 | 本次提交 |
