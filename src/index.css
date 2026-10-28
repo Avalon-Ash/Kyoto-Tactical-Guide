@@ -237,8 +237,8 @@
 }
 
 /* 洛中洛外図 — actual ward silhouettes, with a full-size directory for small wards. */
-.byobu-atlas { width: 100%; max-width: 1020px; border: 1px solid #8b713b70; background: #12130f; box-shadow: 0 22px 60px #0008; }
-.atlas-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 28px; border-bottom:1px solid #c8a04a40; }
+.byobu-atlas { width: 100%; max-width: 800px; border: 1px solid #8b713b70; background: #12130f; box-shadow: 0 22px 60px #0008; }
+.atlas-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 22px; border-bottom:1px solid #c8a04a40; }
 .atlas-kicker { display:block; font-size:10px; letter-spacing:0.3em; color:#baaa83; margin-bottom:6px; }
 .atlas-heading h2 { font-family:var(--font-serif); color:#e6c27a; font-size:25px; letter-spacing:0.25em; }
 .atlas-edition { font-family:var(--font-serif); color:#c9b68c; font-size:12px; letter-spacing:0.12em; }
@@ -283,4 +283,37 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .ward-fill, .ward-outline, .ward-entry { transition:none; }
+}
+
+.ward-home-section { display:flex; flex-direction:column; align-items:center; gap:14px; padding:12px 24px 24px; }
+.atlas-heading-tools { display:flex; align-items:center; gap:20px; }
+.atlas-motion-toggle { min-height:36px; border-bottom:1px solid #c8a04a60; color:#c6b88e; font-family:var(--font-serif); font-size:11px; cursor:pointer; }
+.atlas-motion-toggle:focus-visible { outline:2px solid #e6c27a; outline-offset:3px; }
+.atlas-motion-toggle:disabled { cursor:default; opacity:.7; }
+.ridge { fill:#68654a; stroke:#b6a46a50; stroke-width:1; pointer-events:none; }
+.ridge-0 { opacity:.15; } .ridge-1 { opacity:.25; } .ridge-2 { opacity:.35; }
+.river-body { fill:none; stroke:#6d939e99; stroke-width:5; stroke-linecap:round; }
+.river-glint { fill:none; stroke:#d4e1d58c; stroke-width:1.4; stroke-linecap:round; }
+.clouds { opacity:.9; filter:drop-shadow(0 3px 4px #0006); }
+.clouds-drift-a { animation:cloud-drift 48s ease-in-out infinite alternate; }
+.clouds-drift-b { animation:cloud-drift 36s ease-in-out infinite alternate-reverse; }
+@keyframes cloud-drift { from { transform:translateX(-18px); } to { transform:translateX(18px); } }
+.byobu-atlas.is-still .clouds { animation:none; }
+.byobu-atlas.is-still .ward-fill, .byobu-atlas.is-still .ward-outline { transition:none; }
+@media (min-width:900px) {
+  .ward-map-svg { height:clamp(500px,60vh,680px); }
+  .atlas-directory { padding:18px; }
+  .ward-entry { min-height:38px; }
+  .atlas-caption { margin-top:14px; font-size:10px; }
+}
+@media (max-width:899px) {
+  .ward-home-section { padding:14px 14px 24px; }
+  .atlas-heading-tools { gap:12px; }
+  .atlas-edition { display:none; }
+  .atlas-rivers { filter:none; }
+  .clouds { filter:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .clouds-drift-a, .clouds-drift-b { animation:none; }
+  .atlas-rivers { filter:none; }
 }

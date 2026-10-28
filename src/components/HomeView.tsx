@@ -95,8 +95,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
         className="flex-1 overflow-y-auto no-scrollbar"
       >
         {mode === 'ward' ? (
-          <div className="p-4 sm:p-12 flex flex-col items-center gap-4 sm:gap-10 pb-12">
-            <div className="font-serif text-[clamp(0.75rem,2vw,1rem)] text-gold-light tracking-[0.2em] opacity-40 uppercase">{t('map_hint')}</div>
+          <div className="ward-home-section">
+
             
             <MapCanvas onOpen={openDetail} stats={getWardStats()} t={t} />
             

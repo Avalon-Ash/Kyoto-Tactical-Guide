@@ -25,5 +25,7 @@ export const UI_DICT: Record<string, I18nText> = {
   byobu_edition: { zh: "山川之間 · 十一行政域", ja: "山川を巡る · 十一行政区" },
   ward_directory: { zh: "擇一區，展卷入境", ja: "区を選び、京を歩く" },
   byobu_note: { zh: "市中心略圖。北部山區未完整顯示；各區詳圖可查看完整區界。", ja: "市街地を中心とした略図。北部山間域を省略しています。各区の地図で全域をご覧いただけます。" },
+  byobu_pause: { zh: "靜止畫面", ja: "動きを止める" },
+  byobu_resume: { zh: "靜止模式", ja: "静止モード" },
   no_results: { zh: "此間無跡", ja: "跡なし" }
 };

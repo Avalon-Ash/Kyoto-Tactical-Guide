@@ -64,18 +64,18 @@ export function cloudBandPath(x0: number, x1: number, y: number, h: number, rand
   let d = `M${r1(x0)},${r1(y)}`;
   let x = x0;
   while (x < x1) {
-    const w = 24 + rand() * 48;
+    const w = 70 + rand() * 110;
     const nx = Math.min(x + w, x1);
     const rx = (nx - x) / 2;
-    d += ` A${r1(rx)},${r1(rx * (0.55 + rand() * 0.45))} 0 0 1 ${r1(nx)},${r1(y)}`;
+    d += ` A${r1(rx)},${r1(Math.min(h * 0.7, rx * (0.18 + rand() * 0.12)))} 0 0 1 ${r1(nx)},${r1(y)}`;
     x = nx;
   }
   d += ` L${r1(x1)},${r1(y + h)}`;
   while (x > x0) {
-    const w = 40 + rand() * 70;
+    const w = 100 + rand() * 120;
     const nx = Math.max(x - w, x0);
     const rx = (x - nx) / 2;
-    d += ` A${r1(rx)},${r1(rx * 0.35)} 0 0 1 ${r1(nx)},${r1(y + h)}`;
+    d += ` A${r1(rx)},${r1(h * 0.16)} 0 0 1 ${r1(nx)},${r1(y + h)}`;
     x = nx;
   }
   return d + 'Z';
