@@ -1,4 +1,7 @@
 # Kyoto Tactical Guide ⛩️
+
+目前進度、提交記錄與新對話接續步驟：[交接入口](docs/HANDOFF.md)。
+
 ### 類 MMORPG 任務地圖概念的京都觀光入口網站
 
 「Kyoto Tactical Guide」是一個將京都觀光資訊「遊戲化」的實驗專案。我們將京都市的各個行政區視為 RPG 遊戲中的「分區地圖 (Zones)」，將景點視為「任務 (Quests)」。透過類型分類（交通要津・寺社・商肆・食處・自然・近代設施・ACG 聖地）與自由文字標籤系統，使用者可依喜好快速篩選、搜尋景點，並一鍵跳轉 Google Maps 定位。
@@ -26,8 +29,8 @@
 - 每個景點必須歸屬唯一的 `wardId`（於 `spots/*.ts` 的 `wardId` 欄位定義）
 - `wardId` 的合法值集合定義於 `src/data/index.ts` 的 `WARD_NAMES`，
   禁止在資料檔中使用未登記的 wardId
-- `MapCanvas.tsx` 以 `src/data/geo/ward-boundaries.ts` 真實輪廓繪製 SVG；每區為 `<g class="ward">`，以 `wardId` 呼叫 `onOpen`，支援 Enter／空白鍵。手機另提供至少 44px 高的 11 區按鈕清單。
-- 首頁為市中心藝術裁切，省略北部山區；行政區詳細地圖仍顯示完整區界。河川、山稜與金雲是程序繪製的示意裝飾，不能用來導航。
+- `MapCanvas.tsx` 使用原生 WebGL 蒔繪材質；區界、金粉回饋與地標在同一畫面，不提供蒔繪／區界切換。`makie-scene.ts` 共用真實邊界的市街放大投影做命中判定與材質遮罩；圖上十一個地標按鈕支援 Enter／空白鍵，手機至少 44×44px。
+- 首頁為市中心藝術裁切，省略北部山區；行政區詳細地圖仍顯示完整區界。山水底圖為生成的蒔繪意象，地標紋樣是象徵性建築，不能當作精確建築復原或導航圖。
 - 行政區統計數字（`getWardStats()`）為動態計算，修改 spots 資料後自動反映
 
 ---
@@ -180,7 +183,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 1. 剝除半形／全形括號附註並 trim，名稱來自 `spot.jaName`。
 2. 完全等於「先斗町」時改用「先斗町公園」作為搜尋錨點。
-3. 「先斗町公園、嵐山、祇園、哲学の道、鴨川」只附加「京都」；其他名稱附加 `WARD_NAMES[wardId].ja` 與「京都」。
+3. 先檢查 `municipalityId`：跨市景點附加其真實市名與府縣。京都市內的廣域名稱只附加「京都」；其他名稱附加 `WARD_NAMES[wardId].ja` 與「京都」。
 4. 各片段經 `encodeURIComponent` 後以 `+` 串接，使用 `https://www.google.com/maps/search/?api=1&query=...`，不使用 `maps/dir/`。
 
 例如二条城使用「二条城 + 中京区 + 京都」，嵐山使用「嵐山 + 京都」。目前函式不做地理前綴或方向詞的額外清洗；文件不可把尚未實作的規則當成現況。
@@ -202,9 +205,9 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 - `closeDetail()` 清除 activeId、activeTag，並將 mode 重置為 `'ward'`。
 - Schema 為統計所需而靜態匯入；ZH／JA locale 仍使用 Vite lazy glob。`getTagCounts()` 已是模組層 lazy getter，不需要為 StrictMode 再造另一份快取。
-- ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；靜態區界因首頁 SVG 共用，已進入首頁包。
+- ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；靜態區界因首頁 GPU 材質與命中判定共用，已進入首頁包。
 - `toChineseNumerals(101)` 為「一百零一」、`110` 為「一百一十」；已移除原文件不正確的三位數缺陷說明。
-- 2026-11-04 本機資料稽核為 809 筆／ERROR 0／WARN 0，`--strict` 通過。SK-078 依店家閉店公告退役；修正文資標籤、食處身分與車站導航名稱。新增 `npx --no-install tsx scripts/audit-data.ts` 補充欄位、座標與覆核清冊。SK-038 延曆寺的跨市歸類及導航地域仍待模型決策；結構通過不等於全庫事實皆經查證。詳見 [Phase 4 資料查核](docs/agent-runs/2026-11-04-phase04-data.md)。
+- 2026-11-04 本機資料稽核為 809 筆／ERROR 0／WARN 0，`--strict` 通過。SK-078 依店家閉店公告退役；修正文資標籤、食處身分與車站導航名稱。新增 `npx --no-install tsx scripts/audit-data.ts` 補充欄位、座標與覆核清冊。SK-038 已透過 `municipalityId: M_OTSU` 分離旅遊索引與真實市域，導航使用大津市／滋賀県；結構通過不等於全庫事實皆經查證。詳見 [Phase 4 資料查核](docs/agent-runs/2026-11-04-phase04-data.md)。
 
 ---
 
@@ -230,7 +233,7 @@ src/
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
-│   ├── MapCanvas.tsx   # 真實區界 SVG 屏風與 11 區鍵盤入口
+│   ├── MapCanvas.tsx   # GPU 蒔繪、行政區命中與圖上地標入口
 │   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
 │   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
@@ -256,8 +259,8 @@ public/
 - **底色 (漆道)**：深沉的炭黑與暗紅背景。
 - **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
 - **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
-- **屏風地圖**：真實行政區輪廓上疊加和紙肌理、山稜、示意河道、金雲與切金紋。`geo-svg.ts` 使用固定 seed 794，重繪不會隨機跳動；裝飾不攔截操作。桌機旁列行政區目錄，手機改為下方三欄清單。
-- **動態與效能**：「靜止畫面」可停止金雲與描邊動畫，亦遵循 `prefers-reduced-motion`；手機省略河川位移濾鏡。首頁直接顯示，避免淡入延後主要內容繪製。完整驗收與限制見 [Phase 3 紀錄](docs/agent-runs/2026-10-29-phase03.md)。
+- **互動蒔繪**：`public/art/kyoto-makie-relief.jpg` 作為漆面底色，`makie-renderer.ts` 在 WebGL shader 中計算金粉反光、所選區域與地標浮起。十一個地標取用既有 `SPOT_POSITIONS`，不靠頁面下方清單進入。這是 2.5D 材質原型，未導入 Rust，也不是完整 3D 建築場景。
+- **動態與效能**：按需繪製，閒置／離屏時不跑持續動畫迴圈，DPR 上限 1.5。「靜止畫面」與 `prefers-reduced-motion` 保留選取但停止過渡；WebGL 不可用時保留靜態圖與地標入口。本輪結果見 [驗收紀錄](docs/agent-runs/2026-11-04-phase04-location-makie.md)，Phase 3 Lighthouse 分數不代表新版本分數。
 
 ---
 
@@ -344,9 +347,9 @@ public/
 - `src/data/index.ts`：匯出模組的任何異動。
 
 ### 2. 結構層 Schema 錄入絕對禁則 (Zero-Trust)
-- **純粹空間節點**：`SpotSchema` 僅允許定義 `id`, `wardId`, `areaId`, `typeId`, `tagIds`，以及選填的 `reservationRequired`。
+- **純粹空間節點**：`SpotSchema` 僅允許定義 `id`, `wardId`, `areaId`, `typeId`, `tagIds`，以及選填的 `reservationRequired`、`municipalityId`。
 - **文字剝離**：**絕對禁止**在 Schema 中寫入任何在地化文字資料（包含已被廢除的 `mapQuery`，或是 `name`、`desc` 等）。
-- **空間歸屬驗證**：景點的 `areaId` 必須合法隸屬於該 `wardId` 轄區內（依據 `areas.ts` 的 `AREA_BY_WARD` 映射表）。嚴禁地理越界。
+- **空間歸屬驗證**：`wardId`／`areaId` 是旅遊目錄，仍強制遵守檔案與 `AREA_BY_WARD` 映射。省略 `municipalityId` 表示京都市；明確登記的周邊市域必須有真實座標。跨市例外不新增京都行政區，不改 ID，不把市外地點錯標為京都市內。
 
 ### 3. 內容層 Locale 命名絕對約束 (SSOT 錨點)
 - **JA Name 為唯一事實來源**：JA Locale (`ja/*.ts`) 中的 `name` 欄位，是 Query Assembly System 組裝 Google Maps 定位網址的**唯一地理錨點**。
@@ -375,7 +378,7 @@ npx tsx validate_data.js
 ```
 必須確認終端機輸出 `Health Check Passed`。若出現任何報測（如映射越界、幽靈標籤、Locale 缺漏），必須自行修正資料層，直至驗證通過為止。
 
-- **ERROR（❌，阻擋）**：id 格式/前綴/重複、ward/area/type 未登記、Area 越界、Schema 禁止欄位、幽靈標籤、標籤超量、T_FOOD 禁則、Locale 缺漏或孤立、map-centers 失效座標、`TYPE_TAG_GROUP_MAP` 與 `TYPES` 不同步。
+- **ERROR（❌，阻擋）**：id 格式/前綴/重複、ward/area/type 未登記、Area 越界、Schema 禁止欄位、幽靈標籤、標籤超量、T_FOOD 禁則、Locale 缺漏或孤立、map-centers 失效座標、未知市域或跨市景點缺有效座標、`TYPE_TAG_GROUP_MAP` 與 `TYPES` 不同步。
 - **WARN（⚠️，資料品質）**：ZH tags 未鏡射 schema、世界遺產/國寶未註冊 `SPOT_POSITIONS`、JA name 重名。預設不阻擋；加上 `--strict` 時一併視為失敗。
 - 新增或修改的景點不得新增 WARN。
 

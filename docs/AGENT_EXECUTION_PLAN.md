@@ -1,6 +1,11 @@
 # 京都專案子代理派工與強度計畫
 
-日期：2026-11-04。狀態：Phase 0／1、Phase 2 已完成；歷史驗收限制見各執行紀錄。Phase 3 的6個提交已推送至 main=12d3bfc。Phase 4 第一批資料查核於 `codex/phase4-data-audit` 留本機 diff，未 commit／merge／push；詳見 [本輪紀錄](agent-runs/2026-11-04-phase04-data.md)。原 Phase 0–3 模型表保留為歷史計畫；Phase 4 依使用者最新全域合約及本輪派工單，請求 Flash medium 做唯讀清冊，工具實際模型未確認，失敗兩次後由主代理收回。未更改主代理模型強度。
+目前工作區、授權與待辦以 [交接入口](HANDOFF.md) 為準；以下 Phase 0–3 表格為歷史分工。
+
+2026-11-05 最新交付：前批資料 `a0a94f7`、跨市模型 `a1eeb99`、互動蒔繪 `86d852b` 已提交；使用者已授權將本批程式與文件推送至 `codex/phase4-data-audit`，未授權合併 main。本輪結果及限制見 [跨市與蒔繪紀錄](agent-runs/2026-11-04-phase04-location-makie.md)。新入口使用 WebGL 單一漆面，行政區選取與地標回饋合併；Phase 3 的 SVG 規格保留為歷史，不再是目前入口。
+
+
+日期：2026-11-04。狀態：Phase 0／1、Phase 2 已完成；歷史驗收限制見各執行紀錄。Phase 3 的6個提交已推送至 main=12d3bfc。Phase 4 第一批資料查核於 `codex/phase4-data-audit` 已 commit `a0a94f7`，納入 11-05 分支交付、未 merge main；詳見 [本輪紀錄](agent-runs/2026-11-04-phase04-data.md)。原 Phase 0–3 模型表保留為歷史計畫；Phase 4 依使用者最新全域合約及本輪派工單，請求 Flash medium 做唯讀清冊，工具實際模型未確認，失敗兩次後由主代理收回。未更改主代理模型強度。
 入口合約：`../AGENTS.md`；功能與驗收清單：`PLAN.md`。
 
 ## 1. 參考 FFT 的部分與本專案差異
