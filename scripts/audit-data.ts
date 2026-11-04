@@ -9,6 +9,7 @@ import { WARD_KEYS } from '../src/data/wards';
 import { AREA_KEYS } from '../src/data/areas';
 import { AREA_CENTERS, SPOT_POSITIONS } from '../src/data/map-centers';
 import { WARD_BOUNDARIES, type WardGeometry } from '../src/data/geo/ward-boundaries';
+import { MUNICIPALITIES, DEFAULT_MUNICIPALITY } from '../src/data/municipalities';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const errors: string[] = [];
@@ -34,7 +35,7 @@ function inWard(lng: number, lat: number, geometry: WardGeometry): boolean {
   return polygons.some(rings => inRing(lng, lat, rings[0]) && !rings.slice(1).some(ring => inRing(lng, lat, ring)));
 }
 
-const spots: { id: string; ward: string; name: string; tags: string[] }[] = [];
+const spots: { id: string; ward: string; municipality: string; name: string; tags: string[] }[] = [];
 const counts: Record<string, number> = {};
 const normalizedNames = new Map<string, string[]>();
 const expectedFiles = WARD_KEYS.map(ward => `${ward.slice(2).toLowerCase()}.ts`).sort();
@@ -69,7 +70,10 @@ for (const file of expectedFiles) {
     if (!record(entry) || !nonempty(entry.name)) continue;
     const nameKey = normalize(entry.name);
     normalizedNames.set(nameKey, [...(normalizedNames.get(nameKey) ?? []), id]);
-    spots.push({ id, ward: String(spot.wardId), name: entry.name, tags: Array.isArray(tags) && tags.every(nonempty) ? tags : [] });
+    const municipality = spot.municipalityId ?? DEFAULT_MUNICIPALITY;
+    if (typeof municipality !== 'string' || !Object.hasOwn(MUNICIPALITIES, municipality)) errors.push(`${id}: unknown municipality`);
+    else if (municipality !== DEFAULT_MUNICIPALITY && !validPosition(SPOT_POSITIONS[id])) errors.push(`${id}: nearby municipality requires verified coordinates`);
+    spots.push({ id, ward: String(spot.wardId), municipality: String(municipality), name: entry.name, tags: Array.isArray(tags) && tags.every(nonempty) ? tags : [] });
   }
 }
 for (const [id, position] of [...Object.entries(AREA_CENTERS), ...Object.entries(SPOT_POSITIONS)]) {
@@ -78,7 +82,7 @@ for (const [id, position] of [...Object.entries(AREA_CENTERS), ...Object.entries
 for (const key of Object.keys(AREA_CENTERS)) if (!AREA_KEYS.includes(key)) errors.push(`${key}: unknown area center`);
 const coordinateCandidates = spots.flatMap(spot => {
   const position = SPOT_POSITIONS[spot.id], geometry = WARD_BOUNDARIES[spot.ward];
-  if (!validPosition(position) || !geometry || inWard(position.lng, position.lat, geometry)) return [];
+  if (spot.municipality !== DEFAULT_MUNICIPALITY || !validPosition(position) || !geometry || inWard(position.lng, position.lat, geometry)) return [];
   return [{ id: spot.id, name: spot.name, assignedWard: spot.ward, position,
     containingWards: Object.entries(WARD_BOUNDARIES).filter(([, g]) => inWard(position.lng, position.lat, g)).map(([id]) => id) }];
 });
@@ -89,6 +93,7 @@ console.log(JSON.stringify({
     note: 'Candidates only. Shared entities/ACG entries may be intentional; simplified boundaries may affect border points. No facts auto-corrected.',
     normalizedNameGroups: [...normalizedNames.entries()].filter(([, ids]) => ids.length > 1).map(([name, ids]) => ({ name, ids })),
     coordinatesOutsideAssignedWard: coordinateCandidates,
+    declaredNearbySpots: spots.filter(spot => spot.municipality !== DEFAULT_MUNICIPALITY).map(({ id, name, municipality, ward }) => ({ id, name, municipality, travelWard: ward, position: SPOT_POSITIONS[id] })),
     heritageTagged: spots.filter(spot => spot.tags.includes('國寶') || spot.tags.includes('世界遺產')).map(({ id, name, tags }) => ({ id, name, tags })),
   },
 }, null, 2));

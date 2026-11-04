@@ -18,7 +18,8 @@
  * SpotSchema — 結構層的唯一實體定義
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * SpotSchema 僅允許以下欄位（Zero-Trust 原則）：
- *   id, wardId, areaId, typeId, tagIds?, reservationRequired?
+ *   id, wardId, areaId, typeId, tagIds?, reservationRequired?, municipalityId?
+ * municipalityId is physical municipality; wardId/areaId are travel-directory keys.
  *
  * 絕對禁止在此介面新增任何語意文字、URL 或渲染相關屬性，
  * 包含已廢除的 mapQuery、name、desc 等欄位。
@@ -60,8 +61,11 @@ export type WardKey =
 // 語系無關的 spot schema
 export interface SpotSchema {
   id: string;
+  /** Travel-directory ward. For a nearby-city trip this is not the physical ward. */
   wardId: string;
   areaId: string;
+  /** Physical municipality; absent means M_KYOTO. Registry: data/municipalities.ts. */
+  municipalityId?: string;
   typeId: string;
   tagIds?: string[]; // 新增：machine-readable 標籤陣列
   reservationRequired?: true;

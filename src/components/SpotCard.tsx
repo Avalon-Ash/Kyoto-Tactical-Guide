@@ -14,7 +14,7 @@
  * Step 1 — Query 組裝：
  *   以 spot.jaName（JA locale name）為主詞，
  *   附加行政區日文名稱（wardJa）與「京都」為地域錨點。
- *   格式：{JA名稱}+{行政區日文}+京都
+ *   格式：{JA名稱}+{行政區日文}+京都；周邊跨市景點改用 {JA名稱}+{市}+{府縣}。
  *
  * Step 2 — URL 組裝：
  *   所有參數經 encodeURIComponent 處理後以 + 串接。
@@ -40,6 +40,7 @@ import { motion } from 'motion/react';
 import { FlatSpot, Lang } from '../types';
 import { WARD_NAMES, AREA_NAMES, TYPE_NAMES, TYPES } from '../data/index';
 import { TAG_REGISTRY } from '../data/tags';
+import { getSpotLocation } from '../data/municipalities';
 
 interface SpotCardProps {
   key?: number | string;
@@ -54,8 +55,9 @@ interface SpotCardProps {
  * Query Assembly System：由 spot.jaName 組裝 Google Maps Search URL。
  * 地圖叢集面板（ClusterMap）等其他入口必須共用本函式，禁止自行拼接查詢字串。
  */
-export function buildGoogleMapsUrl(spot: Pick<FlatSpot, 'jaName' | 'wardId'>): string {
+export function buildGoogleMapsUrl(spot: Pick<FlatSpot, 'jaName' | 'wardId' | 'municipalityId'>): string {
   const wardJa = WARD_NAMES[spot.wardId]?.ja ?? '';
+  const location = getSpotLocation(spot);
 
   let queryName = spot.jaName || '';
 
@@ -75,9 +77,9 @@ export function buildGoogleMapsUrl(spot: Pick<FlatSpot, 'jaName' | 'wardId'>): s
   // 1. JA locale 的 spot.name
   // 2. 行政區日文名稱 (若為 isStandalone 則排除)
   // 3. "京都"
-  const queryParts = isStandalone
-    ? [queryName, '京都']
-    : [queryName, wardJa, '京都'];
+  const queryParts = location.isNearby
+    ? [queryName, location.city.ja, location.prefecture.ja]
+    : isStandalone ? [queryName, '京都'] : [queryName, wardJa, '京都'];
 
   const finalQuery = queryParts.filter(Boolean).map(p => encodeURIComponent(p.trim())).join('+');
 
@@ -93,8 +95,9 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
   const desc = spot.desc;
   const tagsStr = spot.tags;
   const tags = tagsStr.split(',').filter(Boolean);
-  const areaName = t(spot.areaId, AREA_NAMES);
-  const wardName = t(spot.wardId, WARD_NAMES);
+  const location = getSpotLocation(spot);
+  const areaName = location.isNearby ? t('nearby_trip') : t(spot.areaId, AREA_NAMES);
+  const wardName = location.isNearby ? `${location.prefecture[lang]} · ${location.city[lang]}` : t(spot.wardId, WARD_NAMES);
 
   const typeColor = TYPES[typeId]?.color || '#c8a04a';
   const typeFirstChar = typeName.charAt(0);

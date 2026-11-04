@@ -17,7 +17,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
-import { getLatLng, SPOT_POSITIONS } from '../data/map-centers';
+import { SPOT_POSITIONS } from '../data/map-centers';
 import { AREA_NAMES } from '../data/index';
 import { WARD_BOUNDARIES } from '../data/geo/ward-boundaries';
 import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
@@ -27,6 +27,7 @@ import L from 'leaflet';
 import { createOutsideMask } from '../lib/map-geometry';
 import { placeMapLabels, mapLabelWidth, escapeMapLabel } from '../lib/map-labels';
 import { toChineseNumerals } from '../lib/numerals';
+import { buildMapClusters } from '../lib/map-clusters';
 import 'leaflet/dist/leaflet.css';
 
 interface ClusterMapProps {
@@ -130,32 +131,16 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
     () => mode === 'ward' && activeId ? WARD_BOUNDARIES[activeId] ?? null : null,
     [mode, activeId]
   );
-  const outsideMask = useMemo(() => createOutsideMask(geoJsonData), [geoJsonData]);
   const dynamicBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
     if (!geoJsonData) return null;
     const bounds = L.geoJSON(geoJsonData).getBounds();
     return bounds.isValid() ? bounds : null;
   }, [geoJsonData]);
 
-  const clusters = useMemo(() => {
-    // 統一所有模式皆以「微觀分區 (areaId)」為單位進行叢集。
-    // 因為在缺乏全部精確坐標的情況下，散佈單一景點沒有意義。
-    const groups: Record<string, typeof filteredSpots> = {};
-    filteredSpots.forEach(spot => {
-      if (!groups[spot.areaId]) groups[spot.areaId] = [];
-      groups[spot.areaId].push(spot);
-    });
-
-    return Object.entries(groups).map(([areaId, spots]) => {
-      const { lat, lng } = getLatLng(areaId, 'ward', activeId as string);
-      return {
-        key: areaId,
-        label: t(areaId, AREA_NAMES),
-        pos: [lat, lng] as [number, number],
-        spots
-      };
-    });
-  }, [mode, activeId, filteredSpots, lang, t]);
+  const clusters = useMemo(() => buildMapClusters(filteredSpots, activeId ?? '', id => t(id, AREA_NAMES)), [activeId, filteredSpots, t]);
+  const nearbyClusters = useMemo(() => clusters.filter(cluster => cluster.nearby), [clusters]);
+  // Keep the Kyoto boundary, but do not dim legitimate nearby-city destinations.
+  const outsideMask = useMemo(() => nearbyClusters.length ? null : createOutsideMask(geoJsonData), [geoJsonData, nearbyClusters.length]);
 
   // 篩選後叢集消失時清除選取，避免空面板殘留。
   useEffect(() => {
@@ -166,12 +151,12 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
 
   const landmarks = useMemo(() => {
     return filteredSpots
-      .filter(spot => SPOT_POSITIONS[spot.id])
+      .filter(spot => SPOT_POSITIONS[spot.id] && !nearbyClusters.some(cluster => cluster.key === `spot:${spot.id}`))
       .map(spot => ({
         ...spot,
         pos: [SPOT_POSITIONS[spot.id].lat, SPOT_POSITIONS[spot.id].lng] as [number, number]
       }));
-  }, [filteredSpots]);
+  }, [filteredSpots, nearbyClusters]);
 
   const selectedSpots = useMemo(() => {
     return clusters.find(c => c.key === selectedClusterKey)?.spots || [];
@@ -186,20 +171,23 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   }, [clusters]);
 
   const effectiveBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
-    if (dynamicBounds) return dynamicBounds;
+    if (dynamicBounds) {
+      const bounds = L.latLngBounds(dynamicBounds);
+      nearbyClusters.forEach(cluster => bounds.extend(cluster.pos));
+      return bounds;
+    }
     if (clusters.length > 0) {
-      const lats = clusters.map(c => c.pos[0]);
-      const lngs = clusters.map(c => c.pos[1]);
+      const positions = [...clusters, ...landmarks];
+      const lats = positions.map(c => c.pos[0]);
+      const lngs = positions.map(c => c.pos[1]);
       const minLat = Math.min(...lats);
       const maxLat = Math.max(...lats);
       const minLng = Math.min(...lngs);
       const maxLng = Math.max(...lngs);
-      if (minLat !== maxLat && minLng !== maxLng) {
-        return [[minLat, minLng], [maxLat, maxLng]];
-      }
+      return [[minLat - 0.003, minLng - 0.003], [maxLat + 0.003, maxLng + 0.003]];
     }
     return null;
-  }, [dynamicBounds, clusters]);
+  }, [dynamicBounds, clusters, landmarks, nearbyClusters]);
 
   // 日夜共用 OSM 圖磚；夜巡由 TileLayer className 套用 CSS 濾鏡轉暗
   const tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -250,6 +238,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             theme={mapTheme} onSelect={setSelectedClusterKey} />
         </MapContainer>
 
+        {nearbyClusters.length > 0 && <div className="nearby-map-note" role="note">{t('nearby_map_note')}</div>}
         {clusters.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400]">
             <div className="bg-black/60 px-6 py-3 rounded-full backdrop-blur-sm border border-gold/20 text-gold-light">

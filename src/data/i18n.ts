@@ -19,6 +19,8 @@ export const UI_DICT: Record<string, I18nText> = {
   view_hint: { zh: "叢集", ja: "一覧" },
   btn_to_map: { zh: "切換地圖", ja: "地図に切替" },
   map_day: { zh: "日輪", ja: "日輪" },
+  nearby_trip: { zh: '京都周邊', ja: '京都からの小旅行' },
+  nearby_map_note: { zh: '含京都周邊景點，依實際所在地標示', ja: '京都周辺のスポットを実際の所在地に表示' },
   map_night: { zh: "夜巡", ja: "夜巡" },
   btn_back_map: { zh: "返回地圖", ja: "地図に戻る" },
   byobu_title: { zh: "洛中洛外圖", ja: "洛中洛外図" },

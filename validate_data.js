@@ -26,6 +26,7 @@ import { WARD_KEYS } from './src/data/wards.ts';
 import { AREA_KEYS, AREA_BY_WARD } from './src/data/areas.ts';
 import { AREA_CENTERS, SPOT_POSITIONS } from './src/data/map-centers.ts';
 import { TYPE_TAG_GROUP_MAP } from './src/data/type-tag-groups.ts';
+import { MUNICIPALITIES, DEFAULT_MUNICIPALITY } from './src/data/municipalities.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +36,7 @@ const WARD_PREFIX = {
   kita: 'KT', kamigyo: 'KG', sakyo: 'SK', nakagyo: 'NK', higashiyama: 'HY', shimogyo: 'SG',
   minami: 'MN', ukyo: 'UK', nishikyo: 'NS', yamashina: 'YS', fushimi: 'FS',
 };
-const SCHEMA_FIELDS = new Set(['id', 'wardId', 'areaId', 'typeId', 'tagIds', 'reservationRequired']);
+const SCHEMA_FIELDS = new Set(['id', 'wardId', 'areaId', 'typeId', 'tagIds', 'reservationRequired', 'municipalityId']);
 const MAX_TAGS = 6;
 const LANDMARK_TAGS = ['世界遺產', '國寶'];
 
@@ -74,7 +75,17 @@ async function run() {
       if (!/^[A-Z]{2}-\d{3}$/.test(s.id)) err(`${s.id}: id 不符 XX-NNN 格式`);
       else if (WARD_PREFIX[slug] && !s.id.startsWith(`${WARD_PREFIX[slug]}-`)) err(`${s.id}: ${file} 的 id 前綴應為 ${WARD_PREFIX[slug]}`);
 
-      // 空間歸屬
+      // Travel-directory membership is separate from physical municipality.
+      if (s.municipalityId !== undefined) {
+        if (typeof s.municipalityId !== 'string' || !Object.hasOwn(MUNICIPALITIES, s.municipalityId)) {
+          err(`${s.id}: 未登記的 municipalityId ${s.municipalityId}`);
+        } else if (s.municipalityId !== DEFAULT_MUNICIPALITY) {
+          const pos = SPOT_POSITIONS[s.id];
+          if (!pos || !Number.isFinite(pos.lat) || !Number.isFinite(pos.lng) || Math.abs(pos.lat) > 90 || Math.abs(pos.lng) > 180) {
+            err(`${s.id}: 跨市景點必須提供有效的真實座標`);
+          }
+        }
+      }
       if (s.wardId !== ward) err(`${s.id}: wardId=${s.wardId} 與檔案 ${file} 不符`);
       if (!WARD_KEYS.includes(s.wardId)) err(`${s.id}: 未登記的 wardId ${s.wardId}`);
       if (!AREA_KEYS.includes(s.areaId)) err(`${s.id}: 未登記的 areaId ${s.areaId}`);
