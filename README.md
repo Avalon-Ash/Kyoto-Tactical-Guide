@@ -204,7 +204,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 - Schema 為統計所需而靜態匯入；ZH／JA locale 仍使用 Vite lazy glob。`getTagCounts()` 已是模組層 lazy getter，不需要為 StrictMode 再造另一份快取。
 - ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；靜態區界因首頁 SVG 共用，已進入首頁包。
 - `toChineseNumerals(101)` 為「一百零一」、`110` 為「一百一十」；已移除原文件不正確的三位數缺陷說明。
-- 資料稽核目前為 810 筆／ERROR 0／WARN 1：SK-078 依 D6 保留原資料、營運待查；`--strict` 因此仍回傳失敗。座標來源與既有文化資產描述疑問見 `docs/agent-runs/2026-10-28-landmarks.md`。
+- 2026-11-04 本機資料稽核為 809 筆／ERROR 0／WARN 0，`--strict` 通過。SK-078 依店家閉店公告退役；修正文資標籤、食處身分與車站導航名稱。新增 `npx --no-install tsx scripts/audit-data.ts` 補充欄位、座標與覆核清冊。SK-038 延曆寺的跨市歸類及導航地域仍待模型決策；結構通過不等於全庫事實皆經查證。詳見 [Phase 4 資料查核](docs/agent-runs/2026-11-04-phase04-data.md)。
 
 ---
 

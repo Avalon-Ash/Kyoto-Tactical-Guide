@@ -1,6 +1,6 @@
 # 京都專案子代理派工與強度計畫
 
-日期：2026-10-29。狀態：Phase 0／1 資料實作完成；畫面抽查限制見 `agent-runs/2026-10-28-phase01.md`。Phase 2 的 8 個提交已推送至 origin/main=fca4707；Phase 3 T3.1–T3.6 實作及可用環境驗收完成，新增提交留本機，子代理均已關閉。詳見 `agent-runs/2026-10-29-phase03.md` 的效能、平台限制與審查結果。Phase 4 未啟動。
+日期：2026-11-04。狀態：Phase 0／1、Phase 2 已完成；歷史驗收限制見各執行紀錄。Phase 3 的6個提交已推送至 main=12d3bfc。Phase 4 第一批資料查核於 `codex/phase4-data-audit` 留本機 diff，未 commit／merge／push；詳見 [本輪紀錄](agent-runs/2026-11-04-phase04-data.md)。原 Phase 0–3 模型表保留為歷史計畫；Phase 4 依使用者最新全域合約及本輪派工單，請求 Flash medium 做唯讀清冊，工具實際模型未確認，失敗兩次後由主代理收回。未更改主代理模型強度。
 入口合約：`../AGENTS.md`；功能與驗收清單：`PLAN.md`。
 
 ## 1. 參考 FFT 的部分與本專案差異
