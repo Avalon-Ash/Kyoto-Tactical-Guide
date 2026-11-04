@@ -30,7 +30,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
       initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col h-full bg-transparent relative overflow-hidden"
+      className="kyoto-home flex flex-col h-full bg-transparent relative overflow-hidden"
     >
       <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
         <div className="flex items-center gap-2 sm:gap-6 flex-1">
@@ -67,19 +67,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
 
       <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
         <button 
-           onClick={() => engine.switchMode('ward')}
+           aria-pressed={mode === 'ward'} onClick={() => engine.switchMode('ward')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
            <span className="whitespace-nowrap">{lang === 'zh' ? '洛中洛外' : '洛中洛外'}</span>
         </button>
         <button 
-           onClick={() => engine.switchMode('area')}
+           aria-pressed={mode === 'area'} onClick={() => engine.switchMode('area')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
            <span className="whitespace-nowrap">{lang === 'zh' ? '名所目録' : '名所目録'}</span>
         </button>
         <button
-          onClick={() => engine.switchMode('tag')}
+          aria-pressed={mode === 'tag'} onClick={() => engine.switchMode('tag')}
           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap
             ${mode === 'tag'
               ? 'text-gold-light border-shuiro bg-shuiro/5'

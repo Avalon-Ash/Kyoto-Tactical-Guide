@@ -236,87 +236,92 @@
   filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) sepia(0.25) saturate(0.7);
 }
 
-/* 洛中洛外図 — actual ward silhouettes, with a full-size directory for small wards. */
-.byobu-atlas { width: 100%; max-width: 800px; border: 1px solid #8b713b70; background: #12130f; box-shadow: 0 22px 60px #0008; }
-.atlas-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 22px; border-bottom:1px solid #c8a04a40; }
-.atlas-kicker { display:block; font-size:10px; letter-spacing:0.3em; color:#baaa83; margin-bottom:6px; }
-.atlas-heading h2 { font-family:var(--font-serif); color:#e6c27a; font-size:25px; letter-spacing:0.25em; }
-.atlas-edition { font-family:var(--font-serif); color:#c9b68c; font-size:12px; letter-spacing:0.12em; }
-.atlas-body { display:grid; grid-template-columns:minmax(0,1fr) 250px; }
-.ward-map { position:relative; min-width:0; overflow:hidden; background:radial-gradient(ellipse at 48% 40%,#24271d,#10120e 75%); border:4px double #9c804352; }
-.ward-map-svg { display:block; width:100%; height:auto; }
-.ward { cursor:pointer; outline:none; }
-.ward-fill { stroke:#b69a585e; stroke-width:1.5; transition:fill .4s ease; }
-.ward-outline { fill:none; stroke:#edcc83; stroke-width:2.5; stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset .6s ease-out; pointer-events:none; }
-.ward:hover .ward-fill, .ward:focus-visible .ward-fill, .ward[data-active="true"] .ward-fill { fill:#8c3029; }
-.ward:hover .ward-outline, .ward:focus-visible .ward-outline, .ward[data-active="true"] .ward-outline { stroke-dashoffset:0; }
-.ward:focus-visible .ward-outline { stroke:#fff5d7; stroke-width:4; }
-.ward-label { font-family:var(--font-serif); font-size:27px; font-weight:700; letter-spacing:3px; fill:#e4d6b7; paint-order:stroke; stroke:#11150f; stroke-width:5px; }
-.ward-labels [data-active="true"] .ward-label { fill:#fff; }
-.ward-seal rect { fill:#a6372b; stroke:#f1d7b080; stroke-width:1; }
-.ward-seal text { font-family:var(--font-serif); font-size:13px; font-weight:700; fill:#fff2dc; }
-.atlas-compass { stroke:#c6ac70; fill:#c6ac70; stroke-width:1; opacity:.8; }
-.atlas-compass text { font-size:20px; font-family:var(--font-serif); stroke:none; }
-.ward-map-attribution { position:absolute; right:6px; bottom:4px; padding:2px 5px; font-size:9px; background:#10120ee6; color:#d1c5a3; }
-.ward-map-attribution a:focus-visible { outline:2px solid #e6c27a; }
-.atlas-directory { padding:24px 22px; border-left:1px solid #c8a04a30; background:linear-gradient(150deg,#1b1a13,#10110e); }
-.directory-heading { display:flex; justify-content:space-between; font-family:var(--font-serif); font-size:12px; color:#cab98e; padding-bottom:14px; border-bottom:1px solid #c8a04a40; }
-.directory-heading span:last-child { font-size:9px; letter-spacing:1px; opacity:.65; }
-.ward-directory-grid { display:grid; }
-.ward-entry { display:flex; align-items:center; gap:12px; min-height:44px; border-bottom:1px solid #c8a04a20; padding:8px 2px; cursor:pointer; color:#e5d8bb; text-align:left; font-family:var(--font-serif); font-size:14px; transition:color .2s, background .2s; }
-.ward-entry-number { font-family:var(--font-sans); font-size:9px; color:#aa8f57; }
-.ward-entry-count { margin-left:auto; font-size:11px; color:#ba9b59; }
-.ward-entry:hover, .ward-entry:focus-visible, .ward-entry[data-active="true"] { color:#fff5d7; background:#b1352b38; }
-.ward-entry:focus-visible { outline:2px solid #e6c27a; outline-offset:2px; }
-.atlas-caption { margin-top:24px; color:#b6ad96; font-size:11px; font-family:var(--font-serif); line-height:1.9; }
+/* Interactive lacquer entrance: shared ward geometry for material response and picking. */
+.kyoto-home > header.urushi-panel { background:#14120f; background-image:none; border:0; border-bottom:1px solid #8b72403b; box-shadow:none; padding:20px 30px; color:#e5cc94; }
+.kyoto-home > header.urushi-panel::after { display:none; }
+.kyoto-home > header .maki-e-text { background:none; -webkit-text-fill-color:currentColor; color:#e5cc94; text-shadow:none; font-size:clamp(20px,2vw,28px); letter-spacing:.13em; }
+.kyoto-home > header p { color:#b6aa8e; letter-spacing:.12em; font-size:10px; }
+.kyoto-home > header button { color:#dfc997; border-color:#8f79504d; min-height:40px; }
+.kyoto-home > header a { color:#d19b7b; box-shadow:none; font-size:11px; }
+.kyoto-home > header .hanko-stamp { width:38px; height:42px; font-size:24px; box-shadow:none; }
+.kyoto-home > nav { background:#14120f; border-color:#8b72403b; }
+.kyoto-home > nav > button { color:#b6aa8e; padding:15px 0; font-size:13px; letter-spacing:.22em; }
+.kyoto-home > nav > button[aria-pressed="true"] { color:#e5cc94; background:#8e6a2e18; border-color:#a4533e; }
+.kyoto-home > nav > button:focus-visible { outline:2px solid #9b4d39; outline-offset:-4px; }
+.ward-home-section { display:flex; justify-content:center; padding:24px 28px 32px; background:#0d0c0a; min-height:100%; }
+.byobu-atlas { --paper:#10100e; --ink:#e2c78e; --muted:#bcad8f; --line:#a88a4d40; width:100%; max-width:1180px; color:var(--ink); background:var(--paper); border:1px solid #a88a4d40; box-shadow:0 20px 60px #0005,inset 0 1px 0 #e9c17512; }
+.atlas-heading { display:flex; justify-content:space-between; align-items:center; gap:18px; padding:22px 26px; border-bottom:1px solid var(--line); }
+.atlas-kicker { display:block; color:var(--muted); font:9px var(--font-sans); letter-spacing:.22em; margin-bottom:9px; }
+.atlas-heading h2 { margin:0; font:500 29px var(--font-serif); letter-spacing:.14em; color:var(--ink); }
+.atlas-title-dot { color:#a45138; }
+.atlas-heading-tools { display:flex; align-items:center; gap:18px; }
+.atlas-edition { max-width:120px; font:11px/1.7 var(--font-serif); color:var(--muted); letter-spacing:.1em; }
+.atlas-motion-toggle,.atlas-theme-toggle { min-height:44px; color:var(--ink); font:11px var(--font-serif); cursor:pointer; }
+.atlas-theme-toggle { padding:0 14px; border:1px solid var(--line); border-radius:30px; }
+.atlas-motion-toggle { border-bottom:1px solid var(--line); }
+.atlas-motion-toggle:disabled { cursor:default; opacity:.6; }
+.atlas-motion-toggle:focus-visible,.atlas-theme-toggle:focus-visible { outline:2px solid #a4533e; outline-offset:3px; }
+/* One surface: ward selection changes the lacquer material and its landmark. */
+.makie-scene { position:relative; isolation:isolate; width:100%; aspect-ratio:1.16; background:#0a0806; overflow:hidden; }
+.makie-fallback,.makie-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+.makie-fallback { object-fit:fill; }
+.makie-canvas { cursor:crosshair; opacity:0; touch-action:pan-y; }
+.makie-scene[data-renderer="webgl"] .makie-canvas { opacity:1; }
+.makie-scene[data-active-ward]:not([data-active-ward=""]) .makie-canvas { cursor:pointer; }
+.makie-landmarks { position:absolute; inset:0; pointer-events:none; }
+.makie-landmark { position:absolute; transform:translate(-50%,0); pointer-events:auto; min-width:56px; min-height:48px; padding:9px 5px 3px; display:flex; flex-direction:column; align-items:center; color:#efdaae; text-shadow:0 1px 4px #000,0 1px 8px #000,1px 0 #000; cursor:pointer; border:1px solid transparent; border-radius:2px; background:linear-gradient(180deg,transparent,#0a08067d 42%,#0a080629); transition:color .2s,background .2s; }
+.makie-place-name { font:500 clamp(12px,1.35vw,17px)/1.5 var(--font-serif); letter-spacing:.18em; white-space:nowrap; }
+.makie-ward-name { font:9px/1.6 var(--font-sans); letter-spacing:.14em; color:#cbb995; }
+.makie-landmark[data-active="true"] { color:#fff3cb; background:linear-gradient(180deg,transparent,#593b138c); }
+.makie-landmark[data-active="true"]::before { content:""; position:absolute; width:5px; height:5px; border-radius:50%; background:#f8e1a1; top:0; box-shadow:0 0 15px 4px #d7a94e99; }
+.makie-landmark:focus-visible { outline:2px solid #f4d28c; outline-offset:3px; }
+.makie-signature { position:absolute; top:30px; left:30px; display:flex; flex-direction:column; gap:12px; color:#f3d89e; text-shadow:0 2px 8px #000; pointer-events:none; }
+.makie-signature > span { writing-mode:vertical-rl; letter-spacing:.3em; font:500 36px/1.4 var(--font-serif); }
+.makie-signature small { border:1px solid #b35e3b; color:#df986e; padding:5px 3px; font:10px var(--font-serif); writing-mode:vertical-rl; letter-spacing:.2em; width:23px; }
+.makie-instruction { position:absolute; right:26px; top:28px; font:11px var(--font-serif); color:#e6d1a5; letter-spacing:.18em; text-shadow:0 1px 5px #000; pointer-events:none; }
+.makie-selection { position:absolute; left:28px; right:28px; bottom:23px; min-height:66px; pointer-events:none; display:flex; gap:15px; align-items:baseline; flex-wrap:wrap; color:#f4dfb1; text-shadow:0 1px 8px #000; padding:18px 22px; background:linear-gradient(90deg,#100c07e6,#100c0780,transparent); border-left:2px solid #a37b42; }
+.makie-selection strong { font:500 clamp(18px,2vw,27px) var(--font-serif); letter-spacing:.13em; }
+.makie-selection > span { font:11px var(--font-sans); letter-spacing:.1em; }
+.makie-selection .makie-selection-ward { color:#ebaf7b; }
+.makie-selection small { font:10px/1.5 var(--font-sans); color:#cbb995; }
+.atlas-map-footer { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font:10px/1.6 var(--font-sans); border-top:1px solid var(--line); padding:12px 18px; }
+.atlas-map-footer a { white-space:nowrap; align-self:flex-end; }
+.atlas-map-footer a:focus-visible { outline:2px solid #a4533e; }
+.atlas-night .makie-fallback { filter:brightness(.7) saturate(.6); }
 @media (max-width:899px) {
-  .byobu-atlas { max-width:600px; }
-  .atlas-body { grid-template-columns:1fr; }
-  .atlas-directory { border-left:0; border-top:1px solid #c8a04a30; padding:18px; }
-  .ward-directory-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px; }
-  .ward-entry { gap:6px; font-size:13px; }
-  .ward-entry-number { display:none; }
-  .atlas-heading { padding:16px 18px; }
-  .atlas-heading h2 { font-size:23px; }
-  .atlas-edition { writing-mode:vertical-rl; font-size:10px; max-height:66px; }
-  .atlas-caption { margin-top:16px; }
-}
-@media (prefers-reduced-motion:reduce) {
-  .ward-fill, .ward-outline, .ward-entry { transition:none; }
-}
-
-.ward-home-section { display:flex; flex-direction:column; align-items:center; gap:14px; padding:12px 24px 24px; }
-.atlas-heading-tools { display:flex; align-items:center; gap:20px; }
-.atlas-motion-toggle { min-height:36px; border-bottom:1px solid #c8a04a60; color:#c6b88e; font-family:var(--font-serif); font-size:11px; cursor:pointer; }
-.atlas-motion-toggle:focus-visible { outline:2px solid #e6c27a; outline-offset:3px; }
-.atlas-motion-toggle:disabled { cursor:default; opacity:.7; }
-.ridge { fill:#68654a; stroke:#b6a46a50; stroke-width:1; pointer-events:none; }
-.ridge-0 { opacity:.15; } .ridge-1 { opacity:.25; } .ridge-2 { opacity:.35; }
-.river-body { fill:none; stroke:#6d939e99; stroke-width:5; stroke-linecap:round; }
-.river-glint { fill:none; stroke:#d4e1d58c; stroke-width:1.4; stroke-linecap:round; }
-.clouds { opacity:.9; filter:drop-shadow(0 3px 4px #0006); }
-.clouds-drift-a { animation:cloud-drift 48s ease-in-out infinite alternate; }
-.clouds-drift-b { animation:cloud-drift 36s ease-in-out infinite alternate-reverse; }
-@keyframes cloud-drift { from { transform:translateX(-18px); } to { transform:translateX(18px); } }
-.byobu-atlas.is-still .clouds { animation:none; }
-.byobu-atlas.is-still .ward-fill, .byobu-atlas.is-still .ward-outline { transition:none; }
-@media (min-width:900px) {
-  .ward-map-svg { height:clamp(500px,60vh,680px); }
-  .atlas-directory { padding:18px; }
-  .ward-entry { min-height:38px; }
-  .atlas-caption { margin-top:14px; font-size:10px; }
-}
-@media (max-width:899px) {
-  .ward-home-section { padding:14px 14px 24px; }
-  .atlas-heading-tools { gap:12px; }
+  .kyoto-home > header.urushi-panel { padding:14px 18px; }
+  .ward-home-section { padding:14px; }
   .atlas-edition { display:none; }
-  .atlas-rivers { filter:none; }
-  .clouds { filter:none; }
+  .makie-scene { aspect-ratio:1; }
 }
-@media (prefers-reduced-motion:reduce) {
-  .clouds-drift-a, .clouds-drift-b { animation:none; }
-  .atlas-rivers { filter:none; }
+@media (max-width:480px) {
+  .kyoto-home > header.urushi-panel { padding:12px; }
+  .kyoto-home > header .maki-e-text { font-size:19px; letter-spacing:.04em; }
+  .kyoto-home > header .hanko-stamp { width:27px; height:30px; font-size:19px; }
+  .kyoto-home > header a { padding:5px; font-size:10px; margin:0; }
+  .kyoto-home > header button { padding:4px 8px; }
+  .kyoto-home > nav > button { padding:13px 0; font-size:12px; letter-spacing:.15em; }
+  .ward-home-section { padding:8px 8px 20px; }
+  .atlas-heading { padding:13px 12px; gap:8px; align-items:center; }
+  .atlas-heading h2 { font-size:21px; }
+  .atlas-kicker { font-size:7px; letter-spacing:.08em; }
+  .atlas-heading-tools { gap:12px; }
+  .atlas-motion-toggle,.atlas-theme-toggle { font-size:10px; min-height:44px; }
+  .atlas-theme-toggle { padding:0 8px; }
+  .makie-scene { aspect-ratio:auto; height:610px; }
+  .makie-signature { top:18px; left:15px; gap:8px; }
+  .makie-signature > span { font-size:27px; }
+  .makie-instruction { right:15px; top:20px; max-width:145px; font-size:10px; line-height:1.8; text-align:right; }
+  .makie-landmark { min-width:44px; min-height:44px; padding:5px 2px 2px; }
+  .makie-place-name { font-size:11px; letter-spacing:0; }
+  .makie-ward-name { font-size:9px; letter-spacing:0; }
+  .makie-selection { left:14px; right:14px; bottom:16px; padding:12px; gap:8px; min-height:64px; }
+  .makie-selection strong { font-size:17px; }
+  .makie-selection small { flex-basis:100%; font-size:9px; }
+  .atlas-map-footer { font-size:8px; padding:9px; }
 }
+@media (prefers-reduced-motion:reduce) { .makie-landmark { transition:none; } }
+.byobu-atlas.is-still .makie-landmark { transition:none; }
 
 /* 日輪：暖色和紙；濾鏡只作用在圖磚，不影響金色區界與標記。 */
 .map-tiles-day { filter:sepia(.35) saturate(.6) brightness(1.02) contrast(.95); }
