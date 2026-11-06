@@ -1,21 +1,30 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
-import { AREA_KEYS, TYPES, TYPE_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
+import { AREA_KEYS, AREA_NAMES, getAreaStats } from '../data/index';
 import { TAG_REGISTRY, TAG_GROUP_LABELS } from '../data/tags';
-import { MapCanvas } from './MapCanvas';
-import { SpotCard } from './SpotCard';
+import { BunkoEntrance, type BunkoPreferences } from './BunkoEntrance';
+import { buildGoogleMapsUrl } from './SpotCard';
+import { makieIcon, type MakieMotif } from '../lib/makie-icons';
+const Ornament=({motif}:{motif:MakieMotif})=><span className="hira-icon" aria-hidden="true" dangerouslySetInnerHTML={{__html:makieIcon(motif)}}/>;
+const groupMotifs:Record<string,MakieMotif>={food:'food',misc:'all',culture:'temple',nature:'nature',transport:'transport',acg:'acg'};
 
 interface HomeViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
   width: number;
   totalCount: number;
+  cabinetWard: string;
+  onCabinetWardChange: (ward: string) => void;
+  cabinetPreferences: BunkoPreferences;
+  onCabinetPreferencesChange: (value: BunkoPreferences) => void;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, cabinetWard, onCabinetWardChange, cabinetPreferences, onCabinetPreferencesChange }) => {
   const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading, tagCounts } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
   const overlayScrollRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const tagOpener = useRef<HTMLButtonElement | null>(null);
 
   // Auto scroll to top when switching modes (Ward/Area)
   useEffect(() => {
@@ -30,7 +39,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
       initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="kyoto-home flex flex-col h-full bg-transparent relative overflow-hidden"
+      className={`kyoto-home bunko-home ${cabinetPreferences.night?'bunko-night':''} flex flex-col h-full bg-transparent relative overflow-hidden`}
     >
       <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
         <div className="flex items-center gap-2 sm:gap-6 flex-1">
@@ -48,14 +57,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="/seasonal.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-serif font-bold tracking-widest text-shuiro border border-shuiro/30 bg-shuiro/5 rounded hover:bg-shuiro hover:text-white transition-all shadow-md mr-1 sm:mr-3 uppercase"
-          >
-            <span>🌸 初夏歲時記</span>
-          </a>
           <button 
             onClick={toggleLang}
             className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.75rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0 min-w-[44px]"
@@ -70,7 +71,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
            aria-pressed={mode === 'ward'} onClick={() => engine.switchMode('ward')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
         >
-           <span className="whitespace-nowrap">{lang === 'zh' ? '洛中洛外' : '洛中洛外'}</span>
+           <span className="whitespace-nowrap">京洛文庫</span>
         </button>
         <button 
            aria-pressed={mode === 'area'} onClick={() => engine.switchMode('area')}
@@ -98,96 +99,37 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
           <div className="ward-home-section">
 
             
-            <MapCanvas onOpen={openDetail} stats={getWardStats()} t={t} />
+            <BunkoEntrance lang={lang} wardId={cabinetWard} preferences={cabinetPreferences}
+              onLanguageChange={toggleLang} onWardChange={onCabinetWardChange}
+              onPreferencesChange={onCabinetPreferencesChange}
+              onExploreWard={ward=>openDetail(ward,'ward')} />
             
 
           </div>
         ) : mode === 'tag' ? (
-          <div className="py-4 sm:py-8 px-4 sm:px-8 flex flex-col gap-6">
-            {/* 頁面副題 */}
-            <div className="flex flex-col items-center gap-2 pt-2 pb-4 border-b border-gold/10">
-              <p className="font-serif text-[clamp(0.7rem,1.2vw,0.8rem)] text-gold-light/30
-                            tracking-[0.5em] uppercase">
-                {lang === 'zh' ? '以風物筆記索驥全洛' : '洛中洛外・風物索引'}
-              </p>
-            </div>
-
-            {/* 各 group 分組渲染 */}
-            {(['food', 'misc', 'culture', 'nature', 'transport', 'acg'] as const).map(group => {
-              const groupTags = Object.values(TAG_REGISTRY).filter(t => t.group === group);
-              if (groupTags.length === 0) return null;
-
-              return (
-                <div key={group} className="flex flex-col gap-3">
-                  {/* Group 標題 */}
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 sm:w-8 h-[1px] bg-gold/20" />
-                    <h3 className="font-serif text-[clamp(0.7rem,1.2vw,0.85rem)]
-                                   text-gold-light/40 tracking-[0.4em] uppercase font-bold">
-                      {TAG_GROUP_LABELS[group]?.[lang] ?? group}
-                    </h3>
-                    <span className="flex-1 h-[1px] bg-gold/10" />
-                  </div>
-
-                  {/* Tag chips 網格 */}
-                  <div className="flex flex-wrap gap-2 sm:gap-3">
-                    {groupTags.map(tagMeta => {
-                      const isActive = activeTag === tagMeta.id;
-                      return (
-                        <button
-                          key={tagMeta.id}
-                          onClick={() => {
-                            setActiveTag(isActive ? null : tagMeta.id);
-                          }}
-                          className={`maki-e-tag min-h-[48px] px-4 sm:px-5 py-2 font-serif
-                                      text-[clamp(0.8rem,1.4vw,0.95rem)] tracking-[0.2em]
-                                      flex items-center gap-2 transition-all
-                                      ${isActive
-                                        ? 'active border-gold/70 bg-shuiro/80 text-white'
-                                        : ''}`}
-                        >
-                          {tagMeta.emoji && (
-                            <span className="text-base leading-none">{tagMeta.emoji}</span>
-                          )}
-                          <span className="flex-1">{lang === 'zh' ? tagMeta.label.zh : tagMeta.label.ja}</span>
-
-                          {/* 數量 badge */}
-                          {tagCounts[tagMeta.id] != null && tagCounts[tagMeta.id] > 0 && (
-                            <span className={`
-                              text-[0.6rem] leading-none px-1.5 py-0.5 rounded-full font-bold
-                              min-w-[1.4rem] text-center tabular-nums
-                              ${isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-gold/10 text-gold-light/40'}
-                            `}>
-                              {tagCounts[tagMeta.id]}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="bunko-index tag-index">
+            <p className="index-caption">{lang==='zh'?'以風物尋訪京都':'風物から京都を探す'}</p>
+            {(['food','misc','culture','nature','transport','acg'] as const).map(group=>(
+              <section className="index-group" key={group}>
+                <h2><Ornament motif={groupMotifs[group]}/>{TAG_GROUP_LABELS[group]?.[lang]??group}</h2>
+                <div className="index-tags">{Object.values(TAG_REGISTRY).filter(tag=>tag.group===group).map(tag=>(
+                  <button key={tag.id} onClick={event=>{tagOpener.current=event.currentTarget;setActiveTag(tag.id);}} aria-pressed={activeTag===tag.id}>
+                    <span>{tag.label[lang]}</span><small>{tagCounts[tag.id]??'—'}</small>
+                  </button>
+                ))}</div>
+              </section>
+            ))}
           </div>
         ) : (
-          <div className="py-2">
-            {AREA_KEYS.map(aId => {
-              const count = getAreaStats()[aId] || 0;
-              return (
-                <div 
-                  key={aId}
-                  onClick={() => openDetail(aId, 'area')}
-                  className="px-8 py-5 border-b border-gold/5 cursor-pointer flex justify-between items-center transition-all hover:bg-shuiro/10 group"
-                >
-                  <span className="text-[1.05rem] font-serif tracking-[0.2em] text-[#f0ead6]/90 group-hover:text-gold-light transition-colors">{t(aId, AREA_NAMES)}</span>
-                  <span className="text-[0.8rem] font-serif text-gold-light/40">
-                     {count} {t('unit_spot')}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="bunko-index area-index">
+            <p className="index-caption">{lang==='zh'?'循地名，尋洛中洛外':'地名をたどり、洛中洛外へ'}</p>
+            <div className="area-leaves">{AREA_KEYS.map((aId,index)=>(
+              <button key={aId} onClick={()=>openDetail(aId,'area')}>
+                <span className="leaf-number">{String(index+1).padStart(2,'0')}</span><Ornament motif="map"/>
+                <span className="leaf-name">{t(aId,AREA_NAMES)}</span>
+                <small>{getAreaStats()[aId]||0} {t('unit_spot')}</small><span aria-hidden="true">↗</span>
+              </button>
+            ))}</div>
           </div>
         )}
       </div>
@@ -195,31 +137,29 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
         {activeTag && (
           <motion.div
             key="tag-overlay"
-            initial={{ y: '100%' }}
+            initial={{ y: reduceMotion ? 0 : '100%' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ touchAction: 'pan-y', backgroundColor: '#0d0a07' }}
-            className="fixed inset-0 z-50 flex flex-col"
+            exit={{ y: reduceMotion ? 0 : '100%' }}
+            transition={reduceMotion ? {duration:0} : { type: 'spring', damping: 25, stiffness: 200 }}
+            style={{ touchAction: 'pan-y' }}
+            onKeyDown={(event:React.KeyboardEvent<HTMLDivElement>)=>{
+              if(event.key==='Escape'){setActiveTag(null);tagOpener.current?.focus();}
+              if(event.key==='Tab'){
+                const container:HTMLDivElement=event.currentTarget;
+                const nodes=Array.from(container.querySelectorAll<HTMLElement>('button,a[href]'));
+                const first=nodes[0],last=nodes.at(-1);
+                if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+                else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+              }
+            }}
+            className="catalog-overlay fixed inset-0 z-50 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="tag-result-title"
           >
-            {/* Header */}
-            <div className="bg-[#0d0a07] border-b border-gold/40 px-6 py-4 flex items-center justify-between shrink-0 z-10">
-              <div className="flex items-center gap-3">
-                <span className="text-shuiro font-bold font-serif">●</span>
-                <h2 className="maki-e-text font-serif text-xl tracking-widest font-bold">
-                  {activeTag ? (TAG_REGISTRY[activeTag]?.label[lang] ?? activeTag) : ''}
-                </h2>
-                <span className="text-gold-light/40 font-serif text-sm ml-2">
-                  ({filteredSpots.length})
-                </span>
-              </div>
-              <button
-                onClick={() => setActiveTag(null)}
-                className="bg-shuiro/10 border border-shuiro/30 text-shuiro rounded-full px-5 py-2 text-sm font-bold font-serif hover:bg-shuiro hover:text-white transition-all min-h-[44px]"
-              >
-                {t('btn_close')}
-              </button>
-            </div>
+            <header className="catalog-heading">
+              <Ornament motif={groupMotifs[TAG_REGISTRY[activeTag]?.group]??'all'}/>
+              <h2 id="tag-result-title">{TAG_REGISTRY[activeTag]?.label[lang]??activeTag}</h2>
+              <small>{filteredSpots.length} {t('unit_spot')}</small>
+              <button autoFocus onClick={()=>{setActiveTag(null);tagOpener.current?.focus();}}>{t('btn_close')}</button>
+            </header>
 
             {/* Scroll Body */}
             <div
@@ -232,9 +172,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount })
                   <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
                 </div>
               ) : filteredSpots.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                <div className="catalog-results">
                   {filteredSpots.map(s => (
-                    <SpotCard key={s.id} spot={s} lang={lang} t={t} readOnly={false} activeTag={activeTag} />
+                    <article key={s.id} className="catalog-entry">
+                      <small>{t(s.areaId,AREA_NAMES)} · {s.id}</small><h3>{s.name}</h3>
+                      <p>{s.desc}</p><p className="catalog-tags">{s.tags}</p>
+                      {s.reservationRequired&&<p>{lang==='zh'?'需預約':'要予約'}</p>}
+                      <a href={buildGoogleMapsUrl(s)} target="_blank" rel="noopener noreferrer"><Ornament motif="map"/>Google Maps ↗</a>
+                    </article>
                   ))}
                 </div>
               ) : (
