@@ -42,6 +42,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ onOpen, stats, t }: MapCan
     return () => { renderer.current?.dispose(); renderer.current=null; canvas.removeEventListener('webglcontextlost',lost); canvas.removeEventListener('webglcontextrestored',restored); };
   }, [contextVersion]);
   useEffect(() => { update(highlight); }, [highlight, night, still, contextVersion]);
+  const pick = (x:number,y:number) => renderer.current?.pickLandmark(x,y) ?? pickMakieWard(x,y);
   const activate = (id:string) => { setHighlight(id); update(id); };
   const openOrPreview = (id:string, pointerType:string) => {
     if (pointerType === 'touch' && touchWard !== id) {setTouchWard(id);activate(id);return;}
@@ -63,11 +64,11 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ onOpen, stats, t }: MapCan
           if(e.pointerType==='touch') return;
           const bounds=e.currentTarget.getBoundingClientRect();
           pointer.current=[(e.clientX-bounds.left)/bounds.width,(e.clientY-bounds.top)/bounds.height];
-          const id=pickMakieWard(pointer.current[0],pointer.current[1]);setHighlight(id);update(id);
+          const id=pick(pointer.current[0],pointer.current[1]);setHighlight(id);update(id);
         }}
         onClick={e=>{
           const bounds=e.currentTarget.getBoundingClientRect();
-          const id=pickMakieWard((e.clientX-bounds.left)/bounds.width,(e.clientY-bounds.top)/bounds.height);
+          const id=pick((e.clientX-bounds.left)/bounds.width,(e.clientY-bounds.top)/bounds.height);
           if(id) openOrPreview(id,e.nativeEvent.pointerType);
         }} />
       <div className="makie-signature" aria-hidden="true"><span>京洛</span><small>山河蒔繪</small></div>

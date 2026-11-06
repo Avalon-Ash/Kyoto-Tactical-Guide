@@ -88,47 +88,88 @@ export function createWardMask(size: number): HTMLCanvasElement {
   return canvas;
 }
 
-/** Small raised-gold architectural motifs, rasterized once, relit in the GPU material. */
-export function createLandmarkTexture(size: number): HTMLCanvasElement {
+export interface LandmarkAtlas {
+  color: HTMLCanvasElement;
+  owners: HTMLCanvasElement;
+  pick(x: number, y: number): string | null;
+}
+
+/** Alpha-tested artwork takes priority over the geographic area behind its roof. */
+export function pickLandmarkOwner(ids: Uint8Array, size: number, x: number, y: number): string | null {
+  if (![x,y].every(Number.isFinite) || x < 0 || x >= 1 || y < 0 || y >= 1) return null;
+  const id = ids[Math.floor(y * size) * size + Math.floor(x * size)];
+  return WARD_KEYS[id - 1] ?? null;
+}
+
+/** Colour and quantized ownership share the very same rasterization and projection. */
+export function createLandmarkAtlas(size: number, toji?: CanvasImageSource): LandmarkAtlas {
   const canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas2D unavailable');
+  const color = document.createElement('canvas'), owners = document.createElement('canvas');
+  color.width = color.height = owners.width = owners.height = size;
+  const colorCtx = color.getContext('2d'), ownerCtx = owners.getContext('2d');
+  if (!colorCtx || !ownerCtx) throw new Error('Canvas2D unavailable');
+  const ids = new Uint8Array(size * size);
   for (const landmark of MAKIE_LANDMARKS) {
+    ctx.clearRect(0, 0, size, size);
     const [x,y] = landmarkPosition(landmark);
     ctx.save(); ctx.translate(x*size,y*size); ctx.scale(size/1100,size/1100);
-    ctx.shadowColor = '#000'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 5;
-    ctx.lineWidth = 1; ctx.strokeStyle = '#f4d18c';
-    const metal = ctx.createLinearGradient(-30,-35,30,18);
-    metal.addColorStop(0,'#583418'); metal.addColorStop(.35,'#ecbe6d'); metal.addColorStop(.5,'#94703a'); metal.addColorStop(.8,'#dcae62'); metal.addColorStop(1,'#483016');
-    ctx.fillStyle = metal;
-    const roof = (width:number, top:number) => {
-      ctx.beginPath(); ctx.moveTo(-width,top+14); ctx.quadraticCurveTo(-width*.5,top+12,-width*.25,top);
-      ctx.lineTo(width*.25,top); ctx.quadraticCurveTo(width*.5,top+12,width,top+14);
-      ctx.quadraticCurveTo(0,top+21,-width,top+14); ctx.fill(); ctx.stroke();
-      ctx.shadowBlur = 0;
-      for (let k=-5;k<=5;k++) { ctx.beginPath(); ctx.moveTo(k*width/20,top+2); ctx.lineTo(k*width/6,top+14); ctx.strokeStyle='#3a261a88'; ctx.stroke(); }
-      ctx.strokeStyle='#f4d18c';
-    };
-    const hall = (w:number, top:number) => {
-      ctx.fillStyle='#3a2116'; ctx.fillRect(-w*.7,top+10,w*1.4,19);
-      for (let k=-3;k<=3;k++) { ctx.fillStyle='#bd8c4d'; ctx.fillRect(k*w/5-1,top+12,2,17); }
-      ctx.fillStyle=metal; roof(w,top);
-      ctx.fillRect(-w*.85,top+29,w*1.7,2);
-    };
-    if (landmark.shape === 'torii') {
-      for(let j=2;j>=0;j--) { ctx.save(); ctx.translate(j*8,-j*5); ctx.scale(1-j*.16,1-j*.16);
-        ctx.fillStyle='#6d2a19'; ctx.fillRect(-18,-17,5,38); ctx.fillRect(13,-17,5,38);
-        ctx.fillStyle=metal; ctx.fillRect(-27,-23,54,5); ctx.fillRect(-23,-12,46,3); ctx.strokeRect(-27,-23,54,5); ctx.restore(); }
-    } else if (landmark.shape === 'pagoda') {
-      for(let j=0;j<5;j++) hall(26-j*3,10-j*13);
-      ctx.beginPath(); ctx.moveTo(0,-42); ctx.lineTo(0,-67); ctx.stroke();
-      for(let j=0;j<5;j++) { ctx.beginPath(); ctx.ellipse(0,-47-j*3,3,1,0,0,Math.PI*2); ctx.stroke(); }
+    if (landmark.spotId === 'MN-001' && toji) {
+      ctx.drawImage(toji, -142, -119, 152, 152);
     } else {
-      if (landmark.shape === 'palace') { ctx.save(); ctx.translate(-27,3); hall(19,-10); ctx.translate(54,0); hall(19,-10); ctx.restore(); }
-      hall(landmark.shape === 'palace' ? 33 : 29,-23);
-      if (landmark.spotId === 'KT-005' || landmark.spotId === 'SK-006') hall(21,-41);
+      ctx.shadowColor = '#000'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 5;
+      ctx.lineWidth = 1; ctx.strokeStyle = '#f4d18c';
+      const metal = ctx.createLinearGradient(-30,-35,30,18);
+      metal.addColorStop(0,'#583418'); metal.addColorStop(.35,'#ecbe6d'); metal.addColorStop(.5,'#94703a'); metal.addColorStop(.8,'#dcae62'); metal.addColorStop(1,'#483016');
+      ctx.fillStyle = metal;
+      const roof = (width:number, top:number) => {
+        ctx.beginPath(); ctx.moveTo(-width,top+14); ctx.quadraticCurveTo(-width*.5,top+12,-width*.25,top);
+        ctx.lineTo(width*.25,top); ctx.quadraticCurveTo(width*.5,top+12,width,top+14);
+        ctx.quadraticCurveTo(0,top+21,-width,top+14); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0;
+        for (let k=-5;k<=5;k++) { ctx.beginPath(); ctx.moveTo(k*width/20,top+2); ctx.lineTo(k*width/6,top+14); ctx.strokeStyle='#3a261a88'; ctx.stroke(); }
+        ctx.strokeStyle='#f4d18c';
+      };
+      const hall = (w:number, top:number) => {
+        ctx.fillStyle='#3a2116'; ctx.fillRect(-w*.7,top+10,w*1.4,19);
+        for (let k=-3;k<=3;k++) { ctx.fillStyle='#bd8c4d'; ctx.fillRect(k*w/5-1,top+12,2,17); }
+        ctx.fillStyle=metal; roof(w,top);
+        ctx.fillRect(-w*.85,top+29,w*1.7,2);
+      };
+      if (landmark.shape === 'torii') {
+        for(let j=2;j>=0;j--) { ctx.save(); ctx.translate(j*8,-j*5); ctx.scale(1-j*.16,1-j*.16);
+          ctx.fillStyle='#6d2a19'; ctx.fillRect(-18,-17,5,38); ctx.fillRect(13,-17,5,38);
+          ctx.fillStyle=metal; ctx.fillRect(-27,-23,54,5); ctx.fillRect(-23,-12,46,3); ctx.strokeRect(-27,-23,54,5); ctx.restore(); }
+      } else if (landmark.shape === 'pagoda') {
+        for(let j=0;j<5;j++) hall(26-j*3,10-j*13);
+        ctx.beginPath(); ctx.moveTo(0,-42); ctx.lineTo(0,-67); ctx.stroke();
+        for(let j=0;j<5;j++) { ctx.beginPath(); ctx.ellipse(0,-47-j*3,3,1,0,0,Math.PI*2); ctx.stroke(); }
+      } else {
+        if (landmark.shape === 'palace') { ctx.save(); ctx.translate(-27,3); hall(19,-10); ctx.translate(54,0); hall(19,-10); ctx.restore(); }
+        hall(landmark.shape === 'palace' ? 33 : 29,-23);
+        if (landmark.spotId === 'KT-005' || landmark.spotId === 'SK-006') hall(21,-41);
+      }
     }
     ctx.restore();
+    colorCtx.drawImage(canvas, 0, 0);
+    // Read only the motif footprint, including soft ground, not eleven full atlases.
+    const left = Math.max(0, Math.floor((x - 170 / 1100) * size));
+    const top = Math.max(0, Math.floor((y - 140 / 1100) * size));
+    const right = Math.min(size, Math.ceil((x + 80 / 1100) * size));
+    const bottom = Math.min(size, Math.ceil((y + 70 / 1100) * size));
+    const width = right - left, height = bottom - top;
+    const pixels = ctx.getImageData(left, top, width, height).data;
+    const owner = WARD_KEYS.indexOf(landmark.wardId) + 1;
+    for (let row = 0; row < height; row++) for (let col = 0; col < width; col++) {
+      if (pixels[(row * width + col) * 4 + 3] >= 64) ids[(top + row) * size + left + col] = owner;
+    }
   }
-  return canvas;
+  const pixels = ownerCtx.createImageData(size, size);
+  for (let i = 0; i < ids.length; i++) {
+    pixels.data[i * 4] = ids[i] * 20;
+    pixels.data[i * 4 + 3] = 255;
+  }
+  ownerCtx.putImageData(pixels, 0, 0);
+  return { color, owners, pick: (x, y) => pickLandmarkOwner(ids, size, x, y) };
 }

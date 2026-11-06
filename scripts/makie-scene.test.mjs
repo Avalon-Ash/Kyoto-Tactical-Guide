@@ -27,3 +27,22 @@ test('polygon holes and separate islands are excluded/included correctly',()=>{
   assert(scene.geometryContains(geom,21,21));
   assert(!scene.geometryContains(geom,15,15));
 });
+
+test('opaque landmark ownership overrides the ward behind a roof, transparent texels fall through',()=>{
+  const size=100, ids=new Uint8Array(size*size);
+  // The Toji study roof crosses the southern edge of Shimogyo in the cartogram.
+  const [x,y]=[.47,.63];
+  assert.equal(scene.pickMakieWard(x,y),'W_SHIMOGYO');
+  ids[63*size+47]=wards.indexOf('W_MINAMI')+1;
+  assert.equal(scene.pickLandmarkOwner(ids,size,x,y),'W_MINAMI');
+  assert.equal(scene.pickLandmarkOwner(ids,size,.46,y),null);
+  assert.equal(scene.pickLandmarkOwner(ids,size,.46,y) ?? scene.pickMakieWard(.46,y),'W_SHIMOGYO');
+});
+test('landmark ownership cannot wrap rows or accept invalid/outside coordinates',()=>{
+  const ids=new Uint8Array([1,2,3,4]);
+  for(const [x,y] of [[1,0],[0,1],[-.01,0],[0,-.01],[NaN,.5],[.5,Infinity]]) {
+    assert.equal(scene.pickLandmarkOwner(ids,2,x,y),null);
+  }
+  assert.equal(scene.pickLandmarkOwner(ids,2,0,0),wards[0]);
+  assert.equal(scene.pickLandmarkOwner(ids,2,.999,.999),wards[3]);
+});
