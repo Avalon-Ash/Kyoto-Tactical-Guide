@@ -1,5 +1,7 @@
 # Kyoto Tactical Guide ⛩️
 
+> [十一區文庫首頁](http://127.0.0.1:3000/)已整合：預設月光，左右直接拖動換函、點蓋展卷；閒置循環移光，主動操作時暫停。首頁無介紹／換函列／測試工具／開卷按鈕；題字採 Shippori Mincho B1、繁中內文採 Noto Serif TC。保留[獨立展示](http://127.0.0.1:3000/toji-study/index.html)作材質與深度比較，兩入口共用渲染與真實資料。[最新驗收與限制](docs/agent-runs/2026-11-06-phase04-bunko-index.md)。
+
 目前進度、提交記錄與新對話接續步驟：[交接入口](docs/HANDOFF.md)。
 
 ### 類 MMORPG 任務地圖概念的京都觀光入口網站
@@ -15,23 +17,23 @@
 
 ---
 
-### 洛中洛外（Ward Mode）
+### 京洛文庫（Ward Mode）
 
 **入口**：`mode === 'ward'`  
-**資料來源**：`WARD_NAMES`（`src/data/index.ts`）、`getWardStats()`  
-**渲染元件**：`MapCanvas.tsx`
+**資料來源**：`WARD_NAMES`、`getWardStats()`、既有景點／locale loader
+**渲染元件**：`BunkoEntrance.tsx` → `mountBunko()`
 
-以京都傳統地理分區「洛中・洛外」為索引，將全市分為 11 個行政區（Ward），
-對應江戶時代的城市空間概念。使用者點擊地圖上的行政區塊即可進入該區的
-`DetailView`，查看該區所有景點清單。
+十一行政區各有一函，以代表地標、山水及古地名構成固定視角的簡化幾何浮雕。
+左右拖動文庫或用左右方向鍵選區，點蓋／Enter／空白鍵展卷；書卷讀取該區真實景點並支援搜尋、分類和中日文。
+「地圖與完整篩選」進入既有 `DetailView`，再由其地圖按鈕切換實際地理視圖。
 
 **規則與禁則：**
-- 每個景點必須歸屬唯一的 `wardId`（於 `spots/*.ts` 的 `wardId` 欄位定義）
-- `wardId` 的合法值集合定義於 `src/data/index.ts` 的 `WARD_NAMES`，
-  禁止在資料檔中使用未登記的 wardId
-- `MapCanvas.tsx` 使用原生 WebGL 蒔繪材質；區界、金粉回饋與地標在同一畫面，不提供蒔繪／區界切換。`makie-scene.ts` 共用真實邊界的市街放大投影做命中判定與材質遮罩；圖上十一個地標按鈕支援 Enter／空白鍵，手機至少 44×44px。
-- 首頁為市中心藝術裁切，省略北部山區；行政區詳細地圖仍顯示完整區界。山水底圖為生成的蒔繪意象，地標紋樣是象徵性建築，不能當作精確建築復原或導航圖。
-- 行政區統計數字（`getWardStats()`）為動態計算，修改 spots 資料後自動反映
+- 每個景點必須歸屬唯一的 `wardId`，合法值由 `WARD_NAMES` 定義，不在文庫控制器複製景點資料。
+- `App` 保留執行期間的選區與日夜；語言共用 `useKyotoEngine`，重新整理預設月光。首頁閒置播放、主動操作讓出控制、1.8 秒後恢復；背景、讀卷、拖動及系統減少動態時停播。
+- 首頁不顯示測試工具與開卷按鈕；獨立展示保留對照控制。字體由既有 Google Fonts 方式載入，無新 npm 依賴。
+- `study.js` 的 `mountBunko`、`template.ts`、`library.ts` 與 `.bunko` 範圍樣式由主站及獨立頁共用。卸載必須釋放事件、觀察器、RAF、讀卷回寫及 GPU 資源。
+- 原生 WebGL 簡化幾何不是精確建築復原／導航圖。使用者已選定一區一函方向，舊 `MapCanvas.tsx` 留存為早期原型，首頁不再掛載；不恢復蒔繪／區界切換。
+- 實際行政區邊界及鄰近區域仍由詳細地圖呈現。景點統計動態計算，修改資料後自動反映。
 
 ---
 
@@ -205,7 +207,7 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 
 - `closeDetail()` 清除 activeId、activeTag，並將 mode 重置為 `'ward'`。
 - Schema 為統計所需而靜態匯入；ZH／JA locale 仍使用 Vite lazy glob。`getTagCounts()` 已是模組層 lazy getter，不需要為 StrictMode 再造另一份快取。
-- ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；靜態區界因首頁 GPU 材質與命中判定共用，已進入首頁包。
+- ClusterMap 與 Leaflet 在首次切換詳細地圖時延遲載入，等待時顯示目前語系的 loading 訊息；行政區界由詳細地圖使用；文庫首頁不使用地理區界命中。
 - `toChineseNumerals(101)` 為「一百零一」、`110` 為「一百一十」；已移除原文件不正確的三位數缺陷說明。
 - 2026-11-04 本機資料稽核為 809 筆／ERROR 0／WARN 0，`--strict` 通過。SK-078 依店家閉店公告退役；修正文資標籤、食處身分與車站導航名稱。新增 `npx --no-install tsx scripts/audit-data.ts` 補充欄位、座標與覆核清冊。SK-038 已透過 `municipalityId: M_OTSU` 分離旅遊索引與真實市域，導航使用大津市／滋賀県；結構通過不等於全庫事實皆經查證。詳見 [Phase 4 資料查核](docs/agent-runs/2026-11-04-phase04-data.md)。
 
@@ -233,7 +235,8 @@ src/
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
-│   ├── MapCanvas.tsx   # GPU 蒔繪、行政區命中與圖上地標入口
+│   ├── BunkoEntrance.tsx # 十一區文庫：React 與共用控制器的生命週期銜接
+│   ├── MapCanvas.tsx   # 留存的早期 GPU 蒔繪原型，首頁不再掛載
 │   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
 │   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
@@ -255,12 +258,12 @@ public/
 
 ## 🎨 視覺風格：漆藝 (Urushi Style)
 
-本專案採用獨特的「京都漆藝」視覺設計：
-- **底色 (漆道)**：深沉的炭黑與暗紅背景。
-- **邊界 (蒔繪)**：細緻的金箔與金屬質感邊框。
-- **互動 (光影)**：卡片懸停時具有如漆器般溫潤的回饋感。
-- **互動蒔繪**：`public/art/kyoto-makie-relief.jpg` 作為漆面底色，`makie-renderer.ts` 在 WebGL shader 中計算金粉反光、所選區域與地標浮起。十一個地標取用既有 `SPOT_POSITIONS`，不靠頁面下方清單進入。這是 2.5D 材質原型，未導入 Rust，也不是完整 3D 建築場景。
-- **動態與效能**：按需繪製，閒置／離屏時不跑持續動畫迴圈，DPR 上限 1.5。「靜止畫面」與 `prefers-reduced-motion` 保留選取但停止過渡；WebGL 不可用時保留靜態圖與地標入口。本輪結果見 [驗收紀錄](docs/agent-runs/2026-11-04-phase04-location-makie.md)，Phase 3 Lighthouse 分數不代表新版本分數。
+目前主入口以「初音調度」意象發展十一區文庫，既有地圖原型保留於程式庫：
+- **首頁與檢索介面**：預設月光，暖日可切換；名所目錄、御秘帖及標籤結果共用紙色、金銀線、Shippori Mincho B1 題字與 Noto Serif TC 繁中內文。書卷以平紋蒔繪意象的 SVG 圖形與短標籤篩選。
+- **文庫浮雕**：`src/studies/toji/` 以原生 WebGL 渲染十一區代表地標、山水、梨地與金銀材質；具有幾何高度、視差、陰影與光跡。固定構圖的簡化浮雕不是測繪建築／完整 3D 復原，沒有導入 Rust 或大型繪圖依賴。
+- **操作與動態**：左右拖動／方向鍵換函，直接點蓋／Enter 展開真實雙語書卷；手動換函立即播放，閒置循環上限 30 次繪製／秒。主動操作讓出控制，讀卷、離屏、背景與減少動態時抑制播放；不能沿用舊原型「閒置沒有動畫」的描述。
+- **歷史地圖原型**：`MapCanvas.tsx`、`makie-renderer.ts` 與 `makie-scene.ts` 保留 2.5D 漆面光照、圖上區域命中及地標歸屬；不再繪製硬切區塊。`kyoto-makie-relief.jpg`／`toji-makie-study.webp` 屬此原型，並非目前文庫的幾何模型來源。
+- **驗收界線**：[最新紀錄](docs/agent-runs/2026-11-06-phase04-bunko-index.md)含 1440px／375px、雙語日夜與鍵盤滑鼠；真實手機觸控與 OS reduced-motion 未測。舊 Lighthouse 分數不代表目前版本。
 
 ---
 
@@ -365,10 +368,10 @@ public/
 ### 5. 地標景點真確性定位約束 (Landmark Coordinates)
 當新增或修改具有「世界遺產」、「國寶」、「經典寺院 / 神社」等超重要地位的景點時（如金閣寺、清水寺、平安神宮等），**強制必須**在 `src/data/map-centers.ts` 的 `SPOT_POSITIONS` 常數中，新增該 `spot.id` 對應的真實經緯度坐標。以利 `ClusterMap.tsx` 在地圖上直接繪製專屬的地名圖示（Landmark Icon + Name）。
 
-### 6. 歲時記季節祭典子系統 (Seasonal Page)
-為了補齊主要名所導覽外的短期時效性活動，系統內建可抽換式的「歲時記」獨立頁面 (`/public/seasonal.html`)。
-- **架構優勢**：獨立的純 HTML/JS/Tailwind CSS 實現，不會干擾主要 React 應用的複雜度，後續接手人可以直接抽換 `seasonal.html` 的內容，來對應不同季節（如楓葉季、櫻花季、初夏祭典等）。
-- **觸發位置**：在主要模組的 `HomeView` 頂部右側（地球/語言切換鈕旁），以另開新分頁方式(`target="_blank"`) 顯示，維持行動裝置上的高彈性體驗。
+### 6. 歲時記（歷史存檔／年度版待製）
+`public/seasonal.html` 保留 2026 年六月個人行程作存檔；2026-11-06 已移除首頁入口。它不是全年活動資料庫，不能以替換年份方式當成已核實的年度活動。
+
+新方向為已知活動年度總表、季節分類、使用者日期區間內的活動清單，另見 [年度製作計畫](docs/SEASONAL_PLAN.md)。本輪只研究與規劃，尚未製作年度資料或查詢頁；恢復入口前需完成日期／來源查核與驗收。前文舊架構的「抽換季節頁」是歷史說明，以本節為準。
 
 ### 7. 執行前自我檢查與回報 (Automated Validation)
 
