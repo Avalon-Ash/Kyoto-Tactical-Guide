@@ -6,181 +6,130 @@ import { TAG_REGISTRY, TAG_GROUP_LABELS } from '../data/tags';
 import { BunkoEntrance, type BunkoPreferences } from './BunkoEntrance';
 import { SpotCard } from './SpotCard';
 import { BunkoTools } from './BunkoTools';
-import { makieIcon, type MakieMotif } from '../lib/makie-icons';
-const Ornament=({motif}:{motif:MakieMotif})=><span className="hira-icon" aria-hidden="true" dangerouslySetInnerHTML={{__html:makieIcon(motif)}}/>;
-const groupMotifs:Record<string,MakieMotif>={food:'food',misc:'all',culture:'temple',nature:'nature',transport:'transport',acg:'acg'};
+import { MakieIcon } from './MakieIcon';
+import type { MakieMotif } from '../lib/makie-icons';
+
+const GROUPS = ['food', 'misc', 'culture', 'nature', 'transport', 'acg'] as const;
+const GROUP_MOTIFS: Record<string, MakieMotif> = { food: 'food', misc: 'all', culture: 'temple', nature: 'nature', transport: 'transport', acg: 'acg' };
+const MODES = [['ward', 'mode_bunko'], ['area', 'mode_area'], ['tag', 'mode_tag']] as const;
+const AREA_STATS = getAreaStats();
 
 interface HomeViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
-  width: number;
-  totalCount: number;
   cabinetWard: string;
   onCabinetWardChange: (ward: string) => void;
   cabinetPreferences: BunkoPreferences;
   onCabinetPreferencesChange: (value: BunkoPreferences) => void;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, cabinetWard, onCabinetWardChange, cabinetPreferences, onCabinetPreferencesChange }) => {
-  const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading, tagCounts } = engine;
+export const HomeView: React.FC<HomeViewProps> = ({ engine, cabinetWard, onCabinetWardChange, cabinetPreferences, onCabinetPreferencesChange }) => {
+  const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading, tagCounts, totalCount, returnFocusId } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
-  const overlayScrollRef = useRef<HTMLDivElement>(null);
-  const systemReducedMotion = useReducedMotion();
-  const reduceMotion = systemReducedMotion || cabinetPreferences.paused;
+  const reduceMotion = useReducedMotion() || cabinetPreferences.paused;
   const tagOpener = useRef<HTMLButtonElement | null>(null);
+  const overlayOpen = activeTag ? true : undefined;
 
-  useEffect(() => { if (!activeTag) tagOpener.current?.focus(); }, [activeTag]);
-
-  // Auto scroll to top when switching modes (Ward/Area)
+  // Coming back from a place: focus the entry the reader opened (or the cabinet) instead of losing it to <body>.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  }, [mode]);
+    if (!returnFocusId) return;
+    const target = mode === 'area'
+      ? scrollRef.current?.querySelector<HTMLElement>(`[data-area-id="${returnFocusId}"]`)
+      : scrollRef.current?.querySelector<HTMLElement>('#scene');
+    target?.focus({ preventScroll: mode !== 'area' });
+    if (mode === 'area') target?.scrollIntoView({ block: 'nearest' });
+    // Only on mount: later mode switches start at the top of their index.
+  }, []);
+
+  useEffect(() => { scrollRef.current?.scrollTo({ top: 0, behavior: 'auto' }); }, [mode]);
+
+  // Focus the chip that opened the sheet only after the re-render lifts `inert` from the index.
+  useEffect(() => { if (!activeTag) tagOpener.current?.focus(); }, [activeTag]);
+  const closeTag = () => setActiveTag(null);
 
   return (
-    <motion.div 
-      key="home"
-      initial={false}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={reduceMotion ? {duration:0} : undefined}
-      className={`kyoto-home bunko-home ${cabinetPreferences.night?'bunko-night':''} flex flex-col h-full bg-transparent relative overflow-hidden`}
-    >
-      <header inert={activeTag ? true : undefined} className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
-        <div className="flex items-center gap-2 sm:gap-6 flex-1">
-          <div className="hanko-stamp text-base sm:text-2xl w-7 sm:w-12 h-7 sm:h-12 shadow-lg flex items-center justify-center">
-            京
-          </div>
-          <div className="flex flex-col">
-            <h1 className="maki-e-text font-serif text-[clamp(1.1rem,2.8vw,2.5rem)] font-bold tracking-[0.2em]">{t('app_title')}</h1>
-            <div className="hidden sm:flex items-center gap-2 mt-0 sm:mt-1">
-              <span className="w-4 sm:w-12 h-[1px] bg-gold/20"></span>
-              <p className="text-[clamp(0.75rem,1vw,0.75rem)] text-gold-light/40 tracking-[0.3em] font-serif uppercase font-bold">
-                {t('db_info').replace('{n}', totalCount.toString())}
-              </p>
-            </div>
+    <motion.div key="home" initial={false} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={reduceMotion ? { duration: 0 } : undefined} className="kyoto-home">
+      <header inert={overlayOpen} className="app-header">
+        <div className="app-brand">
+          <span className="app-seal" aria-hidden="true">京</span>
+          <div>
+            <h1>{t('app_title')}</h1>
+            <p>{t('db_info').replace('{n}', totalCount.toString())}</p>
           </div>
         </div>
         <BunkoTools lang={lang} preferences={cabinetPreferences} onChange={onCabinetPreferencesChange} onLanguage={toggleLang} />
       </header>
 
-      <nav inert={activeTag ? true : undefined} className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
-        <button 
-           aria-pressed={mode === 'ward'} onClick={() => engine.switchMode('ward')}
-           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
-        >
-           <span className="whitespace-nowrap">京洛文庫</span>
-        </button>
-        <button 
-           aria-pressed={mode === 'area'} onClick={() => engine.switchMode('area')}
-           className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'area' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
-        >
-           <span className="whitespace-nowrap">{lang === 'zh' ? '名所目録' : '名所目録'}</span>
-        </button>
-        <button
-          aria-pressed={mode === 'tag'} onClick={() => engine.switchMode('tag')}
-          className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap
-            ${mode === 'tag'
-              ? 'text-gold-light border-shuiro bg-shuiro/5'
-              : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
-        >
-          <span className="whitespace-nowrap">御秘帖</span>
-        </button>
+      <nav inert={overlayOpen} className="mode-tabs" aria-label={t('mode_label')}>
+        {MODES.map(([id, label]) => (
+          <button key={id} type="button" aria-pressed={mode === id} onClick={() => engine.switchMode(id)}>{t(label)}</button>
+        ))}
       </nav>
 
-      <div 
-        inert={activeTag ? true : undefined}
-        ref={scrollRef} 
-        style={{ touchAction: 'pan-y' }}
-        className="flex-1 overflow-y-auto no-scrollbar"
-      >
+      <div inert={overlayOpen} ref={scrollRef} className="home-body">
         {mode === 'ward' ? (
-          <div className="ward-home-section">
-
-            
-            <BunkoEntrance lang={lang} wardId={cabinetWard} preferences={cabinetPreferences}
-              onLanguageChange={toggleLang} onWardChange={onCabinetWardChange}
-              onPreferencesChange={onCabinetPreferencesChange}
-              onExploreWard={ward=>openDetail(ward,'ward')} />
-            
-
-          </div>
+          <BunkoEntrance lang={lang} wardId={cabinetWard} preferences={cabinetPreferences}
+            onLanguageChange={toggleLang} onWardChange={onCabinetWardChange}
+            onPreferencesChange={onCabinetPreferencesChange}
+            onExploreWard={ward => openDetail(ward, 'ward')} />
         ) : mode === 'tag' ? (
-          <div className="bunko-index tag-index">
-            <p className="index-caption">{lang==='zh'?'以風物尋訪京都':'風物から京都を探す'}</p>
-            {(['food','misc','culture','nature','transport','acg'] as const).map(group=>(
+          <div className="bunko-index">
+            <p className="index-caption">{t('caption_tag')}</p>
+            {GROUPS.map(group => (
               <section className="index-group" key={group}>
-                <h2><Ornament motif={groupMotifs[group]}/>{TAG_GROUP_LABELS[group]?.[lang]??group}</h2>
-                <div className="index-tags">{Object.values(TAG_REGISTRY).filter(tag=>tag.group===group).map(tag=>(
-                  <button key={tag.id} onClick={event=>{tagOpener.current=event.currentTarget;setActiveTag(tag.id);}} aria-pressed={activeTag===tag.id}>
-                    <span>{tag.label[lang]}</span><small>{tagCounts[tag.id]??'—'}</small>
+                <h2><MakieIcon motif={GROUP_MOTIFS[group]} />{TAG_GROUP_LABELS[group]?.[lang] ?? group}</h2>
+                <div className="index-tags">{Object.values(TAG_REGISTRY).filter(tag => tag.group === group).map(tag => (
+                  <button key={tag.id} type="button" aria-pressed={activeTag === tag.id}
+                    onClick={event => { tagOpener.current = event.currentTarget; setActiveTag(tag.id); }}>
+                    <span>{tag.label[lang]}</span><small>{tagCounts[tag.id] ?? '—'}</small>
                   </button>
                 ))}</div>
               </section>
             ))}
           </div>
         ) : (
-          <div className="bunko-index area-index">
-            <p className="index-caption">{lang==='zh'?'循地名，尋洛中洛外':'地名をたどり、洛中洛外へ'}</p>
-            <div className="area-leaves">{AREA_KEYS.map((aId,index)=>(
-              <button key={aId} onClick={()=>openDetail(aId,'area')}>
-                <span className="leaf-number">{String(index+1).padStart(2,'0')}</span><Ornament motif="map"/>
-                <span className="leaf-name">{t(aId,AREA_NAMES)}</span>
-                <small>{getAreaStats()[aId]||0} {t('unit_spot')}</small><span aria-hidden="true">↗</span>
+          <div className="bunko-index">
+            <p className="index-caption">{t('caption_area')}</p>
+            <div className="area-leaves">{AREA_KEYS.map((areaId, index) => (
+              <button key={areaId} type="button" data-area-id={areaId} onClick={() => openDetail(areaId, 'area')}>
+                <span className="leaf-number">{String(index + 1).padStart(2, '0')}</span><MakieIcon motif="map" />
+                <span className="leaf-name">{t(areaId, AREA_NAMES)}</span>
+                <small>{AREA_STATS[areaId] || 0} {t('unit_spot')}</small><span aria-hidden="true">↗</span>
               </button>
             ))}</div>
           </div>
         )}
       </div>
+
       <AnimatePresence mode="wait">
         {activeTag && (
-          <motion.div
-            key="tag-overlay"
-            initial={{ y: reduceMotion ? 0 : '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: reduceMotion ? 0 : '100%' }}
-            transition={reduceMotion ? {duration:0} : { type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ touchAction: 'pan-y' }}
-            onKeyDown={(event:React.KeyboardEvent<HTMLDivElement>)=>{
-              if(event.key==='Escape'){setActiveTag(null);tagOpener.current?.focus();}
-              if(event.key==='Tab'){
-                const container:HTMLDivElement=event.currentTarget;
-                const nodes=Array.from(container.querySelectorAll<HTMLElement>('button,a[href]'));
-                const first=nodes[0],last=nodes.at(-1);
-                if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
-                else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+          <motion.div key="tag-overlay"
+            initial={{ y: reduceMotion ? 0 : '100%' }} animate={{ y: 0 }} exit={{ y: reduceMotion ? 0 : '100%' }}
+            transition={reduceMotion ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 200 }}
+            onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+              if (event.key === 'Escape') closeTag();
+              if (event.key === 'Tab') {
+                const container: HTMLDivElement = event.currentTarget;
+                const nodes = Array.from(container.querySelectorAll<HTMLElement>('button,a[href]'));
+                const first = nodes[0], last = nodes.at(-1);
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
               }
             }}
-            className="catalog-overlay fixed inset-0 z-50 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="tag-result-title"
-          >
+            className="catalog-overlay" role="dialog" aria-modal="true" aria-labelledby="tag-result-title">
             <header className="catalog-heading">
-              <Ornament motif={groupMotifs[TAG_REGISTRY[activeTag]?.group]??'all'}/>
-              <h2 id="tag-result-title">{TAG_REGISTRY[activeTag]?.label[lang]??activeTag}</h2>
+              <MakieIcon motif={GROUP_MOTIFS[TAG_REGISTRY[activeTag]?.group] ?? 'all'} />
+              <h2 id="tag-result-title">{TAG_REGISTRY[activeTag]?.label[lang] ?? activeTag}</h2>
               <small>{filteredSpots.length} {t('unit_spot')}</small>
-              <button autoFocus onClick={()=>{setActiveTag(null);tagOpener.current?.focus();}}>{t('btn_close')}</button>
+              <button type="button" className="ui-button" autoFocus onClick={closeTag}>{t('btn_close')}</button>
             </header>
-
-            {/* Scroll Body */}
-            <div
-              ref={overlayScrollRef}
-              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 no-scrollbar bg-transparent"
-              style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
-            >
-              {isGlobalLoading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="maki-e-text animate-pulse font-serif tracking-[0.5em]">{t('loading')}...</div>
-                </div>
-              ) : filteredSpots.length > 0 ? (
-                <div className="catalog-results">
-                  {filteredSpots.map(s => (
-                    <SpotCard key={s.id} spot={s} lang={lang} t={t} activeTag={activeTag} />
-                  ))}
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center">
-                  <p className="ui-muted">{t('no_results')}</p>
-                </div>
-              )}
+            <div className="catalog-body">
+              {isGlobalLoading ? <div className="ui-status" role="status">{t('loading')}</div>
+                : filteredSpots.length > 0 ? (
+                  <div className="catalog-results">
+                    {filteredSpots.map(s => <SpotCard key={s.id} spot={s} lang={lang} t={t} activeTag={activeTag} />)}
+                  </div>
+                ) : <div className="ui-status" role="status">{t('no_results')}</div>}
             </div>
           </motion.div>
         )}

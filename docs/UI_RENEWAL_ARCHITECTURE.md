@@ -107,7 +107,7 @@ export function mountBackdrop(host: HTMLElement, o: BackdropOptions): Backdrop;
 - `src/index.css` 的 `@theme`：新增 `--color-washi-*`、`--color-urushi-*`、`--color-kin-*`、`--color-gin-*` 晝夜兩組（色值依美術文件 §2）。
 - `study.css` 的 `.bunko` 變數（`--paper`、`--gold`……）改成引用上述 token，不再寫死。
 - 新色值一律進 token，元件裡不寫 hex。
-- 2026-11-09 補：T4-M5 已在 `src/bunko-ui.css` 建立 `--entry-*`、`--hira-*` 晝夜兩組，由 `.kyoto-app[data-theme]` 切換。P0 以它為起點：把色值搬進 `@theme` 的和色 token，`bunko-ui.css` 與 `study.css` 改成引用，**不另起第三套**。晝夜切換仍只認 `cabinetPreferences.night`。
+- 2026-11-09 補：色票已集中到 `src/theme.css`（`--entry-*`、`--hira-*` 晝夜兩組，`:root[data-theme]`、`.kyoto-app[data-theme]`、`.bunko.night` 共用），`study.css` 的 `--paper` 等變數改為引用它。P0 以它為起點：把色值搬進 `@theme` 的和色 token，`bunko-ui.css` 與 `study.css` 改成引用，**不另起第三套**。晝夜切換仍只認 `cabinetPreferences.night`。
 - `bunko-ui.css` 和 `index.css`、`study.css` 屬同一視覺工作線，包 A 寫入時其他包不碰。
 
 ## 3. 手勢狀態機（P1）

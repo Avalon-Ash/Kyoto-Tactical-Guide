@@ -1,0 +1,24 @@
+/*
+ * The one palette for every route: the app, the bunko reader and the standalone study page.
+ * Light (warm day) is the default; dark (moonlight) follows the app's data-theme or the bunko's .night class.
+ * Canvas and Leaflet code cannot read CSS variables at paint time; their literal copies say "mirrors theme.css".
+ */
+:root, .kyoto-app[data-theme="light"], .bunko {
+  --entry-paper:#eee8db; --entry-surface:#f5f0e5; --entry-panel:#e1d4bc;
+  --entry-ink:#342e24; --entry-muted:#706451; --entry-line:#c9bca4;
+  --hira-gold:#80602e; --hira-silver:#68736f; --entry-accent:#94482d; --entry-seal:#9a553c;
+  --entry-selected:#80602e14; --entry-shadow:#30200e26;
+  --font-serif:"Noto Serif TC","Noto Serif JP",serif;
+  --title-font:"Shippori Mincho B1","Noto Serif TC","Noto Serif JP",serif;
+  --font-numeric:Georgia,serif;
+  color-scheme:light;
+}
+:root[data-theme="dark"], .kyoto-app[data-theme="dark"], .bunko.night {
+  --entry-paper:#1b2228; --entry-surface:#242c33; --entry-panel:#282d32;
+  --entry-ink:#e7e1d4; --entry-muted:#b4b5ad; --entry-line:#465058;
+  --hira-gold:#d2bb89; --hira-silver:#b7c5c7; --entry-accent:#e0a28a; --entry-seal:#c9785c;
+  --entry-selected:#d2bb8914; --entry-shadow:#0006;
+  color-scheme:dark;
+}
+:lang(ja) { --font-serif:"Shippori Mincho B1","Noto Serif JP",serif; }
+html { background:var(--entry-paper); color:var(--entry-ink); }

@@ -1,3 +1,4 @@
+import '../../theme.css';
 import { BUNKO_MARKUP } from './template';
 import { mountBunko } from './study.js';
 

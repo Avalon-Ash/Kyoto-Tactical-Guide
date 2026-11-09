@@ -37,6 +37,8 @@ import { motion, useReducedMotion } from 'motion/react';
 import { ChevronLeft, List, Filter, Map } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
+
+const WARD_STATS = getWardStats(), AREA_STATS = getAreaStats();
 import { SpotCard } from './SpotCard';
 import { BunkoTools } from './BunkoTools';
 import { MakieIcon } from './MakieIcon';
@@ -52,12 +54,11 @@ const ClusterMap = React.lazy(() =>
 
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
-  width: number;
   preferences: BunkoPreferences;
   onPreferencesChange: (value: BunkoPreferences) => void;
 }
 
-export const DetailView: React.FC<DetailViewProps> = ({ engine, width, preferences, onPreferencesChange }) => {
+export const DetailView: React.FC<DetailViewProps> = ({ engine, preferences, onPreferencesChange }) => {
   const { 
     lang, mode, activeId, activeType, isLoading, activeTag, setActiveTag, localTags,
     t, toggleLang, closeDetail, filteredSpots, typeCounts 
@@ -101,36 +102,36 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width, preferenc
   return <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={reduceMotion ? {duration:0} : undefined} className="detail-view">
     <header className="detail-header">
       <div className="detail-topline">
-        <button className="ui-button back-button" onClick={returnToIndex}><ChevronLeft size={18} />{t('btn_back')}</button>
+        <button type="button" className="ui-button back-button" onClick={returnToIndex}><ChevronLeft size={18} />{t('btn_back')}</button>
         <BunkoTools lang={lang} preferences={preferences} onChange={onPreferencesChange} onLanguage={toggleLang} />
       </div>
       <div className="detail-heading">
         <div><p className="ui-kicker">{mode === 'ward' ? 'KYOTO / BUNKO' : 'KYOTO / PLACES'}</p>
           <h2 ref={titleRef} tabIndex={-1}>{title}</h2></div>
-        <small>{filteredSpots.length} / {activeId && (mode === 'ward' ? getWardStats()[activeId] : getAreaStats()[activeId])} {t('unit_spot')}</small>
+        <small>{filteredSpots.length} / {activeId && (mode === 'ward' ? WARD_STATS[activeId] : AREA_STATS[activeId])} {t('unit_spot')}</small>
       </div>
-      <div className="type-selector" role="group" aria-label={lang === 'zh' ? '景點類型' : '名所の種類'}>
-        {Object.keys(TYPES).map(type => <button key={type} aria-pressed={activeType === type}
+      <div className="type-selector" role="group" aria-label={t('type_filter')}>
+        {Object.keys(TYPES).map(type => <button key={type} type="button" aria-pressed={activeType === type}
           onClick={() => engine.setActiveType(type)}>
           <MakieIcon motif={typeMotifs[type] ?? 'all'} />
           <span>{t(type, TYPE_NAMES)}</span><small>{typeCounts[type] || 0}</small>
         </button>)}
       </div>
-      <TagSelector tags={visibleLocalTags} activeTag={activeTag} onSelect={setActiveTag} lang={lang} variant="local" />
+      <TagSelector tags={visibleLocalTags} activeTag={activeTag} onSelect={setActiveTag} lang={lang} />
     </header>
     <div ref={scrollRef} className={`detail-content ${viewMode === 'map' ? 'is-map' : ''}`}>
       {isLoading ? <div className="ui-status" role="status">{t('loading')}</div>
         : viewMode === 'map' ? <React.Suspense fallback={<div role="status" className="ui-status">{t('loading')}</div>}>
-            <ClusterMap engine={engine} width={width} night={preferences.night} paused={preferences.paused} />
+            <ClusterMap engine={engine} night={preferences.night} paused={preferences.paused} />
           </React.Suspense>
         : <main className="spot-grid" aria-label={title}>
           {filteredSpots.length ? filteredSpots.map(spot => <SpotCard key={spot.id} spot={spot} lang={lang} t={t} activeTag={activeTag} />)
             : <div className="ui-status" role="status"><Filter size={28} /><p>{t('empty_msg')}</p></div>}
         </main>}
     </div>
-    <nav className="view-switch" aria-label={lang === 'zh' ? '呈現方式' : '表示方法'}>
-      <button aria-pressed={viewMode === 'card'} onClick={() => setViewMode('card')}><List size={18} />{lang === 'zh' ? '景點列表' : '名所一覧'}</button>
-      <button aria-pressed={viewMode === 'map'} onClick={() => setViewMode('map')}><Map size={18} />{lang === 'zh' ? '探索地圖' : '地図を見る'}</button>
+    <nav className="view-switch" aria-label={t('view_mode')}>
+      <button type="button" aria-pressed={viewMode === 'card'} onClick={() => setViewMode('card')}><List size={18} />{t('view_list')}</button>
+      <button type="button" aria-pressed={viewMode === 'map'} onClick={() => setViewMode('map')}><Map size={18} />{t('view_map')}</button>
     </nav>
   </motion.div>;
 };

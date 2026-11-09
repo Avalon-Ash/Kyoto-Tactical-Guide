@@ -30,7 +30,7 @@
  * - 禁止使用 maps/dir/ 端點
  * - reservationRequired badge 以 spot.reservationRequired 布林值為唯一判斷基準
  *   禁止用 tagIds 字串替代此欄位
- * - readOnly={true} 時省略導航連結，供預覽或靜態展示用途
+ * - 一律附 Google Maps 導航連結（buildGoogleMapsUrl）
  */
 import React from 'react';
 import { MakieIcon } from './MakieIcon';
@@ -41,13 +41,16 @@ import { TAG_REGISTRY } from '../data/tags';
 import { getSpotLocation } from '../data/municipalities';
 
 interface SpotCardProps {
-  key?: number | string;
+  /** Declared because the project has no @types/react: lets callers pass React's list key. */
+  key?: string;
   spot: FlatSpot;
   lang: Lang;
   t: (key: string, dict?: Record<string, { zh: string; ja: string }>) => string;
-  readOnly?: boolean;
   activeTag?: string | null;
 }
+
+const MAPS_SEARCH = 'https://www.google.com/maps/search/?api=1&query=';
+const STANDALONE_NAMES = ['先斗町公園', '嵐山', '祇園', '哲学の道', '鴨川'];
 
 /**
  * Query Assembly System：由 spot.jaName 組裝 Google Maps Search URL。
@@ -69,8 +72,7 @@ export function buildGoogleMapsUrl(spot: Pick<FlatSpot, 'jaName' | 'wardId' | 'm
 
   // Query Assembly System — 預設組裝規則與例外策略
   // 依固有名詞特徵判斷查詢策略：若為特定廣域名稱或街道，排除行政區以避免 Google Maps 搜尋失敗
-  const standaloneNames = ['先斗町公園', '嵐山', '祇園', '哲学の道', '鴨川'];
-  const isStandalone = standaloneNames.some(name => queryName.includes(name));
+  const isStandalone = STANDALONE_NAMES.some(name => queryName.includes(name));
 
   // 1. JA locale 的 spot.name
   // 2. 行政區日文名稱 (若為 isStandalone 則排除)
@@ -81,12 +83,10 @@ export function buildGoogleMapsUrl(spot: Pick<FlatSpot, 'jaName' | 'wardId' | 'm
 
   const finalQuery = queryParts.filter(Boolean).map(p => encodeURIComponent(p.trim())).join('+');
 
-  // 繞過沙盒攔截器：以陣列拼接法動態生成官方 Google Maps Search API
-  const baseUrl = ['https://', 'www', '.', 'google', '.', 'com', '/maps/search/?api=1&query='].join('');
-  return baseUrl + finalQuery;
+  return MAPS_SEARCH + finalQuery;
 }
 
-export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCardProps) {
+export function SpotCard({ spot, lang, t, activeTag }: SpotCardProps) {
   const location = getSpotLocation(spot);
   const area = location.isNearby ? t('nearby_trip') : t(spot.areaId, AREA_NAMES);
   const ward = location.isNearby ? `${location.prefecture[lang]} · ${location.city[lang]}` : t(spot.wardId, WARD_NAMES);
@@ -99,11 +99,11 @@ export function SpotCard({ spot, lang, t, readOnly = false, activeTag }: SpotCar
     <p className="spot-description">{spot.desc}</p>
     <div className="spot-tags">
       <span className="spot-kind">{t(spot.typeId, TYPE_NAMES)}</span>
-      {spot.reservationRequired && <span className="reservation">{lang === 'zh' ? '需預約' : '要予約'}</span>}
+      {spot.reservationRequired && <span className="reservation">{t('reservation')}</span>}
       {tags.map(tag => <span key={tag.id} data-active={activeTag === tag.id}>{tag.label}</span>)}
     </div>
-    {!readOnly && <a className="spot-navigation" href={buildGoogleMapsUrl(spot)} target="_blank" rel="noopener noreferrer">
+    <a className="spot-navigation" href={buildGoogleMapsUrl(spot)} target="_blank" rel="noopener noreferrer">
       <MakieIcon motif="map" /><span>{t('btn_map')}</span><span aria-hidden="true">↗</span>
-    </a>}
+    </a>
   </article>;
 }

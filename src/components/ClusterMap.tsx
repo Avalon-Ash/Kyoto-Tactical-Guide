@@ -32,36 +32,42 @@ import 'leaflet/dist/leaflet.css';
 
 interface ClusterMapProps {
   engine: ReturnType<typeof useKyotoEngine>;
-  width: number;
   night: boolean;
   paused: boolean;
 }
 
-const MapController = ({ center, bounds, paused }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null, paused: boolean }) => {
-  const map = useMap();
-  const systemReducedMotion = useReducedMotion();
-  const reducedMotion = systemReducedMotion || paused;
-  useEffect(() => {
-    if (bounds) {
-      map.fitBounds(bounds, { animate: !reducedMotion, padding: [40, 40] });
-    } else {
-      map.setView(center, map.getZoom(), { animate: !reducedMotion });
-    }
-  }, [bounds, center, map, reducedMotion]);
+/** Leaflet paints with literal colours; these mirror the --hira-gold / --entry-accent tokens in theme.css. */
+const MAP_PALETTE = {
+  light: { line: '#80602e', halo: '#a98545', leader: '#6d532b', anchor: '#94482d', mask: '#302c20', maskOpacity: .35, ground: '#eee8db' },
+  dark: { line: '#d2bb89', halo: '#a98545', leader: '#d2bb89', anchor: '#e0a28a', mask: '#000', maskOpacity: .6, ground: '#1b2228' },
+} as const;
 
+/** Stable identity for a view target, so re-renders (selection, theme) never snap the reader's pan and zoom back. */
+function viewKey(center: [number, number], bounds: L.LatLngBoundsExpression | null) {
+  return bounds ? (bounds instanceof L.LatLngBounds ? bounds : L.latLngBounds(bounds as L.LatLngBoundsLiteral)).toBBoxString() : center.join(',');
+}
+
+const MapController = ({ center, bounds, reduced }: { center: [number, number], bounds: L.LatLngBoundsExpression | null, reduced: boolean }) => {
+  const map = useMap();
+  const latest = useRef({ center, bounds, reduced });
+  latest.current = { center, bounds, reduced };
+  const key = viewKey(center, bounds);
+  useEffect(() => {
+    const { center, bounds, reduced } = latest.current;
+    if (bounds) map.fitBounds(bounds, { animate: !reduced, padding: [40, 40] });
+    else map.setView(center, map.getZoom(), { animate: !reduced });
+  }, [key, map]);
   return null;
 };
 
-function MapControls({center,bounds,lang,paused}: {paused:boolean;center:[number,number];bounds:L.LatLngBoundsExpression|null;lang:'zh'|'ja'}) {
+function MapControls({center,bounds,reduced,t}: {center:[number,number];bounds:L.LatLngBoundsExpression|null;reduced:boolean;t:(key:string)=>string}) {
   const map=useMap();
-  const systemReduced=useReducedMotion();
-  const reduced=systemReduced||paused;
   const controls=useRef<HTMLDivElement>(null);
   useEffect(()=>{if(controls.current){L.DomEvent.disableClickPropagation(controls.current);L.DomEvent.disableScrollPropagation(controls.current);}},[]);
   return <div className="map-controls" ref={controls}>
-    <button className="ui-button icon-button" aria-label={lang==='zh'?'放大地圖':'地図を拡大'} onClick={()=>map.zoomIn(undefined,{animate:!reduced})}><Plus size={18}/></button>
-    <button className="ui-button icon-button" aria-label={lang==='zh'?'縮小地圖':'地図を縮小'} onClick={()=>map.zoomOut(undefined,{animate:!reduced})}><Minus size={18}/></button>
-    <button className="ui-button icon-button" aria-label={lang==='zh'?'顯示全區':'全域を表示'} onClick={()=>bounds?map.fitBounds(bounds,{padding:[40,40],animate:!reduced}):map.setView(center,12,{animate:!reduced})}><LocateFixed size={18}/></button>
+    <button type="button" className="ui-button icon-button" aria-label={t('map_zoom_in')} title={t('map_zoom_in')} onClick={()=>map.zoomIn(undefined,{animate:!reduced})}><Plus size={18}/></button>
+    <button type="button" className="ui-button icon-button" aria-label={t('map_zoom_out')} title={t('map_zoom_out')} onClick={()=>map.zoomOut(undefined,{animate:!reduced})}><Minus size={18}/></button>
+    <button type="button" className="ui-button icon-button" aria-label={t('map_fit')} title={t('map_fit')} onClick={()=>bounds?map.fitBounds(bounds,{padding:[40,40],animate:!reduced}):map.setView(center,12,{animate:!reduced})}><LocateFixed size={18}/></button>
   </div>;
 }
 
@@ -107,8 +113,8 @@ function MapMarkers({ clusters, landmarks, selected, theme, onSelect }: {
       const anchor = map.latLngToContainerPoint(entry.pos);
       const target = map.containerPointToLatLng([anchor.x + dx, anchor.y + dy]);
       return <React.Fragment key={`leader-${entry.id}`}>
-        <Polyline positions={[entry.pos, target]} interactive={false} pathOptions={{ color: theme === 'dark' ? '#e6c27a' : '#6d532b', weight: 1, opacity: 0.7, dashArray: '3, 4' }} />
-        <CircleMarker center={entry.pos} radius={2.5} interactive={false} pathOptions={{ color: '#b1352b', weight: 1, fillOpacity: 1 }} />
+        <Polyline positions={[entry.pos, target]} interactive={false} pathOptions={{ color: MAP_PALETTE[theme].leader, weight: 1, opacity: 0.7, dashArray: '3, 4' }} />
+        <CircleMarker center={entry.pos} radius={2.5} interactive={false} pathOptions={{ color: MAP_PALETTE[theme].anchor, weight: 1, fillOpacity: 1 }} />
       </React.Fragment>;
     })}
     {landmarks.map(spot => {
@@ -144,6 +150,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
   }, [activeId, mode]);
 
   const mapTheme = night ? 'dark' : 'light';
+  const palette = MAP_PALETTE[mapTheme];
   const panelRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const selectCluster = (key: string) => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setSelectedClusterKey(key); };
@@ -225,7 +232,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
           center={mapCenter} 
           zoom={12.5} 
           zoomControl={false}
-          style={{ height: '100%', width: '100%', background: night ? '#1b2329' : '#eee8db' }}
+          style={{ height: '100%', width: '100%', background: palette.ground }}
         >
           <TileLayer
             key={mapTheme}
@@ -233,18 +240,18 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
             attribution={attribution}
             className={mapTheme === 'dark' ? 'map-tiles-night' : 'map-tiles-day'}
           />
-          <MapController center={mapCenter} bounds={effectiveBounds} paused={paused} />
-          <MapControls center={mapCenter} bounds={effectiveBounds} lang={lang} paused={paused} />
+          <MapController center={mapCenter} bounds={effectiveBounds} reduced={reducedMotion} />
+          <MapControls center={mapCenter} bounds={effectiveBounds} reduced={reducedMotion} t={t} />
           
           {outsideMask && (
             <GeoJSON key={`mask-${activeId}`} data={outsideMask} interactive={false}
-              style={{ className: 'ward-outside-mask', stroke: false, fillColor: mapTheme === 'dark' ? '#000' : '#302c20', fillOpacity: mapTheme === 'dark' ? 0.6 : 0.35, fillRule: 'evenodd' }} />
+              style={{ className: 'ward-outside-mask', stroke: false, fillColor: palette.mask, fillOpacity: palette.maskOpacity, fillRule: 'evenodd' }} />
           )}
           {geoJsonData && <>
             <GeoJSON key={`halo-${activeId}`} data={geoJsonData} interactive={false}
-              style={{ className: 'ward-boundary-halo', color: '#c8a04a', weight: 7, opacity: 0.3, fill: false }} />
+              style={{ className: 'ward-boundary-halo', color: palette.halo, weight: 7, opacity: 0.3, fill: false }} />
             <GeoJSON key={`line-${activeId}`} data={geoJsonData} interactive={false}
-              style={{ className: 'ward-boundary-line', color: '#e6c27a', weight: 1.5, opacity: 0.95, fill: false }} />
+              style={{ className: 'ward-boundary-line', color: palette.line, weight: 1.5, opacity: 0.95, fill: false }} />
           </>}
 
           <MapMarkers clusters={clusters} landmarks={landmarks} selected={selectedClusterKey}
@@ -253,10 +260,8 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
 
         {nearbyClusters.length > 0 && <div className="nearby-map-note" role="note">{t('nearby_map_note')}</div>}
         {clusters.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400]">
-            <div className="map-empty">
-              <span className="ui-muted">{t('empty_msg') || '該區域尚無資料'}</span>
-            </div>
+          <div className="map-empty-layer">
+            <div className="map-empty ui-muted">{t('empty_msg')}</div>
           </div>
         )}
       </div>
@@ -278,10 +283,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
                  <MapPin size={18} />
                  <h3 id="map-sheet-title">{clusters.find(c => c.key === selectedClusterKey)?.label} <small>({selectedSpots.length})</small></h3>
                </div>
-               <button 
-                 onClick={closePanel}
-                 className="ui-button"
-               >
+               <button type="button" onClick={closePanel} className="ui-button">
                  {t('btn_back_map')} <ChevronDown size={14} />
                </button>
             </div>

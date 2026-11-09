@@ -42,16 +42,24 @@
  * - TYPE_TAG_GROUP_MAP 定義於 src/data/type-tag-groups.ts（由 DetailView 使用），本 hook 不持有此映射
  * - tagCounts 使用 loadAllSchemasSync()，依賴陣列為 []，禁止改為動態依賴
  */
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
-import { UI_DICT, loadSpotsByWard, WARD_BY_AREA, getTagCounts } from '../data/index';
-import { loadAllSchemasSync, computeWardStats } from '../data/spots-loader';
+import { loadSpotsByWard, WARD_BY_AREA, getTagCounts, getWardStats } from '../data/index';
+import { translate } from '../data/i18n';
 import { TYPES } from '../data/types';
 
 const ALL_WARD_KEYS: WardKey[] = [
   'W_KITA','W_KAMIGYO','W_SAKYO','W_NAKAGYO','W_HIGASHIYAMA',
   'W_SHIMOGYO','W_MINAMI','W_UKYO','W_NISHIKYO','W_YAMASHINA','W_FUSHIMI'
 ];
+
+const TYPE_ORDER: Record<string, number> = Object.fromEntries(Object.values(TYPES).map(type => [type.id, type.sortOrder]));
+const TOTAL_COUNT = Object.values(getWardStats()).reduce((a, b) => a + b, 0);
+/** Category order first, then the reader's collation. */
+function sortSpots(spots: FlatSpot[], lang: Lang): FlatSpot[] {
+  const collator = new Intl.Collator(lang === 'zh' ? 'zh-TW' : 'ja-JP');
+  return spots.sort((a, b) => ((TYPE_ORDER[a.typeId] ?? 9) - (TYPE_ORDER[b.typeId] ?? 9)) || collator.compare(a.name, b.name));
+}
 
 export function useKyotoEngine() {
   const [lang, setLang] = useState<Lang>('zh');
@@ -65,6 +73,8 @@ export function useKyotoEngine() {
   // 核心：當前分區的景點資料 (Lazy Loaded)
   const [loadedSpots, setLoadedSpots] = useState<FlatSpot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  // The place the reader last opened, so returning to an index can put focus back on it.
+  const [returnFocusId, setReturnFocusId] = useState<string | null>(null);
 
   // 用於保留切換時的計數，防止閃爍為 0
   const previousTypeCounts = useRef<Record<string, number>>({});
@@ -127,12 +137,10 @@ export function useKyotoEngine() {
     return () => { isMounted = false; };
   }, [activeTag, activeId, lang]);
 
-  const t = (key: string, dict: any = UI_DICT) => {
-    if (!dict[key]) return key;
-    return dict[key][lang] ?? dict[key]['zh'] ?? Object.values(dict[key])[0] ?? key;
-  };
+  // Stable per language: map clusters and other memoised views depend on it.
+  const t = useCallback((key: string, dict?: Record<string, Partial<Record<Lang, string>>>) => translate(key, lang, dict), [lang]);
 
-  const toggleLang = () => setLang(prev => (prev === 'zh' ? 'ja' : 'zh'));
+  const toggleLang = useCallback(() => setLang(prev => (prev === 'zh' ? 'ja' : 'zh')), []);
 
   const switchMode = (newMode: 'ward' | 'area' | 'tag') => {
     setActiveId(null);
@@ -147,9 +155,9 @@ export function useKyotoEngine() {
       mode === 'area' ? spot.areaId === activeId : spot.wardId === activeId
     );
 
-    if (isLoading || baseSpots.length === 0) {
-      return previousTypeCounts.current;
-    }
+    // Keep the last counts only while the next place is loading, so tabs do not flash to zero.
+    if (isLoading) return previousTypeCounts.current;
+    if (baseSpots.length === 0) return {};
 
     const counts: Record<string, number> = { T_ALL: baseSpots.length };
     baseSpots.forEach(spot => {
@@ -163,43 +171,17 @@ export function useKyotoEngine() {
   const filteredSpots = useMemo(() => {
     // Global Tag View：無 activeId，有 activeTag → 全屏蓋板資料來源
     if (!activeId && activeTag) {
-      const ord = Object.fromEntries(Object.values(TYPES).map(t => [t.id, t.sortOrder]));
-      return allLoadedSpots
-        .filter(s => s.tagIds?.includes(activeTag))
-        .sort((a, b) => {
-          const orderA = ord[a.typeId] || 9;
-          const orderB = ord[b.typeId] || 9;
-          if (orderA !== orderB) return orderA - orderB;
-          return a.name.localeCompare(b.name, lang === 'zh' ? 'zh-TW' : 'ja-JP');
-        });
+      return sortSpots(allLoadedSpots.filter(s => s.tagIds?.includes(activeTag)), lang);
     }
 
     if (!activeId) return [];
 
-    // 使用動態載入的資料進行過濾
-    let result = loadedSpots.filter(spot => 
+    let result = loadedSpots.filter(spot =>
       mode === 'area' ? spot.areaId === activeId : spot.wardId === activeId
     );
-
-    if (activeType !== 'T_ALL') {
-      result = result.filter(spot => spot.typeId === activeType);
-    }
-
-    if (activeTag) {
-      result = result.filter(spot => spot.tagIds?.includes(activeTag));
-    }
-
-    const ord = Object.fromEntries(Object.values(TYPES).map(t => [t.id, t.sortOrder]));
-    
-    result.sort((a, b) => {
-      const orderA = ord[a.typeId] || 9;
-      const orderB = ord[b.typeId] || 9;
-      if (orderA !== orderB) return orderA - orderB;
-      
-      return a.name.localeCompare(b.name, lang === 'zh' ? 'zh-TW' : 'ja-JP');
-    });
-
-    return result;
+    if (activeType !== 'T_ALL') result = result.filter(spot => spot.typeId === activeType);
+    if (activeTag) result = result.filter(spot => spot.tagIds?.includes(activeTag));
+    return sortSpots(result, lang);
   }, [activeId, mode, activeType, activeTag, lang, loadedSpots, allLoadedSpots]);
 
   const localTags = useMemo(() => {
@@ -222,6 +204,7 @@ export function useKyotoEngine() {
   const clearTag = () => setActiveTag(null);
 
   const openDetail = (id: string, viewMode: 'ward' | 'area') => {
+    setReturnFocusId(id);
     setActiveId(id);
     setMode(viewMode);
     setActiveType('T_ALL');
@@ -254,8 +237,7 @@ export function useKyotoEngine() {
     isGlobalLoading,
     localTags,
     tagCounts,
-    totalCount: useMemo(() =>
-      Object.values(computeWardStats()).reduce((a, b) => a + b, 0), []
-    ),
+    returnFocusId,
+    totalCount: TOTAL_COUNT,
   };
 }

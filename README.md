@@ -32,7 +32,7 @@
 - `App` 保留執行期間的選區與日夜；語言共用 `useKyotoEngine`，重新整理預設月光。首頁閒置播放、主動操作讓出控制、1.8 秒後恢復；背景、讀卷、拖動及系統減少動態時停播。
 - 首頁不顯示測試工具與開卷按鈕；獨立展示保留對照控制。字體由既有 Google Fonts 方式載入，無新 npm 依賴。
 - `study.js` 的 `mountBunko`、`template.ts`、`library.ts` 與 `.bunko` 範圍樣式由主站及獨立頁共用。卸載必須釋放事件、觀察器、RAF、讀卷回寫及 GPU 資源。
-- 原生 WebGL 簡化幾何不是精確建築復原／導航圖。使用者已選定一區一函方向，舊 `MapCanvas.tsx` 留存為早期原型，首頁不再掛載；不恢復蒔繪／區界切換。
+- 原生 WebGL 簡化幾何不是精確建築復原／導航圖。使用者已選定一區一函方向；早期 GPU 蒔繪原型（`MapCanvas.tsx`、`makie-renderer.ts` 與兩張原型圖）已於 2026-11-09 刪除，需要時從 Git 歷史取回。不恢復蒔繪／區界切換。
 - 實際行政區邊界及鄰近區域仍由詳細地圖呈現。景點統計動態計算，修改資料後自動反映。
 
 ---
@@ -220,8 +220,7 @@ src/
 ├── App.tsx             # 應用程式入口與狀態路由
 ├── types.ts             # 全域 TypeScript 型別定義 (SpotSchema, FlatSpot, Lang...)
 ├── hooks/
-│   ├── useKyotoEngine.ts    # 【系統層】資料篩選與狀態管理樞紐
-│   └── useWindowSize.ts     # 響應式佈局監聽
+│   └── useKyotoEngine.ts    # 【系統層】資料篩選與狀態管理樞紐
 ├── data/
 │   ├── index.ts             # 資料對外統一入口；`getWardStats()` / `getAreaStats()` 採用 lazy getter 模式...
 │   ├── map-centers.ts       # 【SSOT: 地圖】抽象叢集地圖中心點座標設定
@@ -231,20 +230,21 @@ src/
 │   ├── tags.ts              # 【元數據】TAG_REGISTRY：全域標籤定義...
 │   ├── type-tag-groups.ts   # 【元數據】TYPE_TAG_GROUP_MAP：主 Tab → 副標籤 group 白名單
 │   ├── types.ts             # 【元數據】景點分類定義 (HUB, SHOP, TEMPLE...)
-│   ├── i18n.ts              # UI 介面靜態翻譯
+│   ├── i18n.ts              # 全部介面文案（UI_DICT）與 translate()；元件內不寫中日文三元運算
 │   ├── spots/               # 【SSOT: 結構】純地理/分類資料 (.ts)
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
 │   ├── BunkoEntrance.tsx # 十一區文庫：React 與共用控制器的生命週期銜接
-│   ├── MapCanvas.tsx   # 留存的早期 GPU 蒔繪原型，首頁不再掛載
 │   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
 │   ├── HomeView.tsx    # 地圖選擇與分區引導
 │   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
 │   ├── SpotCard.tsx    # 景點任務卡片 (漆藝視覺風格)
-│   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條，支援 variant: 'global'|'local'
+│   ├── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條
+│   ├── BunkoTools.tsx   # 日夜、減少動態、語系三顆共用工具鈕
+│   └── MakieIcon.tsx    # 金銀圖紋圖示
 └── lib/
     ├── numerals.ts     # 漢數字轉換工具
-    ├── geo-svg.ts      # 投影、輪廓與固定 seed 的程序繪圖
+    ├── makie-scene.ts  # 十一區地標座標與區域命中（文庫函目使用）
     ├── map-geometry.ts # 保留洞與 MultiPolygon 的區外遮罩
     └── map-labels.ts   # 螢幕像素標記避讓，不更改地理座標
 scripts/
@@ -262,7 +262,7 @@ public/
 - **首頁與檢索介面**：預設月光，暖日可切換；名所目錄、御秘帖及標籤結果共用紙色、金銀線、Shippori Mincho B1 題字與 Noto Serif TC 繁中內文。書卷以平紋蒔繪意象的 SVG 圖形與短標籤篩選。
 - **文庫浮雕**：`src/studies/toji/` 以原生 WebGL 渲染十一區代表地標、山水、梨地與金銀材質；具有幾何高度、視差、陰影與光跡。固定構圖的簡化浮雕不是測繪建築／完整 3D 復原，沒有導入 Rust 或大型繪圖依賴。
 - **操作與動態**：左右拖動／方向鍵換函，直接點蓋／Enter 展開真實雙語書卷；手動換函立即播放，閒置循環上限 30 次繪製／秒。主動操作讓出控制，讀卷、離屏、背景與減少動態時抑制播放；不能沿用舊原型「閒置沒有動畫」的描述。
-- **歷史地圖原型**：`MapCanvas.tsx`、`makie-renderer.ts` 與 `makie-scene.ts` 保留 2.5D 漆面光照、圖上區域命中及地標歸屬；不再繪製硬切區塊。`kyoto-makie-relief.jpg`／`toji-makie-study.webp` 屬此原型，並非目前文庫的幾何模型來源。
+- **樣式分層**：`src/theme.css` 是唯一色票（`--entry-*`、`--hira-*` 晝夜兩組），主站、文庫與獨立展示頁共用；`index.css` 只放 Tailwind 重設、捲軸與地圖標記，元件樣式在 `bunko-ui.css`，書卷與文庫在 `studies/toji/study.css`。元件不寫色碼，Canvas／Leaflet 需要字面色值時註明「mirrors theme.css」。
 - **驗收界線**：[最新紀錄](docs/agent-runs/2026-11-06-phase04-bunko-index.md)含 1440px／375px、雙語日夜與鍵盤滑鼠；真實手機觸控與 OS reduced-motion 未測。舊 Lighthouse 分數不代表目前版本。
 
 ---
@@ -270,7 +270,6 @@ public/
 ## 📁 根目錄檔案說明
 
 - `metadata.json`：應用部署元資料，聲明應用名稱、描述及所需框架權限 (`requestFramePermissions` / `majorCapabilities`)，供宿主環境識別用。
-- `.env.example`：環境變數模板，開發時複製為 `.env` 使用。
 
 ---
 
