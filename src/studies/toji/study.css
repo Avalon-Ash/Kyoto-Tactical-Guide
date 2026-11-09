@@ -129,3 +129,11 @@
  .bunko .volume-filter input{font-size:16px}
  .bunko .volume-filter input::placeholder{font-size:12px}
 }
+.bunko .stage>.backdrop{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.bunko .stage>.backdrop>canvas{position:absolute;left:0;top:0;filter:none;cursor:default;touch-action:auto}
+.bunko .stage>.backdrop>canvas+canvas{will-change:transform}
+.bunko .stage>#scene{position:relative}
+.bunko .stage>.backdrop>.mote{position:absolute;pointer-events:none;will-change:transform,opacity;opacity:0}
+.bunko .stage>.backdrop>.mote-day{background:linear-gradient(135deg,#f6dd96,#c99a46 55%,#8f6526);box-shadow:0 0 3px #f0d48a88}
+.bunko .stage>.backdrop>.mote-night{border-radius:50%;background:radial-gradient(circle,#f2f6f8 0,#c8d4d9 45%,#c8d4d900 72%);box-shadow:0 0 6px 1px #d8e4e866}
+.bunko .stage>.backdrop[data-still="true"]>.mote{visibility:hidden}

@@ -4,6 +4,11 @@ import {createBunkoLibrary} from './library';
 import {progressToward,isTap,onLid,swipeDirection,cabinetDragDirection,idlePlaybackAllowed} from './interaction.js';
 import {CABINETS,cabinetFor,adjacentCabinet,volumeTitle} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
+import {mountBackdrop,cabinetKeepout} from './backdrop.js';
+
+// Fixed home camera; render() and the backdrop's cabinet keepout share it.
+const EYE=[430,720,920],CAMERA_VIEW=lookAt(EYE,[0,40,0]);
+function cameraMatrix(width,height){const aspect=width/height,halfW=Math.max(475,340*aspect),halfH=halfW/aspect;return multiply(ortho(-halfW,halfW,-halfH,halfH,1,2200),CAMERA_VIEW);}
 
 const words={
   zh:{back:'京都御秘帖',night:'月光',day:'暖日',title:'一座京都，藏於文庫。',intro:'掠過漆面，看屋簷隆起、金銀移光。這次，先端詳東寺。',flat:'平面對照',relief:'互動浮雕',edition:'初音調度意象・局部習作',loading:'正在鋪設金地…',caption:'梨地に、五重の影。',ready:'滑鼠／手指掠過，或按「演示一次」',playing:'正在演示：隆起 → 左右視差 → 金粉軌跡',flatStatus:'平面對照：相同構圖與材質，深度壓平',still:'減少動態：保留浮雕，停止位移、擺動與軌跡',demo:'演示一次 ↗',motion:'減少動態',ground:'地蒔 / GROUND',materialTitle:'同一片金地，三種表情。',nashiji:'梨地',nashijiDesc:'細粒，透漆的深淺',dense:'濃梨地',denseDesc:'密蒔，更厚實的金色',gyobu:'刑部梨地',gyobuDesc:'箔底，大而不規則的片粒',note:'沿水岸看螺鈿變色，屋脊是切金、切銀意象。金粒附著漆面，軌跡是光的餘韻。',scope:'東寺文庫樣板，點擊蓋面可展開南區真實景點書卷。簡化浮雕並非建築測繪模型；首頁與其他地標尚未整合。',openBook:'開盒・展卷',opening:'提蓋，展開南之卷…',closing:'收卷合蓋…',source:'參考：德川美術館・初音蒔繪料紙箱 ↗',failed:'無法啟用 WebGL。請使用支援硬體加速的瀏覽器開啟此展示頁。',canvas:'東寺文庫：點擊或 Enter 開盒展卷；方向鍵移光，空白鍵演示'},
@@ -34,6 +39,8 @@ let dragOffset=0,dragAnimation=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 const library=createBunkoLibrary(closeBook,toggleLanguage,root,options.onExploreWard);
 let projection,render,dispose;
+const backdrop=mountBackdrop($('stage'),{night,motion:!still()});
+function syncBackdrop(){const stage=$('stage'),w=stage.clientWidth,h=stage.clientHeight;if(w&&h)backdrop.resize(w,h,devicePixelRatio||1,cabinetKeepout(cameraMatrix(w,h),w,h));}
 const status=()=>{const key=bookState==='switching'?'switching':bookState==='opening'||bookState==='unrolling'?'opening':bookState==='closing'?'closing':failed?'failed':still()?'still':flat?'flatStatus':demoStart?'playing':'ready';$('status').textContent=key==='opening'?(language==='zh'?`提蓋，展開${volumeTitle(cabinet.id,language)}…`:`蓋を上げ、${volumeTitle(cabinet.id,language)}を開いています…`):words[language][key];};
 function syncCabinet(){
   const zh=language==='zh',name=cabinet.names[language];
@@ -170,6 +177,7 @@ function point(e){
 function demo(){if(still()||failed||bookState!=='closed'||!cabinet.relief)return;flat=false;syncMode();demoStart=performance.now();status();schedule();}
 function syncBook(){
   const busy=bookState!=='closed';
+  backdrop.setMotion(!still()&&(bookState==='closed'||bookState==='switching'));
   $('stage').dataset.bookState=bookState;
   $('open-book').setAttribute('aria-expanded',String(['opening','unrolling','reading'].includes(bookState)));
   for(const id of ['save','open-book','previous-cabinet','next-cabinet'])$(id).disabled=busy;
@@ -202,9 +210,7 @@ $('save').onclick=()=>{
   render(performance.now(),Boolean(demoStart||trails.length));
   const output=document.createElement('canvas');output.width=canvas.width;output.height=canvas.height;
   const ctx=output.getContext('2d');if(!ctx)return;
-  const bg=ctx.createRadialGradient(output.width*.5,output.height*.5,0,output.width*.5,output.height*.5,output.width*.6);
-  bg.addColorStop(0,night?'#4a4944':'#f0e6d2');bg.addColorStop(1,night?'#252d33':'#c9b692');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,output.width,output.height);ctx.drawImage(canvas,0,0);
+  backdrop.compose(ctx,output.width,output.height);ctx.drawImage(canvas,0,0);
   output.toBlob(blob=>{
     if(!blob||destroyed)return;
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`toji-${flat?'flat':'relief'}-${ground}-${night?'night':'day'}.png`;a.click();
@@ -213,7 +219,7 @@ $('save').onclick=()=>{
 };
 function toggleLanguage(){language=language==='zh'?'ja':'zh';translate();options.onLanguageChange?.(language);}
 $('language').onclick=toggleLanguage;
-$('night').onclick=()=>{night=!night;root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));translate();schedule();options.onPreferencesChange?.({night,paused});};
+$('night').onclick=()=>{night=!night;backdrop.setNight(night);root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));translate();schedule();options.onPreferencesChange?.({night,paused});};
 function syncMotion(){
   root.classList.toggle('reduce-motion',still());
   $('motion').setAttribute('aria-pressed',String(still()));
@@ -273,7 +279,7 @@ listen(canvas,'keydown',e=>{
 });
 listen(document,'visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;demoStart=0;trails=[];autoPlaying=false;canvas.dataset.autoplay='false';}else schedule();});
 const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible){cancelAnimationFrame(frame);frame=0;demoStart=0;trails=[];autoPlaying=false;canvas.dataset.autoplay='false';}else schedule();});intersection.observe(canvas);
-const resize=new ResizeObserver(schedule);resize.observe(canvas);
+const resize=new ResizeObserver(()=>{syncBackdrop();schedule();});resize.observe(canvas);
 
 function init(){
   const gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power'});
@@ -300,7 +306,7 @@ function init(){
     gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,depthBuffer);
     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Shadow framebuffer unavailable');
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-    const eye=[430,720,920],cameraView=lookAt(eye,[0,40,0]);
+    const eye=EYE;
     function bind(prog,matrix,lightMatrix,time,moving){
       gl.useProgram(prog.p);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
       for(let i=0;i<3;i++)if(prog.attributes[i]>=0){gl.enableVertexAttribArray(prog.attributes[i]);gl.vertexAttribPointer(prog.attributes[i],i===2?2:3,gl.FLOAT,false,32,i*12);}
@@ -313,8 +319,7 @@ function init(){
     render=(time,moving)=>{
       const dpr=Math.min(devicePixelRatio||1,1.5),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
       if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-      const aspect=w/h,halfW=Math.max(475,340*aspect),halfH=halfW/aspect;
-      projection=multiply(ortho(-halfW,halfW,-halfH,halfH,1,2200),cameraView);
+      projection=cameraMatrix(w,h);
       const lightPos=[-390+px*170,650,280+py*140],lightDir=normalize(lightPos);
       const lightMatrix=multiply(ortho(-560,560,-540,540,1,1700),lookAt(lightPos,[0,0,0]));
       gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,1024,1024);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -341,11 +346,11 @@ listen(window,'pagehide',event=>{cancelAnimationFrame(frame);frame=0;if(!event.p
 listen(window,'pageshow',event=>{if(event.persisted)schedule();});
 try{init();}catch(e){failure(e);}
 root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
-translate();syncMotion();syncBook();
+translate();syncMotion();syncBook();syncBackdrop();
 return {
   setPreferences(next){
     if(destroyed)return;
-    night=next.night;paused=next.paused;
+    night=next.night;paused=next.paused;backdrop.setNight(night);
     root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
     translate();syncMotion();schedule();
   },
@@ -354,7 +359,7 @@ return {
     if(destroyed)return;destroyed=true;
     events.abort();intersection.disconnect();resize.disconnect();
     switchAnimation?.cancel();dragAnimation?.cancel();endDrag();cancelAnimationFrame(frame);frame=0;
-    library.destroy();dispose?.();render=null;updateMesh=null;
+    library.destroy();dispose?.();backdrop.destroy();render=null;updateMesh=null;
   },
 };
 }
