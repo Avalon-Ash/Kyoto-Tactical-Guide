@@ -37,6 +37,7 @@
 - 文箱：原生 WebGL（`src/studies/toji/study.js`、`shaders.js`），DPR 上限 1.5、陰影貼圖 1024²，已有指標傾斜（`tx`、`ty`）和閒置移光。
 - 舞台高度固定（桌機 570px、手機 450px）；背景只有一層放射漸層（`study.css` `.stage`）。
 - 首頁拖動＝換函，點蓋＝展卷。
+- 2026-11-09 補：本文件撰寫時的基準 `aa2db59` 還沒有 T4-M5 手機 UI；T4-M5 現已併入 `main`。全站已有共用的暖日／月光、語系、減少動態（`App.tsx` 的 `cabinetPreferences` → `.kyoto-app[data-theme]`，色票是 `src/bunko-ui.css` 的 `--entry-*`、`--hira-*`），詳細頁、SpotCard、TagSelector、地圖都已改成手機優先的新版。P0 的 token 要從這套整併，P4 以 T4-M5 版為起點，不回到舊卡片樣式。
 
 ## 4. 工作分期
 

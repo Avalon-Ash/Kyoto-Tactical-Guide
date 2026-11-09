@@ -24,7 +24,8 @@
 | 手勢 | `study.js` `point()`、`interaction.js` | 拖動軸鎖定；`cabinetDragDirection` 門檻 `clamp(width·0.12, 44, 100)`；點蓋 `isTap`＋`onLid` |
 | 閒置 | `idlePlaybackAllowed` | 閒置 1.8 秒後自動移光，30fps 上限 |
 | 背景 | `study.css` `.stage` | 單層 radial-gradient；晝／夜兩組 |
-| React 接口 | `src/components/BunkoEntrance.tsx` | React 只管導航與偏好，畫布歸控制器 |
+| React 接口 | `src/components/BunkoEntrance.tsx` | React 只管導航與偏好，畫布歸控制器；偏好變更走 `controller.setPreferences()`，不重建控制器（T4-M5） |
+| 全站主題（T4-M5） | `src/App.tsx`、`src/bunko-ui.css`、`src/components/BunkoTools.tsx` | `cabinetPreferences {night, paused}` 是唯一來源 → `.kyoto-app[data-theme]`、`MotionConfig reducedMotion`、`theme-color`；色票 `--entry-*`、`--hira-*` 晝夜兩組 |
 | 測試 | `scripts/*.test.mjs`（node:test） | 沒有 `npm test`，指令見 §6 |
 
 ## 2. 新模組與介面
@@ -98,6 +99,8 @@ export function mountBackdrop(host: HTMLElement, o: BackdropOptions): Backdrop;
 - `src/index.css` 的 `@theme`：新增 `--color-washi-*`、`--color-urushi-*`、`--color-kin-*`、`--color-gin-*` 晝夜兩組（色值依美術文件 §2）。
 - `study.css` 的 `.bunko` 變數（`--paper`、`--gold`……）改成引用上述 token，不再寫死。
 - 新色值一律進 token，元件裡不寫 hex。
+- 2026-11-09 補：T4-M5 已在 `src/bunko-ui.css` 建立 `--entry-*`、`--hira-*` 晝夜兩組，由 `.kyoto-app[data-theme]` 切換。P0 以它為起點：把色值搬進 `@theme` 的和色 token，`bunko-ui.css` 與 `study.css` 改成引用，**不另起第三套**。晝夜切換仍只認 `cabinetPreferences.night`。
+- `bunko-ui.css` 和 `index.css`、`study.css` 屬同一視覺工作線，包 A 寫入時其他包不碰。
 
 ## 3. 手勢狀態機（P1）
 
@@ -154,7 +157,7 @@ npm run build
 
 | 包 | 任務 | 可改檔案 | 前置 |
 | :-- | :-- | :-- | :-- |
-| A | `spring.ts` 實作；`.bunko` 變數改接 token | `src/lib/spring.ts`、`src/index.css`、`study.css` | 主代理已建骨架與測試 |
+| A | `spring.ts` 實作；`.bunko` 變數改接 token | `src/lib/spring.ts`、`src/index.css`、`src/bunko-ui.css`、`study.css` | 主代理已建骨架與測試 |
 | B | `view.js` 實作；`render()` 改用 `viewBox`；`groundPoint` 同步 | `view.js`、`study.js` | A |
 | C | 捏合、滾輪、雙擊、鍵盤、按鈕的手勢接線；`touch-action` 切換 | `study.js`、`interaction.js`、`template.ts` | B |
 | D | `backdrop.ts` 靜態層；由 `mountBunko` 掛載 | `backdrop.ts`、`study.js`（只加掛載和銷毀兩處）、`study.css` | A；**和 B、C 搶 `study.js`，排在 C 之後** |
