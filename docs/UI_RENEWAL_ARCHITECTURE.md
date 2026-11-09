@@ -93,6 +93,14 @@ export function mountBackdrop(host: HTMLElement, o: BackdropOptions): Backdrop;
 - 動態層（微粒）是可選項：自己的 RAF，閒置時降到 30fps，`setActive(false)` 時完全停止。
 - 由 `mountBunko` 建立和銷毀（`destroy()` 內呼叫），不經 React。
 - 視覺內容依 `UI_RENEWAL_ART.md` §4。
+- **2026-11-09 實作（分支 `ui-renewal/p3-backdrop`，使用者回饋後第二版）**：實際檔案是 `src/studies/toji/backdrop.js`（和鄰近的 `interaction.js` 一樣用 JS，node 測試可直接匯入）。介面：`mountBackdrop(host,{night,motion,seed?})` → `{element, resize(width,height,dpr,keep), setNight(night), setMotion(on), compose(ctx,w,h), destroy()}`。
+  - 結構：`.stage` 裡第一個子元素 `.backdrop`，內含一張和紙畫布，每條霞帶各一張 sprite 畫布。只在尺寸改變或晝夜切換時重畫。
+  - 動態：每條霞帶用 Web Animations 的 `translateX` 左右飄移（幅度 `clamp(寬×0.08, 24, 60)`px，單程 24～36 秒，彼此錯相），由合成器執行，不跑 JS 逐格。減少動態、開卷／讀卷時 `pause()`，回到合函再 `play()`，不會跳位。
+  - 形狀：每條霞帶是 2～3 段圓端長帶的聯集（主帶加上下錯開的短帶），形成繪卷式的段差；外框只留聯集外緣。
+  - 版面：四個候選列，左右邊緣交錯伸入（頂列從右側進，避開左上的印章和左下的說明文字）。可以從文箱兩端後面穿過，但連同飄移幅度都不能進入文箱輪廓中央 50% 的寬度；每條在文箱旁至少露出 2.5 倍帶高，而且始終被自己那側的邊緣裁切。
+  - 禁區用 `CABINET_SILHOUETTE`：十一函與素函全部頂點在固定相機下的凸包（15 個世界座標點），透過 render() 共用的 `cameraMatrix()` 投影。改了幾何或相機 `EYE` 要重算；測試會逐點檢查。
+  - 「保存畫面」用 `compose()`，以靜止位置的和紙加霞帶當底。
+  - 第三版（使用者要「再熱鬧一點」）：霞帶最多 5 條；加上微粒，暖日是旋轉落下的切金，月光是上升的銀塵，數量 16～32，同樣用 Web Animations 驅動，減少動態時隱藏。微粒不進「保存畫面」。
 
 ### 2.5 設計 token
 
@@ -144,7 +152,7 @@ node --test --test-concurrency=1 scripts/makie-scene.test.mjs scripts/location-n
 npm run build
 ```
 
-新增 `scripts/ui-renewal.test.mjs`，**由主代理先寫，列為受保護**：
+新增 `scripts/ui-renewal.test.mjs`，**由主代理先寫，列為受保護**（2026-11-09 已建立，目前只有背景層的 8 項：輪廓包住所有頂點、霞帶連同飄移都不進中央且被邊緣裁切、手機至少四條、桌機至少五條且左右都有、每條 2～3 段且在自身框內、同 seed 結果固定、空間不足時不畫、強度上限與晝金夜銀、微粒方向與數量；下列 1～6 隨 P0、P1 補上）：
 1. `stepSpring`：從 0 往 1 時，soft 有過衝且 3 秒內收斂；settled 無過衝；dt 用 1/30 或 1/144 跑，結果誤差 < 1e-3（與幀率無關）。
 2. `viewBox(aspect, 1, 0)` 和現行 `halfW = max(475, 340·aspect)` 完全相等（全景零回歸）。
 3. `clampPan`：任何 zoom、pan 下，蓋面四角都有至少 60% 留在視野內。
