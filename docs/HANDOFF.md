@@ -29,7 +29,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 首頁文庫 | 十一區文箱（原生 WebGL 2.5D 浮雕），拖動換函、點蓋展卷；真實書卷檢索；月光預設、閒置移光 |
 | 全站 UI（T4-M5） | 手機優先、深色預設；暖日／月光、語系、減少動態全站共用（`App.tsx` → `.kyoto-app[data-theme]`，色票在 `src/bunko-ui.css`）；詳細頁固定底部列表／地圖切換；地圖縮放與全區按鈕 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 保留存檔 |
-| UI 翻新 | 只有規劃：[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md)。**未授權實作**，四個待決事項見總計畫 §6 |
+| UI 翻新 | 只有規劃：[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md)。**未授權實作**；放大互動已決定（手勢優先），其餘三項見總計畫 §6 |
 
 ## 3. 最近一次驗收（2026-11-09，T4-M5 合併前）
 
@@ -46,7 +46,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 
 ## 4. 下一步（依序）
 
-1. 使用者決定 UI 翻新的四個待決事項（放大互動、背景題材、自寫彈簧、順序）。
+1. 使用者決定 UI 翻新剩下三個待決事項（背景題材、自寫彈簧、順序）。放大互動已決定：手勢＋滑鼠都做，衝突時手勢優先。
 2. 依 `UI_RENEWAL_ARCHITECTURE.md` §0，主代理先寫 `src/lib/spring.ts`、`view.js` 骨架與 `scripts/ui-renewal.test.mjs` 紅色測試，再分包派工。
 3. P0 設計 token 以 T4-M5 的 `src/bunko-ui.css`（`--entry-*`、`--hira-*`）為起點整併，不另起第三套色票。
 4. 其他 Phase 4 工作（全庫事實查核、個別景點點位、MapLibre 評估、歲時記資料庫）照 `PLAN.md` Phase 4，各自需要授權。
