@@ -4,7 +4,8 @@ import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { AREA_KEYS, AREA_NAMES, getAreaStats } from '../data/index';
 import { TAG_REGISTRY, TAG_GROUP_LABELS } from '../data/tags';
 import { BunkoEntrance, type BunkoPreferences } from './BunkoEntrance';
-import { buildGoogleMapsUrl } from './SpotCard';
+import { SpotCard } from './SpotCard';
+import { BunkoTools } from './BunkoTools';
 import { makieIcon, type MakieMotif } from '../lib/makie-icons';
 const Ornament=({motif}:{motif:MakieMotif})=><span className="hira-icon" aria-hidden="true" dangerouslySetInnerHTML={{__html:makieIcon(motif)}}/>;
 const groupMotifs:Record<string,MakieMotif>={food:'food',misc:'all',culture:'temple',nature:'nature',transport:'transport',acg:'acg'};
@@ -23,8 +24,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, c
   const { lang, mode, t, toggleLang, openDetail, activeTag, setActiveTag, filteredSpots, isGlobalLoading, tagCounts } = engine;
   const scrollRef = useRef<HTMLDivElement>(null);
   const overlayScrollRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
+  const systemReducedMotion = useReducedMotion();
+  const reduceMotion = systemReducedMotion || cabinetPreferences.paused;
   const tagOpener = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => { if (!activeTag) tagOpener.current?.focus(); }, [activeTag]);
 
   // Auto scroll to top when switching modes (Ward/Area)
   useEffect(() => {
@@ -39,9 +43,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, c
       initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={reduceMotion ? {duration:0} : undefined}
       className={`kyoto-home bunko-home ${cabinetPreferences.night?'bunko-night':''} flex flex-col h-full bg-transparent relative overflow-hidden`}
     >
-      <header className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
+      <header inert={activeTag ? true : undefined} className="urushi-panel border-b border-gold/40 px-3 sm:px-8 py-3 sm:py-6 flex flex-wrap items-center justify-between gap-y-2 gap-x-1 sm:gap-4 shrink-0 relative z-30 shadow-xl">
         <div className="flex items-center gap-2 sm:gap-6 flex-1">
           <div className="hanko-stamp text-base sm:text-2xl w-7 sm:w-12 h-7 sm:h-12 shadow-lg flex items-center justify-center">
             京
@@ -56,17 +61,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, c
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={toggleLang}
-            className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-6 py-1 sm:py-2.5 text-[0.75rem] sm:text-[0.85rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold shrink-0 min-w-[44px]"
-          >
-            {width < 400 ? (lang === 'zh' ? '日' : '中') : t('btn_lang')}
-          </button>
-        </div>
+        <BunkoTools lang={lang} preferences={cabinetPreferences} onChange={onCabinetPreferencesChange} onLanguage={toggleLang} />
       </header>
 
-      <nav className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
+      <nav inert={activeTag ? true : undefined} className="flex border-b border-gold/20 shrink-0 bg-[#0a0a0a] relative z-20">
         <button 
            aria-pressed={mode === 'ward'} onClick={() => engine.switchMode('ward')}
            className={`flex-1 py-3 sm:py-6 text-[clamp(0.75rem,1.8vw,1.1rem)] cursor-pointer transition-all border-b-2 font-serif tracking-[0.4em] uppercase font-bold whitespace-nowrap ${mode === 'ward' ? 'text-gold-light border-shuiro bg-shuiro/5' : 'text-[#f0ead6]/20 border-transparent hover:text-gold-light/30'}`}
@@ -91,6 +89,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, c
       </nav>
 
       <div 
+        inert={activeTag ? true : undefined}
         ref={scrollRef} 
         style={{ touchAction: 'pan-y' }}
         className="flex-1 overflow-y-auto no-scrollbar"
@@ -174,17 +173,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, width, totalCount, c
               ) : filteredSpots.length > 0 ? (
                 <div className="catalog-results">
                   {filteredSpots.map(s => (
-                    <article key={s.id} className="catalog-entry">
-                      <small>{t(s.areaId,AREA_NAMES)} · {s.id}</small><h3>{s.name}</h3>
-                      <p>{s.desc}</p><p className="catalog-tags">{s.tags}</p>
-                      {s.reservationRequired&&<p>{lang==='zh'?'需預約':'要予約'}</p>}
-                      <a href={buildGoogleMapsUrl(s)} target="_blank" rel="noopener noreferrer"><Ornament motif="map"/>Google Maps ↗</a>
-                    </article>
+                    <SpotCard key={s.id} spot={s} lang={lang} t={t} activeTag={activeTag} />
                   ))}
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center">
-                  <p className="text-gold-light/40 font-serif tracking-widest">{t('no_results')}</p>
+                  <p className="ui-muted">{t('no_results')}</p>
                 </div>
               )}
             </div>

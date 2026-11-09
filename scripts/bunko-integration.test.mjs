@@ -145,3 +145,46 @@ test('vertical, reversed, short and cancelled drags do not switch cabinets or ac
   assert.equal(root.querySelector('#scene').hasPointerCapture(1),false);
   controller.destroy();
 });
+
+test('shared preferences update an open reader without remounting, resetting search or notifying the host',async t=>{
+  const env=environment(t),{root}=env,changes=[];
+  const controller=mountBunko(root,{embedded:true,wardId:'W_HIGASHIYAMA',paused:true,onPreferencesChange:value=>changes.push(value)});
+  root.querySelector('#open-book').click();
+  for(let i=0;i<20;i++)await Promise.resolve();
+  const canvas=root.querySelector('#scene'),dialog=root.querySelector('#library'),search=root.querySelector('#volume-search');
+  search.value='清水';search.dispatchEvent(new env.window.Event('input'));
+  const before=root.querySelector('#volume-results').textContent;
+  assert.ok(before.includes('清水'));
+  controller.setPreferences({night:false,paused:false});
+  assert.equal(root.classList.contains('night'),false);
+  assert.equal(root.classList.contains('reduce-motion'),false);
+  assert.equal(dialog.open,true);
+  assert.equal(search.value,'清水');
+  assert.equal(root.querySelector('#volume-results').textContent,before);
+  assert.equal(root.querySelector('#scene'),canvas);
+  controller.setPreferences({night:true,paused:true});
+  assert.equal(root.classList.contains('night'),true);
+  assert.equal(root.classList.contains('reduce-motion'),true);
+  assert.equal(dialog.dataset.ward,'W_HIGASHIYAMA');
+  assert.deepEqual(changes,[],'controlled preference updates must not feed back to React');
+  controller.destroy();
+});
+
+test('shared play preference cannot override system reduced motion',t=>{
+  const {root}=environment(t,true);
+  const controller=mountBunko(root,{embedded:true,paused:true});
+  controller.setPreferences({night:false,paused:false});
+  assert.equal(root.classList.contains('reduce-motion'),true);
+  assert.equal(root.querySelector('#motion').disabled,true);
+  assert.equal(root.querySelector('#motion').getAttribute('aria-pressed'),'true');
+  controller.destroy();
+});
+
+test('standalone entrance also defaults to moonlight and supports warm daylight',t=>{
+  const {root}=environment(t);
+  const controller=mountBunko(root);
+  assert.equal(root.classList.contains('night'),true);
+  root.querySelector('#night').click();
+  assert.equal(root.classList.contains('night'),false);
+  controller.destroy();
+});

@@ -96,3 +96,36 @@
 .bunko .volume-heading{padding-bottom:14px}
 @media(max-width:700px){.bunko .volume-filter{gap:4px}.bunko .volume-search-wrap{gap:6px}.bunko #volume-map{flex-direction:column;gap:0;font-size:10px}.bunko .volume-heading{padding-bottom:10px}.bunko #volume-types{gap:2px}.bunko #volume-types button{min-width:46px}.bunko .volume-search-wrap input{font-size:12px}.bunko #volume-types .hira-icon{width:23px;height:23px}}
 .bunko .library{--hira-gold:#99743c;--hira-silver:#949c94}
+
+/* Reading follows the selected lighting, including the native dialog top layer. */
+.bunko.night{color-scheme:dark;--paper:#1b2228;--ink:#e7e1d4;--muted:#b4b5ad;--line:#465058;--gold:#d2bb89;--panel:#242c33}
+.bunko-study-page{background:#1b2228}
+.bunko .library{--sheet:var(--paper);--sheet-ink:var(--ink);--sheet-muted:var(--muted);--hira-gold:var(--gold);--hira-silver:#7d8b88;color:var(--sheet-ink);color-scheme:light}
+.bunko.night .library{--hira-silver:#b7c5c7;color-scheme:dark}
+.bunko .volume-paper{background:var(--sheet);border-color:var(--line);box-shadow:inset 3px 0 8px #0001,inset -3px 0 8px #0001}
+.bunko .volume-heading,.bunko .volume-controls,.bunko .volume-body,.bunko .volume-entry,.bunko .volume-footer,.bunko .volume-search-wrap,.bunko .volume-tools button{border-color:var(--line)}
+.bunko .volume-filter input{color:var(--ink);font-size:16px;background:transparent}
+.bunko .volume-filter input::placeholder{color:var(--muted);opacity:1;font-size:13px}
+.bunko .volume-tools #close-book{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.bunko #volume-types button[aria-pressed=true]{color:var(--ink);border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.bunko .volume-entry[open] .entry-name,.bunko .entry-content a,.bunko .entry-name::after{color:var(--gold)}
+.bunko .entry-reservation{color:var(--gold)}
+.bunko .entry-content{font-size:15px;line-height:1.95}
+.bunko .entry-area,.bunko .entry-tags,.bunko .entry-type{font-size:12px}
+.bunko .volume-entry summary:focus-visible,.bunko .volume-filter input:focus-visible,.bunko .volume-body:focus-visible{outline-color:var(--gold)}
+.bunko .entry-content a{border-color:var(--line)}
+.bunko.night .scroll-roller span{background:linear-gradient(#20282d,#485158 42%,#303941 76%,#1b2228);border-color:#59636a}
+.bunko.night .library::backdrop{background:#080e14c9}
+.bunko[data-embedded] main>header{display:none}
+@media(max-width:700px){
+ .bunko .library{width:calc(100vw - 28px);height:calc(100dvh - 40px);max-height:calc(100dvh - 40px);height:calc(100dvh - max(20px,env(safe-area-inset-top)) - max(20px,env(safe-area-inset-bottom)))}
+ .bunko .volume-paper{padding:12px 12px 8px}.bunko .volume-heading h2{font-size:25px}
+ .bunko .volume-heading p:last-child{font-size:11px;line-height:1.6;margin-top:4px}
+ .bunko .volume-heading .eyebrow{margin-bottom:5px}
+ .bunko .volume-tools{gap:2px}.bunko .volume-tools button{padding:6px 10px}
+ .bunko .entry-name{font-size:18px;overflow-wrap:anywhere}.bunko .entry-content{font-size:15px}
+ .bunko .volume-entry summary{grid-template-columns:minmax(0,1fr) auto}
+ .bunko .entry-type{max-width:78px;font-size:11px;text-align:right}
+ .bunko .volume-filter input{font-size:16px}
+ .bunko .volume-filter input::placeholder{font-size:12px}
+}

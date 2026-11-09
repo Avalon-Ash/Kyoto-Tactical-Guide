@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { motion } from 'motion/react';
 import { Lang } from '../types';
 import { TAG_REGISTRY } from '../data/tags';
 
@@ -50,40 +49,10 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
   if (tags.length === 0) return null;
 
-  return (
-    <div
-      ref={containerRef}
-      onMouseDown={handleTagBarMouseDown}
-      style={{ cursor: 'grab' }}
-      className={`overflow-x-auto no-scrollbar relative touch-pan-x ${variant === 'global' ? 'py-4' : 'py-2'}`}
-    >
-      <div className="flex gap-3 px-6 w-max">
-        {tags.map(tagId => {
-          const meta = TAG_REGISTRY[tagId];
-          const label = meta ? meta.label[lang] : tagId;
-          const emoji = TAG_REGISTRY[tagId]?.emoji;
-          const isActive = activeTag === tagId;
-
-          return (
-            <motion.button
-              key={tagId}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onSelect(isActive ? null : tagId)}
-              className={`shrink-0 px-6 py-2.5 text-[0.95rem]
-                font-serif tracking-[0.15em] min-h-[48px] flex items-center justify-center
-                rounded-sm border transition-all duration-300
-                ${isActive 
-                  ? 'maki-e-tag active bg-shuiro text-white border-shuiro shadow-lg' 
-                  : 'maki-e-tag bg-white/5 text-gold-light border-gold-light/30'}`}
-            >
-              {emoji && (
-                <span className="mr-1 text-xs leading-none select-none">{emoji}</span>
-              )}
-              {label}
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <div ref={containerRef} onMouseDown={handleTagBarMouseDown}
+    className={`tag-selector tag-selector-${variant}`} role="group" aria-label={lang === 'zh' ? '細分類' : '絞り込み'}>
+    <button type="button" aria-pressed={!activeTag} onClick={() => onSelect(null)}>{lang === 'zh' ? '全部' : 'すべて'}</button>
+    {tags.map(tagId => <button type="button" key={tagId} aria-pressed={activeTag === tagId}
+      onClick={() => onSelect(activeTag === tagId ? null : tagId)}>{TAG_REGISTRY[tagId]?.label[lang] ?? tagId}</button>)}
+  </div>;
 };

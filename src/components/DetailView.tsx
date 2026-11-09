@@ -33,11 +33,15 @@
  * - 主 Tab 切換時若 activeTag 的 group 不在新白名單中，自動 setActiveTag(null)
  */
 import React, { useRef, useMemo, useState } from 'react';
-import { motion } from 'motion/react';
-import { ChevronLeft, GripHorizontal, Filter, Map } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { ChevronLeft, List, Filter, Map } from 'lucide-react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
-import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, WARD_DESCS, getWardStats, getAreaStats } from '../data/index';
+import { TYPES, TYPE_NAMES, WARD_NAMES, AREA_NAMES, getWardStats, getAreaStats } from '../data/index';
 import { SpotCard } from './SpotCard';
+import { BunkoTools } from './BunkoTools';
+import { MakieIcon } from './MakieIcon';
+import { typeMotifs } from '../lib/makie-icons';
+import type { BunkoPreferences } from './BunkoEntrance';
 import { TagSelector } from './TagSelector';
 import { TAG_REGISTRY } from '../data/tags';
 import { TYPE_TAG_GROUP_MAP, DEFAULT_TAG_GROUPS } from '../data/type-tag-groups';
@@ -49,15 +53,18 @@ const ClusterMap = React.lazy(() =>
 interface DetailViewProps {
   engine: ReturnType<typeof useKyotoEngine>;
   width: number;
+  preferences: BunkoPreferences;
+  onPreferencesChange: (value: BunkoPreferences) => void;
 }
 
-export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
+export const DetailView: React.FC<DetailViewProps> = ({ engine, width, preferences, onPreferencesChange }) => {
   const { 
     lang, mode, activeId, activeType, isLoading, activeTag, setActiveTag, localTags,
     t, toggleLang, closeDetail, filteredSpots, typeCounts 
   } = engine;
+  const systemReducedMotion = useReducedMotion();
+  const reduceMotion = preferences.paused || systemReducedMotion;
   const [viewMode, setViewMode] = useState<'card' | 'map'>('card');
-  const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll to top when changing type filters or active tag
@@ -87,197 +94,43 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, width }) => {
     // 結果仍為 string[]，符合 TagSelector tags: string[] 介面
   }, [activeType, localTags]);
 
-  const handleSpotListMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, [role="button"]')) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    const startYValue = e.pageY;
-    const startTop = el.scrollTop;
-    let moved = false;
-
-    const onMove = (ev: MouseEvent) => {
-      const dy = ev.pageY - startYValue;
-      if (Math.abs(dy) > 4) {
-        moved = true;
-        el.scrollTop = startTop - dy;
-        el.style.cursor = 'grabbing';
-        el.style.userSelect = 'none';
-      }
-    };
-
-    const onUp = () => {
-      el.style.cursor = '';
-      el.style.userSelect = '';
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      if (moved) {
-        const block = (ev: MouseEvent) => ev.stopPropagation();
-        window.addEventListener('click', block, { once: true, capture: true });
-      }
-    };
-
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  };
-
-  const clampSize = (min: number, max: number) => Math.min(Math.max(width / 40, min), max);
-
-  return (
-    <motion.div 
-      key="detail"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex flex-col h-full bg-[#0a0a0a] relative z-40"
-    >
-      {/* Persistent HUD Control Bar */}
-      <div className="urushi-panel border-b border-gold/40 shrink-0 z-50">
-        <div className="px-4 sm:px-10 py-3 sm:py-6 flex items-center justify-between gap-4">
-          <button 
-            onClick={closeDetail}
-            className="flex items-center gap-2 text-gold-light/60 hover:text-white transition-all group"
-          >
-            <ChevronLeft size={clampSize(18, 32)} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="font-serif text-[0.75rem] sm:text-[1rem] uppercase tracking-[0.4em] font-bold">{t('btn_back')}</span>
-          </button>
-          
-          <div className="flex-1 flex justify-center overflow-hidden">
-            <div className="flex flex-col items-center">
-              <h2 className="maki-e-text text-[clamp(1rem,3vw,2rem)] font-bold tracking-[0.2em] truncate max-w-full text-center">{activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : ''}</h2>
-              {mode === 'ward' && activeId && (
-                <div className="text-[clamp(0.75rem,1.2vw,0.85rem)] text-shuiro font-serif tracking-[0.2em] opacity-80 mt-1">
-                  {t(activeId as string, WARD_DESCS)}
-                </div>
-              )}
-              <div className="text-[clamp(0.75rem,1.1vw,0.7rem)] text-gold-light/30 tracking-[0.4em] uppercase font-bold mt-1">
-                {activeId && (mode === 'ward' ? getWardStats()[activeId] : getAreaStats()[activeId])} {t('unit_spot')}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-5 shrink-0">
-            <button 
-              onClick={toggleLang}
-              className="bg-transparent border border-gold/30 text-gold-light/70 rounded-none px-2 sm:px-4 py-1 sm:py-2 text-[0.55rem] sm:text-[0.75rem] font-serif cursor-pointer hover:bg-shuiro hover:text-white hover:border-shuiro transition-all shadow-md tracking-widest uppercase font-bold"
-            >
-              {t('btn_lang')}
-            </button>
-            <button 
-              onClick={() => setViewMode(v => v === 'card' ? 'map' : 'card')}
-              className="hanko-stamp flex flex-col items-center justify-center gap-0.5 text-[0.6rem] sm:text-xs w-8 sm:w-12 h-8 sm:h-12 shrink-0 cursor-pointer hover:bg-shuiro hover:text-white transition-all overflow-hidden relative group"
-            >
-              <div className="flex flex-col items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
-                <span className="leading-none">{t(viewMode === 'card' ? 'view_map' : 'view_card')}</span>
-                {width >= 400 && <span className="leading-none mt-0.5 opacity-80">{t('view_hint')}</span>}
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Inline Controls (Tabs & Search) */}
-        <div className="border-t border-gold/10">
-          <div ref={tabsContainerRef} className="overflow-hidden bg-black/40 scroll-fade-right relative cursor-grab active:cursor-grabbing group/tabs">
-            {/* Drag Hint for Desktop */}
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-gold-light/20 sm:group-hover/tabs:animate-pulse pointer-events-none z-10">
-              <GripHorizontal size={14} />
-            </div>
-            
-            <motion.div 
-              drag="x"
-              dragConstraints={tabsContainerRef}
-              dragElastic={0.05}
-              className="flex px-2 w-max"
-            >
-              {Object.keys(TYPES).map(tKey => {
-                const displayCount = typeCounts[tKey] || 0;
-                
-                return (
-                  <button 
-                    key={tKey}
-                    onClick={() => engine.setActiveType(tKey)}
-                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag when clicking
-                    className={`shrink-0 px-4 sm:px-8 py-3 sm:py-5 text-[0.75rem] sm:text-[1rem] cursor-pointer transition-all border-b-2 font-serif tracking-widest flex items-center gap-2 ${activeType === tKey ? 'text-gold-light border-shuiro bg-shuiro/5 font-bold' : 'text-[#f0ead6]/30 border-transparent hover:text-gold-light/40'}`}
-                  >
-                    <span className="opacity-80">{t(tKey, TYPE_NAMES)}</span>
-                    <span className={`text-[0.5rem] sm:text-[0.75rem] min-w-[1.2rem] sm:min-w-[1.8rem] px-1 py-0.5 rounded-full text-center ${activeType === tKey ? 'bg-shuiro text-white shadow-lg' : 'bg-gold/5 text-gold-light/20'}`}>
-                      {displayCount}
-                    </span>
-                  </button>
-                );
-              })}
-            </motion.div>
-          </div>
-        </div>
-
-        <div className="bg-black/60 border-t border-gold/10">
-          <TagSelector 
-            tags={visibleLocalTags}
-            activeTag={activeTag}
-            onSelect={setActiveTag}
-            lang={lang}
-            variant="local"
-          />
-        </div>
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  React.useEffect(() => { titleRef.current?.focus(); }, []);
+  const returnToIndex = () => { closeDetail(); engine.switchMode(mode); };
+  const title = activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : '';
+  return <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={reduceMotion ? {duration:0} : undefined} className="detail-view">
+    <header className="detail-header">
+      <div className="detail-topline">
+        <button className="ui-button back-button" onClick={returnToIndex}><ChevronLeft size={18} />{t('btn_back')}</button>
+        <BunkoTools lang={lang} preferences={preferences} onChange={onPreferencesChange} onLanguage={toggleLang} />
       </div>
-
-      {/* Scrollable Content */}
-      <div 
-        ref={scrollRef}
-        onMouseDown={handleSpotListMouseDown}
-        style={{ cursor: 'grab', touchAction: 'pan-y' }}
-        className="flex-1 overflow-y-auto no-scrollbar pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
-      >
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-32 animate-pulse">
-            <div className="hanko-stamp text-4xl w-16 h-16 mb-6 flex items-center justify-center animate-spin-slow">京</div>
-            <p className="font-serif tracking-[0.5em] text-gold-light/40">{t('loading') || '展卷中，稍候片刻…'}</p>
-          </div>
-        ) : viewMode === 'map' ? (
-          <div className="p-4 sm:p-6 lg:p-8">
-            <React.Suspense fallback={
-              <div role="status" className="h-[65vh] flex items-center justify-center font-serif tracking-[0.5em] text-gold-light/40">
-                {t('loading')}
-              </div>
-            }>
-              <ClusterMap engine={engine} width={width} />
-            </React.Suspense>
-          </div>
-        ) : (
-          <main className="p-2 sm:p-10 lg:p-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-10 lg:gap-14">
-            {filteredSpots.length > 0 ? (
-              filteredSpots.map((spot, i) => (
-                <div key={spot.id + i} className="relative">
-                  <SpotCard spot={spot} lang={lang} t={t} activeTag={activeTag} />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full flex flex-col items-center justify-center py-24 opacity-40">
-                <Filter size={clampSize(40, 64)} className="text-gold-light/20 mb-8" />
-                <p className="font-serif tracking-[0.4em] text-sm sm:text-lg text-gold-light/50">{t('empty_msg')}</p>
-              </div>
-            )}
-            
-            {/* Quick Map Floating Toggle */}
-            {filteredSpots.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.05 }}
-                className="fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-[100]"
-              >
-                <button
-                  onClick={() => setViewMode('map')}
-                  className="flex items-center gap-2 bg-shuiro text-white px-5 py-3 rounded-full shadow-[0_10px_30px_rgba(225,81,65,0.4)] border border-white/20 active:scale-95 transition-all text-sm font-serif tracking-widest uppercase font-bold"
-                >
-                  <Map size={18} />{t('btn_to_map')}
-                </button>
-              </motion.div>
-            )}
-          </main>
-        )}
+      <div className="detail-heading">
+        <div><p className="ui-kicker">{mode === 'ward' ? 'KYOTO / BUNKO' : 'KYOTO / PLACES'}</p>
+          <h2 ref={titleRef} tabIndex={-1}>{title}</h2></div>
+        <small>{filteredSpots.length} / {activeId && (mode === 'ward' ? getWardStats()[activeId] : getAreaStats()[activeId])} {t('unit_spot')}</small>
       </div>
-    </motion.div>
-  );
+      <div className="type-selector" role="group" aria-label={lang === 'zh' ? '景點類型' : '名所の種類'}>
+        {Object.keys(TYPES).map(type => <button key={type} aria-pressed={activeType === type}
+          onClick={() => engine.setActiveType(type)}>
+          <MakieIcon motif={typeMotifs[type] ?? 'all'} />
+          <span>{t(type, TYPE_NAMES)}</span><small>{typeCounts[type] || 0}</small>
+        </button>)}
+      </div>
+      <TagSelector tags={visibleLocalTags} activeTag={activeTag} onSelect={setActiveTag} lang={lang} variant="local" />
+    </header>
+    <div ref={scrollRef} className={`detail-content ${viewMode === 'map' ? 'is-map' : ''}`}>
+      {isLoading ? <div className="ui-status" role="status">{t('loading')}</div>
+        : viewMode === 'map' ? <React.Suspense fallback={<div role="status" className="ui-status">{t('loading')}</div>}>
+            <ClusterMap engine={engine} width={width} night={preferences.night} paused={preferences.paused} />
+          </React.Suspense>
+        : <main className="spot-grid" aria-label={title}>
+          {filteredSpots.length ? filteredSpots.map(spot => <SpotCard key={spot.id} spot={spot} lang={lang} t={t} activeTag={activeTag} />)
+            : <div className="ui-status" role="status"><Filter size={28} /><p>{t('empty_msg')}</p></div>}
+        </main>}
+    </div>
+    <nav className="view-switch" aria-label={lang === 'zh' ? '呈現方式' : '表示方法'}>
+      <button aria-pressed={viewMode === 'card'} onClick={() => setViewMode('card')}><List size={18} />{lang === 'zh' ? '景點列表' : '名所一覧'}</button>
+      <button aria-pressed={viewMode === 'map'} onClick={() => setViewMode('map')}><Map size={18} />{lang === 'zh' ? '探索地圖' : '地図を見る'}</button>
+    </nav>
+  </motion.div>;
 };

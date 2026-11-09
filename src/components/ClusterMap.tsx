@@ -14,14 +14,14 @@
  *   並支援單一卡片快速導航與 Google Maps API 深度整合。
  * ==============================================================================
  */
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useKyotoEngine } from '../hooks/useKyotoEngine';
 import { SPOT_POSITIONS } from '../data/map-centers';
 import { AREA_NAMES } from '../data/index';
 import { WARD_BOUNDARIES } from '../data/geo/ward-boundaries';
-import { MapPin, Navigation, Eye, Moon, Sun, X, ChevronDown } from 'lucide-react';
-import { SpotCard, buildGoogleMapsUrl } from './SpotCard';
+import { MapPin, ChevronDown, Plus, Minus, LocateFixed } from 'lucide-react';
+import { SpotCard } from './SpotCard';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents, GeoJSON, Polyline, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import { createOutsideMask } from '../lib/map-geometry';
@@ -33,11 +33,14 @@ import 'leaflet/dist/leaflet.css';
 interface ClusterMapProps {
   engine: ReturnType<typeof useKyotoEngine>;
   width: number;
+  night: boolean;
+  paused: boolean;
 }
 
-const MapController = ({ center, bounds }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null }) => {
+const MapController = ({ center, bounds, paused }: { center: [number, number], bounds?: L.LatLngBoundsExpression | null, paused: boolean }) => {
   const map = useMap();
-  const reducedMotion = useReducedMotion();
+  const systemReducedMotion = useReducedMotion();
+  const reducedMotion = systemReducedMotion || paused;
   useEffect(() => {
     if (bounds) {
       map.fitBounds(bounds, { animate: !reducedMotion, padding: [40, 40] });
@@ -48,6 +51,19 @@ const MapController = ({ center, bounds }: { center: [number, number], bounds?: 
 
   return null;
 };
+
+function MapControls({center,bounds,lang,paused}: {paused:boolean;center:[number,number];bounds:L.LatLngBoundsExpression|null;lang:'zh'|'ja'}) {
+  const map=useMap();
+  const systemReduced=useReducedMotion();
+  const reduced=systemReduced||paused;
+  const controls=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(controls.current){L.DomEvent.disableClickPropagation(controls.current);L.DomEvent.disableScrollPropagation(controls.current);}},[]);
+  return <div className="map-controls" ref={controls}>
+    <button className="ui-button icon-button" aria-label={lang==='zh'?'放大地圖':'地図を拡大'} onClick={()=>map.zoomIn(undefined,{animate:!reduced})}><Plus size={18}/></button>
+    <button className="ui-button icon-button" aria-label={lang==='zh'?'縮小地圖':'地図を縮小'} onClick={()=>map.zoomOut(undefined,{animate:!reduced})}><Minus size={18}/></button>
+    <button className="ui-button icon-button" aria-label={lang==='zh'?'顯示全區':'全域を表示'} onClick={()=>bounds?map.fitBounds(bounds,{padding:[40,40],animate:!reduced}):map.setView(center,12,{animate:!reduced})}><LocateFixed size={18}/></button>
+  </div>;
+}
 
 const createClusterIcon = (count: number, label: string, selected: boolean, dx: number, dy: number) => {
   const width = mapLabelWidth(label);
@@ -117,16 +133,25 @@ function MapMarkers({ clusters, landmarks, selected, theme, onSelect }: {
   </>;
 }
 
-export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
+export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused }) => {
   const { lang, mode, activeId, filteredSpots, t } = engine;
-  const reducedMotion = useReducedMotion();
+  const systemReducedMotion = useReducedMotion();
+  const reducedMotion = systemReducedMotion || paused;
   const [selectedClusterKey, setSelectedClusterKey] = useState<string | null>(null);
   // 切換行政區／分區時關閉面板。
   useEffect(() => {
     setSelectedClusterKey(null);
   }, [activeId, mode]);
 
-  const [mapTheme, setMapTheme] = useState<'light' | 'dark'>('light');
+  const mapTheme = night ? 'dark' : 'light';
+  const panelRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const selectCluster = (key: string) => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setSelectedClusterKey(key); };
+  const closePanel = () => { setSelectedClusterKey(null); };
+  useEffect(() => {
+    if(selectedClusterKey) panelRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    else openerRef.current?.focus();
+  }, [selectedClusterKey]);
   const geoJsonData = useMemo(
     () => mode === 'ward' && activeId ? WARD_BOUNDARIES[activeId] ?? null : null,
     [mode, activeId]
@@ -194,26 +219,13 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
   const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   return (
-    <div className="relative w-full h-[65vh] sm:h-[75vh] bg-[#0a0a0a] rounded-xl border border-gold/20 overflow-hidden flex flex-col shadow-2xl">
-      <div className="absolute top-4 right-4 z-[400] flex gap-2">
-        <button
-          onClick={(e) => {
-             e.preventDefault();
-             setMapTheme(prev => prev === 'light' ? 'dark' : 'light');
-          }}
-          className="bg-black/70 backdrop-blur border border-gold/30 text-gold-light p-2 rounded tracking-widest font-serif text-xs px-3 hover:bg-gold/20 transition flex items-center gap-2 cursor-pointer pointer-events-auto shadow-lg"
-        >
-          {mapTheme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
-          {mapTheme === 'light' ? t('map_night') : t('map_day')}
-        </button>
-      </div>
-
-      <div className="relative flex-1 z-0 bg-[#0a0a0a]">
+    <div className="cluster-map" data-theme={mapTheme}>
+      <div className="map-viewport" inert={selectedClusterKey ? true : undefined}>
         <MapContainer 
           center={mapCenter} 
           zoom={12.5} 
           zoomControl={false}
-          style={{ height: '100%', width: '100%', background: mapTheme === 'dark' ? '#0a0a0a' : '#f0f0f0' }}
+          style={{ height: '100%', width: '100%', background: night ? '#1b2329' : '#eee8db' }}
         >
           <TileLayer
             key={mapTheme}
@@ -221,7 +233,8 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             attribution={attribution}
             className={mapTheme === 'dark' ? 'map-tiles-night' : 'map-tiles-day'}
           />
-          <MapController center={mapCenter} bounds={effectiveBounds} />
+          <MapController center={mapCenter} bounds={effectiveBounds} paused={paused} />
+          <MapControls center={mapCenter} bounds={effectiveBounds} lang={lang} paused={paused} />
           
           {outsideMask && (
             <GeoJSON key={`mask-${activeId}`} data={outsideMask} interactive={false}
@@ -235,14 +248,14 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
           </>}
 
           <MapMarkers clusters={clusters} landmarks={landmarks} selected={selectedClusterKey}
-            theme={mapTheme} onSelect={setSelectedClusterKey} />
+            theme={mapTheme} onSelect={selectCluster} />
         </MapContainer>
 
         {nearbyClusters.length > 0 && <div className="nearby-map-note" role="note">{t('nearby_map_note')}</div>}
         {clusters.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400]">
-            <div className="bg-black/60 px-6 py-3 rounded-full backdrop-blur-sm border border-gold/20 text-gold-light">
-              <span className="font-serif tracking-[0.3em] font-medium">{t('empty_msg') || '該區域尚無資料'}</span>
+            <div className="map-empty">
+              <span className="ui-muted">{t('empty_msg') || '該區域尚無資料'}</span>
             </div>
           </div>
         )}
@@ -255,40 +268,26 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, width }) => {
             animate={{ y: 0 }}
             exit={reducedMotion ? { opacity: 0 } : { y: '100%' }}
             transition={reducedMotion ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 left-0 right-0 top-auto bg-[#0d0a07]/95 backdrop-blur-xl border-t border-gold/30 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] px-4 max-h-full flex flex-col z-[500] shadow-[0_-20px_50px_rgba(0,0,0,0.6)]"
+            ref={panelRef} className="map-sheet" role="dialog" aria-modal="false" aria-labelledby="map-sheet-title"
+            onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+              if(event.key === 'Escape'){event.stopPropagation();closePanel();}
+            }}
           >
-            <div className="flex justify-between items-start sm:items-center mb-4 shrink-0 px-2 gap-4">
-               <div className="text-sm font-serif text-gold-light/60 tracking-widest uppercase flex items-center gap-2 flex-wrap">
-                 <MapPin size={16} className="text-shuiro shrink-0" />
-                 <span>{clusters.find(c => c.key === selectedClusterKey)?.label} ({selectedSpots.length})</span>
+            <div className="map-sheet-heading">
+               <div className="map-sheet-title">
+                 <MapPin size={18} />
+                 <h3 id="map-sheet-title">{clusters.find(c => c.key === selectedClusterKey)?.label} <small>({selectedSpots.length})</small></h3>
                </div>
                <button 
-                 onClick={() => setSelectedClusterKey(null)}
-                 className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 text-gold-light/70 hover:text-white hover:bg-shuiro/80 transition-all rounded-full border border-gold/20 hover:border-shuiro text-xs font-serif tracking-widest uppercase cursor-pointer shrink-0"
+                 onClick={closePanel}
+                 className="ui-button"
                >
                  {t('btn_back_map')} <ChevronDown size={14} />
                </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 px-2 pb-4 pointer-events-auto">
-              {selectedSpots.map(spot => (
-                <div key={spot.id} className="relative group/spot">
-                  <SpotCard spot={spot} lang={lang} t={t} readOnly />
-                  {/* Google Maps floating action over the card */}
-                  <div className="absolute top-4 right-4 z-10 flex gap-2">
-                    <a 
-                      href={buildGoogleMapsUrl(spot)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center p-2 rounded-full border border-gold/40 bg-black/80 text-[#1A73E8] backdrop-blur shadow-lg hover:scale-110 hover:bg-[#1A73E8] hover:text-white transition-all group/nav"
-                      onClick={e => e.stopPropagation()}
-                      title="Google Maps"
-                    >
-                     <Navigation size={16} className="fill-current" />
-                    </a>
-                  </div>
-                </div>
-              ))}
+            <div className="map-sheet-body">
+              {selectedSpots.map(spot => <SpotCard key={spot.id} spot={spot} lang={lang} t={t} />)}
             </div>
           </motion.div>
         )}

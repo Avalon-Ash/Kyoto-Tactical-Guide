@@ -37,5 +37,6 @@ export function BunkoEntrance(props: Props) {
     return ()=>{instance.destroy();controller.current=null;element.replaceChildren();};
   },[]);
   useEffect(()=>{controller.current?.setLanguage(props.lang);},[props.lang]);
+  useEffect(()=>{controller.current?.setPreferences(props.preferences);},[props.preferences]);
   return <div ref={root} className="bunko" data-embedded="true" />;
 }

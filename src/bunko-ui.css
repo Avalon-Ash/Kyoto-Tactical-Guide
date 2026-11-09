@@ -1,0 +1,128 @@
+/* Mobile-first Bunko system. One palette for every production route. */
+.kyoto-app {
+  --entry-paper:#eee8db; --entry-surface:#f5f0e5; --entry-ink:#342e24;
+  --entry-muted:#706451; --entry-line:#c9bca4; --hira-gold:#80602e; --hira-silver:#68736f;
+  --entry-accent:#94482d; --entry-selected:#80602e14;
+  --font-serif:"Noto Serif TC","Noto Serif JP",serif;
+  --title-font:"Shippori Mincho B1","Noto Serif TC","Noto Serif JP",serif;
+  height:100dvh; background:var(--entry-paper); color:var(--entry-ink); color-scheme:light;
+  font:15px/1.7 var(--font-serif); -webkit-tap-highlight-color:transparent;
+}
+.kyoto-app[data-theme="dark"] {
+  --entry-paper:#1b2228; --entry-surface:#242c33; --entry-ink:#e7e1d4;
+  --entry-muted:#b4b5ad; --entry-line:#465058; --hira-gold:#d2bb89; --hira-silver:#b7c5c7;
+  --entry-accent:#e0a28a; --entry-selected:#d2bb8914; color-scheme:dark;
+}
+.kyoto-app:lang(ja){--font-serif:"Shippori Mincho B1","Noto Serif JP",serif}
+.app-shell{height:100%;max-width:1440px;margin:auto;overflow:hidden;position:relative;background:var(--entry-paper)}
+.kyoto-app button,.kyoto-app a,.kyoto-app input{touch-action:manipulation}
+.kyoto-app button{cursor:pointer}
+.kyoto-app :is(button,a,input,summary):focus-visible{outline:2px solid var(--hira-gold);outline-offset:3px}
+.kyoto-app button:disabled{opacity:.5;cursor:default}
+.kyoto-app .hira-icon{color:var(--hira-gold);--hira-silver:inherit}
+.ui-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:8px 12px;border:1px solid var(--entry-line);border-radius:4px;background:transparent;color:var(--entry-ink);font:inherit;font-size:13px;white-space:nowrap}
+.ui-button:hover,.ui-button[aria-pressed="true"]{background:var(--entry-selected);border-color:var(--hira-gold)}
+.ui-button.icon-button{padding:10px}
+.bunko-tools{display:flex;gap:4px;flex-shrink:0}
+.ui-kicker{font:10px/1.4 Georgia,serif;color:var(--entry-muted);letter-spacing:.18em;margin:0 0 5px}
+.ui-muted{color:var(--entry-muted)}
+.ui-status{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:220px;padding:32px 20px;color:var(--entry-muted);text-align:center;grid-column:1/-1}
+
+/* Home: the same tools remain accessible from all three indexes. */
+.kyoto-app .kyoto-home>header.urushi-panel{max-width:none;margin:0;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));gap:8px;flex-wrap:nowrap;font-family:var(--font-serif)}
+.kyoto-app .kyoto-home>header>div:first-child{min-width:0;gap:8px}
+.kyoto-app .kyoto-home>header .hanko-stamp{display:none}
+.kyoto-app .kyoto-home>header .maki-e-text{font-size:18px;letter-spacing:.03em;line-height:1.5;font-family:var(--title-font)}
+.kyoto-app .kyoto-home>header .bunko-tools button{padding:8px;min-width:44px;min-height:44px;box-shadow:none;border-color:var(--entry-line);letter-spacing:0}
+.kyoto-app .kyoto-home>nav>button{font-size:13px;min-height:48px;letter-spacing:.12em;padding:10px 0}
+.kyoto-app .kyoto-home>nav>button[aria-pressed="true"]{background:var(--entry-selected);border-color:var(--hira-gold)}
+.kyoto-app .bunko-index{padding:22px 20px 32px}
+.kyoto-app .index-caption{font-size:13px;letter-spacing:.08em;line-height:1.8}
+.kyoto-app .index-tags button{border-radius:3px}
+.kyoto-app .index-tags small,.kyoto-app .area-leaves small{font-size:12px}
+.kyoto-app .catalog-heading{padding:12px 16px;gap:12px;min-height:72px}
+.kyoto-app .catalog-heading h2{font-size:21px;letter-spacing:.06em;min-width:0;overflow-wrap:anywhere}
+.kyoto-app .catalog-heading button{border-radius:3px;font-size:13px;white-space:nowrap}
+.kyoto-app .catalog-results{gap:0 32px}
+
+/* Detail: scroll the filters natively and reserve a bottom navigation row. */
+.detail-view{height:100%;display:flex;flex-direction:column;position:relative;background:var(--entry-paper);min-height:0}
+.detail-header{flex-shrink:0;border-bottom:1px solid var(--entry-line);padding-top:env(safe-area-inset-top)}
+.detail-topline{display:flex;justify-content:space-between;gap:8px;padding:10px 12px 0}
+.back-button{border-color:transparent;padding-left:0}
+.detail-heading{display:flex;justify-content:space-between;align-items:end;gap:14px;padding:8px 20px 14px}
+.detail-heading h2{font:500 25px/1.4 var(--title-font);letter-spacing:.08em;overflow-wrap:anywhere;margin:0}
+.detail-heading h2:focus{outline:none}
+.detail-heading small{font-size:12px;white-space:nowrap;color:var(--entry-muted);padding-bottom:4px}
+.type-selector{display:flex;overflow-x:auto;gap:4px;padding:0 12px 8px;scrollbar-width:thin;scroll-padding:12px;overscroll-behavior-x:contain;touch-action:pan-x}
+.type-selector button{flex-shrink:0;display:grid;grid-template-columns:auto auto;justify-items:center;align-items:center;gap:3px 6px;min-width:88px;min-height:66px;padding:6px 10px;border:1px solid transparent;border-radius:4px;font-size:12px;color:var(--entry-muted);background:transparent}
+.type-selector button>.hira-icon{grid-column:1/-1;width:23px;height:23px}
+.type-selector button small{font:11px Georgia,serif}
+.type-selector button[aria-pressed="true"]{color:var(--entry-ink);border-color:var(--hira-gold);background:var(--entry-selected)}
+.tag-selector{display:flex;gap:8px;overflow-x:auto;padding:8px 16px;border-top:1px solid var(--entry-line);scrollbar-width:thin;touch-action:pan-x;overscroll-behavior-x:contain}
+.tag-selector button{flex-shrink:0;min-height:44px;min-width:44px;padding:7px 13px;border:1px solid var(--entry-line);border-radius:3px;color:var(--entry-muted);font-size:13px;background:transparent}
+.tag-selector button[aria-pressed="true"]{color:var(--entry-ink);border-color:var(--hira-gold);background:var(--entry-selected)}
+.detail-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}
+.spot-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:0 40px;max-width:1180px;margin:auto;padding:0 20px 24px}
+.view-switch{display:flex;flex-shrink:0;gap:8px;border-top:1px solid var(--entry-line);background:var(--entry-paper);padding:8px 16px max(8px,env(safe-area-inset-bottom));z-index:5}
+.view-switch button{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:8px;border:1px solid transparent;border-radius:4px;color:var(--entry-muted);font-size:14px}
+.view-switch button[aria-pressed="true"]{background:var(--entry-selected);border-color:var(--entry-line);color:var(--entry-ink)}
+
+/* Shared entries for catalogue results, detailed lists and map sheets. */
+.spot-entry{min-width:0;padding:24px 0;border-bottom:1px solid var(--entry-line);color:var(--entry-ink)}
+.spot-meta{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:12px;color:var(--entry-muted)}
+.spot-meta small{font:10px Georgia,serif;letter-spacing:.05em;white-space:nowrap}
+.spot-entry h3{display:flex;align-items:start;gap:10px;margin:12px 0;font:500 22px/1.6 var(--title-font);letter-spacing:.04em;overflow-wrap:anywhere}
+.spot-entry h3 .hira-icon{width:24px;height:24px;margin-top:5px}
+.spot-description{font-size:15px;line-height:1.95;white-space:pre-line;overflow-wrap:anywhere;margin:0 0 16px}
+.spot-tags{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--entry-muted)}
+.spot-tags>span{padding:3px 8px;border:1px solid var(--entry-line);border-radius:3px}
+.spot-tags .spot-kind,.spot-tags [data-active="true"]{color:var(--hira-gold);background:var(--entry-selected)}
+.spot-tags .reservation{color:var(--entry-accent)}
+.spot-navigation{display:flex;align-items:center;gap:10px;min-height:46px;margin-top:18px;padding:9px 12px;color:var(--hira-gold);border:1px solid var(--entry-line);border-radius:4px;font-size:13px;text-decoration:none}
+.spot-navigation>span:last-child{margin-left:auto}
+.spot-navigation .hira-icon{width:21px;height:21px}
+.spot-navigation:hover{background:var(--entry-selected)}
+
+/* Map fits the remaining viewport; its sheet never covers the return tools. */
+.detail-content.is-map{overflow:hidden;padding:0}
+.cluster-map{height:100%;min-height:180px;position:relative;overflow:hidden;isolation:isolate;background:var(--entry-paper)}
+.map-viewport{height:100%;position:relative}
+.map-controls{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:450}
+.map-controls button{background:var(--entry-paper);color:var(--entry-ink);border-color:var(--entry-line)}
+.map-empty{background:var(--entry-paper);border:1px solid var(--entry-line);border-radius:4px;padding:14px 20px}
+.map-sheet{position:absolute;inset:12% 0 0;z-index:500;display:flex;flex-direction:column;border-top:1px solid var(--hira-gold);border-radius:12px 12px 0 0;background:var(--entry-paper);box-shadow:0 -8px 32px #0003;overflow:hidden}
+.map-sheet-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;padding:10px 16px;border-bottom:1px solid var(--entry-line);background:var(--entry-surface)}
+.map-sheet-title{display:flex;align-items:center;gap:8px;min-width:0}
+.map-sheet-title>svg{flex-shrink:0;color:var(--hira-gold)}
+.map-sheet-title h3{font:500 17px/1.5 var(--title-font);margin:0;overflow-wrap:anywhere}
+.map-sheet-title small{color:var(--entry-muted);font-size:12px}
+.map-sheet-heading>button{font-size:12px;flex-shrink:0;padding:8px}
+.map-sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:0 20px 20px}
+.kyoto-app .map-cluster-seal{height:44px;transform:none;border:1px solid var(--hira-gold);background:var(--entry-surface);color:var(--entry-ink);font-size:12px;font-weight:500;box-shadow:0 2px 6px #0003}
+.kyoto-app .map-marker-caption{background:var(--entry-paper);color:var(--entry-ink);border-color:var(--entry-line)}
+.kyoto-app .map-cluster.is-selected .map-cluster-seal{background:var(--hira-gold);color:var(--entry-paper);box-shadow:none}
+.kyoto-app .map-landmark.is-night{color:var(--hira-gold)}
+.kyoto-app .nearby-map-note{background:var(--entry-paper);color:var(--entry-ink);border-color:var(--entry-line);font-size:12px}
+.kyoto-app .leaflet-control-attribution{background:var(--entry-paper);color:var(--entry-muted);font:10px/1.5 sans-serif;max-width:100%}
+.kyoto-app .leaflet-control-attribution a{color:var(--hira-gold)}
+.kyoto-app .leaflet-container{font-family:var(--font-serif)}
+.kyoto-app .map-tiles-night{filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(.9) saturate(.45)}
+
+@media(min-width:701px){
+  .kyoto-app .kyoto-home>header.urushi-panel{padding:18px 30px}
+  .kyoto-app .kyoto-home>header .hanko-stamp{display:flex}
+  .kyoto-app .kyoto-home>header .maki-e-text{font-size:26px}
+  .kyoto-app .bunko-index{padding:32px 36px 48px}
+  .detail-topline{padding:16px 32px 0}.detail-heading{padding:12px 36px 20px}
+  .detail-heading h2{font-size:32px}.type-selector{padding:0 32px 12px;gap:8px}
+  .type-selector button{flex:1;max-width:150px;min-height:72px;font-size:13px}
+  .tag-selector{padding:10px 32px}.spot-grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:8px 36px 36px}
+  .view-switch{justify-content:center}.view-switch button{max-width:240px}
+  .map-sheet{inset:16px 16px 16px auto;width:min(440px,48%);border:1px solid var(--entry-line);border-radius:6px}
+  .map-sheet-body{padding:0 24px 24px}
+  .spot-entry h3{font-size:25px}
+}
+@media(max-height:650px){.detail-heading{padding:4px 16px 8px}.detail-heading h2{font-size:21px}.detail-heading .ui-kicker{display:none}.type-selector button{min-height:44px;display:flex;gap:6px}.type-selector button>.hira-icon{width:18px;height:18px}}
+@media(prefers-reduced-motion:reduce){.kyoto-app *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+.kyoto-app[data-reduced-motion="true"] *{scroll-behavior:auto!important;animation:none!important;transition:none!important}

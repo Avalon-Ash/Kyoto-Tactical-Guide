@@ -23,7 +23,7 @@ let destroyed=false;
 const events=new AbortController();
 const listen=(target,type,handler,settings={})=>target.addEventListener(type,handler,{...(typeof settings==='boolean'?{capture:settings}:settings),signal:events.signal});
 const canvas=/** @type {HTMLCanvasElement} */($('scene'));
-let language=options.language??'zh',night=options.night??Boolean(options.embedded),flat=false,paused=options.paused??false,hover=false,visible=true,failed=false;
+let language=options.language??'zh',night=options.night??true,flat=false,paused=options.paused??false,hover=false,visible=true,failed=false;
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 const still=()=>paused||media.matches;
 let frame=0,last=0,lift=.55,px=0,py=0,tx=0,ty=0,demoStart=0,draws=0;
@@ -343,6 +343,12 @@ try{init();}catch(e){failure(e);}
 root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
 translate();syncMotion();syncBook();
 return {
+  setPreferences(next){
+    if(destroyed)return;
+    night=next.night;paused=next.paused;
+    root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
+    translate();syncMotion();schedule();
+  },
   setLanguage(next){if(next!==language){activity();language=next;translate();}},
   destroy(){
     if(destroyed)return;destroyed=true;
