@@ -49,11 +49,13 @@
 
 瀏覽器（內建瀏覽器，Vite dev）：375×812 月光首頁（文庫、霞帶、分頁）、名所目錄 → 詳細 → 返回聚焦、御秘帖結果開關聚焦、詳細頁地圖縮放保持；1440×900 暖日名所目錄兩欄、詳細頁；獨立展示頁 `--paper` 取自 token、印章色 `--entry-seal`。重新載入後無主控台錯誤（先前的 Hooks 順序錯誤是改 engine 時 HMR 殘留）。
 
-## 未做／建議後續
+## 後續收尾（同日，使用者：「全作收掉」）
 
-- 專案沒有 `@types/react`，React 元件的型別檢查其實很弱（JSX 大多是 any）。補上會出現一批型別錯誤要修，建議另開一輪。
-- `study.css` 書卷內的紙色、捲軸等美術色值仍是字面值（屬 P4 書卷翻新範圍）。
-- `metadata.json` 是 AI Studio 部署用，描述已過時（「MMORPG-style」），是否還用 AI Studio 需要使用者確認。
-- 真實手機、Safari／iOS 未測。
+- 補上 `@types/react`、`@types/react-dom`（devDependencies），`tsconfig.json` 開啟 `strict`。只冒出 2 個錯誤：`ClusterMap` 的邊界型別、engine 用 `null` 當索引，都已修正；`SpotCard` 的 `key?` 權宜寫法移除。
+- 書卷色值改用色票：`study.css` 後段有一組 `.bunko.night { --paper:#1b2228 … }` 把色票又寫死一遍、蓋過 token 引用，已刪除；前段被覆蓋的舊紙色、框線、按鈕色全部改成 `var(--line)`、`var(--gold)`、`var(--entry-selected)` 等。預約提示統一用 `--entry-accent`。剩下的字面色值只有刻意的美術（捲軸木軸、三種梨地色票、對話框遮罩、金箔／銀塵微粒、畫布陰影）。
+- 獨立展示頁的 `<html data-theme>` 跟著晝夜切換，頁面背景改用色票。
+- 刪除 AI Studio 的 `metadata.json` 與 README 中的說明。
+- 檢查：lint（strict）exit 0；strict 驗證 0/0；48/48；build exit 0；`git diff --check` exit 0。瀏覽器：獨立頁月光 → 書卷 45 筆、紙色 `#1b2228`；切暖日 → `<html>` light、紙色 `#eee8db`、框線 `#c9bca4`；無錯誤。
+- 仍未測：真實手機、Safari／iOS。
 
 回退：本輪是 `main` 上的單一提交，可用 `git revert` 整筆撤回；刪除的檔案也可從該提交的父版本取回。

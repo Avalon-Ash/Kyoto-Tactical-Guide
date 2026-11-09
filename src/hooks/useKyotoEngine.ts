@@ -90,14 +90,13 @@ export function useKyotoEngine() {
     }
 
     let isMounted = true;
+    const id = activeId;
 
     async function loadData() {
       setIsLoading(true);
-      
+
       // 找出這筆資料屬於哪個行政區 (一區可能跨多個 Ward)
-      const wardIds = mode === 'ward' 
-        ? [activeId as WardKey] 
-        : (WARD_BY_AREA[activeId] as WardKey[] || []);
+      const wardIds: WardKey[] = mode === 'ward' ? [id as WardKey] : WARD_BY_AREA[id] ?? [];
 
       if (wardIds.length > 0) {
         // 並行載入所有相關行政區資料

@@ -267,12 +267,6 @@ public/
 
 ---
 
-## 📁 根目錄檔案說明
-
-- `metadata.json`：應用部署元資料，聲明應用名稱、描述及所需框架權限 (`requestFramePermissions` / `majorCapabilities`)，供宿主環境識別用。
-
----
-
 ## 🗺 行政區 (Game Zones) 關鍵字
 
 - **中京區**: 咖啡散步・燈火之宵

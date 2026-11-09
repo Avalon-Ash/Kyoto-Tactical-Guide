@@ -163,7 +163,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
     () => mode === 'ward' && activeId ? WARD_BOUNDARIES[activeId] ?? null : null,
     [mode, activeId]
   );
-  const dynamicBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
+  const dynamicBounds = useMemo<L.LatLngBounds | null>(() => {
     if (!geoJsonData) return null;
     const bounds = L.geoJSON(geoJsonData).getBounds();
     return bounds.isValid() ? bounds : null;
@@ -204,7 +204,7 @@ export const ClusterMap: React.FC<ClusterMapProps> = ({ engine, night, paused })
 
   const effectiveBounds = useMemo<L.LatLngBoundsExpression | null>(() => {
     if (dynamicBounds) {
-      const bounds = L.latLngBounds(dynamicBounds);
+      const bounds = L.latLngBounds(dynamicBounds.getSouthWest(), dynamicBounds.getNorthEast());
       nearbyClusters.forEach(cluster => bounds.extend(cluster.pos));
       return bounds;
     }

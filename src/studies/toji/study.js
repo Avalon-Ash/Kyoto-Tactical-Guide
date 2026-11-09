@@ -40,6 +40,8 @@ let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 const library=createBunkoLibrary(closeBook,toggleLanguage,root,options.onExploreWard);
 let projection,render,dispose;
 const backdrop=mountBackdrop($('stage'),{night,motion:!still()});
+// The standalone page owns <html>, so its theme (body, scrollbars, overscroll) follows the cabinet too.
+function syncNight(){root.classList.toggle('night',night);if(!options.embedded)document.documentElement.dataset.theme=night?'dark':'light';}
 function syncBackdrop(){const stage=$('stage'),w=stage.clientWidth,h=stage.clientHeight;if(w&&h)backdrop.resize(w,h,devicePixelRatio||1,cabinetKeepout(cameraMatrix(w,h),w,h));}
 const status=()=>{const key=bookState==='switching'?'switching':bookState==='opening'||bookState==='unrolling'?'opening':bookState==='closing'?'closing':failed?'failed':still()?'still':flat?'flatStatus':demoStart?'playing':'ready';$('status').textContent=key==='opening'?(language==='zh'?`提蓋，展開${volumeTitle(cabinet.id,language)}…`:`蓋を上げ、${volumeTitle(cabinet.id,language)}を開いています…`):words[language][key];};
 function syncCabinet(){
@@ -219,7 +221,7 @@ $('save').onclick=()=>{
 };
 function toggleLanguage(){language=language==='zh'?'ja':'zh';translate();options.onLanguageChange?.(language);}
 $('language').onclick=toggleLanguage;
-$('night').onclick=()=>{night=!night;backdrop.setNight(night);root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));translate();schedule();options.onPreferencesChange?.({night,paused});};
+$('night').onclick=()=>{night=!night;backdrop.setNight(night);syncNight();$('night').setAttribute('aria-pressed',String(night));translate();schedule();options.onPreferencesChange?.({night,paused});};
 function syncMotion(){
   root.classList.toggle('reduce-motion',still());
   $('motion').setAttribute('aria-pressed',String(still()));
@@ -345,13 +347,13 @@ listen(canvas,'webglcontextrestored',()=>{try{init();syncMotion();}catch(e){fail
 listen(window,'pagehide',event=>{cancelAnimationFrame(frame);frame=0;if(!event.persisted)dispose?.();});
 listen(window,'pageshow',event=>{if(event.persisted)schedule();});
 try{init();}catch(e){failure(e);}
-root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
+syncNight();$('night').setAttribute('aria-pressed',String(night));
 translate();syncMotion();syncBook();syncBackdrop();
 return {
   setPreferences(next){
     if(destroyed)return;
     night=next.night;paused=next.paused;backdrop.setNight(night);
-    root.classList.toggle('night',night);$('night').setAttribute('aria-pressed',String(night));
+    syncNight();$('night').setAttribute('aria-pressed',String(night));
     translate();syncMotion();schedule();
   },
   setLanguage(next){if(next!==language){activity();language=next;translate();}},

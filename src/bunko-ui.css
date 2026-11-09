@@ -5,7 +5,6 @@
 .kyoto-app button { cursor:pointer; }
 .kyoto-app :is(button,a,input,summary):focus-visible { outline:2px solid var(--hira-gold); outline-offset:3px; }
 .kyoto-app button:disabled { opacity:.5; cursor:default; }
-.kyoto-app .hira-icon { color:var(--hira-gold); --hira-silver:inherit; }
 
 /* Shared atoms. */
 .ui-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; min-width:44px; padding:8px 12px; border:1px solid var(--entry-line); border-radius:4px; background:transparent; color:var(--entry-ink); font:inherit; font-size:13px; white-space:nowrap; }

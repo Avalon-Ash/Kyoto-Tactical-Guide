@@ -41,8 +41,6 @@ import { TAG_REGISTRY } from '../data/tags';
 import { getSpotLocation } from '../data/municipalities';
 
 interface SpotCardProps {
-  /** Declared because the project has no @types/react: lets callers pass React's list key. */
-  key?: string;
   spot: FlatSpot;
   lang: Lang;
   t: (key: string, dict?: Record<string, { zh: string; ja: string }>) => string;
