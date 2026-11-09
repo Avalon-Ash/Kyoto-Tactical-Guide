@@ -93,7 +93,7 @@ export function mountBackdrop(host: HTMLElement, o: BackdropOptions): Backdrop;
 - 動態層（微粒）是可選項：自己的 RAF，閒置時降到 30fps，`setActive(false)` 時完全停止。
 - 由 `mountBunko` 建立和銷毀（`destroy()` 內呼叫），不經 React。
 - 視覺內容依 `UI_RENEWAL_ART.md` §4。
-- **2026-11-09 實作（分支 `ui-renewal/p3-backdrop`，使用者回饋後第二版）**：實際檔案是 `src/studies/toji/backdrop.js`（和鄰近的 `interaction.js` 一樣用 JS，node 測試可直接匯入）。介面：`mountBackdrop(host,{night,motion,seed?})` → `{element, resize(width,height,dpr,keep), setNight(night), setMotion(on), compose(ctx,w,h), destroy()}`。
+- **2026-11-09 實作（已併入 `main`；以下為使用者回饋後的版本）**：實際檔案是 `src/studies/toji/backdrop.js`（和鄰近的 `interaction.js` 一樣用 JS，node 測試可直接匯入）。介面：`mountBackdrop(host,{night,motion,seed?})` → `{element, resize(width,height,dpr,keep), setNight(night), setMotion(on), compose(ctx,w,h), destroy()}`。
   - 結構：`.stage` 裡第一個子元素 `.backdrop`，內含一張和紙畫布，每條霞帶各一張 sprite 畫布。只在尺寸改變或晝夜切換時重畫。
   - 動態：每條霞帶用 Web Animations 的 `translateX` 左右飄移（幅度 `clamp(寬×0.08, 24, 60)`px，單程 24～36 秒，彼此錯相），由合成器執行，不跑 JS 逐格。減少動態、開卷／讀卷時 `pause()`，回到合函再 `play()`，不會跳位。
   - 形狀：每條霞帶是 2～3 段圓端長帶的聯集（主帶加上下錯開的短帶），形成繪卷式的段差；外框只留聯集外緣。

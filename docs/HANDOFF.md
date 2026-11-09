@@ -29,7 +29,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 首頁文庫 | 十一區文箱（原生 WebGL 2.5D 浮雕），拖動換函、點蓋展卷；真實書卷檢索；月光預設、閒置移光 |
 | 全站 UI（T4-M5） | 手機優先、深色預設；暖日／月光、語系、減少動態全站共用（`App.tsx` → `.kyoto-app[data-theme]`，色票在 `src/bunko-ui.css`）；詳細頁固定底部列表／地圖切換；地圖縮放與全區按鈕 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 保留存檔 |
-| UI 翻新 | P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已在分支 `ui-renewal/p3-backdrop` 實作，未合併。其餘只有規劃：[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md)。**未授權實作**；放大互動已決定（手勢優先），其餘三項見總計畫 §6 |
+| UI 翻新 | P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已完成並併入 `main`（2026-11-09，使用者看過第三版後同意合併推送）。其餘只有規劃：[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md)。**未授權實作**；放大互動已決定（手勢優先），其餘三項見總計畫 §6 |
 
 ## 3. 最近一次驗收（2026-11-09，T4-M5 合併前）
 
