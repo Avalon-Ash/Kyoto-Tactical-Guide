@@ -237,8 +237,18 @@ root.querySelectorAll('[data-material]').forEach(button=>listen(button,'click',(
 }));
 listen(canvas,'pointerenter',e=>{if(e.pointerType!=='touch'){hover=true;point(e);}});
 listen(canvas,'pointermove',point);
+// Two fingers mean the browser's pinch zoom, never a tap or a cabinet drag.
+// Until every finger lifts, no touch may open the lid or change the cabinet.
+const touches=new Set();let multiTouch=false;
+const liftTouch=e=>{if(e.pointerType!=='touch')return;touches.delete(e.pointerId);if(!touches.size)multiTouch=false;};
+// A finger may lift outside the canvas; the window still hears it, after the canvas handlers.
+for(const type of ['pointerup','pointercancel'])listen(window,type,liftTouch);
 listen(canvas,'pointerdown',e=>{
-  if(e.button!==0||bookState!=='closed'||gesture)return;
+  if(e.pointerType==='touch'){
+    touches.add(e.pointerId);
+    if(touches.size>1){multiTouch=true;if(gesture){endDrag();returnCabinet();release();}return;}
+  }
+  if(e.button!==0||bookState!=='closed'||gesture||multiTouch)return;
   dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;
   gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now(),moved:false,axis:null};
   if(options.embedded)canvas.setPointerCapture(e.pointerId);
@@ -257,7 +267,7 @@ listen(canvas,'pointerleave',()=>{if(options.embedded&&gesture)return;endDrag();
 listen(canvas,'pointercancel',()=>{endDrag();returnCabinet();release();});
 listen(canvas,'lostpointercapture',()=>{if(gesture){endDrag();returnCabinet();release();}});
 listen(canvas,'pointerup',e=>{
-  if(!gesture||gesture.id!==e.pointerId)return;
+  if(!gesture||gesture.id!==e.pointerId||multiTouch)return;
   const end={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now()};
   const tap=isTap(gesture,end),direction=options.embedded?cabinetDragDirection(gesture,end,canvas.clientWidth):0,offset=dragOffset;
   endDrag();
