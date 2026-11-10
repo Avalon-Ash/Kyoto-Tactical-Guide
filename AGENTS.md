@@ -1,6 +1,6 @@
 # Kyoto Tactical Guide — 代理執行合約
 
-更新：2026-10-28。適用於主代理、Codex 子代理及 IDE 執行代理。
+更新：2026-11-11。適用於主代理、Codex 子代理及 IDE 執行代理。
 本合約參照 FFT 專案的分工方法，規則已依京都專案調整；不依賴 FFT 的工具、hook 或測試。
 
 ## 1. 開工入口與權限
@@ -31,7 +31,7 @@
 - 模型、強度與各任務分工見 `docs/AGENT_EXECUTION_PLAN.md`；本檔不修改執行環境的模型設定。
 - 最多兩個子代理同時進行（不含主代理），不是必須開滿。幾次工具呼叫可完成的工作由主代理直接做。
 - 只委派可與主代理工作並行、範圍明確的工作。主代理不重做同一份探索，不把下一步立即依賴的核心工作派出去後空等。
-- 每個檔案同時只有一個寫入者。`theme.css`、`index.css`、`bunko-ui.css`、`ClusterMap.tsx`、`studies/toji/study.css` 屬同一視覺整合工作線，不能分派成多套互相競爭的美術修改。
+- 每個檔案同時只有一個寫入者。`theme.css`、`index.css`、`bunko-ui.css`、`ClusterMap.tsx`、`studies/toji/bunko.css`、`studies/toji/study.css`、`studies/toji/backdrop.js`、`studies/toji/ward-art.js` 屬同一視覺整合工作線，不能分派成多套互相競爭的美術修改。
 - 寫入代理的工作區由主代理預備並核實；共享 checkout 只可在不重疊 write set 下使用，否則先隔離。不得假定工具自動提供隔離。
 - 模型升級必須有失敗證據、新假設及範圍。不得因任務長就開高強度或把同一問題重複派給多名代理。
 - 子代理完成就關閉；需要相同上下文的後續工作才重用。
@@ -58,14 +58,14 @@
 
 ## 5. 驗收、停損與 Git
 
-- 整合每個 T 任務後執行 `npm run lint`、`npx --no-install tsx validate_data.js`、`npm run build`。缺依賴先由主代理處理 T0.1，子代理不私自安裝。
-- 京都目前沒有 `npm test` 腳本；不得照搬 FFT 的測試或 perf 指令。新增測試僅針對有實際風險的邏輯。
+- 整合每個 T 任務後執行 `npm run lint`、`npx --no-install tsx validate_data.js`、`npm test`、`npm run build`。缺依賴先由主代理處理 T0.1，子代理不私自安裝。
+- `npm test` 跑 `scripts/*.test.mjs` 與 `src/lib/*.test.ts`（node:test），CI 也跑同一個指令；不得照搬 FFT 的測試或 perf 指令。新增測試僅針對有實際風險的邏輯。
 - ERROR 必須為 0；WARN 總數不得上升，並追蹤警告種類。T1.2 的 KG-029 地標警告為計畫內已知過渡項，必須由 T1.3 解決。
 - Phase 1 收尾另跑 `npx --no-install tsx validate_data.js --strict`。WARN 0 不等於所有旅遊資訊已完成事實查核。
 - 地圖改動必須驗收桌機 1440px、手機 375px、日夜／語系／區域切換、鍵盤、減少動態效果。提供截圖與實際觀察，不以 build 成功代替畫面驗收。
 - 檢查證據綁定 base SHA 與當前 diff；相關修改後重跑受影響檢查。只改文件時用文件、連結及 diff 檢查，不必重跑應用 build。
 - 同一檢查最多兩次失敗或逾時：子代理停止並交出日誌；主代理判斷原因，受影響任務不得標完成。獨立工作可以繼續。
-- 參考逾時：lint 120 秒、validate 120 秒、build 180 秒、安裝 300 秒、抓邊界 180 秒、單組瀏覽器驗收 300 秒。到期先檢查進度與網路，不盲目重開同一指令。
+- 參考逾時：lint 120 秒、validate 120 秒、test 180 秒、build 180 秒、安裝 300 秒、抓邊界 180 秒、單組瀏覽器驗收 300 秒。到期先檢查進度與網路，不盲目重開同一指令。
 - 長指令用環境提供的執行 session 接續取結果，不高頻輪詢、不重複啟動、不在結果未知時宣稱成功。不得終止無關使用者程序。
 - 每個 T 任務由主代理審核後獨立 commit（取得該輪授權時）；不要把自己的 commit hash 寫入同一個 commit，後續進度更新再記錄。
 - 不提交 `.claude/`、`node_modules/`、`dist/`、金鑰或臨時驗收產物。保留既有 UTF-8、換行風格及無關使用者變更。
