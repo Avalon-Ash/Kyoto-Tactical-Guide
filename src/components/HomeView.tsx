@@ -5,6 +5,7 @@ import { AREA_KEYS, AREA_NAMES, getAreaStats } from '../data/index';
 import { TAG_REGISTRY, TAG_GROUP_LABELS } from '../data/tags';
 import { BunkoEntrance, type BunkoPreferences } from './BunkoEntrance';
 import { SpotCard } from './SpotCard';
+import { ScrollRoller } from './ScrollRoller';
 import { BunkoTools } from './BunkoTools';
 import { MakieIcon } from './MakieIcon';
 import type { MakieMotif } from '../lib/makie-icons';
@@ -69,9 +70,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, cabinetWard, onCabin
       <div inert={overlayOpen} ref={scrollRef} className="home-body">
         {mode === 'ward' ? (
           <BunkoEntrance lang={lang} wardId={cabinetWard} preferences={cabinetPreferences}
-            onLanguageChange={toggleLang} onWardChange={onCabinetWardChange}
-            onPreferencesChange={onCabinetPreferencesChange}
-            onExploreWard={ward => openDetail(ward, 'ward')} />
+            onWardChange={onCabinetWardChange} onOpenVolume={ward => openDetail(ward, 'ward')} />
         ) : mode === 'tag' ? (
           <div className="bunko-index">
             <p className="index-caption">{t('caption_tag')}</p>
@@ -123,7 +122,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, cabinetWard, onCabin
               <small>{filteredSpots.length} {t('unit_spot')}</small>
               <button type="button" className="ui-button" autoFocus onClick={closeTag}>{t('btn_close')}</button>
             </header>
-            <div className="catalog-body">
+            <ScrollRoller />
+            <div className="catalog-body volume-sheet">
               {isGlobalLoading ? <div className="ui-status" role="status">{t('loading')}</div>
                 : filteredSpots.length > 0 ? (
                   <div className="catalog-results">
@@ -131,6 +131,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ engine, cabinetWard, onCabin
                   </div>
                 ) : <div className="ui-status" role="status">{t('no_results')}</div>}
             </div>
+            <ScrollRoller />
           </motion.div>
         )}
       </AnimatePresence>

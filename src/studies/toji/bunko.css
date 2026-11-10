@@ -1,0 +1,53 @@
+/* The cabinet stage, shared by the home and the standalone study page. Tokens live in theme.css. */
+.bunko { --paper:var(--entry-paper); --ink:var(--entry-ink); --muted:var(--entry-muted); --line:var(--entry-line); --gold:var(--hira-gold); --panel:var(--entry-panel); --bunko-title:"Shippori Mincho B1","Noto Serif TC","Noto Serif JP",serif; margin:0; background:var(--paper); color:var(--ink); font-family:"Noto Serif TC","Shippori Mincho B1","Noto Serif JP",serif; font-size:16px; line-height:normal; }
+.bunko:lang(ja) { font-family:"Shippori Mincho B1","Noto Serif JP",serif; }
+.bunko * { box-sizing:border-box; }
+.bunko button { font:inherit; cursor:pointer; color:inherit; background:none; border:1px solid transparent; min-height:44px; padding:10px 16px; border-radius:2px; touch-action:manipulation; }
+.bunko button:hover { background:var(--entry-selected); }
+.bunko button:focus-visible, .bunko canvas:focus-visible, .bunko a:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+.bunko button[aria-pressed=true] { border-color:var(--gold); background:var(--entry-selected); }
+.bunko button:disabled { opacity:.5; cursor:default; }
+
+.bunko .stage { height:570px; position:relative; background:var(--paper); overflow:hidden; }
+.bunko canvas { display:block; width:100%; height:100%; touch-action:pan-y; cursor:crosshair; filter:drop-shadow(8px 18px 13px #35271644); }
+.bunko .stage>#scene { position:relative; }
+.bunko .loading { position:absolute; inset:0; display:grid; place-content:center; background:var(--panel); padding:40px; text-align:center; line-height:2; }
+.bunko .loading[hidden] { display:none; }
+.bunko .seal { position:absolute; left:28px; top:26px; color:var(--entry-seal); border:1px solid var(--entry-seal); font:19px/1.3 var(--bunko-title); padding:5px; pointer-events:none; }
+.bunko .stage-caption { position:absolute; left:30px; bottom:24px; display:flex; flex-direction:column; gap:6px; pointer-events:none; color:var(--ink); }
+.bunko .stage-caption small { font-size:10px; letter-spacing:.12em; }
+.bunko #cabinet-context { display:none; }
+.bunko #cabinet-place { font:600 25px var(--bunko-title); letter-spacing:.16em; }
+
+/* Backdrop: washi, mist bands and motes behind the cabinet (backdrop.js). */
+.bunko .stage>.backdrop { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.bunko .stage>.backdrop>canvas { position:absolute; left:0; top:0; filter:none; cursor:default; touch-action:auto; }
+.bunko .stage>.backdrop>canvas+canvas { will-change:transform; }
+.bunko .stage>.backdrop>.mote { position:absolute; pointer-events:none; will-change:transform,opacity; opacity:0; }
+.bunko .stage>.backdrop>.mote-day { background:linear-gradient(135deg,#f6dd96,#c99a46 55%,#8f6526); box-shadow:0 0 3px #f0d48a88; }
+.bunko .stage>.backdrop>.mote-night { border-radius:50%; background:radial-gradient(circle,#f2f6f8 0,#c8d4d9 45%,#c8d4d900 72%); box-shadow:0 0 6px 1px #d8e4e866; }
+.bunko .stage>.backdrop[data-still="true"]>.mote { visibility:hidden; }
+
+/* Close-up: the one quiet way back to the full cabinet. */
+.bunko .zoom-reset { position:absolute; right:20px; bottom:22px; z-index:2; display:grid; place-items:center; width:44px; height:44px; padding:0; border:1px solid var(--line); border-radius:50%; background:color-mix(in srgb,var(--panel) 80%,transparent); color:var(--gold); font-size:18px; line-height:1; }
+.bunko .zoom-reset[hidden] { display:none; }
+.bunko canvas[data-zoomed="true"] { cursor:grab; }
+.bunko canvas[data-zoomed="true"][data-dragging="true"] { cursor:grabbing; }
+
+/* Home: the stage fills the page and every touch on the cabinet belongs to it. */
+.bunko[data-embedded] { height:100%; }
+.bunko[data-embedded] .stage { height:100%; min-height:280px; }
+.bunko[data-embedded] canvas { cursor:grab; user-select:none; touch-action:none; }
+.bunko[data-embedded] canvas[data-dragging="true"] { cursor:grabbing; }
+.bunko[data-embedded] .loading { pointer-events:none; }
+.bunko[data-embedded] #cabinet-context { display:block; font-size:12px; letter-spacing:.12em; margin-bottom:3px; }
+
+@media (max-width:700px) {
+  .bunko .stage { height:450px; }
+  .bunko .seal { left:15px; top:18px; font-size:15px; }
+  .bunko .stage-caption { left:18px; bottom:18px; }
+  .bunko .stage-caption small { max-width:140px; line-height:1.6; }
+  .bunko #cabinet-place { font-size:21px; }
+  .bunko[data-embedded] #cabinet-context { font-size:11px; max-width:none; }
+  .bunko .zoom-reset { right:14px; bottom:16px; }
+}

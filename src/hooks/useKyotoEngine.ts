@@ -200,8 +200,6 @@ export function useKyotoEngine() {
 
   const tagCounts = useMemo<Record<string, number>>(() => getTagCounts(), []);
 
-  const clearTag = () => setActiveTag(null);
-
   const openDetail = (id: string, viewMode: 'ward' | 'area') => {
     setReturnFocusId(id);
     setActiveId(id);
@@ -232,7 +230,6 @@ export function useKyotoEngine() {
     typeCounts,
     activeTag,
     setActiveTag,
-    clearTag,
     isGlobalLoading,
     localTags,
     tagCounts,

@@ -7,11 +7,6 @@ export default defineConfig({
   // Relative asset paths: the same build works at the GitHub Pages subpath and at a local root.
   base: './',
   plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, '.'),
-    },
-  },
   build: {
     rollupOptions: {
       input: {

@@ -13,6 +13,17 @@
 .bunko-tools { display:flex; gap:4px; flex-shrink:0; }
 .ui-kicker { font:10px/1.4 var(--font-numeric); color:var(--entry-muted); letter-spacing:.18em; margin:0 0 5px; }
 .ui-muted { color:var(--entry-muted); }
+.hira-icon { display:inline-flex; flex-shrink:0; width:26px; height:26px; color:var(--hira-gold); }
+.hira-icon svg { width:100%; height:100%; }
+
+/* Volume: every list of places is a scroll unrolled between two rollers (paper spindle, wooden ends, brass collars). */
+.scroll-roller { flex-shrink:0; display:flex; align-items:center; height:12px; margin:-3px 4px; position:relative; z-index:6; pointer-events:none; filter:drop-shadow(0 3px 3px #32251135); }
+.scroll-roller span { flex:1; height:100%; border-radius:2px; border-top:1px solid #ede2c7; border-bottom:1px solid #a89570; background:repeating-linear-gradient(0deg,transparent 0 3px,#7963440c 3px 4px),linear-gradient(#c9b890 0%,#eee2c6 18%,#f8f0dc 42%,#e5d5b0 76%,#a9956d 100%); box-shadow:inset 0 -2px 2px #59482b18; }
+.scroll-roller i { width:16px; height:calc(100% + 4px); margin:0 2px; border:1px solid #493723; border-radius:2px; background:linear-gradient(90deg,#503623 0 12%,#8b6240 14% 24%,transparent 26% 74%,#39291e 80%),linear-gradient(#30251b,#795337 30%,#a07950 44%,#68492f 61%,#32251b); box-shadow:inset 0 1px 0 #b69b70; }
+.kyoto-app[data-theme="dark"] .scroll-roller span { border-color:#59636a; background:linear-gradient(#20282d,#485158 42%,#303941 76%,#1b2228); }
+.volume-sheet { animation:unroll .46s cubic-bezier(.2,.8,.2,1); }
+@keyframes unroll { from { clip-path:inset(0 0 100% 0); opacity:.3; } to { clip-path:inset(0 0 0 0); opacity:1; } }
+.volume-note { grid-column:1/-1; margin:22px 0 0; font-size:11px; line-height:1.8; letter-spacing:.03em; color:var(--entry-muted); }
 .ui-status { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; min-height:220px; padding:32px 20px; color:var(--entry-muted); text-align:center; grid-column:1/-1; }
 
 /* Home: brand, the three indexes and the shared tools. */

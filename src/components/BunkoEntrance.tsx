@@ -1,21 +1,20 @@
 import { useEffect, useRef } from 'react';
 import type { Lang } from '../types';
-import { BUNKO_MARKUP } from '../studies/toji/template';
+import { BUNKO_STAGE } from '../studies/toji/template';
 import { mountBunko } from '../studies/toji/study.js';
-import '../studies/toji/study.css';
+import '../studies/toji/bunko.css';
 
 export interface BunkoPreferences { night: boolean; paused: boolean }
 interface Props {
   lang: Lang;
   wardId: string;
   preferences: BunkoPreferences;
-  onLanguageChange: () => void;
   onWardChange: (ward: string) => void;
-  onPreferencesChange: (value: BunkoPreferences) => void;
-  onExploreWard: (ward: string) => void;
+  /** The lid is open: unroll that ward's volume. */
+  onOpenVolume: (ward: string) => void;
 }
 
-/** React owns navigation; the scoped controller owns the canvas and its reader. */
+/** React owns navigation, language and preferences; the controller owns the canvas. */
 export function BunkoEntrance(props: Props) {
   const root=useRef<HTMLDivElement>(null);
   const current=useRef(props);current.current=props;
@@ -23,15 +22,13 @@ export function BunkoEntrance(props: Props) {
   useEffect(()=>{
     const element=root.current;
     if(!element)return;
-    // Static source markup only. All spot/locale text is written with textContent.
-    element.innerHTML=BUNKO_MARKUP;
+    // Static source markup only. All ward text is written with textContent.
+    element.innerHTML=BUNKO_STAGE;
     const initial=current.current;
     const instance=mountBunko(element,{
       embedded:true,language:initial.lang,wardId:initial.wardId,...initial.preferences,
-      onLanguageChange:()=>current.current.onLanguageChange(),
       onWardChange:ward=>current.current.onWardChange(ward),
-      onPreferencesChange:value=>current.current.onPreferencesChange(value),
-      onExploreWard:ward=>current.current.onExploreWard(ward),
+      onOpenVolume:ward=>current.current.onOpenVolume(ward),
     });
     controller.current=instance;
     return ()=>{instance.destroy();controller.current=null;element.replaceChildren();};

@@ -2,10 +2,9 @@ import test, {before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'vite';
 import {isTap,onLid,progressToward,OPEN_DURATION,swipeDirection,cabinetDragDirection,cabinetOffset,switchDistance,DRAG_DEAD,DRAG_FOLLOW,SWITCH_MAX,idlePlaybackAllowed,IDLE_RESUME_DELAY} from '../src/studies/toji/interaction.js';
-let server,library,loader,buildUrl,collection;
+let server,loader,buildUrl,collection;
 before(async()=>{
   server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
-  library=await server.ssrLoadModule('/src/studies/toji/library.ts');
   collection=await server.ssrLoadModule('/src/studies/toji/collection.ts');
   loader=await server.ssrLoadModule('/src/data/spots-loader.ts');
   ({buildGoogleMapsUrl:buildUrl}=await server.ssrLoadModule('/src/components/SpotCard.tsx'));
@@ -16,24 +15,10 @@ test('Minami volume reads both real locales and retains shared navigation',async
     const spots=await loader.loadSpotsByWard('W_MINAMI',lang);
     assert.equal(spots.length,loader.computeWardStats().W_MINAMI);
     assert.ok(spots.every(s=>s.wardId==='W_MINAMI'));
-    const match=library.filterVolume(spots,'東寺','T_TEMPLE');
-    assert.ok(match.some(s=>s.id==='MN-001'));
-    assert.ok(match.every(s=>s.typeId==='T_TEMPLE'));
-    const toji=match.find(s=>s.id==='MN-001');
+    const toji=spots.find(s=>s.id==='MN-001');
+    assert.equal(toji.typeId,'T_TEMPLE');
     assert.equal(new URL(buildUrl(toji)).searchParams.get('query'),'東寺 南区 京都');
-    assert.equal(library.filterVolume(spots,'存在しない場所０１２３４５','').length,0);
   }
-});
-test('search normalizes width/case, ANDs tokens and never mutates source',()=>{
-  const source=[{name:'ＡＢＣ 茶屋',desc:'抹茶',tags:'庭園',typeId:'T_SHOP',id:'x'}];
-  assert.equal(library.filterVolume(source,'abc 抹茶','T_SHOP').length,1);
-  assert.equal(library.filterVolume(source,'abc 京都','').length,0);
-  assert.equal(source[0].name,'ＡＢＣ 茶屋');
-});
-test('late locale success or failure cannot replace the current request',()=>{
-  const gate=library.createRequestGate(),zh=gate.next(),ja=gate.next();
-  assert.equal(gate.current(zh),false);assert.equal(gate.current(ja),true);
-  gate.next();assert.equal(gate.current(ja),false); // closing cancels the pending result
 });
 test('drag, long press, cancelled pointer and out-and-back motion never open the lid',()=>{
   const start={id:1,x:100,y:100,time:1000};

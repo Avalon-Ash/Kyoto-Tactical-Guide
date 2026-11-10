@@ -3,41 +3,18 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 
-let server,mountBunko,markup,createLibrary;
+let server,mountBunko,mountStudy,stage;
 before(async()=>{
   server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
   ({mountBunko}=await server.ssrLoadModule('/src/studies/toji/study.js'));
-  ({BUNKO_MARKUP:markup}=await server.ssrLoadModule('/src/studies/toji/template.ts'));
-  ({createBunkoLibrary:createLibrary}=await server.ssrLoadModule('/src/studies/toji/library.ts'));
-  const {loadSpotsByWard}=await server.ssrLoadModule('/src/data/spots-loader.ts');
-  // Finish real dynamic imports before tests intentionally tear down the reader.
-  for(const [ward,lang] of [['W_HIGASHIYAMA','ja'],['W_HIGASHIYAMA','zh'],['W_KITA','zh']])await loadSpotsByWard(ward,lang);
-});
-
-test('pictogram filters combine search, retain category on locale change and clear together',async t=>{
-  const {root,window}=environment(t);
-  const library=createLibrary(()=>{},()=>{},root);
-  const settle=async()=>{for(let i=0;i<20;i++)await Promise.resolve();};
-  library.prepare('zh','W_HIGASHIYAMA');await settle();
-  const count=()=>root.querySelectorAll('.volume-entry').length;
-  const total=count();assert.ok(total>0);
-  const temple=root.querySelector('[data-type="T_TEMPLE"]');temple.click();
-  assert.equal(temple.getAttribute('aria-pressed'),'true');assert.ok(count()>0&&count()<total);
-  const search=root.querySelector('#volume-search');search.value='清水';search.dispatchEvent(new window.Event('input'));
-  assert.ok(count()>0);assert.ok([...root.querySelectorAll('.entry-name')].some(n=>n.textContent.includes('清水')));
-  library.setLanguage('ja');await settle();
-  assert.equal(root.querySelector('[data-type="T_TEMPLE"]').getAttribute('aria-pressed'),'true');
-  assert.equal(root.querySelector('#map-label').textContent,'地図');
-  root.querySelector('#clear-search').click();assert.equal(count(),total);assert.equal(search.value,'');
-  assert.equal(root.querySelector('[data-type=""]').getAttribute('aria-pressed'),'true');
-  assert.equal(window.document.activeElement,search);
-  library.destroy();
+  ({mountStudy}=await server.ssrLoadModule('/src/studies/toji/study-chrome.js'));
+  ({BUNKO_STAGE:stage}=await server.ssrLoadModule('/src/studies/toji/template.ts'));
 });
 after(async()=>{await server?.close();});
 
 function environment(t,reduced=false){
   const dom=new JSDOM('<!doctype html><html lang="zh-Hant"><head><title>Main site</title></head><body><div class="bunko"></div></body></html>',{url:'http://localhost/'});
-  const {window}=dom,root=window.document.querySelector('.bunko');root.innerHTML=markup;
+  const {window}=dom,root=window.document.querySelector('.bunko');root.innerHTML=stage;
   const media=new window.EventTarget();media.matches=reduced;
   const observers=[],listeners=[],animations=[],pendingFrames=new Map();let frame=0;
   class Observer {
@@ -64,8 +41,6 @@ function environment(t,reduced=false){
   window.HTMLElement.prototype.setPointerCapture=function(id){this.capturedPointer=id;};
   window.HTMLElement.prototype.hasPointerCapture=function(id){return this.capturedPointer===id;};
   window.HTMLElement.prototype.releasePointerCapture=function(){this.capturedPointer=undefined;};
-  window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
-  window.HTMLDialogElement.prototype.close=function(){this.open=false;};
   window.HTMLElement.prototype.animate=function(){
     let resolve;const finished=new Promise(done=>{resolve=done;});
     const animation={finished,cancel:()=>resolve(),finish:()=>resolve()};animations.push(animation);return animation;
@@ -73,21 +48,39 @@ function environment(t,reduced=false){
   return {root,window,observers,listeners,animations,pendingFrames};
 }
 
-test('embedded reader remains usable without WebGL, shares language/ward, and releases its lifetime',async t=>{
-  const env=environment(t),{root,window}=env,selected=[],languages=[];
+function pointer(env,type,x,y,id=1){
+  const event=new env.window.Event(type,{bubbles:true,cancelable:true});
+  Object.assign(event,{pointerId:id,pointerType:'mouse',button:0,clientX:x,clientY:y});
+  env.root.querySelector('#scene').dispatchEvent(event);
+}
+const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
+
+test('the home stage carries no study controls, reader or search',t=>{
+  const {root}=environment(t);
+  const controller=mountBunko(root,{embedded:true,paused:true});
+  assert.deepEqual([...root.querySelectorAll('button')].map(b=>b.id),['zoom-reset']);
+  assert.equal(root.querySelectorAll('input,select,dialog,nav,form').length,0);
+  controller.destroy();
+});
+
+test('home cabinet works without WebGL, hands the opened ward to the host and releases its lifetime',async t=>{
+  const env=environment(t),{root,window}=env,opened=[],states=[];
   const controller=mountBunko(root,{embedded:true,language:'ja',wardId:'W_HIGASHIYAMA',paused:true,
-    onExploreWard:id=>selected.push(id),onLanguageChange:lang=>languages.push(lang)});
-  assert.equal(root.querySelector('#scene').dataset.renderer,'failed');
+    onOpenVolume:id=>opened.push(id),onState:state=>states.push(state.bookState)});
+  const canvas=root.querySelector('#scene');
+  assert.equal(canvas.dataset.renderer,'failed');
   assert.ok(root.classList.contains('night'),'home defaults to moonlight');
-  assert.equal(root.querySelector('#cabinet-name').textContent,'東山区の函');
-  assert.equal(window.document.title,'Main site','embedded renderer must not overwrite the host title');
+  assert.equal(root.querySelector('#cabinet-context').textContent,'東山区 · 05 / 11');
+  assert.ok(canvas.getAttribute('aria-label').startsWith('東山区の文庫'));
+  assert.equal(window.document.title,'Main site','the cabinet must not overwrite the host title');
+  assert.equal(window.document.documentElement.lang,'zh-Hant','the cabinet must not overwrite the host language');
   pointer(env,'pointerdown',200,100);pointer(env,'pointerup',200,100);
-  assert.equal(root.querySelector('#library').open,true,'fallback canvas opens without a separate button');
-  root.querySelector('#volume-language').click();assert.deepEqual(languages,['zh']);
-  root.querySelector('#volume-map').click();assert.deepEqual(selected,['W_HIGASHIYAMA']);
+  assert.deepEqual(opened,['W_HIGASHIYAMA'],'a tap opens the lid and hands over exactly once');
+  assert.equal(states.at(-1),'reading');
+  controller.setLanguage('zh');
+  assert.ok(canvas.getAttribute('aria-label').startsWith('東山區文庫'));
   controller.destroy();controller.destroy();
   await Promise.resolve();
-  assert.equal(root.querySelector('#library').open,false);
   assert.ok(env.listeners.length>10&&env.listeners.every(signal=>signal.aborted));
   assert.ok(env.observers.every(observer=>!observer.connected));
   assert.equal(env.pendingFrames.size,0);
@@ -96,79 +89,76 @@ test('embedded reader remains usable without WebGL, shares language/ward, and re
 test('unmount during a cabinet animation cannot change the next mount or notify the old host',async t=>{
   const env=environment(t),{root}=env,changed=[];
   const first=mountBunko(root,{embedded:true,onWardChange:id=>changed.push(id)});
-  root.querySelector('#next-cabinet').click();assert.equal(env.animations.length,1);
+  void first.changeCabinet(1);assert.equal(env.animations.length,1);
   first.destroy();
-  for(let i=0;i<5;i++)await Promise.resolve();
+  await settle();
   assert.deepEqual(changed,[]);
-  root.innerHTML=markup;
-  const second=mountBunko(root,{embedded:true,wardId:'W_KITA',paused:true});
+  root.innerHTML=stage;
+  const opened=[],second=mountBunko(root,{embedded:true,wardId:'W_KITA',paused:true,onOpenVolume:id=>opened.push(id)});
   assert.equal(root.querySelector('#scene').dataset.ward,'W_KITA');
-  root.querySelector('#open-book').click();assert.equal(root.querySelector('#library').open,true);
+  second.openBook();assert.deepEqual(opened,['W_KITA']);
   second.destroy();
   assert.ok(env.listeners.every(signal=>signal.aborted));
   assert.ok(env.observers.every(observer=>!observer.connected));
 });
 
-function pointer(env,type,x,y,id=1){
-  const event=new env.window.Event(type,{bubbles:true,cancelable:true});
-  Object.assign(event,{pointerId:id,pointerType:'mouse',button:0,clientX:x,clientY:y});
-  env.root.querySelector('#scene').dispatchEvent(event);
-}
-
 test('home cabinet drag respects reduced motion, selects one ward and supports keyboard return',async t=>{
-  const env=environment(t,true),{root}=env,wards=[];
-  const controller=mountBunko(root,{embedded:true,onWardChange:id=>wards.push(id)});
+  const env=environment(t,true),{root}=env,wards=[],opened=[];
+  const controller=mountBunko(root,{embedded:true,onWardChange:id=>wards.push(id),onOpenVolume:id=>opened.push(id)});
   assert.ok(root.classList.contains('reduce-motion'));
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointerup',20,105);
-  for(let i=0;i<5;i++)await Promise.resolve();
+  await settle();
   assert.deepEqual(wards,['W_UKYO']);
   assert.equal(root.querySelector('#scene').dataset.ward,'W_UKYO');
-  assert.equal(root.querySelector('#library').open,false);
+  assert.deepEqual(opened,[]);
   assert.equal(root.querySelector('#scene').hasPointerCapture(1),false);
   assert.equal(env.animations.length,0,'system motion preference suppresses cabinet transitions');
   root.querySelector('#scene').dispatchEvent(new env.window.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));
-  for(let i=0;i<5;i++)await Promise.resolve();
+  await settle();
   assert.equal(root.querySelector('#scene').dataset.ward,'W_MINAMI');
-  assert.equal(root.querySelector('#library').open,false);
+  assert.deepEqual(opened,[]);
   controller.destroy();
 });
 
 test('vertical, reversed, caress-length and cancelled drags do not switch cabinets or accidentally open',async t=>{
-  const env=environment(t),{root}=env,wards=[];
-  const controller=mountBunko(root,{embedded:true,paused:true,onWardChange:id=>wards.push(id)});
+  const env=environment(t),{root}=env,wards=[],opened=[];
+  const controller=mountBunko(root,{embedded:true,paused:true,onWardChange:id=>wards.push(id),onOpenVolume:id=>opened.push(id)});
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',205,180);pointer(env,'pointermove',80,190);pointer(env,'pointerup',80,190);
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointermove',200,100);pointer(env,'pointerup',200,100);
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',60,100);pointer(env,'pointerup',60,100);
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointercancel',20,105);pointer(env,'pointerup',20,105);
-  for(let i=0;i<5;i++)await Promise.resolve();
-  assert.deepEqual(wards,[]);
+  await settle();
+  assert.deepEqual(wards,[]);assert.deepEqual(opened,[]);
   assert.equal(root.querySelector('#scene').dataset.ward,'W_MINAMI');
-  assert.equal(root.querySelector('#library').open,false);
   assert.equal(root.querySelector('#scene').hasPointerCapture(1),false);
   controller.destroy();
 });
 
-test('shared preferences update an open reader without remounting, resetting search or notifying the host',async t=>{
-  const env=environment(t),{root}=env,changes=[];
-  const controller=mountBunko(root,{embedded:true,wardId:'W_HIGASHIYAMA',paused:true,onPreferencesChange:value=>changes.push(value)});
-  root.querySelector('#open-book').click();
-  for(let i=0;i<20;i++)await Promise.resolve();
-  const canvas=root.querySelector('#scene'),dialog=root.querySelector('#library'),search=root.querySelector('#volume-search');
-  search.value='清水';search.dispatchEvent(new env.window.Event('input'));
-  const before=root.querySelector('#volume-results').textContent;
-  assert.ok(before.includes('清水'));
+test('the box sways with a caress and returns to rest without changing cabinet',t=>{
+  const env=environment(t),{root}=env;
+  const controller=mountBunko(root,{embedded:true});
+  const canvas=root.querySelector('#scene');
+  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',191,100);
+  assert.equal(canvas.style.transform,'','inside the dead zone the box rests');
+  pointer(env,'pointermove',100,100);
+  assert.equal(canvas.style.transform,`translateX(${-(100-14)*.6}px)`);
+  pointer(env,'pointerup',100,100);
+  assert.equal(canvas.style.transform,'');assert.equal(canvas.dataset.ward,'W_MINAMI');
+  controller.destroy();
+});
+
+test('preferences and language arrive from the host without remounting the canvas',t=>{
+  const env=environment(t),{root}=env;
+  const controller=mountBunko(root,{embedded:true,wardId:'W_HIGASHIYAMA',paused:true});
+  const canvas=root.querySelector('#scene');
   controller.setPreferences({night:false,paused:false});
   assert.equal(root.classList.contains('night'),false);
   assert.equal(root.classList.contains('reduce-motion'),false);
-  assert.equal(dialog.open,true);
-  assert.equal(search.value,'清水');
-  assert.equal(root.querySelector('#volume-results').textContent,before);
-  assert.equal(root.querySelector('#scene'),canvas);
   controller.setPreferences({night:true,paused:true});
   assert.equal(root.classList.contains('night'),true);
   assert.equal(root.classList.contains('reduce-motion'),true);
-  assert.equal(dialog.dataset.ward,'W_HIGASHIYAMA');
-  assert.deepEqual(changes,[],'controlled preference updates must not feed back to React');
+  assert.equal(root.querySelector('#scene'),canvas);
+  assert.equal(canvas.dataset.ward,'W_HIGASHIYAMA');
   controller.destroy();
 });
 
@@ -177,16 +167,40 @@ test('shared play preference cannot override system reduced motion',t=>{
   const controller=mountBunko(root,{embedded:true,paused:true});
   controller.setPreferences({night:false,paused:false});
   assert.equal(root.classList.contains('reduce-motion'),true);
-  assert.equal(root.querySelector('#motion').disabled,true);
-  assert.equal(root.querySelector('#motion').getAttribute('aria-pressed'),'true');
+  assert.equal(controller.state().still,true);assert.equal(controller.state().systemReduced,true);
   controller.destroy();
 });
 
-test('standalone entrance also defaults to moonlight and supports warm daylight',t=>{
-  const {root}=environment(t);
-  const controller=mountBunko(root);
-  assert.equal(root.classList.contains('night'),true);
-  root.querySelector('#night').click();
-  assert.equal(root.classList.contains('night'),false);
-  controller.destroy();
+test('standalone study wraps the same cabinet with its own controls',async t=>{
+  const env=environment(t),{root,window}=env;
+  const study=mountStudy(root);
+  const $=id=>root.querySelector(`#${id}`);
+  assert.equal(root.classList.contains('night'),true,'the study also defaults to moonlight');
+  assert.equal(window.document.title,'南區文庫｜京都御秘帖');
+  $('night').click();
+  assert.equal(root.classList.contains('night'),false);assert.equal(window.document.documentElement.dataset.theme,'light');
+  $('language').click();
+  assert.equal(window.document.documentElement.lang,'ja');assert.equal($('cabinet-name').textContent,'南区の函');
+  $('motion').click();
+  assert.equal($('motion').getAttribute('aria-pressed'),'true');assert.equal($('demo').disabled,true);
+  $('flat').click();assert.equal($('flat').getAttribute('aria-pressed'),'true');
+  root.querySelector('[data-material="3"]').click();
+  assert.equal(root.querySelector('[data-material="3"]').getAttribute('aria-pressed'),'true');
+  $('next-cabinet').click();await settle();
+  assert.equal($('scene').dataset.ward,'W_UKYO');assert.equal($('cabinet-number').textContent,'08 / 11');
+  // No reader here: the lid opens, stays open, and a second press closes it.
+  $('open-book').click();
+  assert.equal($('stage').dataset.bookState,'reading');assert.equal($('next-cabinet').disabled,true);
+  pointer(env,'pointerdown',200,100);
+  assert.equal($('stage').dataset.bookState,'closed');assert.equal($('next-cabinet').disabled,false);
+  study.destroy();
+  assert.ok(env.listeners.every(signal=>signal.aborted));
+});
+
+test('standalone motion control yields to the system preference',t=>{
+  const {root}=environment(t,true);
+  const study=mountStudy(root);
+  assert.equal(root.querySelector('#motion').disabled,true);
+  assert.equal(root.querySelector('#motion').getAttribute('aria-pressed'),'true');
+  study.destroy();
 });
