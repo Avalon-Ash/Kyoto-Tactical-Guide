@@ -40,7 +40,7 @@ jobs:
         run: npx --no-install tsx validate_data.js --strict
 
       - name: Unit tests
-        run: node --test --test-concurrency=1 scripts/makie-scene.test.mjs scripts/location-navigation.test.mjs scripts/toji-study.test.mjs scripts/toji-library.test.mjs scripts/bunko-integration.test.mjs scripts/bunko-zoom.test.mjs
+        run: npm test
 
       - name: Build
         run: npm run build

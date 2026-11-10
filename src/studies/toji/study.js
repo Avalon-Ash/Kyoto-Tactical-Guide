@@ -1,17 +1,12 @@
-import {buildScene, multiply, lookAt, ortho, groundPoint, trailIntensity, normalize} from './geometry.js';
-import {vertex,fragment,depth} from './shaders.js';
+import {groundPoint, trailIntensity} from './geometry.js';
+import {createRenderer, cameraMatrix} from './renderer.js';
 import {translate} from '../../data/i18n';
 import {progressToward,isTap,onLid,cabinetDragDirection,cabinetOffset,idlePlaybackAllowed} from './interaction.js';
 import {CABINETS,cabinetFor,adjacentCabinet} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
-import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,renderDpr,isDoubleTap,ZOOM_STEP} from './view.js';
+import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,isDoubleTap,ZOOM_STEP} from './view.js';
 import {mountBackdrop,cabinetKeepout} from './backdrop.js';
 import {WARD_ART} from './ward-art.js';
-
-// Fixed home camera; render() and the backdrop's cabinet keepout share it.
-const EYE=[430,720,920],CAMERA_VIEW=lookAt(EYE,[0,40,0]);
-// zoom/cx/cy default to the full frame; view.js keeps zoom 1 identical to the original framing.
-function cameraMatrix(width,height,zoom=1,cx=0,cy=0){const v=viewBox(width/height,zoom,cx,cy);return multiply(ortho(v.left,v.right,v.bottom,v.top,1,2200),CAMERA_VIEW);}
 
 /**
  * The cabinet itself: canvas, light, zoom, cabinet changes and the lid. It owns no buttons and no page chrome.
@@ -35,7 +30,7 @@ const canvas=/** @type {HTMLCanvasElement} */($('scene'));
 let language=options.language??'zh',night=options.night??true,flat=false,paused=options.paused??false,hover=false,visible=true,failed=false;
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 const still=()=>paused||media.matches;
-let frame=0,last=0,lift=.55,px=0,py=0,tx=0,ty=0,demoStart=0,draws=0;
+let frame=0,last=0,lift=.55,px=0,py=0,tx=0,ty=0,demoStart=0;
 let trails=[];
 let bookState='closed',bookProgress=0,bookTarget=0,bookReadyAt=0,gesture=null,returnFocus=null;
 let cabinet=cabinetFor(options.wardId??'W_MINAMI'),switchAnimation=null,updateMesh;
@@ -338,62 +333,10 @@ const intersection=new IntersectionObserver(entries=>{visible=entries[0].isInter
 const resize=new ResizeObserver(()=>{syncBackdrop();schedule();});resize.observe(canvas);
 
 function init(){
-  const gl=canvas.getContext('webgl',{alpha:true,antialias:true,powerPreference:'low-power'});
-  if(!gl)throw Error('WebGL unavailable');
-  const resources=[];
-  const shader=(type,source)=>{const s=gl.createShader(type);resources.push(()=>gl.deleteShader(s));gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
-  const program=source=>{
-    const p=gl.createProgram();resources.push(()=>gl.deleteProgram(p));gl.attachShader(p,shader(gl.VERTEX_SHADER,vertex));gl.attachShader(p,shader(gl.FRAGMENT_SHADER,source));gl.linkProgram(p);
-    if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));
-    const names=['camera','lightMatrix','opening','pointer','lift','time','moving','light','eye','ground','night','trails[0]','shadowMap'];
-    return {p,uniform:Object.fromEntries(names.map(n=>[n,gl.getUniformLocation(p,n)])),attributes:['position','normal','surface'].map(n=>gl.getAttribLocation(p,n))};
-  };
-  try{
-    const main=program(fragment),shadow=program(depth),buffer=gl.createBuffer();let mesh;
-    resources.push(()=>gl.deleteBuffer(buffer));
-    updateMesh=()=>{mesh=buildScene(cabinet.id);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);};
-    updateMesh();
-    const framebuffer=gl.createFramebuffer(),texture=gl.createTexture(),depthBuffer=gl.createRenderbuffer();
-    resources.push(()=>gl.deleteFramebuffer(framebuffer),()=>gl.deleteTexture(texture),()=>gl.deleteRenderbuffer(depthBuffer));
-    gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1024,1024,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    gl.bindRenderbuffer(gl.RENDERBUFFER,depthBuffer);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,1024,1024);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,depthBuffer);
-    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Shadow framebuffer unavailable');
-    gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-    const eye=EYE;
-    function bind(prog,matrix,lightMatrix,time,moving){
-      gl.useProgram(prog.p);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-      for(let i=0;i<3;i++)if(prog.attributes[i]>=0){gl.enableVertexAttribArray(prog.attributes[i]);gl.vertexAttribPointer(prog.attributes[i],i===2?2:3,gl.FLOAT,false,32,i*12);}
-      const u=prog.uniform;
-      gl.uniformMatrix4fv(u.camera,false,matrix);gl.uniformMatrix4fv(u.lightMatrix,false,lightMatrix);
-      gl.uniform1f(u.opening,bookProgress*bookProgress*(3-2*bookProgress));
-      gl.uniform2f(u.pointer,flat||still()?0:px,flat||still()?0:py);gl.uniform1f(u.lift,lift);gl.uniform1f(u.time,time/1000);
-      gl.uniform1f(u.moving,moving&&!still()&&!flat?1:0);
-    }
-    render=(time,moving)=>{
-      const dpr=renderDpr(devicePixelRatio,zoom,canvas.clientWidth,canvas.clientHeight),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
-      if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-      projection=cameraMatrix(w,h,zoom,panX,panY);
-      const lightPos=[-390+px*170,650,280+py*140],lightDir=normalize(lightPos);
-      const lightMatrix=multiply(ortho(-560,560,-540,540,1,1700),lookAt(lightPos,[0,0,0]));
-      gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,1024,1024);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      // Unbind the sampled texture during the shadow pass to avoid framebuffer feedback.
-      gl.bindTexture(gl.TEXTURE_2D,null);bind(shadow,lightMatrix,lightMatrix,time,moving);gl.drawArrays(gl.TRIANGLES,0,mesh.length/8);
-      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      bind(main,projection,lightMatrix,time,moving);const u=main.uniform;
-      gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u.shadowMap,0);
-      gl.uniform3fv(u.light,lightDir);gl.uniform3fv(u.eye,eye);gl.uniform1f(u.ground,ground);gl.uniform1f(u.night,night?1:0);
-      const packed=new Float32Array(60);
-      trails.forEach((p,i)=>packed.set([p.x,p.z,trailIntensity(p.time,time,still())],i*3));
-      gl.uniform3fv(u['trails[0]'],packed);gl.drawArrays(gl.TRIANGLES,0,mesh.length/8);
-      canvas.dataset.vertices=String(mesh.length/8);
-      canvas.dataset.renderedWard=cabinet.id;
-      canvas.dataset.frames=String(++draws);
-    };
-    dispose=()=>resources.splice(0).reverse().forEach(f=>f());failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
-  }catch(error){resources.reverse().forEach(f=>f());throw error;}
+  const renderer=createRenderer(canvas,cabinet.id);
+  updateMesh=()=>renderer.setMesh(cabinet.id);
+  render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails});};
+  dispose=renderer.dispose;failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
 }
 function failure(error){failed=true;render=null;updateMesh=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
 listen(canvas,'webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(frame);frame=0;dispose?.();failure('Context lost');});
