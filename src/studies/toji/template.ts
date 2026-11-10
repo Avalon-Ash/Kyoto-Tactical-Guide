@@ -16,6 +16,7 @@ export const BUNKO_MARKUP = `<main>
         <div class="seal" aria-hidden="true">京<br>洛</div>
         <div class="stage-caption"><small id="cabinet-context" aria-live="polite" aria-atomic="true"></small><span id="cabinet-place">東寺・九条</span><small id="cabinet-landmark"></small></div>
         <p id="cabinet-art-note" class="cabinet-art-note" hidden></p>
+        <button id="zoom-reset" class="zoom-reset" type="button" hidden><span aria-hidden="true">⤡</span></button>
         <button id="open-book" class="open-book" type="button" aria-haspopup="dialog" aria-controls="library"><span data-i18n="openBook">開盒・展卷</span> ↗</button>
       </div>
       <div class="exhibit-bottom"><p id="status" role="status" data-i18n="ready">滑鼠／手指掠過，或按「演示一次」</p><div class="actions"><button id="demo" type="button" data-i18n="demo">演示一次 ↗</button><button id="motion" type="button" aria-pressed="false" data-i18n="motion">減少動態</button><button id="save" type="button">保存畫面</button></div></div>

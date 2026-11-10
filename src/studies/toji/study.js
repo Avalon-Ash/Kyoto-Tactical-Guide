@@ -4,15 +4,17 @@ import {createBunkoLibrary} from './library';
 import {progressToward,isTap,onLid,swipeDirection,cabinetDragDirection,idlePlaybackAllowed} from './interaction.js';
 import {CABINETS,cabinetFor,adjacentCabinet,volumeTitle} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
+import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,renderDpr,isDoubleTap,ZOOM_STEP} from './view.js';
 import {mountBackdrop,cabinetKeepout} from './backdrop.js';
 
 // Fixed home camera; render() and the backdrop's cabinet keepout share it.
 const EYE=[430,720,920],CAMERA_VIEW=lookAt(EYE,[0,40,0]);
-function cameraMatrix(width,height){const aspect=width/height,halfW=Math.max(475,340*aspect),halfH=halfW/aspect;return multiply(ortho(-halfW,halfW,-halfH,halfH,1,2200),CAMERA_VIEW);}
+// zoom/cx/cy default to the full frame; view.js keeps zoom 1 identical to the original framing.
+function cameraMatrix(width,height,zoom=1,cx=0,cy=0){const v=viewBox(width/height,zoom,cx,cy);return multiply(ortho(v.left,v.right,v.bottom,v.top,1,2200),CAMERA_VIEW);}
 
 const words={
-  zh:{back:'京都御秘帖',night:'月光',day:'暖日',title:'一座京都，藏於文庫。',intro:'掠過漆面，看屋簷隆起、金銀移光。這次，先端詳東寺。',flat:'平面對照',relief:'互動浮雕',edition:'初音調度意象・局部習作',loading:'正在鋪設金地…',caption:'梨地に、五重の影。',ready:'滑鼠／手指掠過，或按「演示一次」',playing:'正在演示：隆起 → 左右視差 → 金粉軌跡',flatStatus:'平面對照：相同構圖與材質，深度壓平',still:'減少動態：保留浮雕，停止位移、擺動與軌跡',demo:'演示一次 ↗',motion:'減少動態',ground:'地蒔 / GROUND',materialTitle:'同一片金地，三種表情。',nashiji:'梨地',nashijiDesc:'細粒，透漆的深淺',dense:'濃梨地',denseDesc:'密蒔，更厚實的金色',gyobu:'刑部梨地',gyobuDesc:'箔底，大而不規則的片粒',note:'沿水岸看螺鈿變色，屋脊是切金、切銀意象。金粒附著漆面，軌跡是光的餘韻。',scope:'東寺文庫樣板，點擊蓋面可展開南區真實景點書卷。簡化浮雕並非建築測繪模型；首頁與其他地標尚未整合。',openBook:'開盒・展卷',opening:'提蓋，展開南之卷…',closing:'收卷合蓋…',source:'參考：德川美術館・初音蒔繪料紙箱 ↗',failed:'無法啟用 WebGL。請使用支援硬體加速的瀏覽器開啟此展示頁。',canvas:'東寺文庫：點擊或 Enter 開盒展卷；方向鍵移光，空白鍵演示'},
-  ja:{back:'京都御秘帖',night:'月光',day:'陽光',title:'京都を、ひとつの文庫に。',intro:'漆面をなぞると、軒が浮かび、金銀の光が移ろう。まずは東寺から。',flat:'平面と比較',relief:'浮彫を動かす',edition:'初音の調度に着想・部分習作',loading:'金地を準備しています…',caption:'梨地に、五重の影。',ready:'マウス・指でなぞる、または「動きを見る」',playing:'実演中：浮き上がり → 視差 → 光の余韻',flatStatus:'平面：構図と素材を保ち、奥行きを圧縮',still:'動きを抑制：浮彫を保ち、変位・揺れ・軌跡を停止',demo:'動きを見る ↗',motion:'動きを抑える',ground:'地蒔 / GROUND',materialTitle:'同じ金地、三つの表情。',nashiji:'梨地',nashijiDesc:'細かな粉、透漆の奥行き',dense:'濃梨地',denseDesc:'密に蒔かれた金の厚み',gyobu:'刑部梨地',gyobuDesc:'箔地と大きな不定形の粉',note:'水辺には螺鈿の色移り、屋根には切金・切銀の意匠。粉は漆面に留まり、光だけが余韻を残します。',scope:'東寺の文庫試作。蓋を選ぶと南区の実際の名所データを読めます。簡略化した浮彫であり実測模型ではありません。ホームと他の名所は未統合です。',openBook:'蓋を開き、巻へ',opening:'蓋を上げ、南の巻を開いています…',closing:'巻を収めています…',source:'参考：徳川美術館・初音蒔絵料紙箱 ↗',failed:'WebGL を使用できません。ハードウェアアクセラレーション対応のブラウザーでご覧ください。',canvas:'東寺の文庫：クリック・Enter で巻を開く。矢印キーで光を移動、スペースキーで実演'}
+  zh:{back:'京都御秘帖',night:'月光',day:'暖日',title:'一座京都，藏於文庫。',intro:'掠過漆面，看屋簷隆起、金銀移光。這次，先端詳東寺。',flat:'平面對照',relief:'互動浮雕',edition:'初音調度意象・局部習作',loading:'正在鋪設金地…',caption:'梨地に、五重の影。',ready:'滑鼠／手指掠過，或按「演示一次」',playing:'正在演示：隆起 → 左右視差 → 金粉軌跡',flatStatus:'平面對照：相同構圖與材質，深度壓平',still:'減少動態：保留浮雕，停止位移、擺動與軌跡',demo:'演示一次 ↗',motion:'減少動態',ground:'地蒔 / GROUND',materialTitle:'同一片金地，三種表情。',nashiji:'梨地',nashijiDesc:'細粒，透漆的深淺',dense:'濃梨地',denseDesc:'密蒔，更厚實的金色',gyobu:'刑部梨地',gyobuDesc:'箔底，大而不規則的片粒',note:'沿水岸看螺鈿變色，屋脊是切金、切銀意象。金粒附著漆面，軌跡是光的餘韻。',scope:'東寺文庫樣板，點擊蓋面可展開南區真實景點書卷。簡化浮雕並非建築測繪模型；首頁與其他地標尚未整合。',openBook:'開盒・展卷',opening:'提蓋，展開南之卷…',closing:'收卷合蓋…',source:'參考：德川美術館・初音蒔繪料紙箱 ↗',failed:'無法啟用 WebGL。請使用支援硬體加速的瀏覽器開啟此展示頁。',canvas:'東寺文庫：點擊或 Enter 開盒展卷；方向鍵移光，空白鍵演示；雙指或 +／− 放大把玩',zoomReset:'回到全景'},
+  ja:{back:'京都御秘帖',night:'月光',day:'陽光',title:'京都を、ひとつの文庫に。',intro:'漆面をなぞると、軒が浮かび、金銀の光が移ろう。まずは東寺から。',flat:'平面と比較',relief:'浮彫を動かす',edition:'初音の調度に着想・部分習作',loading:'金地を準備しています…',caption:'梨地に、五重の影。',ready:'マウス・指でなぞる、または「動きを見る」',playing:'実演中：浮き上がり → 視差 → 光の余韻',flatStatus:'平面：構図と素材を保ち、奥行きを圧縮',still:'動きを抑制：浮彫を保ち、変位・揺れ・軌跡を停止',demo:'動きを見る ↗',motion:'動きを抑える',ground:'地蒔 / GROUND',materialTitle:'同じ金地、三つの表情。',nashiji:'梨地',nashijiDesc:'細かな粉、透漆の奥行き',dense:'濃梨地',denseDesc:'密に蒔かれた金の厚み',gyobu:'刑部梨地',gyobuDesc:'箔地と大きな不定形の粉',note:'水辺には螺鈿の色移り、屋根には切金・切銀の意匠。粉は漆面に留まり、光だけが余韻を残します。',scope:'東寺の文庫試作。蓋を選ぶと南区の実際の名所データを読めます。簡略化した浮彫であり実測模型ではありません。ホームと他の名所は未統合です。',openBook:'蓋を開き、巻へ',opening:'蓋を上げ、南の巻を開いています…',closing:'巻を収めています…',source:'参考：徳川美術館・初音蒔絵料紙箱 ↗',failed:'WebGL を使用できません。ハードウェアアクセラレーション対応のブラウザーでご覧ください。',canvas:'東寺の文庫：クリック・Enter で巻を開く。矢印キーで光を移動、スペースキーで実演。二本指か +／− で拡大',zoomReset:'全体に戻す'}
 };
 Object.assign(words.zh,{intro:'一區一函，一函一景。左右換盒，點蓋展卷；掠過山水建築，端詳金銀浮雕的光影。',scope:'十一行政區各藏一卷真實景點。各函以代表地標與庭園構成簡化浮雕，並非建築測繪或歷史復原；依初音調度意象創作。',switching:'正在換函…',ready:'掠過盒面移光；左右換函，點蓋展卷。'});
 Object.assign(words.ja,{intro:'一区に一函、一函にひとつの景色。左右で函を選び、蓋から巻へ。山水と建築をなぞり、金銀の光と影を愉しむ。',scope:'十一の行政区ごとに実際の名所を収めています。各函は名所と庭園を組み合わせた簡略化した浮彫です。実測模型・歴史的復元ではありません。初音の調度に着想を得ています。',switching:'函を替えています…',ready:'漆面で光を移し、左右で函を選ぶ。蓋を押すと巻が開きます。'});
@@ -36,6 +38,8 @@ let trails=[];
 let bookState='closed',bookProgress=0,bookTarget=0,bookReadyAt=0,gesture=null,returnFocus=null;
 let cabinet=cabinetFor(options.wardId??'W_MINAMI'),railGesture=null,switchAnimation=null,updateMesh,suppressRailClickUntil=0;
 let dragOffset=0,dragAnimation=null;
+// Close-up: current and target zoom/pan; a pinch or pan writes both, the tick eases current toward target.
+let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 const library=createBunkoLibrary(closeBook,toggleLanguage,root,options.onExploreWard);
 let projection,render,dispose;
@@ -68,6 +72,7 @@ function syncCabinet(){
 }
 async function changeCabinet(direction,focusTarget=document.activeElement,fromOffset=0){
   if(bookState!=='closed')return;
+  resetZoom(true);
   dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;canvas.dataset.dragging='false';
   bookState='switching';demoStart=0;trails=[];gesture=null;hover=false;tx=ty=px=py=0;syncBook();status();
   const animate=async frames=>{
@@ -105,6 +110,7 @@ function translate(){
   $('night').textContent=words[language][night?'day':'night'];
   $('save').textContent=language==='zh'?'保存畫面':'画像を保存';
   canvas.setAttribute('aria-label',words[language].canvas);
+  $('zoom-reset').setAttribute('aria-label',words[language].zoomReset);$('zoom-reset').title=words[language].zoomReset;
   library.setLanguage(language);syncCabinet();status();
 }
 function schedule(){if(!destroyed&&!frame&&visible&&!document.hidden&&render)frame=requestAnimationFrame(tick);}
@@ -140,12 +146,19 @@ function tick(time){
   px=still()?0:px+(tx-px)*ease;py=still()?0:py+(ty-py)*ease;
   if(Math.abs(target-lift)<.0005)lift=target;
   if(Math.abs(tx-px)<.0005)px=tx;if(Math.abs(ty-py)<.0005)py=ty;
+  if(!pinch&&!gesture?.panning){
+    const aspect=canvas.clientWidth/Math.max(1,canvas.clientHeight);[panTX,panTY]=clampPan(aspect,zoomTarget,panTX,panTY);
+    const zEase=still()?1:1-Math.exp(-dt/110);
+    zoom+=(zoomTarget-zoom)*zEase;panX+=(panTX-panX)*zEase;panY+=(panTY-panY)*zEase;
+    if(Math.abs(zoomTarget-zoom)<.0005)zoom=zoomTarget;if(Math.abs(panTX-panX)<.05)panX=panTX;if(Math.abs(panTY-panY)<.05)panY=panTY;
+  }
+  syncZoomUi();
   trails=still()?[]:trails.filter(p=>trailIntensity(p.time,time)>0);
   render(time,Boolean(autoPlaying||demoStart||trails.length));
   canvas.dataset.autoplay=String(autoPlaying);canvas.dataset.idlePhase=idlePhase.toFixed(3);
   canvas.dataset.bookState=bookState;canvas.dataset.opening=bookProgress.toFixed(3);
-  canvas.dataset.mode=flat?'flat':'relief';canvas.dataset.lift=lift.toFixed(3);canvas.dataset.trails=String(trails.length);canvas.dataset.still=String(still());
-  if(bookProgress!==bookTarget||bookState==='unrolling'||demoStart||trails.length||(!still()&&(lift!==target||px!==tx||py!==ty))||(options.embedded&&!still()&&bookState==='closed'))schedule();
+  canvas.dataset.mode=flat?'flat':'relief';canvas.dataset.lift=lift.toFixed(3);canvas.dataset.trails=String(trails.length);canvas.dataset.still=String(still());canvas.dataset.zoom=zoom.toFixed(3);canvas.dataset.pan=`${panX.toFixed(1)},${panY.toFixed(1)}`;
+  if(zoom!==zoomTarget||panX!==panTX||panY!==panTY||bookProgress!==bookTarget||bookState==='unrolling'||demoStart||trails.length||(!still()&&(lift!==target||px!==tx||py!==ty))||(options.embedded&&!still()&&bookState==='closed'))schedule();
 }
 function addTrail(x,y,time=performance.now()){
   if(still()||flat||bookState!=='closed'||!projection)return;
@@ -157,7 +170,9 @@ function addTrail(x,y,time=performance.now()){
 }
 function point(e){
   if(bookState!=='closed')return;
+  if(pinch){movePinch(e);return;}
   if(gesture&&gesture.id!==e.pointerId)return;
+  if(gesture?.panning){movePan(e);return;}
   if(gesture&&Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>8)gesture.moved=true;
   canvas.dataset.pointerType=e.pointerType;
   if(options.embedded&&gesture?.moved){
@@ -189,6 +204,7 @@ function syncBook(){
 }
 function openBook(trigger){
   if(bookState!=='closed')return;
+  resetZoom();
   returnFocus=trigger;bookState='opening';bookTarget=1;demoStart=0;trails=[];tx=ty=0;
   library.prepare(language,cabinet.id);syncBook();status();
   if(still()||failed){bookProgress=1;bookState='reading';library.show();syncBook();}
@@ -237,39 +253,105 @@ root.querySelectorAll('[data-material]').forEach(button=>listen(button,'click',(
 }));
 listen(canvas,'pointerenter',e=>{if(e.pointerType!=='touch'){hover=true;point(e);}});
 listen(canvas,'pointermove',point);
-// Two fingers mean the browser's pinch zoom, never a tap or a cabinet drag.
+// Two fingers on the cabinet are a pinch: zoom the cabinet, never the page, never a tap or cabinet drag.
 // Until every finger lifts, no touch may open the lid or change the cabinet.
-const touches=new Set();let multiTouch=false;
-const liftTouch=e=>{if(e.pointerType!=='touch')return;touches.delete(e.pointerId);if(!touches.size)multiTouch=false;};
+const touches=new Map();let multiTouch=false;
+const frac=e=>{const r=canvas.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height];};
+const aspectNow=()=>canvas.clientWidth/Math.max(1,canvas.clientHeight);
+function setZoom(next,fx=.5,fy=.5,instant=false){
+  const aspect=aspectNow(),z=clampZoom(next),anchor=planePoint(aspect,zoomTarget,panTX,panTY,fx,fy);
+  zoomTarget=z;[panTX,panTY]=clampPan(aspect,z,...anchorPan(aspect,z,anchor,fx,fy));
+  if(instant||still()){zoom=zoomTarget;panX=panTX;panY=panTY;}
+  syncZoomUi();schedule();
+}
+function resetZoom(instant=false){pinch=null;zoomTarget=1;panTX=panTY=0;if(instant||still()){zoom=1;panX=panY=0;}syncZoomUi();schedule();}
+function syncZoomUi(){
+  const zoomed=isZoomed(zoomTarget)||Boolean(pinch);
+  // Close-up owns every touch on the canvas; at full view the page may still scroll vertically.
+  canvas.style.touchAction=zoomed?'none':'';canvas.dataset.zoomed=String(zoomed);
+  $('zoom-reset').hidden=!isZoomed(zoomTarget);
+}
+function startPinch(){
+  const [a,b]=[...touches.values()],r=canvas.getBoundingClientRect(),mid=[((a.x+b.x)/2-r.left)/r.width,((a.y+b.y)/2-r.top)/r.height];
+  pinch={distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),zoom,anchor:planePoint(aspectNow(),zoom,panX,panY,...mid)};
+  hover=false;tx=ty=0;trails=[];syncZoomUi();
+}
+function movePinch(e){
+  if(!touches.has(e.pointerId))return;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const [a,b]=[...touches.values()],r=canvas.getBoundingClientRect(),fx=((a.x+b.x)/2-r.left)/r.width,fy=((a.y+b.y)/2-r.top)/r.height,aspect=aspectNow();
+  zoom=zoomTarget=clampZoom(pinch.zoom*Math.hypot(a.x-b.x,a.y-b.y)/pinch.distance);
+  // The midpoint may travel too: two fingers zoom and pan at once.
+  const [cx,cy]=anchorPan(aspect,zoom,pinch.anchor,fx,fy),l=panLimit(aspect,zoom);
+  const v=viewBox(aspect,zoom);panX=panTX=rubberBand(cx,l.x,v.halfW*.5);panY=panTY=rubberBand(cy,l.y,v.halfH*.5);
+  schedule();
+}
+function movePan(e){
+  const r=canvas.getBoundingClientRect(),aspect=aspectNow(),[dx,dy]=dragPan(aspect,zoom,e.clientX-gesture.x,e.clientY-gesture.y,r.width,r.height),l=panLimit(aspect,zoom),v=viewBox(aspect,zoom);
+  if(Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>8){gesture.moved=true;canvas.dataset.dragging='true';}
+  panX=panTX=rubberBand(gesture.panX+dx,l.x,v.halfW*.5);panY=panTY=rubberBand(gesture.panY+dy,l.y,v.halfH*.5);
+  schedule();
+}
+const liftTouch=e=>{
+  if(e.pointerType!=='touch')return;
+  touches.delete(e.pointerId);
+  if(pinch&&touches.size<2){pinch=null;syncZoomUi();schedule();}
+  if(!touches.size)multiTouch=false;
+};
 // A finger may lift outside the canvas; the window still hears it, after the canvas handlers.
 for(const type of ['pointerup','pointercancel'])listen(window,type,liftTouch);
+// Safari's own pinch would zoom the page; the canvas keeps two-finger gestures for the cabinet.
+listen(canvas,'gesturestart',e=>e.preventDefault());
+listen(canvas,'touchmove',e=>{if(e.touches.length>1||isZoomed(zoomTarget))e.preventDefault();},{passive:false});
+listen(canvas,'wheel',e=>{
+  if(bookState!=='closed'||!(options.embedded||e.ctrlKey))return;
+  e.preventDefault();activity();
+  const [fx,fy]=frac(e);setZoom(zoomTarget*Math.exp(-e.deltaY*(e.ctrlKey?.01:.0015)),fx,fy);
+},{passive:false});
+listen($('zoom-reset'),'click',()=>{resetZoom();canvas.focus({preventScroll:true});});
 listen(canvas,'pointerdown',e=>{
   if(e.pointerType==='touch'){
-    touches.add(e.pointerId);
-    if(touches.size>1){multiTouch=true;if(gesture){endDrag();returnCabinet();release();}return;}
+    touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(touches.size>1){
+      multiTouch=true;
+      if(gesture){endDrag();returnCabinet();release();}
+      if(touches.size===2&&bookState==='closed'&&!failed)startPinch();
+      return;
+    }
   }
   if(e.button!==0||bookState!=='closed'||gesture||multiTouch)return;
   dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;
-  gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now(),moved:false,axis:null};
-  if(options.embedded)canvas.setPointerCapture(e.pointerId);
+  gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp,moved:false,axis:null,panning:isZoomed(zoomTarget),panX,panY};
+  if(options.embedded||gesture.panning)canvas.setPointerCapture(e.pointerId);
   hover=true;demoStart=0;status();point(e);
 });
 const release=()=>{hover=false;tx=ty=0;schedule();};
 function endDrag(){
   const id=gesture?.id;gesture=null;canvas.dataset.dragging='false';
   if(id!==undefined&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);
+  schedule();
 }
 function returnCabinet(){
   const offset=dragOffset;dragOffset=0;canvas.style.transform='';
   if(offset&&!still())dragAnimation=canvas.animate([{transform:`translateX(${offset}px)`},{transform:'translateX(0)'}],{duration:160,easing:'ease-out'});
 }
-listen(canvas,'pointerleave',()=>{if(options.embedded&&gesture)return;endDrag();returnCabinet();release();});
+listen(canvas,'pointerleave',()=>{if((options.embedded||gesture?.panning)&&gesture)return;endDrag();returnCabinet();release();});
 listen(canvas,'pointercancel',()=>{endDrag();returnCabinet();release();});
 listen(canvas,'lostpointercapture',()=>{if(gesture){endDrag();returnCabinet();release();}});
 listen(canvas,'pointerup',e=>{
   if(!gesture||gesture.id!==e.pointerId||multiTouch)return;
-  const end={id:e.pointerId,x:e.clientX,y:e.clientY,time:performance.now()};
-  const tap=isTap(gesture,end),direction=options.embedded?cabinetDragDirection(gesture,end,canvas.clientWidth):0,offset=dragOffset;
+  // Event time, not handler time: a slow frame must not turn a tap into a long press.
+  const end={id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp};
+  const tap=isTap(gesture,end);
+  if(gesture.panning){
+    // In close-up a drag only pans; a double tap returns to the full view; a single tap does nothing.
+    endDrag();
+    if(tap){const t={x:end.x,y:end.y,time:end.time};if(isDoubleTap(lastTap,t)){lastTap=null;resetZoom();}else lastTap=t;}
+    if(e.pointerType==='touch')release();
+    return;
+  }
+  lastTap=null;
+  const direction=options.embedded?cabinetDragDirection(gesture,end,canvas.clientWidth):0,offset=dragOffset;
   endDrag();
   if(direction){e.preventDefault();release();void changeCabinet(direction,canvas,offset);return;}
   returnCabinet();
@@ -279,8 +361,10 @@ listen(canvas,'pointerup',e=>{
 });
 listen(canvas,'focus',()=>{hover=true;schedule();});listen(canvas,'blur',release);
 listen(canvas,'keydown',e=>{
+  if(e.key==='Escape'&&isZoomed(zoomTarget)){e.preventDefault();resetZoom();return;}
   if(e.key==='Enter'){e.preventDefault();openBook(canvas);return;}
   if(bookState!=='closed')return;
+  if(['+','=','-','_','0'].includes(e.key)){e.preventDefault();if(e.key==='0')resetZoom();else setZoom(zoomTarget*(e.key==='-'||e.key==='_'?1/ZOOM_STEP:ZOOM_STEP));return;}
   if(options.embedded&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();void changeCabinet(e.key==='ArrowLeft'?-1:1,canvas);return;}
   if(e.key===' '){e.preventDefault();if(options.embedded)openBook(canvas);else demo();return;}
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
@@ -329,9 +413,9 @@ function init(){
       gl.uniform1f(u.moving,moving&&!still()&&!flat?1:0);
     }
     render=(time,moving)=>{
-      const dpr=Math.min(devicePixelRatio||1,1.5),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
+      const dpr=renderDpr(devicePixelRatio,zoom,canvas.clientWidth,canvas.clientHeight),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
       if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-      projection=cameraMatrix(w,h);
+      projection=cameraMatrix(w,h,zoom,panX,panY);
       const lightPos=[-390+px*170,650,280+py*140],lightDir=normalize(lightPos);
       const lightMatrix=multiply(ortho(-560,560,-540,540,1,1700),lookAt(lightPos,[0,0,0]));
       gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,1024,1024);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
