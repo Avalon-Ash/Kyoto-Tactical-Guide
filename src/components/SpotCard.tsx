@@ -1,5 +1,5 @@
 /**
- * @layer UI / SpotCard（景點任務卡片）
+ * @layer UI / SpotCard（景點卡片）
  * @module SpotCard
  *
  * 本元件負責單一 FlatSpot 的視覺渲染，採用「京都漆藝」風格設計。

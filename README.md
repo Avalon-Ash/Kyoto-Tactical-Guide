@@ -1,6 +1,6 @@
 # Kyoto Tactical Guide ⛩️
 
-> [十一區文庫首頁](http://127.0.0.1:3000/)已整合：預設月光，左右直接拖動換函、點蓋展卷；閒置循環移光，主動操作時暫停。首頁無介紹／換函列／測試工具／開卷按鈕；題字採 Shippori Mincho B1、繁中內文採 Noto Serif TC。保留[獨立展示](http://127.0.0.1:3000/toji-study/index.html)作材質與深度比較，兩入口共用渲染與真實資料。[最新驗收與限制](docs/agent-runs/2026-11-06-phase04-bunko-index.md)。
+> [十一區文庫首頁](http://127.0.0.1:3000/)已整合：預設月光，單指盒面移光（撫摩），長拖沿隱形軌道跟手換函（死區 14px、位移達 26% 放手換函，無 TAB 或按鈕換函，鍵盤左右鍵換函保留），雙指捏合／滾輪放大；點蓋／Enter／空白鍵開蓋直入 DetailView（該行政區之卷，無文字搜尋）；閒置循環移光，主動操作時暫停。題字採 Shippori Mincho B1、繁中內文採 Noto Serif TC。文箱核心與展示頁解耦，保留[獨立展示](http://127.0.0.1:3000/toji-study/index.html)作材質與深度對照，兩入口共用文箱渲染與真實資料。[最新狀態與驗收](docs/HANDOFF.md)。
 
 目前進度、提交記錄與新對話接續步驟：[交接入口](docs/HANDOFF.md)。
 
@@ -24,14 +24,14 @@
 **渲染元件**：`BunkoEntrance.tsx` → `mountBunko()`
 
 十一行政區各有一函，以代表地標、山水及古地名構成固定視角的簡化幾何浮雕。
-左右拖動文庫或用左右方向鍵選區，點蓋／Enter／空白鍵展卷；書卷讀取該區真實景點並支援搜尋、分類和中日文。
-「地圖與完整篩選」進入既有 `DetailView`，再由其地圖按鈕切換實際地理視圖。
+單指在盒面上一律移光（撫摩）；盒子沿隱形軌道跟手（死區 14px、跟隨比例 0.6），盒子中心位移達畫布寬 26%（上限 200px）後放手才換函；無 TAB 或按鈕換函，鍵盤左右方向鍵換函保留；首頁畫布 `touch-action:none`；雙指捏合、滾輪、`+`／`−`／`0` 放大（上限 3 倍）保留。
+點蓋／Enter／空白鍵開蓋後，直接進入 `DetailView`（該行政區的卷）：類型 TAB → 標籤 chip → 卡片（`SpotCard`），底部切換列表／地圖，沒有文字搜尋。原本的書卷對話框（`library.ts`）已刪除。
 
 **規則與禁則：**
 - 每個景點必須歸屬唯一的 `wardId`，合法值由 `WARD_NAMES` 定義，不在文庫控制器複製景點資料。
 - `App` 保留執行期間的選區與日夜；語言共用 `useKyotoEngine`，重新整理預設月光。首頁閒置播放、主動操作讓出控制、1.8 秒後恢復；背景、讀卷、拖動及系統減少動態時停播。
-- 首頁不顯示測試工具與開卷按鈕；獨立展示保留對照控制。字體由既有 Google Fonts 方式載入，無新 npm 依賴。
-- `study.js` 的 `mountBunko`、`template.ts`、`library.ts` 與 `.bunko` 範圍樣式由主站及獨立頁共用。卸載必須釋放事件、觀察器、RAF、讀卷回寫及 GPU 資源。
+- 首頁不顯示測試工具與換函按鈕；獨立展示（`/toji-study/index.html`）由 `study-chrome.js` 提供外殼（`mountStudy`）與對照控制，展示頁沒有書卷，開蓋後再按一次合蓋。字體由既有 Google Fonts 方式載入，無新 npm 依賴。
+- 文箱核心與展示頁拆開：`study.js` 的 `mountBunko(root, options)` 僅管文箱核心（畫布、移光、縮放、換函、開蓋）；舞台 markup 僅由 `template.ts`（`BUNKO_STAGE`）匯出；舞台樣式由 `bunko.css`（主站與展示頁共用），展示頁專用樣式在 `study.css`；原本的書卷對話框 `library.ts` 已刪除。卸載必須釋放事件、觀察器、RAF 及 GPU 資源。
 - 原生 WebGL 簡化幾何不是精確建築復原／導航圖。使用者已選定一區一函方向；早期 GPU 蒔繪原型（`MapCanvas.tsx`、`makie-renderer.ts` 與兩張原型圖）已於 2026-11-09 刪除，需要時從 Git 歷史取回。不恢復蒔繪／區界切換。
 - 實際行政區邊界及鄰近區域仍由詳細地圖呈現。景點統計動態計算，修改資料後自動反映。
 
@@ -169,13 +169,10 @@ Area 粒度比 Ward 更細，適合依據旅遊動線規劃單日行程。
 - **Systems (系統)**:
   - **Assemble System (`spots-loader.ts`)**: 負責在導航發生時，動態裝配 Schema 與 Locale，產出 UI 消耗的資料物件。
   - **Query Assembly System (`SpotCard.tsx`)**: 透過共用的 `buildGoogleMapsUrl` 剝除 `spot.jaName` 的括號附註、套用先斗町與廣域名稱規則，並組裝 Google Maps Search URL；卡片與叢集面板共用。
-  - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、搜尋（Searching）、語系狀態、以及計數器更新。
+  - **Kyoto Tactical Engine (`useKyotoEngine.ts`)**: 應用的「大腦」。負責管理過濾邏輯（Filtering）、語系狀態、以及計數器更新。
 
-### 3. 可抽換式季節子系統 (Seasonal Architecture)
-為主應用 (React SPA) 之外獨立運作的純 Vanilla HTML/JS 模組 (`public/seasonal.html`)，專門用於處理高時效性、特定季節的祭典及活動導覽。
-- **解耦設計 (Decoupling)**：徹底脫離 React 生命週期與構建機制 (Build pipeline)，採用純 HTML/JS 及 Tailwind CDN 渲染。此設計避免了短期活動污染核心旅遊資料 Schema 的複雜性，極大降低維護與廢棄成本。
-- **快速佈署與抽換**：當季節更迭（如秋季楓葉季取代初夏紫陽花季）時，開發者可直接替換整個 `seasonal.html` 內容，無需修改核心引擎邏輯或進行資料結構審核。
-- **無縫橋接**：在 `HomeView` 頂部導航列以 `target="_blank"` 的方式另開分頁呼叫此獨立頁面。在行動裝置上可擁有原生的多視窗操作體驗，避免雙重視窗狀態管理的干擾。
+### 3. 季節子系統 (Seasonal Architecture)
+原獨立頁面 `public/seasonal.html` 已移除（可自 Git 歷史取回），目前無獨立季節網頁。新方向計畫見 `docs/SEASONAL_PLAN.md`。
 
 ### 🗺 Query Assembly System — 地圖搜尋規則
 
@@ -235,13 +232,30 @@ src/
 │   └── locales/             # 【SSOT: 內容】各語系文本夾 (zh, ja)
 ├── components/
 │   ├── BunkoEntrance.tsx # 十一區文庫：React 與共用控制器的生命週期銜接
-│   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
-│   ├── HomeView.tsx    # 地圖選擇與分區引導
-│   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
-│   ├── SpotCard.tsx    # 景點任務卡片 (漆藝視覺風格)
-│   ├── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條
 │   ├── BunkoTools.tsx   # 日夜、減少動態、語系三顆共用工具鈕
-│   └── MakieIcon.tsx    # 金銀圖紋圖示
+│   ├── ClusterMap.tsx  # 地圖叢集展示畫面 (取代精確 Geo Map)
+│   ├── DetailView.tsx  # 任務列表主介面 (包含分類過濾與地圖切換)
+│   ├── HomeView.tsx    # 地圖選擇與分區引導
+│   ├── MakieIcon.tsx    # 金銀圖紋圖示
+│   ├── ScrollRoller.tsx # 卷軸軸頭裝飾元件
+│   ├── SpotCard.tsx    # 景點任務卡片 (漆藝視覺風格)
+│   └── TagSelector.tsx  # 水平可拖曳的 Tag 篩選條
+├── studies/toji/       # 【文庫核心與展示頁】
+│   ├── backdrop.js      # すやり霞背景與金箔微粒
+│   ├── bunko.css        # 舞台樣式（主站與獨立展示頁共用）
+│   ├── collection.ts    # 十一區文箱定義與換函邏輯
+│   ├── geometry.js      # 浮雕幾何與投影矩陣
+│   ├── interaction.js   # 手勢、軌道跟手與開蓋時序
+│   ├── landmarks.js     # 各區地標銘文與浮雕定義
+│   ├── renderer.js      # WebGL 渲染器（陰影 pass、相機）
+│   ├── shaders.js       # WebGL 著色器
+│   ├── standalone.ts    # 獨立展示頁入口
+│   ├── study.css        # 獨立展示頁專用外殼樣式
+│   ├── study.js         # 文箱核心控制器 (mountBunko)
+│   ├── study-chrome.js  # 獨立展示頁外殼控制 (mountStudy)
+│   ├── template.ts      # 舞台 markup (BUNKO_STAGE)
+│   ├── view.js          # 放大與平移的純函式
+│   └── ward-art.js      # 十一區紋樣與短句
 └── lib/
     ├── numerals.ts     # 漢數字轉換工具
     ├── makie-scene.ts  # 十一區地標座標與區域命中（文庫函目使用）
@@ -250,8 +264,7 @@ src/
 scripts/
 ├── fetch-ward-geo.mjs      # 開發時抓取／離線重建 11 區邊界
 └── fetch-ward-geo.test.mjs # 幾何與身分拒收測試
-public/
-└── seasonal.html       # 【子系統】歲時記季節祭典獨立頁面 (純 HTML/JS)
+public/                 # 【子系統】seasonal.html 已移除（計畫見 docs/SEASONAL_PLAN.md）
 ```
 
 ---
@@ -361,10 +374,10 @@ public/
 ### 5. 地標景點真確性定位約束 (Landmark Coordinates)
 當新增或修改具有「世界遺產」、「國寶」、「經典寺院 / 神社」等超重要地位的景點時（如金閣寺、清水寺、平安神宮等），**強制必須**在 `src/data/map-centers.ts` 的 `SPOT_POSITIONS` 常數中，新增該 `spot.id` 對應的真實經緯度坐標。以利 `ClusterMap.tsx` 在地圖上直接繪製專屬的地名圖示（Landmark Icon + Name）。
 
-### 6. 歲時記（歷史存檔／年度版待製）
-`public/seasonal.html` 保留 2026 年六月個人行程作存檔；2026-11-06 已移除首頁入口。它不是全年活動資料庫，不能以替換年份方式當成已核實的年度活動。
+### 6. 歲時記（已移除，計畫見 `docs/SEASONAL_PLAN.md`）
+舊頁 `public/seasonal.html` 已移除（可自 Git 歷史取回），首頁入口亦已移除。
 
-新方向為已知活動年度總表、季節分類、使用者日期區間內的活動清單，另見 [年度製作計畫](docs/SEASONAL_PLAN.md)。本輪只研究與規劃，尚未製作年度資料或查詢頁；恢復入口前需完成日期／來源查核與驗收。前文舊架構的「抽換季節頁」是歷史說明，以本節為準。
+新方向為已知活動年度總表、季節分類、使用者日期區間內的活動清單，詳見 [年度製作計畫](docs/SEASONAL_PLAN.md)。尚未製作年度資料或查詢頁；恢復入口前需完成日期／來源查核與驗收。
 
 ### 7. 執行前自我檢查與回報 (Automated Validation)
 

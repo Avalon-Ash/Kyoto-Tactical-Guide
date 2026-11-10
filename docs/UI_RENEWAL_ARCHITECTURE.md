@@ -1,6 +1,6 @@
 # UI 翻新・架構文件（靜）
 
-> 2026-11-09。給本機主代理（Opus）拆包、派給 Gemini CLI 長線執行用。
+> 2026-11-11 現況：P0 token、P1、P3 已完成；2026-11-11 UX 統一完成部分 P4；P2 與彈簧未做。給主代理拆包、派給 Gemini CLI（agy）長線執行用。
 > 配套文件：`docs/UI_RENEWAL_PLAN.md`（總計畫與 FeralUI 萃取）、`docs/UI_RENEWAL_ART.md`（美術需求，視覺判斷以它為準）。
 > 合約以 `AGENTS.md` 為最高位階；本檔只補這次翻新的架構邊界、介面與驗收。
 
@@ -16,21 +16,23 @@
 
 | 項目 | 位置 | 事實 |
 | :-- | :-- | :-- |
-| 文箱控制器 | `src/studies/toji/study.js` `mountBunko(root, options)` | 單一閉包，持有 RAF、手勢、書卷狀態；`destroy()` 釋放所有資源 |
-| 渲染 | 同檔 `init()` → `render(time, moving)` | 原生 WebGL1；**正交相機** `ortho(-halfW, halfW, -halfH, halfH)`，`halfW = max(475, 340·aspect)`；`eye=[430,720,920]` 看向 `[0,40,0]` |
-| 解析度 | `render()` | `dpr = min(devicePixelRatio, 1.5)`；陰影貼圖固定 1024² |
-| 指標狀態 | `tick()` | `tx,ty`（目標，−1～1）→ `px,py` 以 `1−exp(−dt/170)` 逼近；`lift`（浮雕高度）同法 |
-| 開蓋 | `interaction.js` `progressToward` | 線性 1150ms，shader 端套 smoothstep |
-| 手勢 | `study.js` `point()`、`interaction.js` | 拖動軸鎖定；`cabinetDragDirection` 門檻 `clamp(width·0.12, 44, 100)`；點蓋 `isTap`＋`onLid` |
-| 閒置 | `idlePlaybackAllowed` | 閒置 1.8 秒後自動移光，30fps 上限 |
-| 背景 | `study.css` `.stage` | 單層 radial-gradient；晝／夜兩組 |
-| React 接口 | `src/components/BunkoEntrance.tsx` | React 只管導航與偏好，畫布歸控制器；偏好變更走 `controller.setPreferences()`，不重建控制器（T4-M5） |
-| 全站主題（T4-M5） | `src/App.tsx`、`src/bunko-ui.css`、`src/components/BunkoTools.tsx` | `cabinetPreferences {night, paused}` 是唯一來源 → `.kyoto-app[data-theme]`、`MotionConfig reducedMotion`、`theme-color`；色票 `--entry-*`、`--hira-*` 晝夜兩組 |
-| 測試 | `scripts/*.test.mjs`（node:test） | 沒有 `npm test`，指令見 §6 |
+| 文箱控制器 | `src/studies/toji/study.js` `mountBunko(root, options)` | 只管文箱（手勢、移光、縮放、換函、開蓋）。選項 `embedded`、`language`、`wardId`、`night`、`paused`、`onWardChange`、`onOpenVolume`、`onState`；持有 RAF 與狀態，`destroy()` 釋放所有資源 |
+| 渲染 | `src/studies/toji/renderer.js` `createRenderer(canvas, wardId)` | WebGL 資源、陰影 pass、相機（`cameraMatrix`）；`draw(frame)` 回傳相機矩陣。正交相機透過 `view.js` 的 `viewBox()` 支援縮放與平移 |
+| 解析度 | `src/studies/toji/view.js` `renderDpr()` | 基準 `min(devicePixelRatio, 1.5)`，放大時 DPR 上限 2、畫布像素上限 2.2e6（`PIXEL_CAP = 2.2e6`）；陰影貼圖固定 1024² |
+| 指標狀態 | `src/studies/toji/study.js` `tick()` | `tx,ty`（目標，−1～1）→ `px,py` 以指數逼近；`lift` 同法。閒置移光 |
+| 開蓋 | `src/studies/toji/interaction.js` `progressToward` | 線性 1150ms，shader 端套 smoothstep；開蓋完成呼叫 `onOpenVolume` |
+| 手勢 | `src/studies/toji/interaction.js` | 純函式判定。首頁：單指一律移光；盒子沿隱形軌道跟手（死區 14px、跟隨比例 0.6），中心位移達畫布寬 26%（上限 200px）放手才換函；舊的軸鎖定與 `clamp(width·0.12, 44, 100)` 門檻已移除。放大時單指平移，支援捏合／滾輪／`+` `−` `0`／雙擊回全景 |
+| 閒置 | `src/studies/toji/interaction.js` `idlePlaybackAllowed` | 首頁非減少動態且閒置 1.8 秒後自動移光，30fps 上限 |
+| 背景 | `src/studies/toji/backdrop.js` | 和紙＋すやり霞＋金箔／銀塵微粒（Web Animations 飄移）；2026-11-11 加入十一區紋樣與短句（`src/studies/toji/ward-art.js`）。首頁舞台高度填滿剩餘版面（`.bunko[data-embedded] .stage{height:100%}`），展示頁固定 570／450px |
+| React 接口 | `src/components/BunkoEntrance.tsx` | React 往下傳 `lang`、`wardId`、`preferences`（`night`, `paused`）；回呼只有 `onWardChange`、`onOpenVolume`。畫布歸控制器，掛載 `template.ts` 的 `BUNKO_STAGE` |
+| 全站主題與樣式 | `src/theme.css`、`src/bunko-ui.css`、`bunko.css`、`study.css` | P0 設計 token 唯一來源為 `src/theme.css`。樣式分工：`bunko.css`（舞台）、`study.css`（展示頁專用外殼 `mountStudy`）、`src/bunko-ui.css`（主站元件，含 `.scroll-roller`） |
+| 測試 | `npm test` | `npm test`（= `node --test --test-concurrency=1 "scripts/*.test.mjs"` 加 `tsx --test "src/lib/*.test.ts"`），目前 67＋6 項全過；CI 也跑 `npm test` |
 
 ## 2. 新模組與介面
 
 ### 2.1 `src/lib/spring.ts`（全站唯一彈簧實作）
+
+> 現況（2026-11-11）：尚未實作（未做）。目前動畫與插值仍沿用既有的指數逼近與 Web Animations。
 
 ```ts
 export interface SpringState { x: number; v: number }
@@ -55,6 +57,8 @@ export function approach(rate: number, dtSec: number): number;
 
 ### 2.2 文箱視圖狀態：`src/studies/toji/view.js`（新檔，純函式、可測試）
 
+> 現況（2026-11-11）：已完成（commit bc688c3）。實作於 src/studies/toji/view.js，常數為 ZOOM_MAX=3、ZOOM_STEP=1.4，支援捏合／滾輪／＋／−／0／雙擊回全景；放大時 DPR 上限 2、畫布像素上限 2.2e6；陰影貼圖維持 1024²。
+
 ```js
 // zoom: 1（全景）～ ZOOM_MAX；pan: 世界座標中心偏移，受 lid 邊界約束
 export const ZOOM_MAX = 2.6, ZOOM_NEAR = 2.2;
@@ -75,6 +79,8 @@ export function renderScale(zoom, deviceDpr)      // → min(deviceDpr, zoom>1.2
 - `zoom` 傳進 shader，讓梨地雜訊頻率和金粉粒徑跟著倍率調整（放大不能糊）。
 
 ### 2.4 背景層：`src/studies/toji/backdrop.ts`（新檔）
+
+> 現況（2026-11-11）：已完成。實際檔案為 JS 模組 src/studies/toji/backdrop.js（非 .ts），包含和紙＋すやり霞＋金箔／銀塵微粒；2026-11-11 擴充各區和紋樣與短句（src/studies/toji/ward-art.js）。首頁舞台高度填滿剩餘版面（height: 100%）。
 
 ```ts
 export interface BackdropOptions { night: boolean; reducedMotion: boolean; seed?: number }
@@ -148,7 +154,7 @@ zoom>1 ──點蓋──> 開蓋（先回 zoom=1 再開，或直接開，由美
 ```bash
 npm run lint
 npx --no-install tsx validate_data.js --strict
-node --test --test-concurrency=1 scripts/makie-scene.test.mjs scripts/location-navigation.test.mjs scripts/toji-study.test.mjs scripts/toji-library.test.mjs scripts/bunko-integration.test.mjs scripts/ui-renewal.test.mjs
+npm test
 npm run build
 ```
 

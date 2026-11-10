@@ -1,6 +1,6 @@
 # 全站 UI 翻新計畫（FeralUI 作法萃取）
 
-> 2026-11-09 草案。只是規劃文件，尚未授權實作、commit 或 push（依 `AGENTS.md` §1）。
+> 2026-11-11 現況：P0 token、P1、P3 已完成；2026-11-11 UX 統一完成部分 P4；P2 與彈簧未做。
 > 參考來源：feralui.dev 網站與 npm 套件 `feral-blinds@0.3.1`、`deskfolio@0.1.1`、`pullcord@0.1.0`、`feral-blob@0.2.0`（均為 MIT）。Hologram 只存在於網站打包檔，沒有發佈成套件，網站本身沒有標示授權，**只參考原理，不複製程式碼**。
 
 ## 1. 目標
@@ -34,45 +34,42 @@
 
 ## 3. 京都現況（翻新的起點）
 
-- 文箱：原生 WebGL（`src/studies/toji/study.js`、`shaders.js`），DPR 上限 1.5、陰影貼圖 1024²，已有指標傾斜（`tx`、`ty`）和閒置移光。
-- 舞台高度固定（桌機 570px、手機 450px）；背景只有一層放射漸層（`study.css` `.stage`）。
-- 首頁拖動＝換函，點蓋＝展卷。
-- 2026-11-09 補：本文件撰寫時的基準 `aa2db59` 還沒有 T4-M5 手機 UI；T4-M5 現已併入 `main`。全站已有共用的暖日／月光、語系、減少動態（`App.tsx` 的 `cabinetPreferences` → `.kyoto-app[data-theme]`，色票是 `src/bunko-ui.css` 的 `--entry-*`、`--hira-*`），詳細頁、SpotCard、TagSelector、地圖都已改成手機優先的新版。P0 的 token 要從這套整併，P4 以 T4-M5 版為起點，不回到舊卡片樣式。
+- 文箱：原生 WebGL，已有指標傾斜（`tx`、`ty`）和閒置移光。P1 文箱放大已完成（`bc688c3`，實作於 `src/studies/toji/view.js`），放大時 DPR 上限 2、畫布像素上限 2.2e6；陰影貼圖仍維持 1024²。
+- 舞台高度與背景：展示頁為固定高度（桌機 570px、手機 450px）；首頁舞台高度則是填滿剩餘版面（`.bunko[data-embedded] .stage{height:100%}`）。背景 P3 已完成（`src/studies/toji/backdrop.js`，非 `.ts`），包含和紙＋すやり霞＋金箔／銀塵微粒（Web Animations 飄移），2026-11-11 加入各區紋樣與短句（`src/studies/toji/ward-art.js`：十一區各一種和紋樣、各一行短句，霞帶配置依區不同），不再是單層放射漸層。
+- 手勢判定：首頁單指一律移光；盒子沿隱形軌道跟手（死區 14px、跟隨比例 0.6），中心位移達畫布寬 26%（上限 200px）放手才換函；舊的軸鎖定與 `clamp(width·0.12, 44, 100)` 門檻已移除。點蓋＝展卷（`onOpenVolume`）。
+- 全站樣式與 Token：P0 設計 token 已完成，唯一來源為 `src/theme.css`（`:root[data-theme]`、`.kyoto-app[data-theme]`、`.bunko.night` 共用）。2026-11-11「UX 統一」完成部分 P4，書卷併入 `DetailView`（類型 TAB → 標籤 chip → 卡片，無文字搜尋），`ScrollRoller` 軸頭用於詳細頁與御秘帖結果頁。
 
 ## 4. 工作分期
 
-| 期 | 內容 | 主要檔案 | 依賴 |
-| :-- | :-- | :-- | :-- |
-| P0 | 設計基礎：和色 token（晝／月光兩套）、字體層級、`src/lib/spring.ts`（F1 的唯一實作，全站共用）、動態偏好 | `index.css`、`study.css`、新 `spring.ts` | — |
-| P1 | 文箱放大 | `study.js`、`interaction.js`、`study.css` | P0 |
-| P2 | 蒔繪光澤升級（F2 手法改寫成 shader） | `shaders.js`、`study.js` | P0，可與 P3 並行 |
-| P3 | 首頁背景 | 新 `src/studies/toji/backdrop.ts`、`study.css` | P0 |
-| P4 | 其他頁面翻新：名所目錄、御秘帖、DetailView、SpotCard、TagSelector、書卷 | `components/*`、`index.css` | P0、P2 |
-| P5 | 全面驗收與實機 | — | 全部 |
+| 期 | 內容 | 主要檔案 | 依賴 | 狀態 |
+| :-- | :-- | :-- | :-- | :-- |
+| P0 | 設計基礎：和色 token（唯一來源 `src/theme.css`，晝／月光兩套）、字體層級、動態偏好。`src/lib/spring.ts` 未做（動畫仍用指數逼近與 Web Animations） | `src/theme.css`、`study.css`、`src/bunko-ui.css` | — | token 完成，spring 未做 |
+| P1 | 文箱放大：`src/studies/toji/view.js`（`ZOOM_MAX=3`、`ZOOM_STEP=1.4`，捏合／滾輪／`+` `−` `0`／雙擊回全景；放大時 DPR 上限 2、畫布像素上限 2.2e6；陰影貼圖維持 1024²） | `src/studies/toji/view.js`、`study.js`、`interaction.js` | P0 | 已完成（`bc688c3`） |
+| P2 | 蒔繪光澤升級（F2 手法改寫成 shader） | `shaders.js`、`study.js` | P0，可與 P3 並行 | 待辦（未做） |
+| P3 | 首頁背景：`src/studies/toji/backdrop.js`（非 `.ts`，和紙＋すやり霞＋金箔／銀塵微粒；2026-11-11 加上各區紋樣與短句 `ward-art.js`） | `src/studies/toji/backdrop.js`、`src/studies/toji/ward-art.js`、`bunko.css` | P0 | 已完成 |
+| P4 | 其他頁面翻新：書卷併入 `DetailView`（類型 TAB → 標籤 chip → 卡片，無文字搜尋），`ScrollRoller` 軸頭用於詳細頁與御秘帖結果頁。卡片傾斜、彈簧切換等其餘項目未做 | `src/components/DetailView.tsx`、`src/components/ScrollRoller.tsx`、`src/bunko-ui.css` | P0、P2 | 部分完成（UX 統一） |
+| P5 | 全面驗收與實機 | — | 全部 | 待辦 |
 
-### P1　文箱放大（細節）
-- **做法**：在 WebGL 裡移動相機（推近＋縮小視角），不用 CSS `scale`，畫面才會銳利。放大時 DPR 上限從 1.5 提高到 2，同時設畫布面積上限，避免手機記憶體爆掉。
-- **三段狀態**：全景（現況）→ 近觀（約 2～2.5 倍，能看清梨地和金粉）→ 開蓋展卷。縮放值用 F1 彈簧驅動。
-- **手勢分流**：倍率 1 時，拖動維持換函；放大後拖動改成平移，超出邊界有橡皮筋回彈。雙指捏合、滾輪、雙擊、放大鏡按鈕都能進出。`Esc` 或雙擊回到全景。
-- **細節補償**：近觀時陰影貼圖改 2048²，梨地雜訊頻率跟著倍率調整，避免放大後糊成一片。
+### P1　文箱放大（已完成）
+- **做法**：在 WebGL 裡移動相機（推近＋縮小視角），不用 CSS `scale`，畫面才會銳利。實作在 `src/studies/toji/view.js`：`ZOOM_MAX=3`、`ZOOM_STEP=1.4`。放大時 DPR 上限從 1.5 提高到 2，同時設畫布像素上限 2.2e6（`PIXEL_CAP = 2.2e6`），避免手機記憶體爆掉。
+- **狀態**：全景（zoom=1）→ 近觀（最大 3 倍）→ 開蓋展卷。縮放使用指數逼近逼近目標（`spring.ts` 未做）。
+- **手勢分流**：zoom ≤ 1.02 時，拖動維持換函；放大後拖動改成平移（`clampPan`＋`rubberBand` 橡皮筋回彈）。雙指捏合、滾輪、鍵盤 `+` `−` `0`、雙擊皆能進出；雙擊或重設鈕回到全景。
+- **陰影與細節**：陰影貼圖維持 1024²（未改 2048²）。
 - **驗收**：375px 手機能捏合放大和平移，不誤觸換函；減少動態時直接跳到目標倍率；鍵盤用 `+`、`−`、`0` 操作。
 
-### P2　蒔繪光澤
-- 把 F2 的 `--px`、`--py`、`--active` 改成 shader uniform（`pointerLight`、`active`），用 F1 插值。
+### P2　蒔繪光澤（待辦）
+- 把 F2 的 `--px`、`--py`、`--active` 改成 shader uniform（`pointerLight`、`active`），用插值逼近。
 - 金粉亮片項：依視角和 hash 決定每顆金粉何時閃，取代均勻高光；研出面和高蒔繪面用不同的粗糙度。
 - 放開後光點回到閒置掃光，沿用現有閒置循環的計時。
 
-### P3　首頁背景（建議方案，待使用者選）
-1. **すやり霞（推薦）**：繪卷式金霞帶橫過背景，加上和紙纖維顆粒，晝金、夜銀。
-2. **遠山剪影**：東山・北山連峰的低對比剪影，隨指標做極小視差。
-3. **微粒**：月光模式下的浮塵，或晝模式極稀疏的落葉／花瓣，可接 `SEASONAL_PLAN` 的季節。
+### P3　首頁背景（已完成）
+- 實作於 `src/studies/toji/backdrop.js`（非 `.ts`），已完成すやり霞（含和紙底、金箔／銀塵微粒）。
+- 做法：用 Canvas 2D 在尺寸改變時烘焙和紙與霞帶，動態飄移與微粒由 Web Animations 驅動（暖日切金、月光銀塵），減少動態時停止。
+- 2026-11-11 加入十一區紋樣與短句（`src/studies/toji/ward-art.js`：十一區各一種和紋樣、各一行短句，霞帶配置依區不同）。
 
-做法：用 Canvas 2D 放在 WebGL 畫布後面，尺寸改變時才重烘，不每幀重畫；只有微粒層需要 RAF，背景、讀卷、減少動態時停掉。可以 1＋3 組合，但先做 1。
-
-### P4　其他頁面
-- 卡片（SpotCard、名所目錄格子）：精簡版 F2，只有傾斜加放射高光，沒有深度圖，手機上關掉傾斜。
-- 列表切換與篩選：F1 彈簧取代固定曲線。名所目錄可以改成 snap 卷軸，套用 F1 的甩動判定。
-- 書卷開合：F3 的彈簧，取代現在的 `unroll` keyframes。
+### P4　其他頁面（部分完成）
+- **已完成（2026-11-11「UX 統一」）**：書卷併入 `DetailView`（類型 TAB → 標籤 chip → 卡片，無文字搜尋），`ScrollRoller` 軸頭用於詳細頁與御秘帖結果頁。
+- **待辦（未做）**：卡片（SpotCard、名所目錄格子）精簡版 F2 傾斜加高光；列表切換與篩選的彈簧驅動；F1 彈簧核心（`src/lib/spring.ts` 未做）。
 - 統一背景顆粒與和色 token，讓詳細頁和首頁看起來是同一套。
 
 ## 5. 驗收（每期都要）
@@ -84,10 +81,10 @@
 
 ## 6. 待使用者決定
 
-1. ~~**放大的互動**~~ **已決定（2026-11-09）**：手勢和滑鼠（含觸控板、鍵盤、按鈕）都要做；兩者衝突、只能擇一時，**手勢優先**。本 repo 主要是手機用戶，驗收以 375px 觸控為主。
-2. ~~**背景題材**~~ **已決定（2026-11-09）**：先做すやり霞（含和紙底）。依使用者回饋做到第三版（霞帶飄移、段差造型、金箔／銀塵微粒），已併入 `main`；遠山之後再評估。見執行紀錄 `agent-runs/2026-11-09-ui-renewal-p3-backdrop.md`。
-3. **套件或自寫**：`feral-blinds`（MIT、零依賴、約 55KB）可以直接裝，但 `AGENTS.md` 傾向不加依賴，而且我們只需要它的彈簧核心。**建議自寫 `spring.ts`（約 30 行），不裝套件。**
-4. **翻新順序**：建議 P0 → P1 → P3 → P2 → P4（先做首頁看得到的改變）。
+1. ~~**放大的互動**~~ **已決定（2026-11-09）**：手勢和滑鼠（含觸控板、鍵盤、按鈕）都要做；兩者衝突、只能擇一時，**手勢優先**。本 repo 主要是手機用戶，驗收以 375px 觸控為主。已實作於 `src/studies/toji/view.js`。
+2. ~~**背景題材**~~ **已決定（2026-11-09）**：先做すやり霞（含和紙底、金箔／銀塵微粒）。實作於 `src/studies/toji/backdrop.js`，2026-11-11 加入十一區紋樣與短句（`src/studies/toji/ward-art.js`）。
+3. **彈簧實作**：`src/lib/spring.ts` 目前未做，動畫與過渡仍使用指數逼近與 Web Animations。
+4. **翻新順序**：實際執行順序為 P0（token）→ P1（文箱放大）→ P3（背景與區紋樣）→ P4 部分（UX 統一）；P2（蒔繪光澤）與彈簧未做。
 
 ## 7. 風險
 

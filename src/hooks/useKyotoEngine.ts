@@ -1,5 +1,5 @@
 /**
- * @layer System / Kyoto Tactical Engine（戰術引擎層）
+ * @layer System / useKyotoEngine（導覽狀態引擎）
  * @module useKyotoEngine
  *
  * 本模組是應用程式的核心狀態管理大腦，所有導航狀態、
@@ -23,7 +23,7 @@
  * - typeCounts    : 各 typeId 在當前 activeId 下的景點計數（附防閃爍快取）
  * - localTags     : 當前 activeId + activeType 範圍內景點實際使用的 tagId 集合
  *                   ⚠️ useMemo 依賴陣列必須包含 activeType，缺少會導致 B 層不重算
- * - tagCounts     : 全域靜態 tagId 計數（loadAllSchemasSync，只計算一次）
+ * - tagCounts     : 全域靜態 tagId 計數（getTagCounts，只計算一次）
  *
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * 三條導航路徑說明
@@ -40,7 +40,7 @@
  * - 禁止在 UI 元件層複製 filteredSpots 的排序邏輯（sortOrder）
  * - 禁止在 UI 元件層複製 localTags 的 tagId 統計邏輯
  * - TYPE_TAG_GROUP_MAP 定義於 src/data/type-tag-groups.ts（由 DetailView 使用），本 hook 不持有此映射
- * - tagCounts 使用 loadAllSchemasSync()，依賴陣列為 []，禁止改為動態依賴
+ * - tagCounts 使用 getTagCounts()，依賴陣列為 []，禁止改為動態依賴
  */
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Lang, FlatSpot, WardKey } from '../types';
