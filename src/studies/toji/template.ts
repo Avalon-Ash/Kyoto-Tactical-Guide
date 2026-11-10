@@ -1,7 +1,7 @@
 import { makieIcon } from '../../lib/makie-icons';
 // Shared, trusted markup for the standalone study and the React home.
 export const BUNKO_MARKUP = `<main>
-    <header><a class="back" href="/">← <span data-i18n="back">京都御秘帖</span></a><div class="tools"><button id="language" type="button">日本語</button><button id="night" type="button" aria-pressed="false" data-i18n="night">月光</button></div></header>
+    <header><a class="back" href="../">← <span data-i18n="back">京都御秘帖</span></a><div class="tools"><button id="language" type="button">日本語</button><button id="night" type="button" aria-pressed="false" data-i18n="night">月光</button></div></header>
     <div class="intro"><p class="eyebrow">KYOTO / ELEVEN BUNKO</p><h2 class="hero-title" data-i18n="title">一座京都，藏於文庫。</h2><p data-i18n="intro">一區一函，循卷尋訪京都。</p></div>
     <section class="exhibit" aria-label="東寺互動浮雕展示">
       <div class="exhibit-top"><div class="comparison" role="group" aria-label="深度對照"><button id="flat" type="button" aria-pressed="false" data-i18n="flat">平面對照</button><button id="relief" type="button" aria-pressed="true" data-i18n="relief">互動浮雕</button></div><span class="edition" data-i18n="edition">初音調度意象・局部習作</span></div>
