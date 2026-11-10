@@ -65,7 +65,7 @@
 .bunko[data-embedded] .back,.bunko[data-embedded] #language,.bunko[data-embedded] .intro,.bunko[data-embedded] #cabinet-nav,.bunko[data-embedded] .exhibit-top,.bunko[data-embedded] .exhibit-bottom,.bunko[data-embedded] .materials,.bunko[data-embedded] .notes,.bunko[data-embedded] main>footer{display:none}
 .bunko[data-embedded] .exhibit{height:100%;border:0}
 .bunko[data-embedded] .stage{height:100%;min-height:280px}
-.bunko[data-embedded] canvas{cursor:grab;user-select:none}
+.bunko[data-embedded] canvas{cursor:grab;user-select:none;touch-action:none}
 .bunko[data-embedded] canvas[data-dragging="true"]{cursor:grabbing}
 .bunko[data-embedded] #cabinet-context{display:block;font-size:12px;letter-spacing:.12em;margin-bottom:3px}
 .bunko[data-embedded] #open-book{display:none}

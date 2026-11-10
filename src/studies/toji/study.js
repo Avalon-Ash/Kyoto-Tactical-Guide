@@ -1,7 +1,7 @@
 import {buildScene, multiply, lookAt, ortho, groundPoint, trailIntensity, normalize} from './geometry.js';
 import {vertex,fragment,depth} from './shaders.js';
 import {createBunkoLibrary} from './library';
-import {progressToward,isTap,onLid,swipeDirection,cabinetDragDirection,idlePlaybackAllowed} from './interaction.js';
+import {progressToward,isTap,onLid,swipeDirection,cabinetDragDirection,cabinetOffset,idlePlaybackAllowed} from './interaction.js';
 import {CABINETS,cabinetFor,adjacentCabinet,volumeTitle} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
 import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,renderDpr,isDoubleTap,ZOOM_STEP} from './view.js';
@@ -140,7 +140,7 @@ function tick(time){
   if(bookProgress===1&&bookState==='opening'){bookState='unrolling';bookReadyAt=time+(still()?0:420);syncBook();}
   if(bookState==='unrolling'&&(time>=bookReadyAt||still())){bookState='reading';library.show();syncBook();}
   if(bookProgress===0&&bookState==='closing'){bookState='closed';syncBook();returnFocus?.focus({preventScroll:true});status();}
-  const target=flat?.025:still()?.82:autoPlaying?.88+Math.sin(idlePhase*.7)*.12:(hover||demoStart||bookState==='switching')?1:.55;
+  const target=flat?.025:still()?.82:autoPlaying?.88+Math.sin(idlePhase*.7)*.12:(hover||demoStart||bookState==='switching')?1:options.embedded?.88:.55;
   const ease=1-Math.exp(-dt/170);
   lift=still()?target:lift+(target-lift)*ease;
   px=still()?0:px+(tx-px)*ease;py=still()?0:py+(ty-py)*ease;
@@ -176,17 +176,9 @@ function point(e){
   if(gesture&&Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>8)gesture.moved=true;
   canvas.dataset.pointerType=e.pointerType;
   if(options.embedded&&gesture?.moved){
-    const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;
-    if(!gesture.axis){
-      if(Math.abs(dx)>Math.abs(dy)*1.25)gesture.axis='x';
-      else if(Math.abs(dy)>Math.abs(dx)*1.25)gesture.axis='y';
-    }
-    if(gesture.axis==='x'){
-      hover=false;tx=ty=0;trails=[];
-      dragOffset=still()?0:Math.max(-canvas.clientWidth*.85,Math.min(canvas.clientWidth*.85,dx));
-      canvas.style.transform=`translateX(${dragOffset}px)`;canvas.dataset.dragging='true';schedule();
-    }
-    return;
+    // The box trails the finger along its unseen track; the light below still follows the finger itself.
+    dragOffset=still()?0:cabinetOffset(e.clientX-gesture.x,canvas.clientWidth);
+    canvas.style.transform=dragOffset?`translateX(${dragOffset}px)`:'';canvas.dataset.dragging=String(Boolean(dragOffset));
   }
   const r=canvas.getBoundingClientRect();tx=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));ty=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));
   addTrail(tx,ty);schedule();
@@ -268,7 +260,7 @@ function resetZoom(instant=false){pinch=null;zoomTarget=1;panTX=panTY=0;if(insta
 function syncZoomUi(){
   const zoomed=isZoomed(zoomTarget)||Boolean(pinch);
   // Close-up owns every touch on the canvas; at full view the page may still scroll vertically.
-  canvas.style.touchAction=zoomed?'none':'';canvas.dataset.zoomed=String(zoomed);
+  canvas.style.touchAction=zoomed||options.embedded?'none':'';canvas.dataset.zoomed=String(zoomed);
   $('zoom-reset').hidden=!isZoomed(zoomTarget);
 }
 function startPinch(){
@@ -302,7 +294,7 @@ const liftTouch=e=>{
 for(const type of ['pointerup','pointercancel'])listen(window,type,liftTouch);
 // Safari's own pinch would zoom the page; the canvas keeps two-finger gestures for the cabinet.
 listen(canvas,'gesturestart',e=>e.preventDefault());
-listen(canvas,'touchmove',e=>{if(e.touches.length>1||isZoomed(zoomTarget))e.preventDefault();},{passive:false});
+listen(canvas,'touchmove',e=>{if(options.embedded||e.touches.length>1||isZoomed(zoomTarget))e.preventDefault();},{passive:false});
 listen(canvas,'wheel',e=>{
   if(bookState!=='closed'||!(options.embedded||e.ctrlKey))return;
   e.preventDefault();activity();
@@ -321,11 +313,12 @@ listen(canvas,'pointerdown',e=>{
   }
   if(e.button!==0||bookState!=='closed'||gesture||multiTouch)return;
   dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;
-  gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp,moved:false,axis:null,panning:isZoomed(zoomTarget),panX,panY};
+  gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp,moved:false,panning:isZoomed(zoomTarget),panX,panY};
   if(options.embedded||gesture.panning)canvas.setPointerCapture(e.pointerId);
   hover=true;demoStart=0;status();point(e);
 });
-const release=()=>{hover=false;tx=ty=0;schedule();};
+// On the home the light rests where the hand left it until the idle sweep picks it up.
+const release=()=>{hover=false;if(!options.embedded)tx=ty=0;schedule();};
 function endDrag(){
   const id=gesture?.id;gesture=null;canvas.dataset.dragging='false';
   if(id!==undefined&&canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);

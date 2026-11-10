@@ -1,7 +1,7 @@
 import test, {before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'vite';
-import {isTap,onLid,progressToward,OPEN_DURATION,swipeDirection,cabinetDragDirection,idlePlaybackAllowed,IDLE_RESUME_DELAY} from '../src/studies/toji/interaction.js';
+import {isTap,onLid,progressToward,OPEN_DURATION,swipeDirection,cabinetDragDirection,cabinetOffset,switchDistance,DRAG_DEAD,DRAG_FOLLOW,SWITCH_MAX,idlePlaybackAllowed,IDLE_RESUME_DELAY} from '../src/studies/toji/interaction.js';
 let server,library,loader,buildUrl,collection;
 before(async()=>{
   server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
@@ -82,14 +82,25 @@ test('collection swipes reject vertical scroll, taps, long presses and other fin
   assert.equal(swipeDirection(null,{id:2,x:100,y:100,time:200}),0);
 });
 
-test('cabinet drags accept deliberate slow movement and require a locked horizontal axis',()=>{
-  const start={id:2,x:200,y:100,time:100,axis:'x'};
-  assert.equal(cabinetDragDirection(start,{id:2,x:140,y:110,time:3000},375),1);
-  assert.equal(cabinetDragDirection(start,{id:2,x:310,y:110,time:3000},1440),-1);
-  assert.equal(cabinetDragDirection(start,{id:2,x:150,y:100},1440),0);
-  assert.equal(cabinetDragDirection({...start,axis:'y'},{id:2,x:20,y:150},375),0);
-  assert.equal(cabinetDragDirection(start,{id:3,x:20,y:100},375),0);
+test('the cabinet trails the finger and changes only once its centre reaches a side zone',()=>{
+  const start={id:2,x:200,y:100,time:100};
+  // A caress inside the dead zone leaves the box at rest; beyond it the box follows at DRAG_FOLLOW.
+  assert.equal(cabinetOffset(DRAG_DEAD,375),0);assert.equal(cabinetOffset(-DRAG_DEAD,375),0);
+  assert.equal(cabinetOffset(114,375),(114-DRAG_DEAD)*DRAG_FOLLOW);assert.equal(cabinetOffset(-114,375),-(114-DRAG_DEAD)*DRAG_FOLLOW);
+  assert.equal(cabinetOffset(9999,375),375*.85);
+  // Phone: the centre must travel 26% of the width, however slowly and whatever the vertical travel.
+  const need=Math.ceil(switchDistance(375)/DRAG_FOLLOW+DRAG_DEAD);
+  assert.equal(cabinetDragDirection(start,{id:2,x:200-need,y:300,time:9000},375),1);
+  assert.equal(cabinetDragDirection(start,{id:2,x:200+need,y:100,time:9000},375),-1);
+  assert.equal(cabinetDragDirection(start,{id:2,x:200-need+3,y:100,time:300},375),0);
+  // A stroke across a third of the lid is still a caress.
+  assert.equal(cabinetDragDirection(start,{id:2,x:80,y:100,time:300},375),0);
+  // Wide screens cap the travel so a mouse need not cross the whole window.
+  assert.equal(switchDistance(1440),SWITCH_MAX);
+  assert.equal(cabinetDragDirection(start,{id:2,x:200+Math.ceil(SWITCH_MAX/DRAG_FOLLOW+DRAG_DEAD),y:100},1440),-1);
+  assert.equal(cabinetDragDirection(start,{id:3,x:-500,y:100},375),0);
   assert.equal(cabinetDragDirection(null,{id:2,x:20,y:100},375),0);
+  assert.equal(cabinetDragDirection(start,{id:2,x:-500,y:100},0),0);
 });
 
 test('idle playback yields to activity, reading, dragging, reduced motion and background tabs',()=>{

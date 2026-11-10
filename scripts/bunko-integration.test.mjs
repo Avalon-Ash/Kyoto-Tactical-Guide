@@ -59,6 +59,8 @@ function environment(t,reduced=false){
   t.mock.method(window.HTMLCanvasElement.prototype,'getContext',()=>null);
   t.mock.method(console,'error',()=>{}); // This suite deliberately exercises the no-WebGL path.
   window.HTMLElement.prototype.scrollTo=()=>{};
+  // jsdom has no layout: give the canvas a phone's width so drag distances mean something.
+  Object.defineProperty(window.HTMLCanvasElement.prototype,'clientWidth',{configurable:true,get:()=>375});
   window.HTMLElement.prototype.setPointerCapture=function(id){this.capturedPointer=id;};
   window.HTMLElement.prototype.hasPointerCapture=function(id){return this.capturedPointer===id;};
   window.HTMLElement.prototype.releasePointerCapture=function(){this.capturedPointer=undefined;};
@@ -117,7 +119,7 @@ test('home cabinet drag respects reduced motion, selects one ward and supports k
   const env=environment(t,true),{root}=env,wards=[];
   const controller=mountBunko(root,{embedded:true,onWardChange:id=>wards.push(id)});
   assert.ok(root.classList.contains('reduce-motion'));
-  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',100,105);pointer(env,'pointerup',100,105);
+  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointerup',20,105);
   for(let i=0;i<5;i++)await Promise.resolve();
   assert.deepEqual(wards,['W_UKYO']);
   assert.equal(root.querySelector('#scene').dataset.ward,'W_UKYO');
@@ -131,13 +133,13 @@ test('home cabinet drag respects reduced motion, selects one ward and supports k
   controller.destroy();
 });
 
-test('vertical, reversed, short and cancelled drags do not switch cabinets or accidentally open',async t=>{
+test('vertical, reversed, caress-length and cancelled drags do not switch cabinets or accidentally open',async t=>{
   const env=environment(t),{root}=env,wards=[];
   const controller=mountBunko(root,{embedded:true,paused:true,onWardChange:id=>wards.push(id)});
   pointer(env,'pointerdown',200,100);pointer(env,'pointermove',205,180);pointer(env,'pointermove',80,190);pointer(env,'pointerup',80,190);
-  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',100,105);pointer(env,'pointermove',200,100);pointer(env,'pointerup',200,100);
-  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',180,100);pointer(env,'pointerup',180,100);
-  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',100,105);pointer(env,'pointercancel',100,105);pointer(env,'pointerup',100,105);
+  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointermove',200,100);pointer(env,'pointerup',200,100);
+  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',60,100);pointer(env,'pointerup',60,100);
+  pointer(env,'pointerdown',200,100);pointer(env,'pointermove',20,105);pointer(env,'pointercancel',20,105);pointer(env,'pointerup',20,105);
   for(let i=0;i<5;i++)await Promise.resolve();
   assert.deepEqual(wards,[]);
   assert.equal(root.querySelector('#scene').dataset.ward,'W_MINAMI');

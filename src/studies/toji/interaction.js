@@ -16,12 +16,20 @@ export function swipeDirection(start,end){
   return Math.abs(dx)>=50&&Math.abs(dy)<30?-Math.sign(dx):0;
 }
 
-// The home uses deliberate drags on the cabinet itself, including slow drags.
-// Axis locking prevents a vertical page scroll from becoming a cabinet change.
+// The home cabinet sits on an unseen track. A finger on it always moves the light; the box itself
+// trails the finger at DRAG_FOLLOW after a small dead zone, so a caress only sways it.
+// Once the box centre has travelled into a side zone (switchDistance) letting go changes the cabinet.
+export const DRAG_DEAD=14,DRAG_FOLLOW=.6,SWITCH_SHARE=.26,SWITCH_MAX=200;
+export function switchDistance(width){return Math.min(SWITCH_MAX,width*SWITCH_SHARE);}
+/** Finger travel in px → how far the box centre has moved from rest. */
+export function cabinetOffset(dx,width){
+  const travel=(Math.abs(dx)-DRAG_DEAD)*DRAG_FOLLOW;
+  return travel<=0?0:Math.sign(dx)*Math.min(travel,width*.85);
+}
 export function cabinetDragDirection(start,end,width){
-  if(!start||!end||start.id!==end.id||start.axis!=='x')return 0;
-  const dx=end.x-start.x,threshold=Math.max(44,Math.min(100,width*.12));
-  return Math.abs(dx)>=threshold?-Math.sign(dx):0;
+  if(!start||!end||start.id!==end.id||!(width>0))return 0;
+  const offset=cabinetOffset(end.x-start.x,width);
+  return Math.abs(offset)>=switchDistance(width)?-Math.sign(offset):0;
 }
 
 export const IDLE_RESUME_DELAY=1800;
