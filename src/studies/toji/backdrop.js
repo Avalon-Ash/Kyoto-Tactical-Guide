@@ -2,6 +2,7 @@
 // Paper and band sprites are baked with Canvas 2D on resize or day/night change only; the drift is a compositor
 // transform (Web Animations), so no script runs per frame.
 import {project} from './geometry.js';
+import {MOTIFS, WARD_ART, wardSeed} from './ward-art.js';
 
 /**
  * World-space vertices whose projection is the convex silhouette of every cabinet (all eleven reliefs and the plain box)
@@ -155,19 +156,21 @@ export const BACKDROP_PALETTE = {
     fiberLight: 'rgba(255,251,242,.16)', fiberDark: 'rgba(122,96,58,.06)', grain: .05,
     fill: '#d9b46a', fillDeep: '#b88c45', edge: '#8e6a2e', alpha: .58,
     poolLight: 'rgba(255,238,190,.35)', poolDark: 'rgba(140,100,40,.28)', dust: 'rgba(164,120,46,', dustAlpha: .55,
+    motifInk: '#8a6428', motif: .2,
   },
   night: {
     paper: ['#474844', '#33393e', '#262d33'], vignette: 'rgba(8,12,16,.32)',
     fiberLight: 'rgba(214,220,224,.045)', fiberDark: 'rgba(8,12,16,.1)', grain: .045,
     fill: '#b9c4c8', fillDeep: '#8e9aa0', edge: '#d8e0e2', alpha: .3,
     poolLight: 'rgba(236,242,244,.3)', poolDark: 'rgba(40,48,54,.3)', dust: 'rgba(214,220,222,', dustAlpha: .4,
+    motifInk: '#c9d3d6', motif: .13,
   },
 };
 
 /**
  * Mounts the backdrop as the first child of `host` (the .stage): one paper canvas and one sprite canvas per band.
  * @param {HTMLElement} host
- * @param {{night:boolean, motion:boolean, seed?:number}} options
+ * @param {{night:boolean, motion:boolean, wardId?:string}} options
  */
 export function mountBackdrop(host, options) {
   const doc = host.ownerDocument;
@@ -177,8 +180,9 @@ export function mountBackdrop(host, options) {
   host.prepend(layer);
   const paper = doc.createElement('canvas');
   layer.append(paper);
-  let night = options.night, motion = options.motion, size = null, grainTile = null, sprites = [];
-  const seed = options.seed ?? 7;
+  let night = options.night, motion = options.motion, wardId = options.wardId, size = null, grainTile = null, sprites = [];
+  // Paper fibres and grain are the same sheet everywhere; pattern, mist and motes belong to the ward.
+  const seed = 7;
   const context = canvas => { try { return canvas.getContext('2d'); } catch { return null; } };
 
   function clearSprites() { for (const s of sprites) { s.animation?.cancel(); s.canvas.remove(); } sprites = []; }
@@ -192,16 +196,18 @@ export function mountBackdrop(host, options) {
     paper.style.width = `${width}px`; paper.style.height = `${height}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     paintPaper(ctx, width, height, keep, p, seed);
+    paintMotif(doc, ctx, width, height, dpr, keep, p, WARD_ART[wardId]?.motif);
+    const placed = wardSeed(wardId);
     grainTile ??= makeGrain(doc, seed);
     const pattern = grainTile && ctx.createPattern(grainTile, 'repeat');
     if (pattern) { ctx.globalAlpha = p.grain; ctx.fillStyle = pattern; ctx.fillRect(0, 0, width, height); ctx.globalAlpha = 1; }
-    for (const band of layoutBands(width, height, keep, seed)) {
+    for (const band of layoutBands(width, height, keep, placed)) {
       const canvas = paintBand(doc, band, p, dpr);
       if (!canvas) continue;
       layer.append(canvas);
       sprites.push({canvas, band, animation: null});
     }
-    for (const spec of particleSpecs(width, height, night, seed)) {
+    for (const spec of particleSpecs(width, height, night, placed)) {
       const mote = doc.createElement('span');
       mote.className = night ? 'mote mote-night' : 'mote mote-day';
       Object.assign(mote.style, {left: `${spec.x}px`, top: `${spec.y}px`, width: `${spec.size}px`, height: `${spec.size}px`});
@@ -211,6 +217,7 @@ export function mountBackdrop(host, options) {
     layer.dataset.bands = String(sprites.filter(s => s.band).length);
     layer.dataset.motes = String(sprites.filter(s => s.spec).length);
     layer.dataset.theme = night ? 'night' : 'day';
+    layer.dataset.motif = WARD_ART[wardId]?.motif ?? '';
     animate();
   }
   function animate() {
@@ -255,6 +262,12 @@ export function mountBackdrop(host, options) {
       draw();
     },
     setNight(next) { if (next !== night) { night = next; draw(); } },
+    /** Another cabinet: re-bake its pattern and mist, and let the new sheet breathe in rather than pop. */
+    setWard(next) {
+      if (next === wardId) return;
+      wardId = next; draw();
+      if (motion && size && typeof layer.animate === 'function') layer.animate([{opacity: .35}, {opacity: 1}], {duration: 420, easing: 'ease-out'});
+    },
     /** Drift only while the cabinet is closed and motion is allowed; reduced motion keeps every band at rest. */
     setMotion(next) { if (next !== motion) { motion = next; applyMotion(); } },
     /** Paper and bands at rest, for the "save image" export. */
@@ -288,6 +301,40 @@ function paintPaper(ctx, width, height, keep, p, seed) {
     ctx.lineWidth = .35 + rand() * .6;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + dx / 2 - dy / len * bend, y + dy / 2 + dx / len * bend, x + dx, y + dy); ctx.stroke();
   }
+}
+
+/**
+ * The ward's ground pattern, woven into the paper: absent behind the cabinet, rising toward the edges of the sheet.
+ * Baked once per draw; nothing here runs per frame.
+ */
+function paintMotif(doc, ctx, width, height, dpr, keep, p, name) {
+  const tile = name && MOTIFS[name]?.();
+  if (!tile) return;
+  const sheet = doc.createElement('canvas'), stamp = doc.createElement('canvas');
+  let s = null, t = null;
+  try { s = sheet.getContext('2d'); t = stamp.getContext('2d'); } catch { return; }
+  if (!s || !t) return;
+  const cell = Math.max(26, Math.min(38, width * .08)) * tile.cell * dpr;
+  stamp.width = Math.max(8, Math.round(cell)); stamp.height = Math.max(8, Math.round(stamp.width * tile.h / tile.w));
+  const sx = stamp.width / tile.w, sy = stamp.height / tile.h, at = ([x, y]) => [x * sx, y * sy];
+  t.strokeStyle = t.fillStyle = p.motifInk; t.lineWidth = dpr; t.lineJoin = t.lineCap = 'round';
+  for (const line of tile.lines ?? []) { t.beginPath(); line.forEach((point, i) => (i ? t.lineTo(...at(point)) : t.moveTo(...at(point)))); t.stroke(); }
+  for (const [cx, cy, r] of tile.circles ?? []) { t.beginPath(); t.ellipse(cx * sx, cy * sy, r * sx, r * sy, 0, 0, Math.PI * 2); t.stroke(); }
+  t.globalAlpha = .45;
+  for (const shape of tile.fills ?? []) { t.beginPath(); shape.forEach((point, i) => (i ? t.lineTo(...at(point)) : t.moveTo(...at(point)))); t.closePath(); t.fill(); }
+  sheet.width = Math.max(1, Math.round(width * dpr)); sheet.height = Math.max(1, Math.round(height * dpr));
+  const pattern = s.createPattern(stamp, 'repeat');
+  if (!pattern) return;
+  s.fillStyle = pattern; s.fillRect(0, 0, sheet.width, sheet.height);
+  // Keep the pattern off the cabinet: clear in the middle, full strength only near the corners.
+  const zone = centreZone(keep), cx = (zone.left + zone.right) / 2 * dpr, cy = (zone.top + zone.bottom) / 2 * dpr;
+  const inner = Math.max(zone.right - zone.left, zone.bottom - zone.top) * .8 * dpr;
+  const reach = Math.hypot(Math.max(cx, sheet.width - cx), Math.max(cy, sheet.height - cy));
+  const mask = s.createRadialGradient(cx, cy, Math.min(inner, reach * .5), cx, cy, reach);
+  mask.addColorStop(0, 'rgba(0,0,0,0)'); mask.addColorStop(.45, 'rgba(0,0,0,.55)'); mask.addColorStop(1, 'rgba(0,0,0,1)');
+  s.globalCompositeOperation = 'destination-in'; s.fillStyle = mask; s.fillRect(0, 0, sheet.width, sheet.height);
+  ctx.globalAlpha = p.motif; ctx.drawImage(sheet, 0, 0, width, height); ctx.globalAlpha = 1;
+  sheet.width = sheet.height = stamp.width = stamp.height = 0;
 }
 
 function makeGrain(doc, seed) {

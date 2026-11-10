@@ -17,6 +17,8 @@
 .bunko .stage-caption { position:absolute; left:30px; bottom:24px; display:flex; flex-direction:column; gap:6px; pointer-events:none; color:var(--ink); }
 .bunko .stage-caption small { font-size:10px; letter-spacing:.12em; }
 .bunko #cabinet-context { display:none; }
+/* One line of verse for the ward, written down the right edge like a colophon. */
+.bunko .cabinet-verse { position:absolute; right:22px; top:24px; margin:0; writing-mode:vertical-rl; font:13px/1.6 var(--bunko-title); letter-spacing:.34em; color:var(--muted); text-shadow:0 0 2px var(--paper),0 0 7px var(--paper); pointer-events:none; }
 .bunko #cabinet-place { font:600 25px var(--bunko-title); letter-spacing:.16em; }
 
 /* Backdrop: washi, mist bands and motes behind the cabinet (backdrop.js). */
@@ -48,6 +50,7 @@
   .bunko .stage-caption { left:18px; bottom:18px; }
   .bunko .stage-caption small { max-width:140px; line-height:1.6; }
   .bunko #cabinet-place { font-size:21px; }
+  .bunko .cabinet-verse { right:14px; top:18px; font-size:12px; }
   .bunko[data-embedded] #cabinet-context { font-size:11px; max-width:none; }
   .bunko .zoom-reset { right:14px; bottom:16px; }
 }

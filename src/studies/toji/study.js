@@ -6,6 +6,7 @@ import {CABINETS,cabinetFor,adjacentCabinet} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
 import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,renderDpr,isDoubleTap,ZOOM_STEP} from './view.js';
 import {mountBackdrop,cabinetKeepout} from './backdrop.js';
+import {WARD_ART} from './ward-art.js';
 
 // Fixed home camera; render() and the backdrop's cabinet keepout share it.
 const EYE=[430,720,920],CAMERA_VIEW=lookAt(EYE,[0,40,0]);
@@ -43,7 +44,7 @@ let dragOffset=0,dragAnimation=null;
 let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 let projection,render,dispose;
-const backdrop=mountBackdrop($('stage'),{night,motion:!still()});
+const backdrop=mountBackdrop($('stage'),{night,motion:!still(),wardId:cabinet.id});
 function syncNight(){root.classList.toggle('night',night);}
 function syncBackdrop(){const stage=$('stage'),w=stage.clientWidth,h=stage.clientHeight;if(w&&h)backdrop.resize(w,h,devicePixelRatio||1,cabinetKeepout(cameraMatrix(w,h),w,h));}
 /** @returns {BunkoState} */
@@ -54,6 +55,7 @@ function syncCabinet(){
   $('cabinet-context').textContent=`${name} · ${String(CABINETS.indexOf(cabinet)+1).padStart(2,'0')} / 11`;
   $('cabinet-place').textContent=cabinet.landmark.oldName[language];
   $('cabinet-landmark').textContent=LANDMARK_STUDIES[cabinet.id][language];
+  $('cabinet-verse').textContent=WARD_ART[cabinet.id].verse[language];
   canvas.setAttribute('aria-label',translate(options.embedded?'bunko_canvas_home':'bunko_canvas_study',language).replace('{name}',name));
   canvas.dataset.ward=cabinet.id;
 }
@@ -70,7 +72,7 @@ async function changeCabinet(direction,focusTarget=document.activeElement,fromOf
   const distance=options.embedded?Math.max(100,canvas.clientWidth*.35):28;
   await animate([{opacity:1,transform:`translateX(${fromOffset}px)`},{opacity:0,transform:`translateX(${-direction*Math.max(distance,Math.abs(fromOffset))}px)`}]);
   if(destroyed)return;
-  cabinet=adjacentCabinet(cabinet.id,direction);options.onWardChange?.(cabinet.id);updateMesh?.();
+  cabinet=adjacentCabinet(cabinet.id,direction);options.onWardChange?.(cabinet.id);updateMesh?.();backdrop.setWard(cabinet.id);
   lift=flat?.025:still()?.82:1;
   // Commit the new mesh before its label is revealed, even when a quiet tab defers RAF.
   render?.(performance.now(),false);syncCabinet();schedule();
