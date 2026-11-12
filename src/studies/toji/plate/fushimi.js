@@ -36,7 +36,7 @@ export function fushimi() {
     ...fox('kitsune', 196, 200, -1, 1.5),
     ...pine('pine-a', -100, 214, 100, 16, 3, {clusters: 3}),
     ...pine('pine-b', 304, 206, 112, -14, 6, {clusters: 3}),
-    // The bird sits on the crown of either pine.
-    ...bird('uguisu', [[-84, 116, 1, 'pine-a'], [290, 96, -1, 'pine-b']]),
+    // The bird sits on the crown pad of either pine: on the pad, not above its edge, or it hangs in the air.
+    ...bird('uguisu', [[-80, 126, 1, 'pine-a'], [286, 106, -1, 'pine-b']]),
   ];
 }
