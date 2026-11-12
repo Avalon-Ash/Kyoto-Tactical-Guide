@@ -33,7 +33,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 程式審查與 UI 統一 | 2026-11-09 完成：修地圖重繪跳回全區、返回焦點；刪死碼、未用依賴與 1 MB 原型圖；色票集中 `src/theme.css`、文案集中 `i18n.ts`。已併入 `main`，見執行紀錄 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 已刪除（Git 歷史可取回） |
 | UI 翻新 | P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已併入 `main`。`ux-unify` 再加上十一區各自的紋樣、霞帶配置與一行短句（`src/studies/toji/ward-art.js`；配對與短句是主代理的設計稿，待使用者看過）。P2 蒔繪光澤、`src/lib/spring.ts` 尚未做。規劃見[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md) |
-| 蒔繪浮雕盤 | 2026-11-12 起：南區已重畫為浮雕盤原型（`src/studies/toji/plate/`，WebGL2）：地子隆起、部品為厚實的膨脹實體並隨手立起、鶯換枝、組紐與紐金具、箱側紋飾、內梨地與懸子。其餘十區與無 WebGL2 的裝置仍走原浮雕網格。停在關卡待使用者過目，之後才進 P2 與其餘十區。接續工作先讀 [蒔繪浮雕盤交接](MAKIE_PLATE_HANDOFF.md)；驗收見 [雲端紀錄](agent-runs/2026-11-12-makie-plate-p0-p1.md) 與 [本機接續紀錄](agent-runs/2026-11-12-makie-plate-p1-local.md) |
+| 蒔繪浮雕盤 | 2026-11-12 起：南區已重畫為浮雕盤原型（`src/studies/toji/plate/`，WebGL2）：地子隆起、部品為厚實的膨脹實體並隨手立起、鶯換枝、組紐與紐金具、箱側紋飾、內梨地與懸子。2026-11-13：陰影改為深度圖，伏見與東山兩區範本完成。其餘八區與無 WebGL2 的裝置仍走原浮雕網格。兩區範本停在關卡待使用者過目，之後才做其餘八區。接續工作先讀 [蒔繪浮雕盤交接](MAKIE_PLATE_HANDOFF.md)；驗收見 [雲端紀錄](agent-runs/2026-11-12-makie-plate-p0-p1.md) 與 [本機接續紀錄](agent-runs/2026-11-12-makie-plate-p1-local.md) |
 | 文箱架構 | `study.js`（`mountBunko`：手勢、移光、縮放、換函、開蓋）、`renderer.js`（WebGL）、`interaction.js`／`view.js`（純函式）、`backdrop.js`＋`ward-art.js`（背景）、`template.ts`（`BUNKO_STAGE`）。獨立展示頁另由 `study-chrome.js`（`mountStudy`）包一層控制，主站不載入 |
 
 ## 3. 最近一次驗收（2026-11-11，`ux-unify`）
@@ -72,6 +72,6 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | Phase 4 資料與地圖 | `2026-11-04-phase04-data.md`、`2026-11-04-phase04-location-makie.md` |
 | 文庫首頁（T4-M1～M4c） | `2026-11-05-phase04-*.md`、`2026-11-06-phase04-*.md`；主線交付見 `2026-11-06-phase04-main-release.md` |
 | 手機 UI（T4-M5） | [2026-11-06-mobile-bunko-ui.md](agent-runs/2026-11-06-mobile-bunko-ui.md)（含 11-09 補驗） |
-| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2 前半](agent-runs/2026-11-13-makie-plate-p2a.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
+| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2 前半](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
 | UI 翻新 P3 背景 | [2026-11-09-ui-renewal-p3-backdrop.md](agent-runs/2026-11-09-ui-renewal-p3-backdrop.md) |
 | 程式審查與 UI 統一 | [2026-11-09-code-review-ui-unify.md](agent-runs/2026-11-09-code-review-ui-unify.md) |
