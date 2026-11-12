@@ -1,4 +1,4 @@
-// The drawing vocabulary of a makie plate: hills, water, mist, pines, rocks and buildings in picture view.
+// The drawing vocabulary of a makie plate: hills, water, mist, trees, rocks, buildings and gates in picture view.
 // Pure geometry. A plate is a flat picture 720 × 460 units: x runs right, z runs down toward the viewer.
 // Every builder returns parts; a part is plain data (polygons and polylines), baked into relief by bake.js.
 //
@@ -179,12 +179,143 @@ export function pagoda(id, cx, zBase, {storeys = 5, halfW = 66, taper = 6.5, pit
   return parts;
 }
 
-/** A hall: one broad hipped roof over a row of bays. */
-export function hall(id, cx, zEave, halfW, rise, {layer = 2, bays = 7, wallH = 24} = {}) {
+/** A hall: one broad hipped roof over a row of bays. Give it a group to make it one solid with what carries it. */
+export function hall(id, cx, zEave, halfW, rise, {layer = 2, bays = 7, wallH = 24, group = id, order = 0} = {}) {
   return [
-    ...storey(`${id}-wall`, cx, zEave + 1, zEave + wallH, halfW * .74, {bays, layer, group: id, order: 0}),
-    ...roof(`${id}-roof`, cx, zEave, halfW, rise, {layer, group: id, order: 1, ridgeHalf: halfW * .52, tiles: 23, upturn: halfW * .06}),
+    ...storey(`${id}-wall`, cx, zEave + 1, zEave + wallH, halfW * .74, {bays, layer, group, order}),
+    ...roof(`${id}-roof`, cx, zEave, halfW, rise, {layer, group, order: order + 1, ridgeHalf: halfW * .52, tiles: 23, upturn: halfW * .06}),
   ];
+}
+
+/** A railing in elevation, added to a part: a top bar on balusters standing on zFloor. */
+function railing(p, x0, x1, zFloor, height, gap) {
+  p.fills.push({d: [[x0, zFloor - height], [x1, zFloor - height], [x1, zFloor - height + 2.2], [x0, zFloor - height + 2.2]], soft: 0, crisp: 1});
+  const n = Math.max(2, Math.round((x1 - x0) / gap));
+  for (let i = 0; i <= n; i++) { const x = lerp(x0 + 1, x1 - 1, i / n); p.fills.push({d: [[x - 1, zFloor - height], [x + 1, zFloor - height], [x + 1, zFloor], [x - 1, zFloor]], soft: 0, crisp: 1}); }
+}
+
+/**
+ * Rōmon: a two-storey gate. A lower storey of three bays, a railed balcony round its waist, a shorter upper storey
+ * and one hipped roof. It wakes from the ground up, like a tower.
+ */
+export function romon(id, cx, zBase, halfW, {layer = 2} = {}) {
+  const group = id, waist = zBase - halfW * .5, zEave = waist - 6 - halfW * .3;
+  const balcony = part(`${id}-balcony`, KIND.tier, layer, MAT.kirigin, [cx, waist], {group, order: 1});
+  balcony.fills.push({d: [[cx - halfW * .92, waist - 6], [cx + halfW * .92, waist - 6], [cx + halfW * .86, waist + 1.5], [cx - halfW * .86, waist + 1.5]], soft: .2, crisp: .9});
+  railing(balcony, cx - halfW * .92, cx + halfW * .92, waist - 6, 8, halfW * .2);
+  return [
+    ...storey(`${id}-lower`, cx, waist, zBase, halfW * .78, {bays: 3, layer, group, order: 0}),
+    ...storey(`${id}-upper`, cx, zEave + 1, waist - 6, halfW * .66, {bays: 3, layer, group, order: 2}),
+    balcony,
+    ...roof(`${id}-roof`, cx, zEave, halfW, halfW * .46, {layer, group, order: 3, ridgeHalf: halfW * .5, tiles: 19, upturn: halfW * .07}),
+  ];
+}
+
+/**
+ * Myōjin torii in elevation: two posts leaning together on stone feet, a tie beam through them, a strut, and a
+ * lintel that lifts at both ends. `s` scales the whole gate (1 is about 116 wide and 104 tall).
+ * With `cap` the lintel carries a silver lip, as the roofs do.
+ */
+export function torii(id, cx, zFoot, s = 1, {layer = 2, group = id, order = 0, mat = MAT.gold, cap = false} = {}) {
+  const P = (dx, h) => [cx + dx * s, zFoot - h * s];
+  const thick = Math.max(12, Math.min(24, 6 + 18 * s));
+  const p = part(id, KIND.tier, layer, mat, [cx, zFoot], {group, order, thick});
+  for (const side of [-1, 1]) {
+    p.fills.push({d: [P(side * 36 - 4.4, 0), P(side * 36 + 4.4, 0), P(side * 32 + 3.8, 90), P(side * 32 - 3.8, 90)], soft: .3, crisp: .85});
+    p.fills.push({d: [P(side * 36 - 7.5, 0), P(side * 36 + 7.5, 0), P(side * 36 + 5.8, 7), P(side * 36 - 5.8, 7)], soft: .2, crisp: 1});
+  }
+  p.fills.push({d: [P(-47, 53), P(47, 53), P(47, 60), P(-47, 60)], soft: .2, crisp: .8});
+  // The strut would close a small gate's slot into two holes; only a gate large enough to show it carries one.
+  if (s >= 1) p.fills.push({d: [P(-3.6, 60), P(3.6, 60), P(3.6, 90), P(-3.6, 90)], soft: .2, crisp: 1});
+  p.fills.push({d: [...quad(P(-53, 94), P(0, 83), P(53, 94), 12), ...quad(P(58, 104), P(0, 91), P(-58, 104), 12)], soft: .3, crisp: .9});
+  p.lines.push({d: quad(P(-54, 98.5), P(0, 86.5), P(54, 98.5), 12), w: Math.max(.5, .9 * s), amp: .9});
+  for (const side of [-1, 1]) p.lines.push({d: [P(side * 36, 9), P(side * 32.6, 52)], w: Math.max(.45, .7 * s), amp: .6});
+  if (!cap) return [p];
+  const lip = part(`${id}-lip`, KIND.tier, layer, MAT.silver, [cx, zFoot], {group, order, thick});
+  lip.fills.push({d: [...quad(P(-58, 104), P(0, 91), P(58, 104), 12), ...quad(P(58.6, 100.6), P(0, 87.6), P(-58.6, 100.6), 12)], soft: 0, crisp: 1});
+  return [p, lip];
+}
+
+/**
+ * Kakezukuri: a deck carried out over a drop on a lattice of posts and tie beams, with a railing along its edge.
+ * The posts all meet the ground on one line (zGround), which is the line the whole structure stands on.
+ */
+export function kakezukuri(id, x0, x1, zDeck, zGround, {layer = 2, group = id, order = 0, posts = 9, ties = 3} = {}) {
+  const cx = (x0 + x1) / 2, frame = part(`${id}-frame`, KIND.tier, layer, MAT.gold, [cx, zGround], {group, order, thick: 14, reach: 3});
+  for (let i = 0; i < posts; i++) {
+    const x = lerp(x0 + 4, x1 - 4, i / (posts - 1));
+    frame.fills.push({d: [[x - 2.6, zDeck + 4], [x + 2.6, zDeck + 4], [x + 3, zGround], [x - 3, zGround]], soft: .3, crisp: .85});
+  }
+  for (let k = 1; k <= ties; k++) {
+    const z = lerp(zDeck + 5, zGround, k / (ties + 1));
+    frame.fills.push({d: [[x0 - 4, z - 1.8], [x1 + 4, z - 1.8], [x1 + 4, z + 1.8], [x0 - 4, z + 1.8]], soft: .2, crisp: 1});
+  }
+  const deck = part(`${id}-deck`, KIND.tier, layer, MAT.kirigin, [cx, zGround], {group, order: order + 1});
+  deck.fills.push({d: [[x0 - 9, zDeck - 3], [x1 + 9, zDeck - 3], [x1 + 7, zDeck + 5], [x0 - 7, zDeck + 5]], soft: .2, crisp: .9});
+  deck.lines.push({d: [[x0 - 8, zDeck + 1], [x1 + 8, zDeck + 1]], w: .7, amp: .8});
+  railing(deck, x0 - 9, x1 + 9, zDeck - 3, 10, 13);
+  return [frame, deck];
+}
+
+/** One maple leaf: five broad points about the head of its stalk, the middle one longest, with deep notches between. */
+function mapleLeaf(cx, cz, radius, turn) {
+  const tips = [1, .84, .58], d = [], at = (a, len) => d.push([cx + Math.cos(a) * len, cz + Math.sin(a) * len]);
+  for (let i = -2; i <= 2; i++) {
+    const a = turn + i * .95, len = radius * tips[Math.abs(i)];
+    if (i > -2) at(a - .475, radius * .3);
+    // Shoulders keep each point broad enough to stand as a solid.
+    at(a - .2, len * .72); at(a, len); at(a + .2, len * .72);
+  }
+  d.push([cx - Math.cos(turn) * radius * .22, cz - Math.sin(turn) * radius * .22]);
+  return d;
+}
+/**
+ * A maple, drawn the way a crest draws it: a short trunk carrying a few leaves far larger than life, one at the
+ * crown and one on each bough. A leaf has to be large to keep its points once it is raised into a solid; a cloud
+ * of small leaves only swells into a ball. It answers the wind as the pine does.
+ */
+export function maple(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 3} = {}) {
+  const r = rand(seed), anchor = [x, z], spine = [], parts = [], stem = height * .7;
+  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 4 + seed) * height * .03, z - stem * t]); }
+  const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
+  const half = t => lerp(height * .05, height * .02, t);
+  trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 10), pz]), ...spine.map(([px, pz], i) => [px + half(i / 10), pz]).reverse()], soft: .3, crisp: .85});
+  parts.push(trunk);
+  const top = spine[10], fork = spine[6];
+  // Where each leaf springs from, which way it points, and how large it is, all in tree heights.
+  const crowns = [[0, -.02, -Math.PI / 2, .44], [-.36, .2, Math.PI + .3, .27], [.36, .12, -.3, .27]];
+  for (let k = 0; k < Math.min(clusters, crowns.length); k++) {
+    const [sx, sz, way, size] = crowns[k], R = height * size * (.94 + r() * .12), turn = way + (r() - .5) * .3;
+    const cx = top[0] + sx * height, cz = top[1] + sz * height;
+    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 4, thick: 18, bias: 9 + k * 1.5});
+    leaf.fills.push({d: mapleLeaf(cx, cz, R, turn), soft: .45, crisp: .7});
+    for (let i = -2; i <= 2; i++) { const a = turn + i * .95, len = R * [1, .84, .58][Math.abs(i)] * .84; leaf.lines.push({d: [[cx, cz], [cx + Math.cos(a) * len, cz + Math.sin(a) * len]], w: .6, amp: .9}); }
+    // The bough that carries it.
+    if (k) trunk.lines.push({d: [fork, [lerp(fork[0], cx, .6), lerp(fork[1], cz, .5) + R * .3], [cx, cz]], w: 2.2, amp: 1});
+    parts.push(leaf);
+  }
+  return parts;
+}
+
+/** Inari's fox, seated on its stone with its tail up: silver on a block of cut gold. `flip` -1 faces it left. */
+export function fox(id, x, z, flip = 1, s = 1, {layer = 2} = {}) {
+  const f = (dx, h) => [x + dx * flip * s, z - h * s], B = 16;
+  const stone = part(`${id}-stone`, KIND.tier, layer, MAT.kirikane, [x, z], {group: id, order: 0});
+  stone.fills.push({d: [f(-15, 0), f(15, 0), f(13, 12), f(-13, 12)], soft: .3, crisp: .9});
+  stone.fills.push({d: [f(-17, 12), f(17, 12), f(17, B), f(-17, B)], soft: .2, crisp: 1});
+  stone.lines.push({d: [f(-13.5, 6), f(13.5, 6)], w: .6, amp: .7});
+  const body = part(`${id}-body`, KIND.tier, layer, MAT.silver, [x, z], {group: id, order: 1, thick: 14});
+  body.fills.push({d: blob(...f(-2, B + 9.5), 9 * s, 10 * s, 3, .05, 22), soft: .3, crisp: .8});                         // haunch
+  body.fills.push({d: [f(0, B), f(9.5, B), f(10, B + 20), f(7, B + 28), f(-1, B + 24)], soft: .3, crisp: .8});            // chest and forelegs
+  body.fills.push({d: blob(...f(6.5, B + 31.5), 6.4 * s, 5.6 * s, 5, .03, 16), soft: .3, crisp: .9});                           // head
+  body.fills.push({d: [f(8, B + 36), f(22, B + 29.5), f(9, B + 25.5)], soft: .2, crisp: 1});                           // muzzle
+  body.fills.push({d: [f(.6, B + 33.5), f(1.6, B + 46), f(6.4, B + 36)], soft: .2, crisp: 1});                         // ears
+  body.fills.push({d: [f(6, B + 36), f(10.4, B + 45), f(11.6, B + 34.4)], soft: .2, crisp: 1});
+  body.fills.push({d: [...quad(f(-8, B + 1), f(-30, B + 12), f(-19, B + 48), 10), ...quad(f(-19, B + 48), f(-17, B + 24), f(-7, B + 9), 10)], soft: .3, crisp: .85});   // tail
+  body.lines.push({d: quad(f(-11, B + 6), f(-25, B + 20), f(-16, B + 40), 8), w: .6, amp: .8});
+  body.lines.push({d: quad(f(-9, B + 18), f(-1, B + 20), f(1, B + 8), 6), w: .6, amp: .7});
+  body.lines.push({d: [f(7.6, B + 32.4), f(10, B + 31.6)], w: .7, amp: 1});
+  return [stone, body];
 }
 
 /**
