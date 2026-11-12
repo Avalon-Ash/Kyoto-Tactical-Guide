@@ -7,7 +7,8 @@
 | 項目 | 狀態 |
 |---|---|
 | 主線 | `main`：包含十一區文庫（`6d6a132`）、UI 翻新規劃文件（`1608263`）、T4-M5 手機 UI、UI 翻新 P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞）。實際 HEAD 以 `git log -1 main` 為準 |
-| 工作分支 | `ux-unify`（尚未合併 `main`、尚未 push）：手勢（`03a4f36`）、卷軸統一與文箱解耦（`6b790e2`）、各區紋樣與短句（`b838d89`）、渲染器拆分與 `npm test`（`2a1ecc0`）、合約更新（`f237c25`），以及其後的文件更新。實際內容以 `git log main..ux-unify` 為準 |
+| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤；`6e53778` 已 push，其後的本機 commit 未 push；未開 PR、未合併 `main`）。實際內容以 `git log main..claude/great-brahmagupta-ye2uqt` 為準 |
+| `ux-unify` | 2026-11-12 確認與 `main` 同在 `4ca3adb`，內容已全在 `main`；分支仍在，未刪 |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
 | 不提交 | `.claude/`、`dist/`、`node_modules/`、驗收截圖與日誌 |
@@ -32,7 +33,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 程式審查與 UI 統一 | 2026-11-09 完成：修地圖重繪跳回全區、返回焦點；刪死碼、未用依賴與 1 MB 原型圖；色票集中 `src/theme.css`、文案集中 `i18n.ts`。已併入 `main`，見執行紀錄 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 已刪除（Git 歷史可取回） |
 | UI 翻新 | P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已併入 `main`。`ux-unify` 再加上十一區各自的紋樣、霞帶配置與一行短句（`src/studies/toji/ward-art.js`；配對與短句是主代理的設計稿，待使用者看過）。P2 蒔繪光澤、`src/lib/spring.ts` 尚未做。規劃見[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md) |
-| 蒔繪浮雕盤 | 2026-11-12 起：南區已重畫為浮雕盤原型（`src/studies/toji/plate/`，WebGL2）：地子隆起、部品為厚浮雕並隨手立起、鶯換枝。其餘十區與無 WebGL2 的裝置仍走原浮雕網格。待使用者過目後才擴到十一區。接續工作先讀 [蒔繪浮雕盤交接](MAKIE_PLATE_HANDOFF.md)；驗收見 [執行紀錄](agent-runs/2026-11-12-makie-plate-p0-p1.md) |
+| 蒔繪浮雕盤 | 2026-11-12 起：南區已重畫為浮雕盤原型（`src/studies/toji/plate/`，WebGL2）：地子隆起、部品為厚實的膨脹實體並隨手立起、鶯換枝、組紐與紐金具、箱側紋飾、內梨地與懸子。其餘十區與無 WebGL2 的裝置仍走原浮雕網格。停在關卡待使用者過目，之後才進 P2 與其餘十區。接續工作先讀 [蒔繪浮雕盤交接](MAKIE_PLATE_HANDOFF.md)；驗收見 [雲端紀錄](agent-runs/2026-11-12-makie-plate-p0-p1.md) 與 [本機接續紀錄](agent-runs/2026-11-12-makie-plate-p1-local.md) |
 | 文箱架構 | `study.js`（`mountBunko`：手勢、移光、縮放、換函、開蓋）、`renderer.js`（WebGL）、`interaction.js`／`view.js`（純函式）、`backdrop.js`＋`ward-art.js`（背景）、`template.ts`（`BUNKO_STAGE`）。獨立展示頁另由 `study-chrome.js`（`mountStudy`）包一層控制，主站不載入 |
 
 ## 3. 最近一次驗收（2026-11-11，`ux-unify`）
@@ -71,6 +72,6 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | Phase 4 資料與地圖 | `2026-11-04-phase04-data.md`、`2026-11-04-phase04-location-makie.md` |
 | 文庫首頁（T4-M1～M4c） | `2026-11-05-phase04-*.md`、`2026-11-06-phase04-*.md`；主線交付見 `2026-11-06-phase04-main-release.md` |
 | 手機 UI（T4-M5） | [2026-11-06-mobile-bunko-ui.md](agent-runs/2026-11-06-mobile-bunko-ui.md)（含 11-09 補驗） |
-| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md) |
+| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
 | UI 翻新 P3 背景 | [2026-11-09-ui-renewal-p3-backdrop.md](agent-runs/2026-11-09-ui-renewal-p3-backdrop.md) |
 | 程式審查與 UI 統一 | [2026-11-09-code-review-ui-unify.md](agent-runs/2026-11-09-code-review-ui-unify.md) |
