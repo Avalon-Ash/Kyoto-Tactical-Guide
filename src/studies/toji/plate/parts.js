@@ -8,7 +8,7 @@ import {minami} from './minami.js';
 export const MAX_PARTS = 64, LAYERS = 4;
 export const DWELL_MS = 400;
 /** How far each kind stands up from the lid when fully awake, in radians. Rocks and mist do not hinge. */
-export const HINGE = {[KIND.tier]: .92, [KIND.pine]: .84, [KIND.bird]: .84};
+export const HINGE = {[KIND.tier]: 1.2, [KIND.pine]: 1.1, [KIND.bird]: 1.1};
 /** Even at rest a standing part is never quite flat: the picture always has some body. */
 export const STAND_REST = .14;
 /** Wards that have been redrawn as plates. The rest still use the relief mesh. */
