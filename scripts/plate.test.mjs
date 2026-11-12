@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {stepSpring, stepDamped, settled} from '../src/studies/toji/plate/spring.js';
 import {PLATES, hasPlate, preparePlate, createLife, partAt, MAX_PARTS, LAYERS, DWELL_MS, STAND_REST} from '../src/studies/toji/plate/parts.js';
 import {KIND, MAT, PLATE} from '../src/studies/toji/plate/vocab.js';
-import {buildBox} from '../src/studies/toji/plate/renderer.js';
+import {buildBox, shadeMatrix, SHADE_H} from '../src/studies/toji/plate/renderer.js';
 
 test('a critically damped spring settles without overshoot at any frame rate', () => {
   for (const dt of [1 / 120, 1 / 60, 1 / 10]) {
@@ -44,6 +44,19 @@ test('every redrawn ward is a valid plate', () => {
       if (p.layer === 0) assert.equal(p.hinge, 0, `${p.id}: the ground does not stand`);
     }
     assert.equal(parts.filter(p => p.kind === KIND.bird).length, 2, `${ward} has one uguisu with two perches`);
+    // Solids that are not one thing keep apart in the picture. A part lying asleep covers the lid behind its foot;
+    // if another solid's foot stood inside that patch, one would pass through the other whenever only one is awake.
+    const solids = new Map();
+    for (const p of parts) {
+      if (p.layer === 0 || p.kind === KIND.mist) continue;
+      const key = p.attach ?? p.group, b = solids.get(key);
+      solids.set(key, b ? [Math.min(b[0], p.bounds[0]), Math.min(b[1], p.bounds[1]), Math.max(b[2], p.bounds[2]), Math.max(b[3], p.bounds[3])] : [...p.bounds]);
+    }
+    const list = [...solids];
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+      const [a, A] = list[i], [b, B] = list[j];
+      assert.ok(A[2] < B[0] || B[2] < A[0] || A[3] < B[1] || B[3] < A[1], `${ward}: ${a} and ${b} overlap in the picture`);
+    }
     assert.deepEqual(build(), build(), `${ward} bakes the same every time`);
   }
 });
@@ -123,6 +136,19 @@ test('dwelling on a part makes it answer once; the bird changes perch', () => {
   out = run(life, 3, {light: null, presence: 0}, 12000);
   assert.ok(out.a[birds[0].index * 4 + 2] < .05 && out.a[birds[1].index * 4 + 2] > .5, 'and now at its second');
   assert.equal(life.act(0, 0), false, 'bare ground has no answer');
+});
+
+test('the shade sees the whole lid from above the lamp', () => {
+  const at = (m, x, y, z) => { const w = m[3] * x + m[7] * y + m[11] * z + m[15]; return [0, 1, 2].map(k => (m[k] * x + m[4 + k] * y + m[8 + k] * z + m[12 + k]) / w); };
+  for (const [lx, lz] of [[0, 0], [-430, 300], [280, -120]]) {
+    const m = shadeMatrix(lx, lz);
+    for (const x of [-372, 372]) for (const z of [-242, 242]) assert.ok(at(m, x, 0, z).every(v => Math.abs(v) < 1), `lid corner ${x},${z} at lamp ${lx},${lz}`);
+    // Straight under the lamp a tall thing shades only its own foot; away from it the shadow falls outward.
+    const foot = at(m, lx, 0, lz), top = at(m, lx, 250, lz);
+    assert.ok(Math.hypot(top[0] - foot[0], top[1] - foot[1]) < 1e-6 && top[2] < foot[2], 'nearer the lamp is nearer in depth');
+    const out = at(m, lx + 100, 200, lz), shadow = at(m, lx + 100 * SHADE_H / (SHADE_H - 200), 0, lz);
+    assert.ok(Math.hypot(out[0] - shadow[0], out[1] - shadow[1]) < 1e-6, 'a point and its shadow lie on one ray from the lamp');
+  }
 });
 
 test('the box mesh is closed into the ranges the renderer draws', () => {

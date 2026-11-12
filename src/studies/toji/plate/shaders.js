@@ -45,8 +45,8 @@ void main(){
 }`;
 
 // A part of the plate hinges up from the lid on its foot line.
-// MODE 5 (depth) and 2 (colour) draw the solid: a grid over each group, pushed out along the part's normal into a
-// thick rounded body. MODE 3 (shadow on the lid) and 4 (mist) draw one flat quad per part.
+// MODE 5 (depth), 2 (colour) and 7 (depth as the lamp sees it) draw the solid: a grid over each group, pushed out
+// along the part's normal into a thick rounded body. MODE 4 (mist) draws one flat quad per part.
 export const partVert = mode => `#version 300 es
 #define MODE ${mode}
 precision highp float; precision highp sampler2DArray;
@@ -67,23 +67,21 @@ void main(){
   float h=foot-q.y;
   vec3 n=vec3(0.,ct,st),down=vec3(0.,-st,ct);
   // Even asleep a part keeps most of its body: it is a solid thing lying on the lid.
-  float thick=aPart.w*mix(.72,1.,A.z)*mix(.78,1.,A.y),slice=MODE==3?.5:0.;
-#if MODE==2||MODE==5
+  float thick=aPart.w*mix(.72,1.,A.z)*mix(.78,1.,A.y),slice=0.;
+#if MODE==2||MODE==5||MODE==7
   vec3 tuv=vec3((aPos+HALF)/(2.*HALF),aPart.y);
   slice=body(textureLod(uSoft,tuv,0.).r,textureLod(uFine,tuv,1.).a);
 #endif
-  vec3 p=vec3(q.x,groundY(vec2(aInfo.x,foot))+B.z+.35,foot)-down*h+n*(aInfo.w*A.y+slice*thick);
-#if MODE==3
-  {
-    // Flatten onto the lid, thrown away from the lamp.
-    vec2 off=(p.xz-uLamp.xz)*(max(p.y,0.)/330.);
-    p=vec3(p.x+off.x,groundY(p.xz+off)+.25,p.z+off.y);n=vec3(0.,1.,0.);down=vec3(0.,0.,1.);
-  }
-#endif
+  // Lying down, a part follows the banks under it; standing, it is rooted along its whole foot line. Either way
+  // the ground never comes up through it. A layer that rides on another keeps clear of the body beneath (bias)
+  // by the same share of its height that the body itself keeps asleep.
+  float up=aInfo.z>0.?smoothstep(.1,.7,A.y):0.;
+  float gy=mix(groundY(q),groundY(vec2(q.x,foot)),up);
+  vec3 p=vec3(q.x,gy+B.z+.35,foot)-down*h+n*(aInfo.w*mix(.6,1.,A.y)+slice*thick);
   p.y+=uOpening*360.;p.z-=uOpening*650.;
   vec3 c=vec3(0.,-48.,0.);p=uTilt*(p-c)+c;
   vWorld=p;vNormal=uTilt*n;vTanX=uTilt*vec3(1.,0.,0.);vTanZ=uTilt*down;
-  vUv=aPos;vMeta=q;vPart=vec4((MODE==2||MODE==5)?B.w:aPart.x,aPart.y,slice,thick);
+  vUv=aPos;vMeta=q;vPart=vec4((MODE==2||MODE==5||MODE==7)?B.w:aPart.x,aPart.y,slice,thick);
   gl_Position=uCamera*vec4(p,1.);
 }`;
 
@@ -106,8 +104,8 @@ void main(){
 }`;
 
 // One fragment shader, compiled once per MODE so each pass carries only what it needs:
-//   0 box   1 the lid's ground   2 a slice of a part (colour)   3 a part's shadow   4 mist   5 a slice (depth only)
-//   6 the shadow the box lays on what it stands on
+//   0 box   1 the lid's ground   2 a slice of a part (colour)   4 mist   5 a slice (depth only)
+//   6 the shadow the box lays on what it stands on   7 a slice as the lamp sees it (the shade's depth picture)
 export const frag = mode => `#version 300 es
 #define MODE ${mode}
 precision highp float; precision highp sampler2DArray;
@@ -121,7 +119,7 @@ out vec4 outColor;
 
 const vec2 HALF=vec2(360.,230.);
 const vec3 GOLD=vec3(1.,.70,.26), PALE=vec3(.98,.84,.48), SILVER=vec3(.84,.85,.83), LACQ=vec3(.020,.015,.013), AMBER=vec3(1.,.86,.58);
-const float SWELL=17., AMB=.17, KEY=.44, POOL=1.75;
+const float SWELL=17., AMB=.17, KEY=.44, POOL=1.75, SHADE=.86;
 const mat2 R1=mat2(.940,.342,-.342,.940),R2=mat2(.766,-.643,.643,.766),R3=mat2(.5,.866,-.866,.5);
 
 vec3 puv(vec2 q,int layer){return vec3((q+HALF)/(2.*HALF),float(layer));}
@@ -136,28 +134,18 @@ void main(){
   vec2 d=max(abs(vWorld.xz-vec2(-34.,26.))-vec2(360.,232.),0.);
   outColor=vec4(0.,0.,0.,exp(-dot(d,d)/2600.)*mix(.34,.5,uNight)*(1.-uOpening*.2));
 }
-#elif MODE==3||MODE==5
+#elif MODE==5||MODE==7
 void main(){
   if(uOpening>.999)discard;
   int layer=int(vPart.y+.5);ivec2 im=ident(vUv,layer);
   vec4 fine=texture(uFine,puv(vUv,layer));float hs=texture(uSoft,puv(vUv,layer)).r;
   vec4 A=uA[im.x];
-#if MODE==5
   // The solid's own outline: the foot of its wall, or the drawn edge where the shape is too thin to have one.
   if(im.x==0||int(uB[im.x].w+.5)!=int(vPart.x+.5))discard;
   float alpha=max(clamp((hs-.31)/max(fwidth(hs)*1.4,.002)+.5,0.,1.),clamp((fine.a-.5)/max(fwidth(fine.a)*1.4,.004)+.5,0.,1.));
   if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
-  if(alpha<.04)discard;
+  if(alpha<(MODE==7?.5:.04))discard;
   outColor=vec4(0.,0.,0.,alpha);
-#else
-  if(im.x!=int(vPart.x+.5))discard;
-  float alpha=im.y==13?smoothstep(.03,.42,hs)*.94:clamp((fine.a-.5)/max(fwidth(fine.a)*1.4,.004)+.5,0.,1.);
-  if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
-  if(abs(vWorld.x)>372.||abs(vWorld.z)>242.)discard;
-  float soft_=im.y==13?alpha*.35:textureLod(uFine,puv(vUv,layer),1.6).a;
-  if(soft_<.04)discard;
-  outColor=vec4(0.,0.,0.,soft_*mix(.30,.52,A.y)*mix(.7,1.,uPresence));
-#endif
 }
 #else
 
@@ -167,9 +155,22 @@ float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h
 
 // Light, shared by every material of this fragment. The colours belong to the lights, not to the gold:
 // by night the room is cool and dim, and the gold is gold again wherever the hand's light falls.
-vec3 gN, gHk, gHp, gKeyC, gPoolC, gAmbC; float gAtt, gDk, gDp, gWake;
-vec3 light(){return AMB*gAmbC+KEY*gDk*gKeyC+POOL*gAtt*gDp*gPoolC;}
-vec3 spec(float e){return KEY*pow(max(dot(gN,gHk),0.),e)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),e)*gPoolC;}
+vec3 gN, gHk, gHp, gKeyC, gPoolC, gAmbC; float gAtt, gDk, gDp, gWake, gSh=1.;
+vec3 light(){return AMB*gAmbC+(KEY*gDk*gKeyC+POOL*gAtt*gDp*gPoolC)*gSh;}
+vec3 spec(float e){return (KEY*pow(max(dot(gN,gHk),0.),e)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),e)*gPoolC)*gSh;}
+#if MODE==1||MODE==2
+// Shade: the solids are drawn once more as the lamp sees them, into a depth picture; every point of the lid and of
+// every solid asks that picture whether the lamp reaches it. A shadow therefore starts where the thing itself
+// meets the lid, falls across whatever lies behind it, and needs no drawing of its own.
+uniform highp sampler2DShadow uShade; uniform mat4 uShadeMat;
+float shadeAt(vec3 w){
+  vec4 t=uShadeMat*vec4(w,1.);vec3 q=t.xyz/t.w*.5+.5;
+  if(q.x<=0.||q.x>=1.||q.y<=0.||q.y>=1.||q.z>=1.)return 1.;
+  vec2 px=1.5/vec2(textureSize(uShade,0));float s=0.;
+  for(int j=-1;j<=1;j++)for(int i=-1;i<=1;i++)s+=texture(uShade,vec3(q.xy+vec2(float(i),float(j))*px,q.z-.0006));
+  return s/9.;
+}
+#endif
 // What a polished surface mirrors: a dim room with a papered window high on the key side.
 vec3 room(float rough){
   vec3 r=reflect(-uView,gN);
@@ -192,7 +193,7 @@ float flake(vec2 p,float cell,float size,float dens,float sq,float spread,out ve
   float vis=smoothstep(1.3,3.2,cell/uPx);
   dens=min(dens,1.);
   float avg=dens*mix(1.95,3.57,sq)*size*size;
-  vec3 broad=KEY*pow(max(dot(gN,gHk),0.),12.)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),12.)*gPoolC;
+  vec3 broad=(KEY*pow(max(dot(gN,gHk),0.),12.)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),12.)*gPoolC)*gSh;
   vec2 g=p/cell,id=floor(g),r=hash2(id);
   float present=step(hash(id+7.31),dens);
   float sz=size*mix(1.,.55+.45*hash(id+11.3),1.-sq*.6);
@@ -203,7 +204,7 @@ float flake(vec2 p,float cell,float size,float dens,float sq,float spread,out ve
   float dist=mix(round_,max(abs(d.x),abs(d.y)*mix(.8,1.25,r.x)),sq),aa=uPx/cell*.75;
   float cov=present*(1.-smoothstep(sz-aa,sz+aa,dist));
   vec3 nf=normalize(gN+vec3(r.x-.5,0.,r.y-.5)*spread);
-  vec3 gl=KEY*.45*pow(max(dot(nf,gHk),0.),70.)*gKeyC+POOL*gAtt*pow(max(dot(nf,gHp),0.),70.)*gPoolC;
+  vec3 gl=(KEY*.45*pow(max(dot(nf,gHk),0.),70.)*gKeyC+POOL*gAtt*pow(max(dot(nf,gHp),0.),70.)*gPoolC)*gSh;
   glint=mix(avg*broad*.55,cov*gl*2.6,vis);
   return mix(avg,cov,vis);
 }
@@ -329,6 +330,9 @@ void main(){
     gWake=max(gWake,exp(-dd/900.)*w);
     float l=sqrt(dd);ring+=w*exp(-l/46.)*sin(l*.55-(1.-w)*26.);
   }
+#if MODE==1||MODE==2
+  gSh=mix(1.,shadeAt(vWorld+normalize(vNormal)*(MODE==2?1.6:.6)),SHADE);
+#endif
   setLight(normalize(normalize(vNormal)-grad.x*vTanX-grad.y*vTanZ));
 
   // Each material is some proportion of nashiji, polished metal and sheet, plus at most one layer of large flakes.
@@ -380,9 +384,10 @@ void main(){
     c=mix(c,wtr,clamp((fine.g-.035)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.));
   }
 #if MODE==1
-  // Where a part stands, the lid keeps its image polished flush: togidashi under takamaki.
+  // Where a part lies, the lid keeps its image polished flush: togidashi under takamaki. Once the part has stood
+  // up the image fades to a trace, or it would read as a second shadow left behind at the root.
   float print=0.;
-  for(int j=1;j<4;j++){ivec2 o=ident(p,j);if(o.x>0&&o.y!=13)print=max(print,texture(uFine,puv(p,j)).a);}
+  for(int j=1;j<4;j++){ivec2 o=ident(p,j);if(o.x>0&&o.y!=13)print=max(print,texture(uFine,puv(p,j)).a*(1.-.8*smoothstep(.15,.6,uA[o.x].y)));}
   c=mix(c,c*.42+GOLD*AMBER*(.03+.09*L),print*.85);
 #elif MODE==2
   // A body is darker toward its foot, where it meets the lid and the light does not reach.

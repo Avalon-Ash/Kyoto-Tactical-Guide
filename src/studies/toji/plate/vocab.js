@@ -205,7 +205,7 @@ export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 
     const t = .46 + k / clusters * .54, s = spine[Math.round(t * 12)], side = k % 2 ? -1 : 1;
     const w = height * lerp(.34, .2, k / clusters) * (.9 + r() * .2), h = w * .34;
     const cx = k === clusters - 1 ? s[0] : s[0] + side * w * (.55 + r() * .25), cz = s[1] - h * .2;
-    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 6, thick: 24, bias: 4 + k * 1.5});
+    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 6, thick: 24, bias: 9 + k * 1.5});
     // The pad's outline: the upper envelope of its lobes over a shallow belly.
     const lobes = w > height * .26 ? 3 : 2, humps = [];
     for (let i = 0; i < lobes; i++) {
@@ -231,7 +231,7 @@ export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 
 /** Uguisu, the first song of the year: a small bird of cut silver. It rests at one perch at a time. */
 export function bird(id, perches, layer = 1) {
   return perches.map(([x, z, flip = 1, attach], i) => {
-    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 4, thick: 16, bias: 27, attach});
+    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 4, thick: 16, bias: 32, attach});
     const S = 1.7, f = (dx, dz) => [x + dx * flip * S, z + dz * S];
     p.fills.push({d: blob(x, z - 3.4 * S, 5.6 * S, 3.3 * S, 9, .04, 18), soft: 0, crisp: 1});                       // body
     p.fills.push({d: blob(x + 5 * flip * S, z - 6.4 * S, 2.5 * S, 2.3 * S, 4, 0, 12), soft: 0, crisp: 1});             // head

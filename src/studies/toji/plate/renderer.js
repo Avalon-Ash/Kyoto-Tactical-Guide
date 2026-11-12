@@ -124,6 +124,24 @@ export function solidMesh(standing, maps, mw, mh, cell = 2) {
   return out;
 }
 
+export const SHADE_SIZE = 2048, SHADE_H = 380;
+/**
+ * The lamp's view of the lid, for the shade: an eye straight above the lamp's place, SHADE_H over the lid, looking
+ * down through a frustum cut to the lid's rectangle. Taller than anything on the plate, so every solid lies between
+ * the eye and the lid; shadows fan away from the hand. Column-major, clip = M · world.
+ */
+export function shadeMatrix(lx, lz, halfW = 392, halfH = 262, near = 40, far = SHADE_H + 40) {
+  const k = near / SHADE_H, l = (-halfW - lx) * k, r = (halfW - lx) * k, b = (lz - halfH) * k, t = (lz + halfH) * k;
+  // View: x' = x - lx, y' = lz - z, z' = y - SHADE_H. Then an off-axis perspective.
+  const a = 2 * near / (r - l), c = 2 * near / (t - b), A = (r + l) / (r - l), B = (t + b) / (t - b), C = -(far + near) / (far - near), D = -2 * far * near / (far - near);
+  return new Float32Array([
+    a, 0, 0, 0,
+    A, B, C, -1,
+    0, -c, 0, 0,
+    -a * lx - A * SHADE_H, c * lz - B * SHADE_H, -C * SHADE_H + D, SHADE_H,
+  ]);
+}
+
 /**
  * @param {WebGL2RenderingContext} gl
  * @param {HTMLCanvasElement} canvas
@@ -145,10 +163,10 @@ export function createPlateRenderer(gl, canvas) {
     const cache = new Map();
     return {p, u: name => { if (!cache.has(name)) cache.set(name, gl.getUniformLocation(p, name)); return cache.get(name); }};
   };
-  // One lean program per pass (see shaders.js): 0 box, 1 ground, 5 slice depth, 2 slice colour, 3 shadow, 4 mist.
+  // One lean program per pass (see shaders.js): 0 box, 1 ground, 5 slice depth, 2 slice colour, 4 mist, 7 shade.
   const boxP = compile(boxVert(0), frag(0), ['aPos', 'aNormal', 'aUv', 'aMeta']), groundP = compile(boxVert(1), frag(1), ['aPos', 'aNormal', 'aUv', 'aMeta']),
     floorP = compile(boxVert(6), frag(6), ['aPos', 'aNormal', 'aUv', 'aMeta']), blur = compile(BLUR_VERT, BLUR_FRAG);
-  const cuts = Object.fromEntries([5, 2, 3, 4].map(mode => [mode, compile(partVert(mode), frag(mode), ['aPos', 'aPart', 'aInfo'])]));
+  const cuts = Object.fromEntries([5, 2, 4, 7].map(mode => [mode, compile(partVert(mode), frag(mode), ['aPos', 'aPart', 'aInfo'])]));
   const box = buildBox();
   const vao = own(gl.createVertexArray(), gl.deleteVertexArray), empty = own(gl.createVertexArray(), gl.deleteVertexArray);
   const buffer = own(gl.createBuffer(), gl.deleteBuffer);
@@ -171,6 +189,14 @@ export function createPlateRenderer(gl, canvas) {
   const drift = {offset: 0, velocity: 0};
   const framebuffer = own(gl.createFramebuffer(), gl.deleteFramebuffer);
   const scratch = canvas.ownerDocument.createElement('canvas');
+  // The shade: a depth picture of the solids as the lamp sees them, redrawn every frame (see shadeMatrix).
+  const shade = own(gl.createTexture(), gl.deleteTexture), shadeTarget = own(gl.createFramebuffer(), gl.deleteFramebuffer);
+  gl.bindTexture(gl.TEXTURE_2D, shade); gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT24, SHADE_SIZE, SHADE_SIZE);
+  for (const [name, value] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE],
+    [gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE], [gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL]]) gl.texParameteri(gl.TEXTURE_2D, name, value);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, shadeTarget); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, shade, 0);
+  gl.drawBuffers([gl.NONE]); gl.readBuffer(gl.NONE);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.bindTexture(gl.TEXTURE_2D, null);
 
   let plate = null, life = null, lastTime = 0;
   const presence = {x: 0, v: 0};
@@ -232,15 +258,15 @@ export function createPlateRenderer(gl, canvas) {
     const ident = array(gl.RG8, mw, mh, 1, [gl.NEAREST, gl.NEAREST]);
     for (let layer = 0; layer < LAYERS; layer++) gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, mw, mh, 1, gl.RG, gl.UNSIGNED_BYTE, packed[layer]);
     scratch.width = scratch.height = 1;
-    // The solids' grids first, then one quad per standing part (for its shadow), then the mist quads.
+    // The solids' grids first, then one quad per band of mist.
     const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist), mist = parts.filter(p => p.kind === KIND.mist);
     const quads = solidMesh(standing, maps, mw, mh), solid = quads.length / 10;
-    for (const p of [...standing, ...mist]) {
+    for (const p of mist) {
       const pad = 3, [x0, z0, x1, z1] = [p.bounds[0] - pad, p.bounds[1] - pad, p.bounds[2] + pad, p.bounds[3] + pad];
       for (const [x, z] of [[x0, z0], [x1, z0], [x1, z1], [x0, z0], [x1, z1], [x0, z1]]) quads.push(x, z, p.index, p.layer, p.foot, p.thick, p.anchor[0], p.anchor[1], p.hinge, p.bias);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, partBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quads), gl.STATIC_DRAW);
-    plate = {fine, soft, ident, tmp, parts, maps, mw, mh, solid, standing: standing.length * 6, mist: mist.length * 6};
+    plate = {fine, soft, ident, tmp, parts, maps, mw, mh, solid, mist: mist.length * 6};
     canvas.dataset.solidVertices = String(solid);
     life = createLife(parts);
     canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
@@ -261,6 +287,7 @@ export function createPlateRenderer(gl, canvas) {
     const [lx, lz] = groundPoint(projection, f.px, -f.py).map((value, i) => Math.max(-430, Math.min(430, value)) * (i ? 1 : 1));
     // The lamp sits where its mirror image in the flat lid lands under the hand: the glint follows the finger.
     const LAMP_H = 70, lamp = [lx - VIEW[0] / VIEW[1] * LAMP_H, LAMP_H, lz - VIEW[2] / VIEW[1] * LAMP_H];
+    const shadeMat = shadeMatrix(lamp[0], lamp[2]);
     const state = life.update(dt, {time: f.time, light: [lx, lz], presence: presence.x, still: f.still, lift: f.lift, maps: plate.maps, mapW: plate.mw, mapH: plate.mh});
     canvas.dataset.under = state.under ? plate.parts[state.under - 1].id : '';
     // The box leans a little toward the hand: a real rotation, so nothing slides through anything.
@@ -303,7 +330,19 @@ export function createPlateRenderer(gl, canvas) {
       gl.uniform4fv(u('uA[0]'), state.a); gl.uniform4fv(u('uB[0]'), state.b);
       gl.uniform3fv(u('uTrails[0]'), packed);
       gl.uniform1i(u('uFine'), 0); gl.uniform1i(u('uSoft'), 1); gl.uniform1i(u('uIdent'), 2);
+      gl.uniform1i(u('uShade'), 3); gl.uniformMatrix4fv(u('uShadeMat'), false, shadeMat);
     }
+    gl.bindVertexArray(partVao);
+    if (opening < .999) {
+      // 0. The shade's depth picture. Polygon offset keeps a rounded body from shading itself.
+      gl.bindFramebuffer(gl.FRAMEBUFFER, shadeTarget); gl.viewport(0, 0, SHADE_SIZE, SHADE_SIZE);
+      gl.depthMask(true); gl.clear(gl.DEPTH_BUFFER_BIT); gl.disable(gl.BLEND);
+      gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(2, 4);
+      gl.useProgram(cuts[7].p); gl.uniformMatrix4fv(cuts[7].u('uCamera'), false, shadeMat); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
+      gl.disable(gl.POLYGON_OFFSET_FILL);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, shade); gl.activeTexture(gl.TEXTURE0);
     // 1. The box, then the lid's ground.
     gl.bindVertexArray(vao); gl.useProgram(floorP.p);
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -313,24 +352,19 @@ export function createPlateRenderer(gl, canvas) {
     gl.useProgram(groundP.p); gl.drawArrays(gl.TRIANGLES, 0, box.lidTop);
     gl.bindVertexArray(partVao);
     if (opening < .999) {
-      // 2. Shadows on the lid. The stencil lets each pixel darken once, however many silhouettes overlap there.
-      gl.enable(gl.BLEND); gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.DEPTH_TEST);
-      gl.enable(gl.STENCIL_TEST); gl.stencilFunc(gl.EQUAL, 0, 0xff); gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
-      gl.colorMask(true, true, true, false);
-      gl.useProgram(cuts[3].p); gl.drawArrays(gl.TRIANGLES, plate.solid, plate.standing + plate.mist);
-      gl.colorMask(true, true, true, true); gl.disable(gl.STENCIL_TEST); gl.enable(gl.DEPTH_TEST);
-      // 3. The solids. Depth first (alpha-to-coverage gives their outlines their softness), then colour only where
+      // 2. The solids. Their shadows are not drawn: the lid and the solids each read the shade's depth picture. Depth first (alpha-to-coverage gives their outlines their softness), then colour only where
       // a surface is the one in front: each sample is shaded once.
       gl.disable(gl.BLEND); gl.depthMask(true); gl.colorMask(false, false, false, false); gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
       gl.useProgram(cuts[5].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE); gl.colorMask(true, true, true, true); gl.depthMask(false); gl.depthFunc(gl.EQUAL);
       gl.useProgram(cuts[2].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
-      // 4. Mist floats over everything and writes no depth.
+      // 3. Mist floats over everything and writes no depth.
       gl.depthFunc(gl.LEQUAL); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.solid + plate.standing, plate.mist);
+      gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.solid, plate.mist);
     }
     // Leave the context as the relief renderer expects to find it.
     gl.depthMask(true); gl.disable(gl.BLEND); gl.bindVertexArray(null);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, null);
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
