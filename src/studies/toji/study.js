@@ -40,6 +40,53 @@ let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 let projection,render,dispose,poke;
 const backdrop=mountBackdrop($('stage'),{night,motion:!still(),wardId:cabinet.id});
+// The cabinets either side of this one stand on the same track. Each is a still picture of that cabinet at rest,
+// drawn by the same renderer and kept until the cabinet changes; it travels with the box and becomes the box.
+const ghosts=options.embedded?[-1,1].map(side=>{
+  const ghost=document.createElement('canvas');ghost.className='neighbour';ghost.setAttribute('aria-hidden','true');ghost.dataset.side=String(side);
+  canvas.before(ghost);return ghost;
+}):[];
+let ghostAnimations=[],ghostsStale=true,ghostTimer=0,rawDraw=null,setMeshRaw=null;
+const spacing=()=>canvas.clientWidth*.82;
+/** Puts the box and its neighbours at `offset` px along the track. */
+function placeTrack(offset){
+  ghostAnimations.forEach(a=>a.cancel());ghostAnimations=[];
+  canvas.style.transform=offset?`translateX(${offset}px)`:'';
+  for(const ghost of ghosts){
+    ghost.style.transform=`translateX(${Number(ghost.dataset.side)*spacing()+offset}px)`;
+    ghost.style.opacity=ghost.dataset.ward&&offset?String(Math.min(.9,Math.abs(offset)/60)):'0';
+  }
+}
+/** Moves the whole track from one offset to another; resolves with the box's own animation. */
+function slide(from,to,duration){
+  const gap=spacing(),timing={duration,easing:'cubic-bezier(.3,.7,.2,1)',fill:'forwards'};
+  ghostAnimations.forEach(a=>a.cancel());
+  ghostAnimations=ghosts.filter(ghost=>typeof ghost.animate==='function').map(ghost=>{
+    const at=Number(ghost.dataset.side)*gap,shown=ghost.dataset.ward?.9:0;
+    return ghost.animate([{transform:`translateX(${at+from}px)`,opacity:from?shown:0},{transform:`translateX(${at+to}px)`,opacity:to?shown:0}],timing);
+  });
+  return canvas.animate([{transform:`translateX(${from}px)`},{transform:`translateX(${to}px)`}],timing);
+}
+function snapshotNeighbours(){
+  ghostsStale=false;
+  if(!ghosts.length||!rawDraw||!setMeshRaw||failed||!canvas.width)return;
+  const own=cabinet.id;
+  for(const ghost of ghosts){
+    const ward=adjacentCabinet(own,Number(ghost.dataset.side)).id,ctx=ghost.getContext('2d');
+    if(!ctx)continue;
+    setMeshRaw(ward);
+    rawDraw({time:performance.now(),moving:false,still:true,flat,night,ground,lift:.82,opening:0,px:0,py:0,zoom:1,panX:0,panY:0,trails:[],presence:0});
+    // Same task as the draw: the WebGL canvas still holds the frame.
+    ghost.width=canvas.width;ghost.height=canvas.height;ctx.drawImage(canvas,0,0);ghost.dataset.ward=ward;ghost.dataset.plate=canvas.dataset.plate??'false';
+  }
+  setMeshRaw(own);render?.(performance.now(),false);
+}
+/** The neighbours' pictures are out of date (another cabinet, another light, another size): hide them and redraw soon. */
+function queueSnapshot(){
+  ghostsStale=true;for(const ghost of ghosts)delete ghost.dataset.ward;
+  clearTimeout(ghostTimer);
+  ghostTimer=setTimeout(()=>{if(!destroyed&&ghostsStale&&bookState==='closed'&&!gesture)snapshotNeighbours();},350);
+}
 // The unseen track made faintly visible: one cut-gold tick per cabinet, and a light that travels with the box.
 const track=$('track'),trackLight=document.createElement('b');
 const ticks=CABINETS.map((_,i)=>{const tick=document.createElement('i');tick.style.left=`calc(var(--step)*${i+.5})`;track?.append(tick);return tick;});
@@ -76,7 +123,7 @@ function syncCabinet(){
 async function changeCabinet(direction,focusTarget=document.activeElement,fromOffset=0){
   if(bookState!=='closed')return;
   resetZoom(true);
-  dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;canvas.dataset.dragging='false';syncTrack(0);
+  dragAnimation?.cancel();placeTrack(0);dragOffset=0;canvas.dataset.dragging='false';syncTrack(0);
   bookState='switching';demoStart=0;trails=[];gesture=null;hover=false;tx=ty=px=py=0;syncBook();
   const animate=async frames=>{
     if(still())return;
@@ -84,14 +131,24 @@ async function changeCabinet(direction,focusTarget=document.activeElement,fromOf
     await switchAnimation.finished.catch(()=>{});
   };
   const distance=options.embedded?Math.max(100,canvas.clientWidth*.35):28;
-  await animate([{opacity:1,transform:`translateX(${fromOffset}px)`},{opacity:0,transform:`translateX(${-direction*Math.max(distance,Math.abs(fromOffset))}px)`}]);
+  // On the home the whole track slides and the neighbour arrives as itself; elsewhere the box fades out and in.
+  const together=Boolean(ghosts.length&&!still()&&render&&typeof canvas.animate==='function');
+  if(together){
+    if(ghostsStale)snapshotNeighbours();
+    const gap=spacing();
+    switchAnimation=slide(fromOffset,-direction*gap,240+220*(1-Math.min(1,Math.abs(fromOffset)/gap)));
+    await switchAnimation.finished.catch(()=>{});
+  }else await animate([{opacity:1,transform:`translateX(${fromOffset}px)`},{opacity:0,transform:`translateX(${-direction*Math.max(distance,Math.abs(fromOffset))}px)`}]);
   if(destroyed)return;
   cabinet=adjacentCabinet(cabinet.id,direction);kick=still()?0:direction;options.onWardChange?.(cabinet.id);updateMesh?.();backdrop.setWard(cabinet.id);
   lift=flat?.025:still()?.82:1;
   // Commit the new mesh before its label is revealed, even when a quiet tab defers RAF.
   render?.(performance.now(),false);syncCabinet();schedule();
   switchAnimation?.cancel();
-  await animate([{opacity:0,transform:`translateX(${direction*distance}px)`},{opacity:1,transform:'translateX(0)'}]);
+  // The new cabinet is drawn in the box's own canvas in the same task the track snaps back: nothing is seen to jump.
+  if(together)placeTrack(0);
+  else await animate([{opacity:0,transform:`translateX(${direction*distance}px)`},{opacity:1,transform:'translateX(0)'}]);
+  queueSnapshot();
   if(destroyed)return;
   switchAnimation?.cancel();switchAnimation=null;bookState='closed';
   // A deliberate selection starts the new scene immediately; later input still takes control.
@@ -171,7 +228,7 @@ function point(e){
   if(options.embedded&&gesture?.moved){
     // The box trails the finger along its unseen track; the light below still follows the finger itself.
     dragOffset=still()?0:cabinetOffset(e.clientX-gesture.x,canvas.clientWidth);
-    canvas.style.transform=dragOffset?`translateX(${dragOffset}px)`:'';canvas.dataset.dragging=String(Boolean(dragOffset));syncTrack(dragOffset);
+    placeTrack(dragOffset);canvas.dataset.dragging=String(Boolean(dragOffset));syncTrack(dragOffset);
   }
   const r=canvas.getBoundingClientRect();tx=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));ty=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));
   addTrail(tx,ty);schedule();
@@ -217,7 +274,7 @@ function save(){
 }
 function syncMotion(){
   root.classList.toggle('reduce-motion',still());
-  if(still()){demoStart=0;trails=[];tx=ty=0;switchAnimation?.finish();dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;syncTrack(0);}
+  if(still()){demoStart=0;trails=[];tx=ty=0;switchAnimation?.finish();dragAnimation?.cancel();placeTrack(0);dragOffset=0;syncTrack(0);}
   syncBook();schedule();
 }
 listen(media,'change',syncMotion);
@@ -293,7 +350,8 @@ listen(canvas,'pointerdown',e=>{
   // With no reader to hand over to, a second press puts the lid back.
   if(bookState==='reading'&&!options.onOpenVolume&&e.button===0){closeBook();return;}
   if(e.button!==0||bookState!=='closed'||gesture||multiTouch)return;
-  dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;
+  dragAnimation?.cancel();placeTrack(0);dragOffset=0;
+  if(ghostsStale)snapshotNeighbours();
   gesture={id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp,moved:false,panning:isZoomed(zoomTarget),panX,panY};
   if(options.embedded||gesture.panning)canvas.setPointerCapture(e.pointerId);
   hover=true;demoStart=0;notify();point(e);
@@ -306,8 +364,8 @@ function endDrag(){
   schedule();
 }
 function returnCabinet(){
-  const offset=dragOffset;dragOffset=0;canvas.style.transform='';syncTrack(0);
-  if(offset&&!still())dragAnimation=canvas.animate([{transform:`translateX(${offset}px)`},{transform:'translateX(0)'}],{duration:160,easing:'ease-out'});
+  const offset=dragOffset;dragOffset=0;placeTrack(0);syncTrack(0);
+  if(offset&&!still()&&typeof canvas.animate==='function')dragAnimation=slide(offset,0,180);
 }
 listen(canvas,'pointerleave',()=>{if((options.embedded||gesture?.panning)&&gesture)return;endDrag();returnCabinet();release();});
 listen(canvas,'pointercancel',()=>{endDrag();returnCabinet();release();});
@@ -357,16 +415,16 @@ listen(canvas,'keydown',e=>{
 });
 listen(document,'visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;demoStart=0;trails=[];autoPlaying=false;canvas.dataset.autoplay='false';}else schedule();});
 const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible){cancelAnimationFrame(frame);frame=0;demoStart=0;trails=[];autoPlaying=false;canvas.dataset.autoplay='false';}else schedule();});intersection.observe(canvas);
-const resize=new ResizeObserver(()=>{syncBackdrop();schedule();});resize.observe(canvas);
+const resize=new ResizeObserver(()=>{syncBackdrop();schedule();queueSnapshot();});resize.observe(canvas);
 
 function init(){
   const renderer=createRenderer(canvas,cabinet.id);
-  updateMesh=()=>renderer.setMesh(cabinet.id);
+  updateMesh=()=>renderer.setMesh(cabinet.id);setMeshRaw=id=>renderer.setMesh(id);rawDraw=frame=>renderer.draw(frame);queueSnapshot();
   render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0,offset:dragOffset,kick});kick=0;};
   poke=renderer.poke;
   dispose=renderer.dispose;failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
 }
-function failure(error){failed=true;render=null;updateMesh=null;poke=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
+function failure(error){failed=true;render=null;updateMesh=null;poke=null;rawDraw=setMeshRaw=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
 listen(canvas,'webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(frame);frame=0;dispose?.();failure('Context lost');});
 listen(canvas,'webglcontextrestored',()=>{try{init();syncMotion();}catch(e){failure(e);}});
 listen(window,'pagehide',event=>{cancelAnimationFrame(frame);frame=0;if(!event.persisted)dispose?.();});
@@ -376,7 +434,7 @@ syncNight();syncLanguage();syncMotion();syncBackdrop();
 return {
   setPreferences(next){
     if(destroyed)return;
-    night=next.night;paused=next.paused;backdrop.setNight(night);
+    night=next.night;paused=next.paused;backdrop.setNight(night);queueSnapshot();
     syncNight();syncMotion();schedule();
   },
   setLanguage(next){if(!destroyed&&next!==language){activity();language=next;syncLanguage();}},
@@ -385,7 +443,7 @@ return {
   openBook,closeBook,setFlat,demo,setGround,save,state:snapshot,
   destroy(){
     if(destroyed)return;destroyed=true;
-    events.abort();intersection.disconnect();resize.disconnect();
+    events.abort();intersection.disconnect();resize.disconnect();clearTimeout(ghostTimer);ghostAnimations.forEach(a=>a.cancel());ghosts.forEach(ghost=>ghost.remove());
     switchAnimation?.cancel();dragAnimation?.cancel();endDrag();cancelAnimationFrame(frame);frame=0;
     dispose?.();backdrop.destroy();render=null;updateMesh=null;
   },
