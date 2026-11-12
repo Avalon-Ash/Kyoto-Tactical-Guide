@@ -23,6 +23,19 @@
 .bunko .cabinet-verse { position:absolute; right:22px; top:24px; margin:0; writing-mode:vertical-rl; font:13px/1.6 var(--bunko-title); letter-spacing:.34em; color:var(--muted); text-shadow:0 0 2px var(--paper),0 0 7px var(--paper); pointer-events:none; }
 .bunko #cabinet-place { font:600 25px var(--bunko-title); letter-spacing:.16em; }
 
+/* The track: eleven cut-gold ticks, the current cabinet's lit, and a light that follows the box along it. */
+.bunko .track { position:absolute; left:50%; top:30px; --step:18px; width:calc(var(--step)*11); height:14px; margin-left:calc(var(--step)*-5.5); pointer-events:none; transition:opacity .3s; }
+.bunko .track>i { position:absolute; top:4px; width:5px; height:5px; margin-left:-2.5px; rotate:45deg; background:var(--muted); opacity:.42; transition:opacity .2s,scale .2s,background-color .2s,box-shadow .2s; }
+.bunko .track>i[data-current="true"] { background:var(--gold); opacity:1; scale:1.5; }
+.bunko .track>i[data-armed="true"] { background:var(--gold); opacity:1; scale:2; box-shadow:0 0 9px 2px color-mix(in srgb,var(--gold) 70%,transparent); }
+.bunko .track>b { position:absolute; top:-1px; left:calc(var(--step)*(var(--at,0) + .5)); width:40px; height:15px; margin-left:-20px; border-radius:50%; background:radial-gradient(closest-side,color-mix(in srgb,var(--gold) 80%,#fff) 0,color-mix(in srgb,var(--gold) 45%,transparent) 42%,transparent 100%); opacity:0; transition:opacity .5s,left .5s cubic-bezier(.2,.8,.2,1); }
+/* While the hand holds the box the light is exactly where the box is; let go and it lingers, then sinks back. */
+.bunko .track[data-dragging="true"]>b { opacity:.95; transition:opacity .12s; }
+.bunko .stage[data-book-state="switching"] .track>b { opacity:.95; }
+.bunko .stage:not([data-book-state="closed"]):not([data-book-state="switching"]) .track, .bunko canvas[data-zoomed="true"]~.track { opacity:0; }
+.bunko.reduce-motion .track>b { display:none; }
+.bunko canvas { transition:scale .14s ease-out; }
+
 /* Backdrop: washi, mist bands and motes behind the cabinet (backdrop.js). */
 .bunko .stage>.backdrop { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
 .bunko .stage>.backdrop>canvas { position:absolute; left:0; top:0; filter:none; cursor:default; touch-action:auto; }
@@ -49,6 +62,7 @@
 @media (max-width:700px) {
   .bunko .stage { height:450px; }
   .bunko .seal { left:15px; top:18px; font-size:15px; }
+  .bunko .track { top:24px; --step:14px; }
   .bunko .stage-caption { left:18px; bottom:18px; }
   .bunko .stage-caption small { max-width:140px; line-height:1.6; }
   .bunko #cabinet-place { font-size:21px; }

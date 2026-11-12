@@ -1,7 +1,7 @@
 import {groundPoint, trailIntensity} from './geometry.js';
 import {createRenderer, cameraMatrix} from './renderer.js';
 import {translate} from '../../data/i18n';
-import {progressToward,isTap,onLid,cabinetDragDirection,cabinetOffset,idlePlaybackAllowed} from './interaction.js';
+import {progressToward,isTap,onLid,cabinetDragDirection,cabinetOffset,switchDistance,idlePlaybackAllowed} from './interaction.js';
 import {CABINETS,cabinetFor,adjacentCabinet} from './collection';
 import {LANDMARK_STUDIES} from './landmarks.js';
 import {viewBox,clampPan,clampZoom,isZoomed,rubberBand,panLimit,planePoint,anchorPan,dragPan,isDoubleTap,ZOOM_STEP} from './view.js';
@@ -40,6 +40,24 @@ let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
 let projection,render,dispose,poke;
 const backdrop=mountBackdrop($('stage'),{night,motion:!still(),wardId:cabinet.id});
+// The unseen track made faintly visible: one cut-gold tick per cabinet, and a light that travels with the box.
+const track=$('track'),trackLight=document.createElement('b');
+const ticks=CABINETS.map((_,i)=>{const tick=document.createElement('i');tick.style.left=`calc(var(--step)*${i+.5})`;track?.append(tick);return tick;});
+track?.append(trackLight);
+let armed=0;
+/** offset: how far the box has been pulled from rest, px. Past the switch distance the next cabinet's tick answers. */
+function syncTrack(offset=0){
+  if(!track)return;
+  const index=CABINETS.indexOf(cabinet),reach=switchDistance(canvas.clientWidth)||1,pull=Math.max(-1.25,Math.min(1.25,offset/reach));
+  const next=offset&&Math.abs(offset)>=reach?-Math.sign(offset):0,target=(index+next+CABINETS.length)%CABINETS.length;
+  ticks.forEach((tick,i)=>{tick.dataset.current=String(i===index);tick.dataset.armed=String(Boolean(next)&&i===target);});
+  track.style.setProperty('--at',(index-pull).toFixed(3));track.dataset.dragging=String(Boolean(offset));
+  if(next===armed)return;
+  armed=next;canvas.dataset.armed=String(next);
+  // Crossing the threshold is felt: the box checks for an instant and, where the device can, the hand feels a tick.
+  canvas.style.scale=next&&!still()?'.985':'';
+  if(next&&!still())navigator.vibrate?.(10);
+}
 function syncNight(){root.classList.toggle('night',night);}
 function syncBackdrop(){const stage=$('stage'),w=stage.clientWidth,h=stage.clientHeight;if(w&&h)backdrop.resize(w,h,devicePixelRatio||1,cabinetKeepout(cameraMatrix(w,h),w,h));}
 /** @returns {BunkoState} */
@@ -53,11 +71,12 @@ function syncCabinet(){
   $('cabinet-verse').textContent=WARD_ART[cabinet.id].verse[language];
   canvas.setAttribute('aria-label',translate(options.embedded?'bunko_canvas_home':'bunko_canvas_study',language).replace('{name}',name));
   canvas.dataset.ward=cabinet.id;
+  syncTrack(dragOffset);
 }
 async function changeCabinet(direction,focusTarget=document.activeElement,fromOffset=0){
   if(bookState!=='closed')return;
   resetZoom(true);
-  dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;canvas.dataset.dragging='false';
+  dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;canvas.dataset.dragging='false';syncTrack(0);
   bookState='switching';demoStart=0;trails=[];gesture=null;hover=false;tx=ty=px=py=0;syncBook();
   const animate=async frames=>{
     if(still())return;
@@ -152,7 +171,7 @@ function point(e){
   if(options.embedded&&gesture?.moved){
     // The box trails the finger along its unseen track; the light below still follows the finger itself.
     dragOffset=still()?0:cabinetOffset(e.clientX-gesture.x,canvas.clientWidth);
-    canvas.style.transform=dragOffset?`translateX(${dragOffset}px)`:'';canvas.dataset.dragging=String(Boolean(dragOffset));
+    canvas.style.transform=dragOffset?`translateX(${dragOffset}px)`:'';canvas.dataset.dragging=String(Boolean(dragOffset));syncTrack(dragOffset);
   }
   const r=canvas.getBoundingClientRect();tx=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));ty=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));
   addTrail(tx,ty);schedule();
@@ -198,7 +217,7 @@ function save(){
 }
 function syncMotion(){
   root.classList.toggle('reduce-motion',still());
-  if(still()){demoStart=0;trails=[];tx=ty=0;switchAnimation?.finish();dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;}
+  if(still()){demoStart=0;trails=[];tx=ty=0;switchAnimation?.finish();dragAnimation?.cancel();canvas.style.transform='';dragOffset=0;syncTrack(0);}
   syncBook();schedule();
 }
 listen(media,'change',syncMotion);
@@ -287,7 +306,7 @@ function endDrag(){
   schedule();
 }
 function returnCabinet(){
-  const offset=dragOffset;dragOffset=0;canvas.style.transform='';
+  const offset=dragOffset;dragOffset=0;canvas.style.transform='';syncTrack(0);
   if(offset&&!still())dragAnimation=canvas.animate([{transform:`translateX(${offset}px)`},{transform:'translateX(0)'}],{duration:160,easing:'ease-out'});
 }
 listen(canvas,'pointerleave',()=>{if((options.embedded||gesture?.panning)&&gesture)return;endDrag();returnCabinet();release();});

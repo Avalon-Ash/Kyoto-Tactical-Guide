@@ -157,6 +157,7 @@ export const BACKDROP_PALETTE = {
     fill: '#d9b46a', fillDeep: '#b88c45', edge: '#8e6a2e', alpha: .58,
     poolLight: 'rgba(255,238,190,.35)', poolDark: 'rgba(140,100,40,.28)', dust: 'rgba(164,120,46,', dustAlpha: .55,
     motifInk: '#8a6428', motif: .2,
+    shoji: 'rgba(255,247,226,', shojiAlpha: .12, table: 'rgba(74,52,22,', tableAlpha: .12, gleam: 'rgba(255,226,160,', gleamAlpha: .16,
   },
   night: {
     paper: ['#474844', '#33393e', '#262d33'], vignette: 'rgba(8,12,16,.32)',
@@ -164,6 +165,7 @@ export const BACKDROP_PALETTE = {
     fill: '#b9c4c8', fillDeep: '#8e9aa0', edge: '#d8e0e2', alpha: .3,
     poolLight: 'rgba(236,242,244,.3)', poolDark: 'rgba(40,48,54,.3)', dust: 'rgba(214,220,222,', dustAlpha: .4,
     motifInk: '#c9d3d6', motif: .13,
+    shoji: 'rgba(196,212,232,', shojiAlpha: .075, table: 'rgba(4,7,10,', tableAlpha: .26, gleam: 'rgba(214,180,110,', gleamAlpha: .10,
   },
 };
 
@@ -197,6 +199,7 @@ export function mountBackdrop(host, options) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     paintPaper(ctx, width, height, keep, p, seed);
     paintMotif(doc, ctx, width, height, dpr, keep, p, WARD_ART[wardId]?.motif);
+    paintRoom(ctx, width, height, keep, p);
     const placed = wardSeed(wardId);
     grainTile ??= makeGrain(doc, seed);
     const pattern = grainTile && ctx.createPattern(grainTile, 'repeat');
@@ -301,6 +304,36 @@ function paintPaper(ctx, width, height, keep, p, seed) {
     ctx.lineWidth = .35 + rand() * .6;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + dx / 2 - dy / len * bend, y + dy / 2 + dx / len * bend, x + dx, y + dy); ctx.stroke();
   }
+}
+
+/**
+ * The room the cabinet sits in, as light only: panes of a shoji fallen slantwise across the sheet from the upper
+ * left, and under the cabinet the dark gloss of a lacquered table with a little of the cabinet's gold given back.
+ * All of it far weaker than the cabinet itself; nothing here is a picture.
+ */
+function paintRoom(ctx, width, height, keep, p) {
+  const xs = keep.map(q => q[0]), ys = keep.map(q => q[1]);
+  const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.max(...ys), cx = (left + right) / 2, span = right - left;
+  // Shoji light.
+  const cell = Math.max(40, Math.min(width, height) * .12), gap = cell * .09, cols = 4, rows = 3;
+  ctx.save();
+  ctx.translate(width * .05, height * .12); ctx.transform(1, .16, -.46, 1, 0, 0);
+  ctx.shadowBlur = cell * .22;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const a = p.shojiAlpha * (1 - r / rows * .55) * (1 - c / cols * .6);
+    ctx.fillStyle = ctx.shadowColor = `${p.shoji}${a.toFixed(3)})`;
+    ctx.fillRect(c * cell + gap, r * cell * 1.3 + gap, cell - gap * 2, cell * 1.3 - gap * 2);
+  }
+  ctx.restore();
+  // The table: a pool of gloss under the cabinet, then the gold it gives back, nearest the cabinet's foot.
+  const pool = (y, rx, ry, colour, alpha) => {
+    ctx.save(); ctx.translate(cx, y); ctx.scale(1, ry / rx);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    g.addColorStop(0, `${colour}${alpha})`); g.addColorStop(.55, `${colour}${(alpha * .45).toFixed(3)})`); g.addColorStop(1, `${colour}0)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  };
+  pool(bottom - span * .04, span * .78, span * .2, p.table, p.tableAlpha);
+  pool(bottom + span * .015, span * .42, span * .055, p.gleam, p.gleamAlpha);
 }
 
 /**

@@ -2,6 +2,7 @@
 // Static, trusted markup; all ward text is written later with textContent.
 export const BUNKO_STAGE = `<div class="stage" id="stage">
     <canvas id="scene" tabindex="0" role="button"></canvas>
+    <div class="track" id="track" aria-hidden="true"></div>
     <div class="loading" id="loading" role="status"></div>
     <div class="seal" aria-hidden="true">京<br>洛</div>
     <p id="cabinet-verse" class="cabinet-verse" aria-hidden="true"></p>
