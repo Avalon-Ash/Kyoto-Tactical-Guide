@@ -38,7 +38,7 @@ let dragOffset=0,dragAnimation=null;
 // Close-up: current and target zoom/pan; a pinch or pan writes both, the tick eases current toward target.
 let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
-let projection,render,dispose;
+let projection,render,dispose,poke;
 const backdrop=mountBackdrop($('stage'),{night,motion:!still(),wardId:cabinet.id});
 function syncNight(){root.classList.toggle('night',night);}
 function syncBackdrop(){const stage=$('stage'),w=stage.clientWidth,h=stage.clientHeight;if(w&&h)backdrop.resize(w,h,devicePixelRatio||1,cabinetKeepout(cameraMatrix(w,h),w,h));}
@@ -301,7 +301,15 @@ listen(canvas,'pointerup',e=>{
   if(gesture.panning){
     // In close-up a drag only pans; a double tap returns to the full view; a single tap does nothing.
     endDrag();
-    if(tap){const t={x:end.x,y:end.y,time:end.time};if(isDoubleTap(lastTap,t)){lastTap=null;resetZoom();}else lastTap=t;}
+    if(tap){
+      const t={x:end.x,y:end.y,time:end.time};
+      if(isDoubleTap(lastTap,t)){lastTap=null;resetZoom();}
+      else{
+        lastTap=t;
+        // A plate answers a touch in close-up: the part under the finger does what it does.
+        if(projection&&poke){const r=canvas.getBoundingClientRect();canvas.dataset.poked=poke(...groundPoint(projection,(end.x-r.left)/r.width*2-1,1-(end.y-r.top)/r.height*2),performance.now());schedule();}
+      }
+    }
     if(e.pointerType==='touch')release();
     return;
   }
@@ -335,10 +343,11 @@ const resize=new ResizeObserver(()=>{syncBackdrop();schedule();});resize.observe
 function init(){
   const renderer=createRenderer(canvas,cabinet.id);
   updateMesh=()=>renderer.setMesh(cabinet.id);
-  render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails});};
+  render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0});};
+  poke=renderer.poke;
   dispose=renderer.dispose;failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
 }
-function failure(error){failed=true;render=null;updateMesh=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
+function failure(error){failed=true;render=null;updateMesh=null;poke=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
 listen(canvas,'webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(frame);frame=0;dispose?.();failure('Context lost');});
 listen(canvas,'webglcontextrestored',()=>{try{init();syncMotion();}catch(e){failure(e);}});
 listen(window,'pagehide',event=>{cancelAnimationFrame(frame);frame=0;if(!event.persisted)dispose?.();});

@@ -3,6 +3,8 @@
 import {buildScene, multiply, lookAt, ortho, normalize, trailIntensity} from './geometry.js';
 import {vertex, fragment, depth} from './shaders.js';
 import {viewBox, renderDpr} from './view.js';
+import {createPlateRenderer} from './plate/renderer.js';
+import {hasPlate} from './plate/parts.js';
 
 // Fixed home camera; the backdrop's cabinet keepout shares it.
 const EYE = [430, 720, 920], CAMERA_VIEW = lookAt(EYE, [0, 40, 0]);
@@ -15,13 +17,16 @@ export function cameraMatrix(width, height, zoom = 1, cx = 0, cy = 0) {
 
 /**
  * @typedef {{time:number, moving:boolean, still:boolean, flat:boolean, night:boolean, ground:number, lift:number, opening:number,
- * px:number, py:number, zoom:number, panX:number, panY:number, trails:{x:number, z:number, time:number}[]}} Frame
+ * px:number, py:number, zoom:number, panX:number, panY:number, presence?:number, trails:{x:number, z:number, time:number}[]}} Frame
  * @param {HTMLCanvasElement} canvas
  * @param {string} wardId
  * Throws when WebGL or the shadow framebuffer is unavailable; nothing is left allocated in that case.
  */
 export function createRenderer(canvas, wardId) {
-  const gl = canvas.getContext('webgl', {alpha: true, antialias: true, powerPreference: 'low-power'});
+  // WebGL2 where it exists: redrawn wards are makie plates (plate/renderer.js). The relief mesh below is GLSL ES 1.00
+  // and runs on either context, for the wards not yet redrawn and for devices without WebGL2.
+  const settings = {alpha: true, antialias: true, stencil: true, powerPreference: 'low-power'};
+  const gl2 = canvas.getContext('webgl2', settings), gl = gl2 ?? canvas.getContext('webgl', settings);
   if (!gl) throw Error('WebGL unavailable');
   const resources = [];
   const release = () => resources.splice(0).reverse().forEach(free => free());
@@ -41,9 +46,18 @@ export function createRenderer(canvas, wardId) {
   try {
     const main = program(fragment), shadow = program(depth), buffer = gl.createBuffer();
     resources.push(() => gl.deleteBuffer(buffer));
-    let mesh, ward = wardId, draws = 0;
-    const setMesh = id => { ward = id; mesh = buildScene(id); gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW); };
-    setMesh(wardId);
+    let mesh, ward = wardId, draws = 0, plateActive = false;
+    // If the plate renderer cannot be built on this device, every ward falls back to the relief mesh.
+    let plate = null;
+    if (gl2) try { plate = createPlateRenderer(gl2, canvas); } catch (error) { console.warn('Makie plate unavailable:', error); }
+    if (plate) resources.push(() => plate.dispose());
+    const setMesh = id => {
+      ward = id;
+      plateActive = Boolean(plate && hasPlate(id) && plate.setWard(id));
+      canvas.dataset.plate = String(plateActive);
+      if (plateActive) return;
+      mesh = buildScene(id); gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
+    };
     const framebuffer = gl.createFramebuffer(), texture = gl.createTexture(), depthBuffer = gl.createRenderbuffer();
     resources.push(() => gl.deleteFramebuffer(framebuffer), () => gl.deleteTexture(texture), () => gl.deleteRenderbuffer(depthBuffer));
     gl.bindTexture(gl.TEXTURE_2D, texture); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SHADOW, SHADOW, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -52,7 +66,7 @@ export function createRenderer(canvas, wardId) {
     gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, SHADOW, SHADOW);
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0); gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
     if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw Error('Shadow framebuffer unavailable');
-    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+    setMesh(wardId);
 
     /** @param {Frame} f */
     function bind(prog, matrix, lightMatrix, f) {
@@ -66,11 +80,19 @@ export function createRenderer(canvas, wardId) {
     }
     return {
       setMesh,
+      /** A tap on a part of a plate in close-up; '' when there is no plate or nothing was met. */
+      poke: (x, z, time) => plateActive ? plate.poke(x, z, time) : '',
       /** Draws one frame and returns the camera matrix it used. @param {Frame} f */
       draw(f) {
         const dpr = renderDpr(devicePixelRatio, f.zoom, canvas.clientWidth, canvas.clientHeight), w = Math.max(1, Math.round(canvas.clientWidth * dpr)), h = Math.max(1, Math.round(canvas.clientHeight * dpr));
         if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
         const projection = cameraMatrix(w, h, f.zoom, f.panX, f.panY);
+        canvas.dataset.renderedWard = ward; canvas.dataset.frames = String(++draws);
+        if (plateActive) {
+          plate.draw(f, projection, viewBox(w / h, f.zoom).halfW * 2 / w);
+          return projection;
+        }
+        gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
         const lightPos = [-390 + f.px * 170, 650, 280 + f.py * 140], lightDir = normalize(lightPos);
         const lightMatrix = multiply(ortho(-560, 560, -540, 540, 1, 1700), lookAt(lightPos, [0, 0, 0]));
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer); gl.viewport(0, 0, SHADOW, SHADOW); gl.clearColor(1, 1, 1, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -84,8 +106,6 @@ export function createRenderer(canvas, wardId) {
         f.trails.forEach((p, i) => packed.set([p.x, p.z, trailIntensity(p.time, f.time, f.still)], i * 3));
         gl.uniform3fv(u['trails[0]'], packed); gl.drawArrays(gl.TRIANGLES, 0, mesh.length / 8);
         canvas.dataset.vertices = String(mesh.length / 8);
-        canvas.dataset.renderedWard = ward;
-        canvas.dataset.frames = String(++draws);
         return projection;
       },
       dispose: release,

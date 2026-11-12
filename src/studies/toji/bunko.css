@@ -11,6 +11,8 @@
 .bunko .stage { height:570px; position:relative; background:var(--paper); overflow:hidden; }
 .bunko canvas { display:block; width:100%; height:100%; touch-action:pan-y; cursor:crosshair; filter:drop-shadow(8px 18px 13px #35271644); }
 .bunko .stage>#scene { position:relative; }
+/* A makie plate lays its own shadow on what it stands on. */
+.bunko canvas[data-plate="true"] { filter:none; }
 .bunko .loading { position:absolute; inset:0; display:grid; place-content:center; background:var(--panel); padding:40px; text-align:center; line-height:2; }
 .bunko .loading[hidden] { display:none; }
 .bunko .seal { position:absolute; left:28px; top:26px; color:var(--entry-seal); border:1px solid var(--entry-seal); font:19px/1.3 var(--bunko-title); padding:5px; pointer-events:none; }
