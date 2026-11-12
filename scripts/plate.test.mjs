@@ -133,3 +133,28 @@ test('the box mesh is closed into the ranges the renderer draws', () => {
   for (let i = box.opaque; i < box.total; i++) assert.equal(box.data[i * 10 + 8], 25, 'the floor shadow comes last');
   assert.ok(box.data.every(Number.isFinite));
 });
+
+test('a cord keeps its length, stays on the floor and out of the box, and comes to rest', async () => {
+  const {createCord, cordTube} = await import('../src/studies/toji/plate/cord.js');
+  const anchor = [40, -72, 239], out = [0, 1], cord = createCord({anchor, out});
+  cord.settle();
+  const rest = cord.points.map(p => [...p]);
+  cord.step(1 / 60, {kick: 420});
+  for (let i = 0; i < 30; i++) cord.step(1 / 60, {ax: 3000});
+  const tip = cord.points.at(-1);
+  assert.ok(Math.hypot(tip[0] - rest.at(-1)[0], tip[2] - rest.at(-1)[2]) > 1, 'a pull moves the tail');
+  for (let i = 0; i < 600; i++) cord.step(1 / 60);
+  assert.deepEqual(cord.points[0], anchor);
+  for (let i = 1; i < cord.points.length; i++) {
+    const a = cord.points[i - 1], b = cord.points[i], length = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    assert.ok(Math.abs(length - cord.seg) < cord.seg * .06, `link ${i} is ${length}`);
+    assert.ok(b[1] >= -92.5 - 1e-6, 'never below the floor');
+    assert.ok(b[2] >= anchor[2] + 2 - 1e-6, 'never inside the box');
+  }
+  const before = cord.points.map(p => [...p]);
+  for (let i = 0; i < 60; i++) cord.step(1 / 60);
+  cord.points.forEach((p, i) => assert.ok(Math.hypot(p[0] - before[i][0], p[1] - before[i][1], p[2] - before[i][2]) < .05, `node ${i} is at rest`));
+  const tube = cordTube(cord.points, out);
+  assert.equal(tube.length, (cord.points.length - 1) * 6 * 6 * 10);
+  assert.ok(tube.every(Number.isFinite));
+});

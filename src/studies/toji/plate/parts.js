@@ -33,8 +33,13 @@ export function preparePlate(parts) {
     return {...p, index: i + 1, bounds: [x0, z0, x1, z1], centre: [(x0 + x1) / 2, (z0 + z1) / 2], radius: Math.hypot(x1 - x0, z1 - z0) / 2};
   });
   // A group stands on one line: the lowest edge of its picture. A rider stands on its carrier's line.
-  const foot = new Map();
-  for (const p of prepared) foot.set(p.group, Math.max(foot.get(p.group) ?? -Infinity, p.bounds[3]));
+  const foot = new Map(), groupIndex = new Map();
+  for (const p of prepared) {
+    foot.set(p.group, Math.max(foot.get(p.group) ?? -Infinity, p.bounds[3]));
+    // Groups are numbered from 1; a solid is one mesh per group, and the shader tells groups apart by this number.
+    if (!groupIndex.has(p.group)) groupIndex.set(p.group, groupIndex.size + 1);
+    p.groupIndex = groupIndex.get(p.group);
+  }
   for (const p of prepared) {
     if (p.attach && !foot.has(p.attach)) errors.push(`${p.id}: attached to unknown group ${p.attach}`);
     p.foot = foot.get(p.attach ?? p.group);
@@ -57,7 +62,7 @@ const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a
 /**
  * The simulation. `update` advances every part and fills two Float32Arrays for the shader, indexed by part index
  * (slot 0 is the bare ground):
- *   a[i] = (sway, stand, rise, glow)   b[i] = (dx, dz, lift, 0)
+ *   a[i] = (sway, stand, rise, glow)   b[i] = (dx, dz, lift, group number)
  * sway: rotation in the part's own plane about its anchor; stand: 0 lying in the lacquer, 1 fully raised;
  * rise: how awake its gold and relief are; lift: extra height off the lid.
  */
@@ -165,7 +170,7 @@ export function createLife(parts) {
       a[i] = s.sway.x; a[i + 1] = Math.max(0, Math.min(1.08, s.stand.x));
       a[i + 2] = Math.max(0, Math.min(1.2, s.wake.x * (.35 + .65 * body)));
       a[i + 3] = Math.max(0, Math.min(1, s.glow.x));
-      b[i] = s.dx.x; b[i + 1] = s.dz.x; b[i + 2] = Math.max(0, s.lift.x); b[i + 3] = 0;
+      b[i] = s.dx.x; b[i + 1] = s.dz.x; b[i + 2] = Math.max(0, s.lift.x); b[i + 3] = p.groupIndex ?? 0;
     }
     // Slot 0 is the bare ground: it only breathes with the lid.
     a[1] = 0; a[2] = .35 + .65 * body;

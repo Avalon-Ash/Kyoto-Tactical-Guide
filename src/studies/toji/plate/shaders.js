@@ -14,9 +14,15 @@ float groundY(vec2 p){
   ivec3 sz=textureSize(uIdent,0);
   int id=int(texelFetch(uIdent,ivec3(clamp(ivec2(uv*vec2(sz.xy)),ivec2(0),sz.xy-1),0),0).r*255.+.5);
   float dome=3.2*(1.-(p.x/370.)*(p.x/370.))*(1.-(p.y/240.)*(p.y/240.));
-  vec2 e=1.-smoothstep(HALF-14.,HALF,abs(c));
+  vec2 e=1.-smoothstep(HALF-44.,HALF-6.,abs(c));
   return dome+textureLod(uSoft,vec3(uv,0.),0.).r*SWELL*mix(.3,1.,uA[id].z)*e.x*e.y;
 }`;
+// How far a part's body stands off its own plane, 0..1, from the blurred silhouette (hs) and the drawn one (fa).
+// A steep rounded wall just outside the drawing, then a dome: an inflated solid, not a cut-out. Shapes too thin to
+// inflate keep a low body of their own.
+const BODY = `
+float bodyS(float hs){return smoothstep(.30,.50,hs)*.58+smoothstep(.46,.97,hs)*.42;}
+float body(float hs,float fa){return max(bodyS(hs),fa*.3);}`;
 
 // The box and the lid's ground.
 export const boxVert = mode => `#version 300 es
@@ -33,19 +39,23 @@ void main(){
 #endif
   if(aMeta.y<.5){p.y+=uOpening*360.;p.z-=uOpening*650.;}
   vTanX=vec3(1.,0.,0.);vTanZ=vec3(0.,0.,1.);
-  if(aMeta.x<24.5){vec3 c=vec3(0.,-48.,0.);p=uTilt*(p-c)+c;n=uTilt*n;vTanX=uTilt*vTanX;vTanZ=uTilt*vTanZ;}
+  if(aMeta.x<24.5||aMeta.x>27.5||abs(aMeta.x-26.)<.5){vec3 c=vec3(0.,-48.,0.);p=uTilt*(p-c)+c;n=uTilt*n;vTanX=uTilt*vTanX;vTanZ=uTilt*vTanZ;}
   vWorld=p;vNormal=n;vUv=aUv;vMeta=aMeta;vPart=vec4(0.);
   gl_Position=uCamera*vec4(p,1.);
 }`;
 
-// A part of the plate: a cut-out that hinges up from the lid on its foot line and is built out in slices.
-// Instances are the slices. MODE: 5 slice depth only, 2 slice colour, 3 shadow on the lid, 4 mist.
+// A part of the plate hinges up from the lid on its foot line.
+// MODE 5 (depth) and 2 (colour) draw the solid: a grid over each group, pushed out along the part's normal into a
+// thick rounded body. MODE 3 (shadow on the lid) and 4 (mist) draw one flat quad per part.
 export const partVert = mode => `#version 300 es
 #define MODE ${mode}
 precision highp float; precision highp sampler2DArray;
 in vec2 aPos; in vec4 aPart, aInfo;
-uniform mat4 uCamera; uniform mat3 uTilt; uniform float uOpening, uSlices; uniform vec3 uLamp;
+uniform mat4 uCamera; uniform mat3 uTilt; uniform float uOpening; uniform vec3 uLamp;
+uniform sampler2DArray uFine;
 ${GROUND}
+${BODY}
+invariant gl_Position;
 out vec3 vWorld, vNormal, vTanX, vTanZ; out vec2 vUv, vMeta; out vec4 vPart;
 void main(){
   int id=int(aPart.x+.5);
@@ -56,8 +66,12 @@ void main(){
   vec2 q=aInfo.xy+vec2(cs*r.x-sn*r.y,sn*r.x+cs*r.y)+B.xy;
   float h=foot-q.y;
   vec3 n=vec3(0.,ct,st),down=vec3(0.,-st,ct);
-  float slice=(MODE==2||MODE==5)?1.-float(gl_InstanceID)/max(uSlices-1.,1.):MODE==3?.5:0.;
-  float thick=aPart.w*mix(.45,1.,A.z)*mix(.5,1.,A.y);
+  // Even asleep a part keeps most of its body: it is a solid thing lying on the lid.
+  float thick=aPart.w*mix(.72,1.,A.z)*mix(.78,1.,A.y),slice=MODE==3?.5:0.;
+#if MODE==2||MODE==5
+  vec3 tuv=vec3((aPos+HALF)/(2.*HALF),aPart.y);
+  slice=body(textureLod(uSoft,tuv,0.).r,textureLod(uFine,tuv,1.).a);
+#endif
   vec3 p=vec3(q.x,groundY(vec2(aInfo.x,foot))+B.z+.35,foot)-down*h+n*(aInfo.w*A.y+slice*thick);
 #if MODE==3
   {
@@ -69,7 +83,7 @@ void main(){
   p.y+=uOpening*360.;p.z-=uOpening*650.;
   vec3 c=vec3(0.,-48.,0.);p=uTilt*(p-c)+c;
   vWorld=p;vNormal=uTilt*n;vTanX=uTilt*vec3(1.,0.,0.);vTanZ=uTilt*down;
-  vUv=aPos;vMeta=vec2(0.,0.);vPart=vec4(aPart.x,aPart.y,slice,thick);
+  vUv=aPos;vMeta=q;vPart=vec4((MODE==2||MODE==5)?B.w:aPart.x,aPart.y,slice,thick);
   gl_Position=uCamera*vec4(p,1.);
 }`;
 
@@ -101,12 +115,12 @@ in vec3 vWorld, vNormal, vTanX, vTanZ; in vec2 vUv, vMeta; in vec4 vPart;
 uniform sampler2DArray uFine, uSoft, uIdent;
 uniform vec3 uView, uKey, uLamp;
 uniform float uTime, uNight, uPresence, uPx, uOpening;
-uniform vec4 uA[64];
+uniform vec4 uA[64], uB[64];
 uniform vec3 uTrails[20];
 out vec4 outColor;
 
 const vec2 HALF=vec2(360.,230.);
-const vec3 GOLD=vec3(1.,.72,.30), PALE=vec3(1.,.86,.55), SILVER=vec3(.80,.84,.84), LACQ=vec3(.020,.015,.013), AMBER=vec3(1.,.86,.58);
+const vec3 GOLD=vec3(1.,.70,.26), PALE=vec3(.98,.84,.48), SILVER=vec3(.84,.85,.83), LACQ=vec3(.020,.015,.013), AMBER=vec3(1.,.86,.58);
 const float SWELL=17., AMB=.17, KEY=.44, POOL=1.75;
 const mat2 R1=mat2(.940,.342,-.342,.940),R2=mat2(.766,-.643,.643,.766),R3=mat2(.5,.866,-.866,.5);
 
@@ -115,8 +129,7 @@ ivec2 ident(vec2 p,int layer){
   ivec3 sz=textureSize(uIdent,0);
   return ivec2(texelFetch(uIdent,ivec3(clamp(ivec2((p+HALF)/(2.*HALF)*vec2(sz.xy)),ivec2(0),sz.xy-1),layer),0).rg*255.+.5);
 }
-// A part is a pillow: a wall at its edge, then a dome, with its own drawing raised a little on top.
-float relief(float hs,vec4 fine){return (.26+.62*smoothstep(.42,.98,hs))*(.78+.22*fine.g)+fine.b*.12;}
+${BODY}
 
 #if MODE==6
 void main(){
@@ -127,15 +140,19 @@ void main(){
 void main(){
   if(uOpening>.999)discard;
   int layer=int(vPart.y+.5);ivec2 im=ident(vUv,layer);
-  if(im.x!=int(vPart.x+.5))discard;
   vec4 fine=texture(uFine,puv(vUv,layer));float hs=texture(uSoft,puv(vUv,layer)).r;
-  float alpha=im.y==13?smoothstep(.03,.42,hs)*.94:clamp((fine.a-.5)/max(fwidth(fine.a)*1.4,.004)+.5,0.,1.);
   vec4 A=uA[im.x];
-  if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
 #if MODE==5
-  if(alpha<.04||relief(hs,fine)+.03<vPart.z)discard;
+  // The solid's own outline: the foot of its wall, or the drawn edge where the shape is too thin to have one.
+  if(im.x==0||int(uB[im.x].w+.5)!=int(vPart.x+.5))discard;
+  float alpha=max(clamp((hs-.31)/max(fwidth(hs)*1.4,.002)+.5,0.,1.),clamp((fine.a-.5)/max(fwidth(fine.a)*1.4,.004)+.5,0.,1.));
+  if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
+  if(alpha<.04)discard;
   outColor=vec4(0.,0.,0.,alpha);
 #else
+  if(im.x!=int(vPart.x+.5))discard;
+  float alpha=im.y==13?smoothstep(.03,.42,hs)*.94:clamp((fine.a-.5)/max(fwidth(fine.a)*1.4,.004)+.5,0.,1.);
+  if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
   if(abs(vWorld.x)>372.||abs(vWorld.z)>242.)discard;
   float soft_=im.y==13?alpha*.35:textureLod(uFine,puv(vUv,layer),1.6).a;
   if(soft_<.04)discard;
@@ -148,24 +165,34 @@ float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return 
 vec2 hash2(vec2 p){vec3 q=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));q+=dot(q,q.yzx+33.33);return fract((q.xx+q.yz)*q.zy);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+1.),f.x),f.y);}
 
-// Light, shared by every material of this fragment.
-vec3 gN, gHk, gHp; float gAtt, gDk, gDp, gWake;
-float light(){return AMB+KEY*gDk+POOL*gAtt*gDp;}
-float spec(float e){return KEY*pow(max(dot(gN,gHk),0.),e)+POOL*gAtt*pow(max(dot(gN,gHp),0.),e);}
+// Light, shared by every material of this fragment. The colours belong to the lights, not to the gold:
+// by night the room is cool and dim, and the gold is gold again wherever the hand's light falls.
+vec3 gN, gHk, gHp, gKeyC, gPoolC, gAmbC; float gAtt, gDk, gDp, gWake;
+vec3 light(){return AMB*gAmbC+KEY*gDk*gKeyC+POOL*gAtt*gDp*gPoolC;}
+vec3 spec(float e){return KEY*pow(max(dot(gN,gHk),0.),e)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),e)*gPoolC;}
+// What a polished surface mirrors: a dim room with a papered window high on the key side.
+vec3 room(float rough){
+  vec3 r=reflect(-uView,gN);
+  float up=smoothstep(-.35,1.,r.y),win=smoothstep(mix(.74,.15,rough),1.,dot(r,uKey));
+  return gAmbC*(.04+.30*up*up)+gKeyC*win*mix(1.15,.5,rough);
+}
 void setLight(vec3 n){
   gN=n;
+  gKeyC=mix(vec3(1.,.95,.86),vec3(.64,.72,.90),uNight);
+  gPoolC=mix(vec3(1.,.93,.80),vec3(.96,.96,1.),uNight);
+  gAmbC=mix(vec3(1.,.96,.90),vec3(.50,.60,.84),uNight);
   vec3 toLamp=uLamp-vWorld;float d2=dot(toLamp,toLamp);vec3 lp=toLamp*inversesqrt(d2);
   gAtt=(uPresence/(1.+d2/24000.))+gWake*.55;
   gDk=max(dot(n,uKey),0.);gDp=max(dot(n,lp),0.);
   gHk=normalize(uKey+uView);gHp=normalize(lp+uView);
 }
-// One size of powder. Returns (coverage, sparkle energy). A flake is drawn only where it spans a few pixels;
-// below that the layer is its own average, so nothing shimmers between sizes.
-vec2 flake(vec2 p,float cell,float size,float dens,float sq,float spread){
+// One size of powder. Returns its coverage; glint is its sparkle. A flake is drawn only where it spans a few
+// pixels; below that the layer is its own average, so nothing shimmers between sizes.
+float flake(vec2 p,float cell,float size,float dens,float sq,float spread,out vec3 glint){
   float vis=smoothstep(1.3,3.2,cell/uPx);
+  dens=min(dens,1.);
   float avg=dens*mix(1.95,3.57,sq)*size*size;
-  float broad=KEY*pow(max(dot(gN,gHk),0.),12.)+POOL*gAtt*pow(max(dot(gN,gHp),0.),12.);
-  vec2 far=vec2(avg,avg*broad*.55);
+  vec3 broad=KEY*pow(max(dot(gN,gHk),0.),12.)*gKeyC+POOL*gAtt*pow(max(dot(gN,gHp),0.),12.)*gPoolC;
   vec2 g=p/cell,id=floor(g),r=hash2(id);
   float present=step(hash(id+7.31),dens);
   float sz=size*mix(1.,.55+.45*hash(id+11.3),1.-sq*.6);
@@ -176,28 +203,35 @@ vec2 flake(vec2 p,float cell,float size,float dens,float sq,float spread){
   float dist=mix(round_,max(abs(d.x),abs(d.y)*mix(.8,1.25,r.x)),sq),aa=uPx/cell*.75;
   float cov=present*(1.-smoothstep(sz-aa,sz+aa,dist));
   vec3 nf=normalize(gN+vec3(r.x-.5,0.,r.y-.5)*spread);
-  float gl=KEY*.45*pow(max(dot(nf,gHk),0.),70.)+POOL*gAtt*pow(max(dot(nf,gHp),0.),70.);
-  return mix(far,vec2(cov,cov*gl*2.6),vis);
+  vec3 gl=KEY*.45*pow(max(dot(nf,gHk),0.),70.)*gKeyC+POOL*gAtt*pow(max(dot(nf,gHp),0.),70.)*gPoolC;
+  glint=mix(avg*broad*.55,cov*gl*2.6,vis);
+  return mix(avg,cov,vis);
 }
-vec3 coat(){return vec3(1.,.95,.86)*(spec(220.)*.42+spec(36.)*.10);}
-// Nashiji: three sizes of flake under amber lacquer.
+vec3 coat(){return vec3(1.,.95,.86)*(spec(220.)*.42+spec(36.)*.10)+room(0.)*.045;}
+// Nashiji: powder at three depths in amber lacquer. The deepest is never seen grain by grain: it is the glow of
+// the ground itself. The amber takes more of the light the deeper a flake lies, so depth reads as colour.
 vec3 nashiji(vec2 p,float dens,vec3 tint){
-  vec2 a=flake(R1*p,.62,.40,dens,0.,.55),b=flake(R2*p+13.7,1.5,.42,dens*.6,0.,.5),c=flake(R3*p+41.3,2.7,.40,dens*.13,0.,.4);
-  float cov=1.-(1.-a.x)*(1.-b.x)*(1.-c.x);
-  return LACQ*(.6+light())+tint*AMBER*(cov*(.11+.62*light())+(a.y+b.y+c.y)*1.3)+coat();
+  vec3 L=light(),ga,gb,gc;
+  float a=flake(R1*p,.62,.47,dens*1.05,0.,.55,ga),b=flake(R2*p+13.7,1.35,.45,dens*.78,0.,.5,gb),c=flake(R3*p+41.3,2.5,.38,dens*.15,0.,.4,gc);
+  vec3 col=LACQ*(.6+L)+tint*vec3(.55,.26,.07)*min(dens,1.3)*(.03+.28*L);
+  col=mix(col,tint*vec3(.92,.55,.19)*(.05+.58*L),a*.85);
+  col=mix(col,tint*vec3(1.,.70,.30)*(.06+.78*L),b*.9);
+  col=mix(col,tint*vec3(1.,.78,.40)*(.07+.86*L),c);
+  return col+tint*AMBER*(ga*.8+gb*1.3+gc)+coat();
 }
-// Polished gold powder: a satin metal. Asleep, it lies under the lacquer.
+// Polished gold powder: a satin metal that carries the room on its curves. Asleep, it lies under the lacquer.
 vec3 metal(vec2 p,vec3 f0,float rise){
-  vec2 m=flake(p,.5,.4,.9,0.,.35);
-  vec3 c=f0*(.14+.70*light())+mix(f0,vec3(1.),.35)*(spec(30.)*.6+m.y*.5);
-  return mix(c*vec3(.62,.46,.28)*.75,c,smoothstep(.12,.85,rise));
+  vec3 g;flake(p,.5,.4,.9,0.,.35,g);
+  vec3 c=f0*f0*(.04+.30*light())+f0*room(.7)*.85+mix(f0,vec3(1.),.14)*(spec(34.)*.8+spec(9.)*.10+g*.5);
+  return mix(c*vec3(.80,.60,.36)*.8,c,smoothstep(.12,.85,rise));
 }
 // Cut sheet metal, laid flat: a mirror.
-vec3 sheet(vec3 f0){return f0*(.07+.30*light())+mix(f0,vec3(1.),.5)*(spec(160.)*1.5+spec(18.)*.18);}
-float tone(float x){return x/(1.+x*.32);}
+vec3 sheet(vec3 f0){return f0*(.05+.18*light()+room(.12)*.8)+mix(f0,vec3(1.),.5)*(spec(160.)*1.5+spec(18.)*.18);}
 vec4 finish(vec3 c,float a){
-  c*=1.25;c=vec3(tone(c.r),tone(c.g),tone(c.b));
-  c=mix(c,c*vec3(.74,.86,1.10)+vec3(.004,.006,.010),uNight*.7);
+  // Compress by luminance so a bright gold stays gold; only the very brightest glints bleach.
+  c*=1.25;float l=max(dot(c,vec3(.3,.55,.15)),1e-4),t=l/(1.+l*.42);
+  c=mix(c*(t/l),vec3(t),smoothstep(.9,2.6,l)*.55);c=min(c,vec3(1.));
+  c=mix(c,c*vec3(.92,.96,1.05)+vec3(.003,.005,.009),uNight*.6);
   return vec4(pow(c,vec3(.4545))*a,a);
 }
 
@@ -209,16 +243,35 @@ void main(){
   setLight(normalize(vNormal));
   // Everything on the box is nashiji, metal or sheet in some proportion.
   float cloud=vnoise(vUv*vec2(.012,.05))*.6+vnoise(vUv*vec2(.04,.11))*.3;
-  float side=float(m==20),inner=float(m==22);
-  vec3 c=(side+inner)*nashiji(vUv,mix(.34+.5*cloud,.8,inner),mix(GOLD,PALE,inner))*mix(1.,.8,inner);
+  float side=float(m==20),inner=float(m==22||m==28);
+  // Inside, the box is dense pale nashiji gathered in soft clouds (mura-nashiji); the tray's floor is denser still.
+  vec3 c=(side+inner)*nashiji(vUv,mix(.5+.5*cloud,.85+.5*cloud+.3*float(m==28),inner),mix(GOLD,PALE,inner))*mix(1.,.9,inner);
+  if(m==20||m==28){
+    // A drift of larger flakes crosses the sides and the tray.
+    vec3 bg;float bx=flake(R2*vUv,5.,.42,.4*smoothstep(.55,.9,vnoise(vUv*vec2(.006,.07)+3.)),0.,.3,bg);
+    c=mix(c,GOLD*vec3(1.,.80,.44)*(.07+.72*light()),bx*.9)+GOLD*bg;
+  }
   if(m==20){
-    // A drift of larger flakes crosses the sides.
-    vec2 big=flake(R2*vUv,5.,.42,.4*smoothstep(.55,.9,vnoise(vUv*vec2(.006,.07)+3.)),0.,.3);
-    c+=PALE*AMBER*(big.x*(.1+.45*light())+big.y);
+    // The sides carry the picture on: water drawn in fine gold lines running round the box, cut gold scattered
+    // along it, and a single line under the lid.
+    float y=vUv.y,x=vUv.x,wv=sin(x*.021)*5.+sin(x*.047+1.3)*2.5;
+    float d1=abs(y+64.+wv),d2=abs(y+71.+wv*.7+sin(x*.09)*1.5),d3=abs(y+57.+wv*1.2+sin(x*.06+2.)*2.),d4=abs(y+19.+wv*.35);
+    float aa=max(uPx*.9,.25);
+    float ln=max(max(1.-smoothstep(.55-aa,.55+aa,d1),1.-smoothstep(.4-aa,.4+aa,d2)),max((1.-smoothstep(.35-aa,.35+aa,d3))*step(.2,sin(x*.013+1.)),1.-smoothstep(.45-aa,.45+aa,d4)));
+    c=mix(c,metal(vUv,PALE,1.),ln);
+    vec3 kg;float kx=flake(vUv*vec2(1.,1.)+7.,5.4,.30,.75*exp(-d1*d1/150.)*(.35+.65*vnoise(vec2(x*.03,2.))),1.,.26,kg);
+    c=mix(c,sheet(PALE)+PALE*(.10+.25*light()),kx)+PALE*kg*.6;
+  }
+  else if(m==27){
+    // Kumihimo: vermilion silk, braided; a gold collar, then the tassel's loose threads.
+    float braid=.5+.5*sin(vUv.y*1.7+vUv.x*2.)*sin(vUv.y*1.7-vUv.x*2.),tassel=smoothstep(64.,66.,vUv.y);
+    float threads=.5+.5*sin(vUv.x*12.+sin(vUv.y*.9)*.8);
+    c=vec3(.52,.065,.04)*(.07+.80*light())*mix(.62+.6*braid,.55+.6*threads,tassel)+vec3(1.,.82,.72)*spec(22.)*.16*mix(braid,threads,tassel);
+    if(abs(vUv.y-63.)<2.2)c=metal(vUv,GOLD,1.);
   }
   else if(m==21)c=sheet(SILVER)*.9+SILVER*.03;
   else if(m==23)c=vec3(.80,.74,.60)*(.25+.6*light());
-  else if(m!=22)c=metal(vUv,GOLD*(m==24?1.:.92),1.);
+  else if(m!=22&&m!=28)c=metal(vUv,GOLD*(m==24?1.:.92),1.);
   outColor=finish(c,1.);
 }
 #else
@@ -239,7 +292,9 @@ void main(){
   int layer=int(vPart.y+.5);
 #endif
   ivec2 im=ident(p,layer);int id=im.x,mat=im.y;
-#if MODE!=1
+#if MODE==2
+  if(id==0||int(uB[id].w+.5)!=int(vPart.x+.5))discard;
+#elif MODE==4
   if(id!=int(vPart.x+.5))discard;
 #endif
   vec4 A=uA[id];float rise=A.z,glow=A.w;
@@ -247,20 +302,26 @@ void main(){
   float alpha=1.;
 #if MODE==4
   alpha=smoothstep(.03,.42,hs)*.94;
+  // Mist drifts, but never past the lip of the lid.
+  vec2 lip=1.-smoothstep(HALF-5.,HALF-1.,abs(vMeta));alpha*=lip.x*lip.y;
 #endif
   // Slope of the relief: wide taps for the swell, tight taps for the drawing on top of it.
 #if MODE==1
   float eS=3.,sH=SWELL*mix(.3,1.,rise),cH=2.4,lH=.7;
 #else
-  float eS=1.6,sH=vPart.w*1.5,cH=max(vPart.w*.22,1.),lH=max(vPart.w*.12,.7);
+  float eS=1.6,sH=vPart.w,cH=2.2,lH=1.;
 #endif
   float eC=max(uPx*.9,.55);
-  vec2 gs=vec2(texture(uSoft,puv(p+vec2(eS,0.),layer)).r-texture(uSoft,puv(p-vec2(eS,0.),layer)).r,
-               texture(uSoft,puv(p+vec2(0.,eS),layer)).r-texture(uSoft,puv(p-vec2(0.,eS),layer)).r)/(2.*eS)*sH*(mat==13?0.:1.);
+  vec4 st=vec4(texture(uSoft,puv(p+vec2(eS,0.),layer)).r,texture(uSoft,puv(p-vec2(eS,0.),layer)).r,
+               texture(uSoft,puv(p+vec2(0.,eS),layer)).r,texture(uSoft,puv(p-vec2(0.,eS),layer)).r);
+#if MODE==2
+  st=vec4(bodyS(st.x),bodyS(st.y),bodyS(st.z),bodyS(st.w));
+#endif
+  vec2 gs=vec2(st.x-st.y,st.z-st.w)/(2.*eS)*sH*(mat==13?0.:1.);
   vec4 fx1=texture(uFine,puv(p+vec2(eC,0.),layer)),fx0=texture(uFine,puv(p-vec2(eC,0.),layer)),
        fz1=texture(uFine,puv(p+vec2(0.,eC),layer)),fz0=texture(uFine,puv(p-vec2(0.,eC),layer));
   vec2 grad=gs+vec2((fx1.g-fx0.g)*cH+(fx1.b-fx0.b)*lH,(fz1.g-fz0.g)*cH+(fz1.b-fz0.b)*lH)/(2.*eC)*mix(.55,1.,rise);
-  grad*=min(1.,2.4/max(length(grad),1e-4));
+  grad*=min(1.,(MODE==2?4.5:2.4)/max(length(grad),1e-4));
   // Reflections that linger where the hand has been; on water the same touches leave rings.
   gWake=0.;float ring=0.;
   for(int i=0;i<20;i++){
@@ -271,38 +332,39 @@ void main(){
   setLight(normalize(normalize(vNormal)-grad.x*vTanX-grad.y*vTanZ));
 
   // Each material is some proportion of nashiji, polished metal and sheet, plus at most one layer of large flakes.
-  float line=fine.b,L=light();
+  float line=fine.b;vec3 L=light();
   float w=smoothstep(.02,.34,hs);                       // how far into a bank or a mist band
-  float dens=.32+.10*vnoise(p*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
+  float dens=.60+.16*vnoise(p*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
   vec3 tint=GOLD,f0=GOLD,c=vec3(0.);
   if(mat==1)wN=1.;
 #if MODE==1
   else if(mat==2||mat==3){
-    // A bank is the same ground with the powder drawn together; mura-nashiji clouds it.
-    float cloud=mat==3?vnoise(p*.045)*.5+vnoise(p*.13)*.25:.2;
-    wN=1.;dens=mix(dens,.62+.5*cloud+.25*hs,w);tint=mix(GOLD,PALE,.35*w);c=PALE*line*(.12+.5*L)*w;
+    // A bank is the ground with the powder drawn together until it is nearly a field of gold (ikakeji);
+    // mura-nashiji gathers it in clouds instead.
+    float cloud=mat==3?vnoise(p*.045)*.6+vnoise(p*.13)*.3:.55;
+    wM=w*(.25+.6*cloud);wN=1.-wM;dens=mix(dens,1.05+.3*cloud,w);f0=mix(GOLD,PALE,.3);tint=mix(GOLD,PALE,.3*w);c=PALE*line*(.14+.6*L)*w;
   }
-  else if(mat==4){wN=1.;dens=mix(dens,.5,w);bigD=.85*w;c=PALE*line*(.1+.4*L)*w;}   // gyobu: large flakes laid one by one
+  else if(mat==4){wN=1.;dens=mix(dens,.8,w);bigD=.85*w;c=PALE*line*(.12+.5*L)*w;}   // gyobu: large flakes laid one by one
 #else
-  else if(mat==2||mat==3||mat==4){wM=1.;f0=PALE*.96;c=GOLD*line*(.12+.5*L)*rise;}
+  else if(mat==2||mat==3||mat==4){wM=1.;f0=PALE;c=GOLD*line*(.14+.6*L)*mix(.5,1.,rise);}
 #endif
-  else if(mat==5){wM=1.;c=PALE*line*(.10+.55*L)*rise;}
+  else if(mat==5){wM=1.;c=PALE*line*(.12+.6*L)*mix(.5,1.,rise);}
   else if(mat==6){wM=1.;f0=SILVER;}
-  else if(mat==7){wM=1.;f0=GOLD*.86;bigD=.5;bigCell=5.2;bigSq=1.;}                 // kirikane on a raised body
-  else if(mat==8){wM=1.;f0=SILVER*.8;bigD=.5;bigCell=5.2;bigSq=1.;}
+  // Kirikane on a raised body. A stone is never asleep enough to become a dark lump: its facets stay drawn.
+  else if(mat==7){wM=1.;f0=GOLD*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=PALE*line*(.22+.6*L);}
+  else if(mat==8){wM=1.;f0=mix(SILVER,GOLD,.25)*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=SILVER*line*(.22+.6*L);}
   else if(mat==9||mat==12){wN=1.;}
   else if(mat==10){wS=1.;f0=PALE;c=PALE*glow*.5;}
   else if(mat==11){wS=1.;f0=SILVER;}
-  else if(mat==13){float dns=smoothstep(.04,.75,hs);wN=1.;dens=.40+1.25*dns;tint=PALE;bigD=.16*dns;bigCell=5.2;}
+  else if(mat==13){float dns=smoothstep(.04,.75,hs);wN=1.;dens=.5+.9*dns;tint=PALE;bigD=.16*dns;bigCell=5.2;}
   else if(mat==14)c=LACQ*(.8+1.4*L)+coat()*2.2+GOLD*line*(.16+.80*L)*mix(.5,1.,rise);
-  else c=mix(vec3(.11,.075,.035)*(.5+L),vec3(1.,.66,.26)*1.5,glow)+LACQ;     // paper windows, lit from within when asked
-  vec3 ground=nashiji(p,dens,tint);
-  c+=wN*ground+wM*metal(p,f0,rise)+wS*sheet(f0);
-  vec2 big=flake(R2*p,bigCell,mix(.47,.30,bigSq),bigD,bigSq,.26);
+  else c=mix(vec3(.10,.06,.025)*(.4+.5*L),vec3(1.,.62,.22)*1.15,glow)+LACQ;     // paper windows, lit from within when asked
+  c+=wN*nashiji(p,dens,tint)+wM*metal(p,f0,rise)+wS*sheet(f0);
+  vec3 bigG;float bigX=flake(R2*p,bigCell,mix(.47,.30,bigSq),bigD,bigSq,.26,bigG);
   if(mat==7||mat==8){
     vec3 foil=mat==7?PALE:SILVER;
-    c=mix(c,sheet(foil)+foil*glow*(.45+.45*sin(p.x*.31+p.y*.17-uTime*9.)),big.x)+foil*big.y*.6;
-  }else c+=PALE*AMBER*(big.x*(.10+.50*L)+big.y*1.2);
+    c=mix(c,sheet(foil)+foil*(.10+.25*L)+foil*glow*(.45+.45*sin(p.x*.31+p.y*.17-uTime*9.)),bigX)+foil*bigG*.6;
+  }else c=mix(c,tint*vec3(1.,.80,.44)*(.07+.74*L),bigX*.92)+tint*AMBER*bigG;
   if(mat==9){
     // Aogai: thin shell. A narrow run of blue-green to pale rose that turns with the light, never a rainbow.
     vec2 r=hash2(floor(p/2.3));
@@ -323,8 +385,8 @@ void main(){
   for(int j=1;j<4;j++){ivec2 o=ident(p,j);if(o.x>0&&o.y!=13)print=max(print,texture(uFine,puv(p,j)).a);}
   c=mix(c,c*.42+GOLD*AMBER*(.03+.09*L),print*.85);
 #elif MODE==2
-  // The flanks of a part are a little darker than its face, like lacquer under the gold.
-  c*=mix(.74,1.,smoothstep(0.,.6,vPart.z));
+  // A body is darker toward its foot, where it meets the lid and the light does not reach.
+  c*=mix(.55,1.,smoothstep(0.,.55,vPart.z));
 #endif
   outColor=finish(c,alpha);
 }

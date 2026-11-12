@@ -23,7 +23,8 @@ export function minami() {
     ...pine('pine-a', -288, 172, 150, 26, 2),
     ...pine('pine-b', -150, 190, 104, -18, 7, {clusters: 3}),
     ...pine('pine-c', 316, 150, 96, -14, 5, {clusters: 3}),
-    // Slot 3 holds the needle clusters (from pine) and the bird's two perches, each riding on its pine.
+    // Slot 3 holds the foliage pads (from pine). The bird's two perches ride on their pines but are painted in
+    // slot 1, clear of the stones and the mist, so the pad under a sleeping bird stays whole.
     ...bird('uguisu', [[-240, 84, 1, 'pine-a'], [-128, 122, -1, 'pine-b']]),
   ];
 }

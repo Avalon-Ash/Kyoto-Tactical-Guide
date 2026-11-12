@@ -17,7 +17,7 @@ export function cameraMatrix(width, height, zoom = 1, cx = 0, cy = 0) {
 
 /**
  * @typedef {{time:number, moving:boolean, still:boolean, flat:boolean, night:boolean, ground:number, lift:number, opening:number,
- * px:number, py:number, zoom:number, panX:number, panY:number, presence?:number, trails:{x:number, z:number, time:number}[]}} Frame
+ * px:number, py:number, zoom:number, panX:number, panY:number, presence?:number, offset?:number, kick?:number, trails:{x:number, z:number, time:number}[]}} Frame
  * @param {HTMLCanvasElement} canvas
  * @param {string} wardId
  * Throws when WebGL or the shadow framebuffer is unavailable; nothing is left allocated in that case.

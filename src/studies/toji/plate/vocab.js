@@ -4,7 +4,7 @@
 //
 // Part: {id, kind, group, order, layer, mat, reach, thick, bias, attach?, anchor:[x,z], fills:[{d, soft, crisp}], lines:[{d, w, amp}]}
 //   layer 0 is the ground itself (it swells); layers 1–3 are texture slots for parts that stand up from the lid
-//   thick       how far the part's relief is built out when it is awake, in units
+//   thick       how far the part's body stands off its own plane when it is awake, in units
 //   bias        a small offset along the part's normal so overlapping members of one tree do not share a plane
 //   attach      a part that rides on another group's plane (the bird on its pine)
 //   soft  0..1  shishiai swell: blurred into a slope that sinks into the ground
@@ -26,7 +26,7 @@ const quad = (a, c, b, n = 10) => Array.from({length: n + 1}, (_, i) => {
   const t = i / n, u = 1 - t;
   return [u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]];
 });
-const part = (id, kind, layer, mat, anchor, extra = {}) => ({id, kind, group: id, order: 0, layer, mat, reach: 1.5, thick: 10, bias: 0, anchor, fills: [], lines: [], ...extra});
+const part = (id, kind, layer, mat, anchor, extra = {}) => ({id, kind, group: id, order: 0, layer, mat, reach: 4, thick: 24, bias: 0, anchor, fills: [], lines: [], ...extra});
 
 /** An organic closed outline. */
 export function blob(cx, cz, rx, rz, seed, wobble = .1, n = 44) {
@@ -106,7 +106,7 @@ export function rock(id, cx, cz, w, h, seed, {mat = MAT.kirikane, layer = 1} = {
     const t = i / n * 6.283 - Math.PI * .9, k = .72 + r() * .38, lower = Math.sin(t) > 0 ? .55 : 1;
     d.push([cx + Math.cos(t) * w * k, cz + Math.sin(t) * h * k * lower]);
   }
-  const p = part(id, KIND.rock, layer, mat, [cx, cz + h * .4], {thick: 20});
+  const p = part(id, KIND.rock, layer, mat, [cx, cz + h * .4], {thick: 30});
   p.fills.push({d, soft: .35, crisp: .7});
   p.fills.push({d: d.map(([x, z]) => [cx + (x - cx) * .55 - w * .1, cz + (z - cz) * .5 - h * .12]), soft: .5, crisp: 1});
   p.lines.push({d: [d[1], [cx - w * .1, cz - h * .1], d[5]], w: .7, amp: .8});
@@ -147,7 +147,7 @@ export function storey(id, cx, zTop, zBottom, halfW, {bays = 3, layer = 2, group
   for (let i = 0; i <= bays; i++) { const x = lerp(cx - halfW, cx + halfW, i / bays); wall.lines.push({d: [[x, zTop], [x, zBottom]], w: 1.5, amp: 1}); }
   wall.lines.push({d: [[cx - halfW - 3, zBottom], [cx + halfW + 3, zBottom]], w: 1.3, amp: 1});
   wall.lines.push({d: [[cx - halfW - 2, lerp(zTop, zBottom, .72)], [cx + halfW + 2, lerp(zTop, zBottom, .72)]], w: .7, amp: .8});
-  const lamp = part(`${id}-lamp`, KIND.tier, layer, MAT.lamp, [cx, zBottom], {group, order, thick: 6});
+  const lamp = part(`${id}-lamp`, KIND.tier, layer, MAT.lamp, [cx, zBottom], {group, order, thick: 15});
   const bay = halfW * 2 / bays;
   for (let i = 0; i < bays; i++) {
     const x0 = cx - halfW + bay * i + bay * .2, x1 = x0 + bay * .6, z0 = lerp(zTop, zBottom, .16), z1 = lerp(zTop, zBottom, .66);
@@ -188,13 +188,15 @@ export function hall(id, cx, zEave, halfW, rise, {layer = 2, bays = 7, wallH = 2
 }
 
 /**
- * A pine as makie draws it: a leaning trunk and flat "kasa" clusters of needles, gold and pale gold in turn.
- * The whole tree answers the wind about its foot; each cluster lags a little behind the one below.
+ * A pine as makie draws it: a leaning trunk carrying pads of foliage, gold and pale gold in turn. A pad is a low
+ * cloud of two or three lobes with a nearly flat underside; its needles are drawn as small tufts, one fan to a lobe
+ * and a few between, never one fan for the whole pad.
+ * The whole tree answers the wind about its foot; each pad lags a little behind the one below.
  */
 export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 4} = {}) {
   const r = rand(seed), anchor = [x, z], spine = [], parts = [];
   for (let i = 0; i <= 12; i++) { const t = i / 12; spine.push([x + lean * t * t + Math.sin(t * 5 + seed) * height * .035, z - height * t]); }
-  const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 9});
+  const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
   const half = t => lerp(height * .045, height * .012, t);
   trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 12), pz]), ...spine.map(([px, pz], i) => [px + half(i / 12), pz]).reverse()], soft: .3, crisp: .85});
   for (let i = 2; i < 11; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 12) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 12) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
@@ -203,13 +205,22 @@ export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 
     const t = .46 + k / clusters * .54, s = spine[Math.round(t * 12)], side = k % 2 ? -1 : 1;
     const w = height * lerp(.34, .2, k / clusters) * (.9 + r() * .2), h = w * .34;
     const cx = k === clusters - 1 ? s[0] : s[0] + side * w * (.55 + r() * .25), cz = s[1] - h * .2;
-    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 6, thick: 9, bias: 3 + k * .6});
-    // The kasa: a low dome with a nearly flat underside.
-    const dome = [];
-    for (let i = 0; i <= 22; i++) { const a = Math.PI + i / 22 * Math.PI, bump = 1 + .07 * Math.sin(i * 1.9 + k); dome.push([cx + Math.cos(a) * w * bump, cz + Math.sin(a) * h * 2 * bump]); }
-    dome.push([cx + w * .82, cz + h * .16], [cx, cz + h * .3], [cx - w * .82, cz + h * .16]);
-    leaf.fills.push({d: dome, soft: .45, crisp: .6});
-    for (let i = 1; i < 16; i++) { const a = Math.PI + i / 16 * Math.PI; leaf.lines.push({d: [[cx + Math.cos(a) * w * .16, cz + h * .1], [cx + Math.cos(a) * w * .94, cz + Math.sin(a) * h * 1.86]], w: .5, amp: .9}); }
+    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 6, thick: 24, bias: 4 + k * 1.5});
+    // The pad's outline: the upper envelope of its lobes over a shallow belly.
+    const lobes = w > height * .26 ? 3 : 2, humps = [];
+    for (let i = 0; i < lobes; i++) {
+      const u = lobes === 1 ? 0 : i / (lobes - 1) * 2 - 1, mid = 1 - Math.abs(u);
+      humps.push({x: cx + u * w * .56 + (r() - .5) * w * .08, r: w * (.40 + .12 * mid) * (.92 + r() * .16), lift: h * (.25 + .55 * mid)});
+    }
+    const top = x => Math.max(0, ...humps.map(m => { const d = (x - m.x) / m.r; return d * d < 1 ? Math.sqrt(1 - d * d) * m.r * .62 + m.lift : 0; }));
+    const outline = [], n = 36;
+    for (let i = 0; i <= n; i++) { const x = cx - w + 2 * w * i / n, edge = Math.sin(Math.PI * i / n); outline.push([x, cz - top(x) * Math.pow(edge, .35)]); }
+    for (let i = n; i >= 0; i--) { const x = cx - w + 2 * w * i / n; outline.push([x, cz + h * .34 * Math.sin(Math.PI * i / n)]); }
+    leaf.fills.push({d: outline, soft: .45, crisp: .6});
+    // Needle tufts: a small fan on each lobe, and a lower row between them.
+    const tuft = (tx, tz, tr, count) => { for (let i = 0; i < count; i++) { const a = Math.PI * (1.12 + .76 * i / (count - 1)); leaf.lines.push({d: [[tx + Math.cos(a) * tr * .22, tz + Math.sin(a) * tr * .22], [tx + Math.cos(a) * tr, tz + Math.sin(a) * tr]], w: .55, amp: .9}); } };
+    for (const m of humps) tuft(m.x, cz - m.lift * .55, m.r * .62, 7);
+    for (let i = 0; i < lobes - 1; i++) tuft((humps[i].x + humps[i + 1].x) / 2, cz + h * .12, w * .26, 5);
     // The bough that carries it.
     trunk.lines.push({d: [s, [lerp(s[0], cx, .6), lerp(s[1], cz, .3) + h * .3], [cx, cz + h * .28]], w: 1.5, amp: 1});
     parts.push(leaf);
@@ -218,12 +229,12 @@ export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 
 }
 
 /** Uguisu, the first song of the year: a small bird of cut silver. It rests at one perch at a time. */
-export function bird(id, perches, layer = 3) {
+export function bird(id, perches, layer = 1) {
   return perches.map(([x, z, flip = 1, attach], i) => {
-    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 2, thick: 4, bias: 13, attach});
-    const f = (dx, dz) => [x + dx * flip, z + dz];
-    p.fills.push({d: blob(x, z - 3.4, 5.6, 3.3, 9, .04, 18), soft: 0, crisp: 1});                       // body
-    p.fills.push({d: blob(x + 5 * flip, z - 6.4, 2.5, 2.3, 4, 0, 12), soft: 0, crisp: 1});             // head
+    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 4, thick: 16, bias: 27, attach});
+    const S = 1.7, f = (dx, dz) => [x + dx * flip * S, z + dz * S];
+    p.fills.push({d: blob(x, z - 3.4 * S, 5.6 * S, 3.3 * S, 9, .04, 18), soft: 0, crisp: 1});                       // body
+    p.fills.push({d: blob(x + 5 * flip * S, z - 6.4 * S, 2.5 * S, 2.3 * S, 4, 0, 12), soft: 0, crisp: 1});             // head
     p.fills.push({d: [f(7, -6.8), f(10.4, -6.1), f(7, -5.5)], soft: 0, crisp: 1});                     // bill
     p.fills.push({d: [f(-4, -4.4), f(-13.5, -1.2), f(-12.6, .9), f(-3.4, -1.6)], soft: 0, crisp: 1});  // tail
     p.lines.push({d: [f(-1, -4.4), f(-5.6, -2.5)], w: .5, amp: 1}, {d: [f(.6, 0), f(.6, 2.6)], w: .5, amp: 1}, {d: [f(2.4, 0), f(2.4, 2.6)], w: .5, amp: 1});

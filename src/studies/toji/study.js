@@ -34,7 +34,7 @@ let frame=0,last=0,lift=.55,px=0,py=0,tx=0,ty=0,demoStart=0;
 let trails=[];
 let bookState='closed',bookProgress=0,bookTarget=0,bookReadyAt=0,gesture=null,returnFocus=null;
 let cabinet=cabinetFor(options.wardId??'W_MINAMI'),switchAnimation=null,updateMesh;
-let dragOffset=0,dragAnimation=null;
+let dragOffset=0,dragAnimation=null,kick=0;
 // Close-up: current and target zoom/pan; a pinch or pan writes both, the tick eases current toward target.
 let zoom=1,zoomTarget=1,panX=0,panY=0,panTX=0,panTY=0,pinch=null,lastTap=null;
 let lastActivity=-Infinity,idlePhase=0,autoPlaying=false;
@@ -67,7 +67,7 @@ async function changeCabinet(direction,focusTarget=document.activeElement,fromOf
   const distance=options.embedded?Math.max(100,canvas.clientWidth*.35):28;
   await animate([{opacity:1,transform:`translateX(${fromOffset}px)`},{opacity:0,transform:`translateX(${-direction*Math.max(distance,Math.abs(fromOffset))}px)`}]);
   if(destroyed)return;
-  cabinet=adjacentCabinet(cabinet.id,direction);options.onWardChange?.(cabinet.id);updateMesh?.();backdrop.setWard(cabinet.id);
+  cabinet=adjacentCabinet(cabinet.id,direction);kick=still()?0:direction;options.onWardChange?.(cabinet.id);updateMesh?.();backdrop.setWard(cabinet.id);
   lift=flat?.025:still()?.82:1;
   // Commit the new mesh before its label is revealed, even when a quiet tab defers RAF.
   render?.(performance.now(),false);syncCabinet();schedule();
@@ -343,7 +343,7 @@ const resize=new ResizeObserver(()=>{syncBackdrop();schedule();});resize.observe
 function init(){
   const renderer=createRenderer(canvas,cabinet.id);
   updateMesh=()=>renderer.setMesh(cabinet.id);
-  render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0});};
+  render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0,offset:dragOffset,kick});kick=0;};
   poke=renderer.poke;
   dispose=renderer.dispose;failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
 }

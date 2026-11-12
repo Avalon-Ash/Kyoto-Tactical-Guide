@@ -37,7 +37,8 @@ export function paintLayer(ctx, w, h, parts, layer) {
 }
 
 /**
- * Which part owns each texel, per layer, grown by the part's reach so a part that moves still finds itself.
+ * Which part owns each texel, per layer, grown by the part's reach so a part that moves still finds itself
+ * and a solid has room for the wall around its drawing.
  * Returns interleaved (index, material) bytes per layer, plus the bare index maps used for picking.
  */
 export function identMaps(doc, parts, w, h, layers, groundMat) {
@@ -48,14 +49,18 @@ export function identMaps(doc, parts, w, h, layers, groundMat) {
   if (!ctx) return {packed, maps};
   const sx = w / (PLATE.halfW * 2), sz = h / (PLATE.halfH * 2);
   ctx.fillStyle = ctx.strokeStyle = '#fff'; ctx.lineCap = ctx.lineJoin = 'round';
-  for (const p of parts) {
-    const pad = p.reach + 2;
+  // Two passes: first every part with its margin, then every part's drawing alone, so a margin never eats into
+  // a neighbour's own shape however wide it is.
+  for (const exact of [false, true]) for (const p of parts) {
+    const reach = exact ? 0 : p.reach;
+    if (exact && !p.reach) continue;
+    const pad = reach + 2;
     const x0 = Math.max(0, Math.floor((p.bounds[0] - pad + PLATE.halfW) * sx)), z0 = Math.max(0, Math.floor((p.bounds[1] - pad + PLATE.halfH) * sz));
     const x1 = Math.min(w, Math.ceil((p.bounds[2] + pad + PLATE.halfW) * sx)), z1 = Math.min(h, Math.ceil((p.bounds[3] + pad + PLATE.halfH) * sz));
     if (x1 <= x0 || z1 <= z0) continue;
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(x0, z0, x1 - x0, z1 - z0); toUnits(ctx, w, h);
-    for (const f of p.fills) { trace(ctx, f.d, true); ctx.fill(); if (p.reach > 0) { ctx.lineWidth = p.reach * 2; ctx.stroke(); } }
-    for (const l of p.lines) { ctx.lineWidth = l.w + p.reach * 2; trace(ctx, l.d, false); ctx.stroke(); }
+    for (const f of p.fills) { trace(ctx, f.d, true); ctx.fill(); if (reach > 0) { ctx.lineWidth = reach * 2; ctx.stroke(); } }
+    for (const l of p.lines) { ctx.lineWidth = l.w + reach * 2; trace(ctx, l.d, false); ctx.stroke(); }
     const data = ctx.getImageData(x0, z0, x1 - x0, z1 - z0).data, map = maps[p.layer], pack = packed[p.layer];
     for (let z = z0; z < z1; z++) for (let x = x0; x < x1; x++) {
       if (data[((z - z0) * (x1 - x0) + (x - x0)) * 4 + 3] < 128) continue;

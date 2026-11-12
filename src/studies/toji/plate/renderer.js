@@ -5,13 +5,17 @@ import {PLATES, LAYERS, MAX_PARTS, preparePlate, createLife, partAt} from './par
 import {paintLayer, identMaps} from './bake.js';
 import {boxVert, partVert, frag, BLUR_VERT, BLUR_FRAG} from './shaders.js';
 import {stepSpring} from './spring.js';
+import {createCord, cordTube} from './cord.js';
 import {groundPoint, normalize, trailIntensity} from '../geometry.js';
 
 const EYE = [430, 720, 920], TARGET = [0, 40, 0];
 const VIEW = normalize(EYE.map((v, i) => v - TARGET[i])), KEY = normalize([-.5, .78, .22]);
 const STRIDE = 10;
 
-/** The box: lid top (a shallow dome), chamfer, sides, silver rim, body, interior, scrolls, and its ground shadow. */
+/** Where each cord leaves its ring: on the two sides of the body that face the viewer. `out` points away from the wall. */
+export const FITTINGS = [{anchor: [40, -72, 239], out: [0, 1]}, {anchor: [369, -72, -30], out: [1, 0]}];
+
+/** The box: lid top (a shallow dome), chamfer, sides, silver rim, body, interior with its tray and scrolls, ring fittings, and its ground shadow. */
 export function buildBox() {
   const out = [];
   const v = (p, n, uv, mat, part) => out.push(p[0], p[1], p[2], n[0], n[1], n[2], uv[0], uv[1], mat, part);
@@ -25,8 +29,8 @@ export function buildBox() {
   for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) for (const [a, b] of [[0, 0], [1, 0], [1, 1], [0, 0], [1, 1], [0, 1]]) { const t = top(i + a, j + b); v(t[0], t[1], t[2], 0, 0); }
   const lidTop = out.length / STRIDE;
   // Four trapezoids between an upper and a lower rectangular ring. ka/kb: 0 = normal up, 1 = normal outward.
-  const band = (a, b, mat, part, ka, kb, sign = 1) => {
-    const corners = r => [[-r.hx, r.y, -r.hz], [r.hx, r.y, -r.hz], [r.hx, r.y, r.hz], [-r.hx, r.y, r.hz]];
+  const band = (a, b, mat, part, ka, kb, sign = 1, ox = 0) => {
+    const corners = r => [[ox - r.hx, r.y, -r.hz], [ox + r.hx, r.y, -r.hz], [ox + r.hx, r.y, r.hz], [ox - r.hx, r.y, r.hz]];
     const A = corners(a), B = corners(b), dirs = [[0, 0, -1], [1, 0, 0], [0, 0, 1], [-1, 0, 0]];
     let run = 0;
     for (let i = 0; i < 4; i++) {
@@ -45,8 +49,14 @@ export function buildBox() {
   band({hx: 365, hz: 235, y: -37.5}, {hx: 365, hz: 235, y: -94}, 20, 1, 1, 1);
   band({hx: 365, hz: 235, y: -40}, {hx: 357, hz: 227, y: -40}, 21, 1, 0, 0);
   band({hx: 357, hz: 227, y: -40}, {hx: 357, hz: 227, y: -88}, 22, 2, 1, 1, -1);
-  const flat = (hx, hz, y, mat, part) => { const q = [[-hx, y, -hz], [hx, y, -hz], [hx, y, hz], [-hx, y, hz]]; for (const k of [0, 1, 2, 0, 2, 3]) v(q[k], [0, 1, 0], [q[k][0], q[k][2]], mat, part); };
+  const flat = (hx, hz, y, mat, part, ox = 0) => { const q = [[ox - hx, y, -hz], [ox + hx, y, -hz], [ox + hx, y, hz], [ox - hx, y, hz]]; for (const k of [0, 1, 2, 0, 2, 3]) v(q[k], [0, 1, 0], [q[k][0], q[k][2]], mat, part); };
   flat(357, 227, -88, 22, 2);
+  // Kakego: a shallow tray resting in the left of the box, with its own silver rim.
+  const TX = -236;
+  band({hx: 118, hz: 224, y: -42}, {hx: 118, hz: 224, y: -62}, 22, 2, 1, 1, 1, TX);
+  band({hx: 118, hz: 224, y: -42}, {hx: 113, hz: 219, y: -42}, 21, 2, 0, 0, 1, TX);
+  band({hx: 113, hz: 219, y: -42}, {hx: 113, hz: 219, y: -57}, 28, 2, 1, 1, -1, TX);
+  flat(113, 219, -57, 28, 2, TX);
   const cylinder = (x0, x1, y, z, r, mat, sides = 20) => {
     const at = (x, t) => [[x, y + Math.cos(t) * r, z + Math.sin(t) * r], [0, Math.cos(t), Math.sin(t)], [x, t * r]];
     for (let i = 0; i < sides; i++) {
@@ -55,10 +65,63 @@ export function buildBox() {
       for (const [x, nx] of [[x0, -1], [x1, 1]]) { v([x, y, z], [nx, 0, 0], [0, 0], mat, 2); v(at(x, t)[0], [nx, 0, 0], [0, 0], mat, 2); v(at(x, s)[0], [nx, 0, 0], [0, 0], mat, 2); }
     }
   };
-  for (const z of [-135, 0, 135]) { cylinder(-255, 255, -70, z, 17, 23); cylinder(-276, 276, -70, z, 4.5, 24, 12); }
+  for (const z of [-135, 0, 135]) { cylinder(-88, 300, -70, z, 17, 23); cylinder(-104, 318, -70, z, 4.5, 24, 12); }
+  // Himo-kanagu: a domed seat and a ring on each side that faces the viewer. Local axes: u along the wall, w outward.
+  for (const {anchor: [ax, , az], out: [ox, oz]} of FITTINGS) {
+    const at = (u, vy, w) => [ax - oz * u + ox * (w - 4), vy, az + ox * u + oz * (w - 4)], dir = (u, vy, w) => normalize([-oz * u + ox * w, vy, ox * u + oz * w]);
+    const cy = -58, rings = [[0, 4.5], [5, 4], [9, 2.4], [13, .4]], S = 20;
+    for (let i = 0; i < S; i++) for (let k = 0; k < rings.length - 1; k++) {
+      const a0 = i / S * 6.2832, a1 = (i + 1) / S * 6.2832, [r0, w0] = rings[k], [r1, w1] = rings[k + 1];
+      const pt = (a, r, w) => [at(Math.cos(a) * r, cy + Math.sin(a) * r, w), dir(Math.cos(a) * (w0 - w1), Math.sin(a) * (w0 - w1), r1 - r0), [Math.cos(a) * r, Math.sin(a) * r]];
+      const q = [pt(a0, r0, w0), pt(a1, r0, w0), pt(a1, r1, w1), pt(a0, r1, w1)];
+      for (const j of [0, 1, 2, 0, 2, 3]) v(q[j][0], q[j][1], q[j][2], 24, 1);
+    }
+    // The ring: a small torus hanging from the seat.
+    const R = 7, T = 1.5, M = 18, N = 8;
+    for (let i = 0; i < M; i++) for (let k = 0; k < N; k++) {
+      const pt = (ai, ak) => { const a = ai / M * 6.2832, b = ak / N * 6.2832, c = Math.cos(b), s = Math.sin(b); return [at(Math.cos(a) * (R + c * T), cy - R + Math.sin(a) * (R + c * T), 5 + s * T), dir(Math.cos(a) * c, Math.sin(a) * c, s), [a * R, b * T]]; };
+      const q = [pt(i, k), pt(i + 1, k), pt(i + 1, k + 1), pt(i, k + 1)];
+      for (const j of [0, 1, 2, 0, 2, 3]) v(q[j][0], q[j][1], q[j][2], 24, 1);
+    }
+  }
   const opaque = out.length / STRIDE;
   flat(640, 470, -94.5, 25, 1);
   return {data: new Float32Array(out), lidTop, opaque, total: out.length / STRIDE};
+}
+
+/**
+ * The grid each solid is raised from: one mesh per group and layer, covering its parts and a margin. Every vertex
+ * belongs to one part (the one drawn there, or the nearest of its group), so the mesh is continuous where parts of a
+ * group meet and nothing can be seen between them. Same 10 floats per vertex as the part quads.
+ * @param {ReturnType<typeof preparePlate>['parts']} standing
+ * @param {Uint8Array[]} maps part index per texel, per layer
+ */
+export function solidMesh(standing, maps, mw, mh, cell = 2) {
+  const out = [], sx = mw / (PLATE.halfW * 2), sz = mh / (PLATE.halfH * 2), byKey = new Map();
+  for (const p of standing) { const key = `${p.groupIndex}:${p.layer}`; if (!byKey.has(key)) byKey.set(key, []); byKey.get(key).push(p); }
+  for (const members of byKey.values()) {
+    const layer = members[0].layer, map = maps[layer], own = new Map(members.map(p => [p.index, p])), pad = 8;
+    const x0 = Math.min(...members.map(p => p.bounds[0])) - pad, z0 = Math.min(...members.map(p => p.bounds[1])) - pad;
+    const nx = Math.ceil((Math.max(...members.map(p => p.bounds[2])) + pad - x0) / cell), nz = Math.ceil((Math.max(...members.map(p => p.bounds[3])) + pad - z0) / cell);
+    // The part that owns each grid point: the one drawn there, else the nearest of this group within a few texels.
+    const home = new Uint8Array((nx + 1) * (nz + 1));
+    for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+      const tx = Math.floor((x0 + i * cell + PLATE.halfW) * sx), tz = Math.floor((z0 + j * cell + PLATE.halfH) * sz);
+      search: for (let r = 0; r <= 4; r++) for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dz)) !== r) continue;
+        const u = tx + dx, v = tz + dz;
+        if (u < 0 || v < 0 || u >= mw || v >= mh) continue;
+        if (own.has(map[v * mw + u])) { home[j * (nx + 1) + i] = map[v * mw + u]; break search; }
+      }
+    }
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+      const corners = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j], [i + 1, j + 1], [i, j + 1]], ids = corners.map(([a, b]) => home[b * (nx + 1) + a]);
+      const any = ids.find(Boolean);
+      if (!any) continue;
+      corners.forEach(([a, b], k) => { const p = own.get(ids[k] || any); out.push(x0 + a * cell, z0 + b * cell, p.index, p.layer, p.foot, p.thick, p.anchor[0], p.anchor[1], p.hinge, p.bias); });
+    }
+  }
+  return out;
 }
 
 /**
@@ -98,6 +161,14 @@ export function createPlateRenderer(gl, canvas) {
   [[2, 0], [4, 8], [4, 24]].forEach(([size, offset], i) => { gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, size, gl.FLOAT, false, 40, offset); });
   gl.bindVertexArray(null);
   const floatTargets = Boolean(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'));
+  // The cords: a few hundred vertices rewritten every frame, in the box's vertex layout.
+  const cordVao = own(gl.createVertexArray(), gl.deleteVertexArray), cordBuffer = own(gl.createBuffer(), gl.deleteBuffer);
+  gl.bindVertexArray(cordVao); gl.bindBuffer(gl.ARRAY_BUFFER, cordBuffer);
+  [[3, 0], [3, 12], [2, 24], [2, 32]].forEach(([size, offset], i) => { gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, size, gl.FLOAT, false, STRIDE * 4, offset); });
+  gl.bindVertexArray(null);
+  const cords = FITTINGS.map(f => ({...f, cord: createCord(f)}));
+  for (const c of cords) c.cord.settle();
+  const drift = {offset: 0, velocity: 0};
   const framebuffer = own(gl.createFramebuffer(), gl.deleteFramebuffer);
   const scratch = canvas.ownerDocument.createElement('canvas');
 
@@ -161,14 +232,16 @@ export function createPlateRenderer(gl, canvas) {
     const ident = array(gl.RG8, mw, mh, 1, [gl.NEAREST, gl.NEAREST]);
     for (let layer = 0; layer < LAYERS; layer++) gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, mw, mh, 1, gl.RG, gl.UNSIGNED_BYTE, packed[layer]);
     scratch.width = scratch.height = 1;
-    // Standing parts first, mist last: mist is the only thing drawn translucent.
-    const quads = [], standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist), mist = parts.filter(p => p.kind === KIND.mist);
+    // The solids' grids first, then one quad per standing part (for its shadow), then the mist quads.
+    const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist), mist = parts.filter(p => p.kind === KIND.mist);
+    const quads = solidMesh(standing, maps, mw, mh), solid = quads.length / 10;
     for (const p of [...standing, ...mist]) {
       const pad = 3, [x0, z0, x1, z1] = [p.bounds[0] - pad, p.bounds[1] - pad, p.bounds[2] + pad, p.bounds[3] + pad];
       for (const [x, z] of [[x0, z0], [x1, z0], [x1, z1], [x0, z0], [x1, z1], [x0, z1]]) quads.push(x, z, p.index, p.layer, p.foot, p.thick, p.anchor[0], p.anchor[1], p.hinge, p.bias);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, partBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quads), gl.STATIC_DRAW);
-    plate = {fine, soft, ident, tmp, parts, maps, mw, mh, standing: standing.length * 6, mist: mist.length * 6};
+    plate = {fine, soft, ident, tmp, parts, maps, mw, mh, solid, standing: standing.length * 6, mist: mist.length * 6};
+    canvas.dataset.solidVertices = String(solid);
     life = createLife(parts);
     canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
     canvas.dataset.parts = String(parts.length);
@@ -195,6 +268,19 @@ export function createPlateRenderer(gl, canvas) {
     const cz = Math.cos(rz), sz = Math.sin(rz), cx = Math.cos(rx), sx = Math.sin(rx);
     // Rx · Rz, column-major.
     const tilt = new Float32Array([cz, cx * sz, sx * sz, -sz, cx * cz, sx * cz, 0, -sx, cx]);
+
+    // The cords feel the box lean and feel it pulled along its track; reduced motion leaves them hanging still.
+    const offset = (f.offset ?? 0) * unitsPerPx * canvas.width / Math.max(1, canvas.clientWidth), velocity = (offset - drift.offset) / dt;
+    const pull = quiet ? 0 : Math.max(-6000, Math.min(6000, -(velocity - drift.velocity) / dt * .5));
+    drift.offset = offset; drift.velocity = velocity;
+    const strands = [];
+    for (const c of cords) {
+      const [x, y, z] = [c.anchor[0], c.anchor[1] + 48, c.anchor[2]];
+      const pin = [tilt[0] * x + tilt[3] * y + tilt[6] * z, tilt[1] * x + tilt[4] * y + tilt[7] * z - 48, tilt[2] * x + tilt[5] * y + tilt[8] * z];
+      if (quiet) c.cord.settle(pin); else c.cord.step(dt, {anchor: pin, ax: pull, kick: (f.kick ?? 0) * 420});
+      strands.push(...cordTube(c.cord.points, c.out));
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, cordBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(strands), gl.DYNAMIC_DRAW);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0, 0, 0, 0); gl.depthMask(true); gl.stencilMask(0xff); gl.clearStencil(0);
@@ -223,6 +309,7 @@ export function createPlateRenderer(gl, canvas) {
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false); gl.drawArrays(gl.TRIANGLES, box.opaque, box.total - box.opaque);
     gl.useProgram(boxP.p); gl.depthMask(true); gl.disable(gl.BLEND); gl.drawArrays(gl.TRIANGLES, box.lidTop, box.opaque - box.lidTop);
+    gl.bindVertexArray(cordVao); gl.drawArrays(gl.TRIANGLES, 0, strands.length / STRIDE); gl.bindVertexArray(vao);
     gl.useProgram(groundP.p); gl.drawArrays(gl.TRIANGLES, 0, box.lidTop);
     gl.bindVertexArray(partVao);
     if (opening < .999) {
@@ -230,18 +317,17 @@ export function createPlateRenderer(gl, canvas) {
       gl.enable(gl.BLEND); gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.DEPTH_TEST);
       gl.enable(gl.STENCIL_TEST); gl.stencilFunc(gl.EQUAL, 0, 0xff); gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
       gl.colorMask(true, true, true, false);
-      gl.useProgram(cuts[3].p); gl.drawArrays(gl.TRIANGLES, 0, plate.standing + plate.mist);
+      gl.useProgram(cuts[3].p); gl.drawArrays(gl.TRIANGLES, plate.solid, plate.standing + plate.mist);
       gl.colorMask(true, true, true, true); gl.disable(gl.STENCIL_TEST); gl.enable(gl.DEPTH_TEST);
-      // 3. The parts, built out slice by slice. Depth first (alpha-to-coverage gives the cut edges their softness),
-      // then colour only where a slice is the one in front: each sample is shaded once however many slices there are.
-      const slices = Math.max(8, Math.min(28, Math.round(9 / Math.max(unitsPerPx, .2))));
+      // 3. The solids. Depth first (alpha-to-coverage gives their outlines their softness), then colour only where
+      // a surface is the one in front: each sample is shaded once.
       gl.disable(gl.BLEND); gl.depthMask(true); gl.colorMask(false, false, false, false); gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
-      gl.useProgram(cuts[5].p); gl.uniform1f(cuts[5].u('uSlices'), slices); gl.drawArraysInstanced(gl.TRIANGLES, 0, plate.standing, slices);
+      gl.useProgram(cuts[5].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE); gl.colorMask(true, true, true, true); gl.depthMask(false); gl.depthFunc(gl.EQUAL);
-      gl.useProgram(cuts[2].p); gl.uniform1f(cuts[2].u('uSlices'), slices); gl.drawArraysInstanced(gl.TRIANGLES, 0, plate.standing, slices);
+      gl.useProgram(cuts[2].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
       // 4. Mist floats over everything and writes no depth.
       gl.depthFunc(gl.LEQUAL); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.standing, plate.mist);
+      gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.solid + plate.standing, plate.mist);
     }
     // Leave the context as the relief renderer expects to find it.
     gl.depthMask(true); gl.disable(gl.BLEND); gl.bindVertexArray(null);
