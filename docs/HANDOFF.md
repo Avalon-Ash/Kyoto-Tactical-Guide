@@ -72,6 +72,6 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | Phase 4 資料與地圖 | `2026-11-04-phase04-data.md`、`2026-11-04-phase04-location-makie.md` |
 | 文庫首頁（T4-M1～M4c） | `2026-11-05-phase04-*.md`、`2026-11-06-phase04-*.md`；主線交付見 `2026-11-06-phase04-main-release.md` |
 | 手機 UI（T4-M5） | [2026-11-06-mobile-bunko-ui.md](agent-runs/2026-11-06-mobile-bunko-ui.md)（含 11-09 補驗） |
-| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
+| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2 前半](agent-runs/2026-11-13-makie-plate-p2a.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
 | UI 翻新 P3 背景 | [2026-11-09-ui-renewal-p3-backdrop.md](agent-runs/2026-11-09-ui-renewal-p3-backdrop.md) |
 | 程式審查與 UI 統一 | [2026-11-09-code-review-ui-unify.md](agent-runs/2026-11-09-code-review-ui-unify.md) |
