@@ -2,7 +2,7 @@
 
 更新：2026-11-13 深夜（P3 部署後，W1–W4 完成，未 push）。接手者先讀 `../AGENTS.md`、`HANDOFF.md`，再讀本檔。本檔只講首頁文箱改畫為蒔繪浮雕盤這條工作線。**接手要做什麼，直接看 §8。**
 
-逐輪紀錄（由舊到新）：[雲端 P0–P1](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[本機接續](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間（造形修整與修正）](agent-runs/2026-11-13-makie-plate-p3d.md)、[W2（Codex）](agent-runs/2026-11-13-makie-plate-w2-astra.md)、[W2 第二輪（Codex）](agent-runs/2026-11-13-makie-plate-w2b-astra.md)、[W3（agy）](agent-runs/2026-11-13-makie-plate-w3-agy.md)、[W4 補驗（agy）](agent-runs/2026-11-13-makie-plate-w4-agy.md)。
+逐輪紀錄（由舊到新）：[雲端 P0–P1](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[本機接續](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間（造形修整與修正）](agent-runs/2026-11-13-makie-plate-p3d.md)、[W2（Codex）](agent-runs/2026-11-13-makie-plate-w2-astra.md)、[W2 第二輪（Codex）](agent-runs/2026-11-13-makie-plate-w2b-astra.md)、[W3（agy）](agent-runs/2026-11-13-makie-plate-w3-agy.md)、[W4 補驗（agy）](agent-runs/2026-11-13-makie-plate-w4-agy.md)、[W2 第三輪（Codex，中途額度用盡）](agent-runs/2026-11-14-makie-plate-w2c-astra.md)。
 
 ## 1. 現況一句話
 
@@ -219,17 +219,19 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 | 工作 | 狀態 |
 |---|---|
 | W1 | 使用者：效能還好、視覺沒有太大意見。完成 |
-| W2 | 兩輪（Codex Astra high）＋主代理收尾，`ac06b40`、`be8cd16`。§8.2 表格是當時的待修清單，保留作紀錄 |
+| W2 | 三輪（Codex Astra high）＋主代理收尾，`ac06b40`、`be8cd16`、W2c（2026-11-14）。§8.2 表格是當時的待修清單，保留作紀錄 |
 | W3 | agy Hydrogen，`766a43a`；十一區未觸發新檢查，烘焙不變 |
 | W4 | agy Hydrogen，結果見 §7；W4-01 修正 `4a9058e` |
-| W5（P4） | 未開始，動手前要使用者同意；使用者說目前效能還好 |
+| W5（P4） | 使用者 2026-11-14 決定：**保留舊浮雕當沒有 WebGL2 的退回，不刪舊程式**。效能項目使用者說目前還好，未做 |
 
 蒔看完兩輪 W2 後仍不滿意、下一輪可做的（依影響排）：
 
-1. 闊葉樹立起時像一塊立著的切板（正面平、樹幹短）；可讓樹冠中央更鼓、樹幹再長一點。
-2. 左京的月改為平嵌在向月台前方的地子上（Codex 試過台頂，斜視下不成立）。**使用者還沒看過，要給他看再定**（§8.6）。
-3. 松在全景像傘或蘑菇（北區最明顯）；松屬既有語言，動之前先問使用者。
+1. ~~闊葉樹正面像立著的切板~~：W2 第三輪（2026-11-14）改成薄底冠加七個鼓包墊，鼓包間有暗谷、樹幹露出。
+2. **左京的月（使用者 2026-11-14 定案）**：用千利休的典故——真塗（黑漆）的器盛水，放在向月台頂上，映出月影（信長大悅的那則）。做法：向月台頂上一只真塗的器，器中以青貝做月影，加一點切銀／平文的月光意象；斜視下要讀得出「台上一器、器中有月」。現況（平嵌在台前地子）是過渡版。
+3. **松（使用者 2026-11-14：要動，排下一輪 Astra）**：全景像傘或蘑菇（北區最明顯）。保留「橫的幾層」的松語言，讓層次與輪廓不再讀成傘。
 4. 霞在某些角度像平的金色長條；狐尾仍厚、坐姿偏雕像；山科燈籠全景仍短粗。
+
+下一輪建議把 2、3 合成一張 Astra 派工單（都會改 `vocab.js`）。Codex 2026-11-14 用到週上限（100%，平時 11/20 12:19 恢復）；使用者有重置卷，派之前問使用者是否已重置。
 
 ### 8.0 開工流程
 
@@ -311,8 +313,8 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 ### 8.6 要使用者決定的事（不要自己定）
 
 - 合併進 `main`、push：每次、分開問。
-- W5 的降級策略與是否刪舊浮雕。
-- 左京的意象換成什麼（可以先做一版給他看）。
+- ~~W5 的降級策略與是否刪舊浮雕~~：2026-11-14 定為保留舊浮雕。
+- ~~左京的意象~~：2026-11-14 定為千利休「真塗之器映月」，見 §8.0a 第 2 項。
 - 要不要繼續把工作派給 Codex／Astra，以及派哪一類。
 
 ### 8.7 派工給 Codex 的做法（2026-11-13 實測）
@@ -323,7 +325,8 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 - **Codex 的沙箱開不了有 GPU 的 Chrome，也跑不動 `tsx`**。要它看畫面：主代理先在沙箱外開好 dev server（3000）與無頭 Chrome（9377，跑一次 `plate-shot.mjs` 就會開），派工單叫它連這兩個埠、不要自己開；這段期間主代理不碰那個瀏覽器。`validate` 與 `src/lib` 的測試由主代理自己跑。
 - 它構圖與看圖的能力好、回報誠實（做不到的都寫未驗）；主代理仍要自己重跑四項檢查、自己看截圖，不能只信報告。
 - Codex 沙箱寫 `ukyo.js`、`shimogyo.js`、`yamashina.js` 時多次 EPERM（ACL 看起來正常，原因未明）；它算好的改動寫在報告裡，由主代理套用。
-- 2026-11-13 兩輪 W2 用掉 Codex 週額度約 46%，深夜剩約 14%（`~/.claude/QUOTA.md`）。
+- 2026-11-13 兩輪 W2 用掉 Codex 週額度約 46%；11-14 第三輪在最後一步撞到 100% 上限中斷（`codex-companion` 以 exit 1 結束、輸出 `You've hit your usage limit`），主代理接手收尾。額度看 `~/.claude/QUOTA.md`。
+- `TaskStop` 停背景的 `npx vite` 只會停掉外層 shell，node 的 vite 與 esbuild 會留著、鎖住資料夾；收工時用程序清單找命令列含專案路徑的 node／esbuild 結束掉（或背景指令用 `exec npx vite …`）。
 - agy 的派法見全域 `agy-call` skill：主力 `gemini-4-hydrogen-high`；無頭模式讀不到工作區外的檔，派工單、參考檔、允許清單都放進它的 clone（`C:\Git\_wt_kyoto_<topic>`）。§10 是歷史紀錄。全域規則：外派額度見底就由主代理自己做。
 
 ### 8.8 當天踩過的坑
