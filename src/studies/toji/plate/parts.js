@@ -1,8 +1,9 @@
 // A plate's parts: validation, picking, and the life of each part.
 // Every part moves through the same five states — asleep, breathing, awake, answering, afterglow —
 // expressed as a few springs. Pure: no DOM, no WebGL.
-import {KIND, PLATE} from './vocab.js';
+import {KIND, MAT, PLATE} from './vocab.js';
 import {stepSpring, stepDamped} from './spring.js';
+import {validateMesh} from './mesh-geometry.js';
 import {minami} from './minami.js';
 import {fushimi} from './fushimi.js';
 import {higashiyama} from './higashiyama.js';
@@ -38,13 +39,46 @@ export function preparePlate(parts) {
     const move = shapes => shapes.map(s => ({...s, d:s.d.map(([x,z])=>[x+shift[0],z+shift[1]])}));
     return {...p, anchor:[...carrier.anchor], bias:carrier.perch[2], fills:move(p.fills), lines:move(p.lines), treeRider:true};
   });
-  const errors = [], seen = new Set();
+  const errors = [], seen = new Set(), validMats = new Set(Object.values(MAT));
   if (parts.length > MAX_PARTS - 1) errors.push(`too many parts: ${parts.length}`);
+  const groupRoots = new Map();
+  for (const p of parts) {
+    if (!p.rigidGroup) continue;
+    if (p.kind === KIND.bird) errors.push(`${p.id}: rigidGroup root cannot be a bird`);
+    if (p.motionWith) errors.push(`${p.id}: rigidGroup root cannot have motionWith`);
+    if (groupRoots.has(p.group)) errors.push(`${p.id}: multiple rigidGroup roots in ${p.group}`);
+    else groupRoots.set(p.group, p.id);
+  }
+  parts = parts.map(p => {
+    const rootId = groupRoots.get(p.group);
+    return rootId && rootId !== p.id && !p.motionWith ? {...p, motionWith: rootId} : p;
+  });
+  const byId = new Map(parts.map(p => [p.id, p]));
   const prepared = parts.map((p, i) => {
     if (seen.has(p.id)) errors.push(`duplicate id ${p.id}`);
     seen.add(p.id);
     if (!(p.layer >= 0 && p.layer < LAYERS)) errors.push(`${p.id}: layer ${p.layer}`);
     if (!p.fills.length && !p.lines.length) errors.push(`${p.id}: empty`);
+    if (p.mesh !== undefined) errors.push(...validateMesh(p.mesh, p.id, validMats));
+    if (p.motionWith != null) {
+      if (typeof p.motionWith !== 'string') errors.push(`${p.id}: bad motionWith`);
+      else if (p.motionWith === p.id) errors.push(`${p.id}: motionWith self`);
+      else {
+        const target = byId.get(p.motionWith);
+        if (!target) errors.push(`${p.id}: motionWith unknown part ${p.motionWith}`);
+        else if (target.group !== p.group) errors.push(`${p.id}: motionWith crosses group`);
+        else if (target.kind === KIND.bird) errors.push(`${p.id}: motionWith bird`);
+        else {
+          const visited = new Set([p.id]);
+          let cur = target;
+          while (cur && cur.motionWith != null) {
+            if (visited.has(cur.id)) { errors.push(`${p.id}: motionWith cycle`); break; }
+            visited.add(cur.id);
+            cur = byId.get(cur.motionWith);
+          }
+        }
+      }
+    }
     let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
     for (const shape of [...p.fills, ...p.lines]) for (const [x, z] of shape.d) {
       if (!Number.isFinite(x) || !Number.isFinite(z)) errors.push(`${p.id}: bad point`);
@@ -119,6 +153,18 @@ export function createLife(parts) {
     g.orders = Math.max(...g.members.map(p => p.order)) + 1;
   }
   const state = parts.map((p, i) => ({wake: spring(.12), stand: spring(STAND_REST), glow: spring(), dx: spring(), dz: spring(), sway: spring(), lift: spring(), phase: (i * 2.399) % 6.283}));
+  const byId = new Map(parts.map(p => [p.id, p]));
+  const motionLinks = [];
+  for (const p of parts) {
+    if (!p.motionWith) continue;
+    let root = byId.get(p.motionWith);
+    const seen = new Set([p.id]);
+    while (root && root.motionWith && !seen.has(root.id)) {
+      seen.add(root.id);
+      root = byId.get(root.motionWith);
+    }
+    if (root) motionLinks.push([p, root]);
+  }
   let dwellId = 0, dwellSince = 0, dwellFired = false, lastLight = null;
 
   /** A direct answer from a part: a dwell, or a tap in close-up. */
@@ -223,6 +269,17 @@ export function createLife(parts) {
       const carrier = parts.find(t => t.group === p.attach && t.limbs);
       const i=p.index*4, c=carrier.index*4;
       a[i]=a[c]; a[i+1]=a[c+1]; b[i]=b[c]; b[i+1]=b[c+1];
+    }
+    for (const [p, root] of motionLinks) {
+      const i = p.index * 4, c = root.index * 4;
+      const sp = state[p.index - 1], sr = state[root.index - 1];
+      sp.sway.x = sr.sway.x; sp.sway.v = sr.sway.v;
+      sp.stand.x = sr.stand.x; sp.stand.v = sr.stand.v;
+      sp.dx.x = sr.dx.x; sp.dx.v = sr.dx.v;
+      sp.dz.x = sr.dz.x; sp.dz.v = sr.dz.v;
+      sp.lift.x = sr.lift.x; sp.lift.v = sr.lift.v;
+      a[i] = a[c]; a[i + 1] = a[c + 1];
+      b[i] = b[c]; b[i + 1] = b[c + 1]; b[i + 2] = b[c + 2];
     }
     // Slot 0 is the bare ground: it only breathes with the lid.
     a[1] = 0; a[2] = .35 + .65 * body;

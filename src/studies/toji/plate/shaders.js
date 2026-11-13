@@ -115,7 +115,7 @@ export const frag = (mode, tree = 0) => `#version 300 es
 precision highp float; precision highp sampler2DArray;
 in vec3 vWorld, vNormal, vTanX, vTanZ; in vec2 vUv, vMeta; in vec4 vPart;
 uniform sampler2DArray uFine, uSoft, uIdent;
-#if TREE>0
+#if TREE==1||TREE==2
 uniform sampler2DArray uStamps;
 in vec4 vTree; in vec2 vScale;
 #endif
@@ -322,14 +322,14 @@ void main(){
 #endif
   vec4 A=uA[id];float rise=A.z,glow=A.w;
 #if TREE>0
-  vec4 fine=vec4(0.);float hs=1.,alpha=1.;vec2 grad=vec2(0.);
+  vec4 fine=vec4(0.,float(TREE==3),0.,0.);float hs=1.,alpha=1.;vec2 grad=vec2(0.);
 #if TREE==2
   vec4 ink=texture(uStamps,vTree.xyz); fine=vec4(0.,ink.r,ink.b,ink.g);
   if(ink.g<.04)discard;
   vec2 e=1./vec2(textureSize(uStamps,0).xy);
   grad=vec2(texture(uStamps,vTree.xyz+vec3(e.x,0.,0.)).r-texture(uStamps,vTree.xyz-vec3(e.x,0.,0.)).r,
     texture(uStamps,vTree.xyz+vec3(0.,e.y,0.)).r-texture(uStamps,vTree.xyz-vec3(0.,e.y,0.)).r)*vTree.w/(2.*e*vScale);
-#else
+#elif TREE==1
   // Pipe UV follows the limb, so scale plates and longitudinal grain wrap the real wood.
   float u=vTree.x,v=vTree.y;
   float grain=sin(u*2.5+.5*sin(v*.31));
@@ -405,12 +405,12 @@ void main(){
   else if(mat==13){wS=.82;wM=.18;f0=GOLD;tint=GOLD;} // continuous gold leaf, without scattered flakes
   else if(mat==14)c=LACQ*(.8+1.4*L)+coat()*2.2+GOLD*line*(.16+.80*L)*mix(.5,1.,rise);
   else c=mix(vec3(.10,.06,.025)*(.4+.5*L),vec3(1.,.62,.22)*1.15,glow)+LACQ;     // paper windows, lit from within when asked
-#if TREE>0
+#if TREE==1||TREE==2
   // Incised lines separate adjacent needles and leaf veins without turning every small leaf white.
   c*=.25;
 #endif
   c+=wN*nashiji(p,dens,tint)+wM*metal(p,f0,rise)+wS*sheet(f0);
-#if TREE>0
+#if TREE==1||TREE==2
   c*=1.-fine.b*.40;
 #endif
   vec3 bigG;float bigX=flake(R2*p,bigCell,mix(.47,.30,bigSq),bigD,bigSq,.26,bigG);

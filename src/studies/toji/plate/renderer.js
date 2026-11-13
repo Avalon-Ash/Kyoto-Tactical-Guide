@@ -5,6 +5,8 @@ import {PLATES, LAYERS, MAX_PARTS, preparePlate, createLife, partAt} from './par
 import {paintLayer, identMaps} from './bake.js';
 import {boxVert, partVert, frag, BLUR_VERT, BLUR_FRAG, GROUND} from './shaders.js';
 import {treeVert} from './tree-shaders.js';
+import {meshVert} from './mesh-shaders.js';
+import {packMeshes} from './mesh-geometry.js';
 import {limbMesh, stampInstances} from './limbs.js';
 import {bakeStamps} from './stamps.js';
 import {stepSpring} from './spring.js';
@@ -193,6 +195,8 @@ export function createPlateRenderer(gl, canvas) {
   const cuts = Object.fromEntries([5, 2, 4, 7].map(mode => [mode, compile(partVert(mode), frag(mode), ['aPos', 'aPart', 'aInfo'])]));
   const trees = [1,2].map(type => Object.fromEntries([5,2,7].map(mode => [mode,
     compile(treeVert(mode,type===2,GROUND),frag(mode,type),type===2?['aPlacement','aStamp','aOwner','aStyle']:['aPos','aNormal','aUv','aOwner','aStyle'])])));
+  const meshes = Object.fromEntries([5, 2, 7].map(mode => [mode,
+    compile(meshVert(mode, GROUND), frag(mode, 3), ['aPos', 'aNormal', 'aUv', 'aOwner', 'aStyle'])]));
   const treeBuffers = [false,true].map(instanced => {
     const vao=own(gl.createVertexArray(),gl.deleteVertexArray),buffer=own(gl.createBuffer(),gl.deleteBuffer);
     gl.bindVertexArray(vao); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -200,6 +204,11 @@ export function createPlateRenderer(gl, canvas) {
     layout.forEach(([size,offset],i)=>{gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,size,gl.FLOAT,false,64,offset);if(instanced)gl.vertexAttribDivisor(i,1);});
     gl.bindVertexArray(null); return {vao,buffer,count:0};
   });
+  const meshVao = own(gl.createVertexArray(), gl.deleteVertexArray), meshBuffer = own(gl.createBuffer(), gl.deleteBuffer);
+  gl.bindVertexArray(meshVao); gl.bindBuffer(gl.ARRAY_BUFFER, meshBuffer);
+  [[3, 0], [3, 12], [2, 24], [4, 32], [4, 48]].forEach(([size, offset], i) => { gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, size, gl.FLOAT, false, 64, offset); });
+  gl.bindVertexArray(null);
+  let meshCount = 0;
   const brush=bakeStamps(canvas.ownerDocument),stampTex=own(gl.createTexture(),gl.deleteTexture);
   gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D_ARRAY,stampTex);
   gl.texStorage3D(gl.TEXTURE_2D_ARRAY,Math.floor(Math.log2(brush.size))+1,gl.RGBA8,brush.size,brush.size,brush.layers.length);
@@ -212,6 +221,14 @@ export function createPlateRenderer(gl, canvas) {
     gl.useProgram(program.p);gl.uniformMatrix4fv(program.u('uCamera'),false,camera);gl.bindVertexArray(mesh.vao);
     if(i)gl.drawArraysInstanced(gl.TRIANGLES,0,6,mesh.count);else gl.drawArrays(gl.TRIANGLES,0,mesh.count);
   });
+  const drawMeshes = (mode, camera) => {
+    if (!meshCount) return;
+    const program = meshes[mode];
+    gl.useProgram(program.p);
+    gl.uniformMatrix4fv(program.u('uCamera'), false, camera);
+    gl.bindVertexArray(meshVao);
+    gl.drawArrays(gl.TRIANGLES, 0, meshCount);
+  };
   const box = buildBox();
   const vao = own(gl.createVertexArray(), gl.deleteVertexArray), empty = own(gl.createVertexArray(), gl.deleteVertexArray);
   const buffer = own(gl.createBuffer(), gl.deleteBuffer);
@@ -245,7 +262,7 @@ export function createPlateRenderer(gl, canvas) {
 
   let plate = null, life = null, lastTime = 0;
   const presence = {x: 0, v: 0};
-  function freePlate() { if (plate) for (const t of [plate.fine, plate.soft, plate.ident, plate.tmp]) gl.deleteTexture(t); plate = null; life = null; }
+  function freePlate() { if (plate) for (const t of [plate.fine, plate.soft, plate.ident, plate.tmp]) gl.deleteTexture(t); plate = null; life = null; meshCount = 0; }
   resources.push(freePlate);
 
   /** Bake a ward's plate into textures. Returns false when the ward has not been redrawn as a plate. */
@@ -304,7 +321,7 @@ export function createPlateRenderer(gl, canvas) {
     for (let layer = 0; layer < LAYERS; layer++) gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, mw, mh, 1, gl.RG, gl.UNSIGNED_BYTE, packed[layer]);
     scratch.width = scratch.height = 1;
     // The solids' grids first, then one quad per band of mist.
-    const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist && !p.limbs), mist = parts.filter(p => p.kind === KIND.mist);
+    const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist && !p.limbs && !p.mesh), mist = parts.filter(p => p.kind === KIND.mist);
     const quads = solidMesh(standing, maps, mw, mh), solid = quads.length / 10;
     for (const p of mist) {
       const pad = 3, [x0, z0, x1, z1] = [p.bounds[0] - pad, p.bounds[1] - pad, p.bounds[2] + pad, p.bounds[3] + pad];
@@ -316,6 +333,10 @@ export function createPlateRenderer(gl, canvas) {
     [limbMesh(treeParts),stampInstances(treeParts)].forEach((data,i)=>{
       gl.bindBuffer(gl.ARRAY_BUFFER,treeBuffers[i].buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);treeBuffers[i].count=data.length/16;
     });
+    const meshData = packMeshes(parts.filter(p => p.mesh));
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshBuffer); gl.bufferData(gl.ARRAY_BUFFER, meshData, gl.STATIC_DRAW);
+    meshCount = meshData.length / 16;
+    canvas.dataset.meshVertices = String(meshCount);
     canvas.dataset.treeVertices=String(treeBuffers[0].count);canvas.dataset.treeStamps=String(treeBuffers[1].count);
     canvas.dataset.solidVertices = String(solid);
     life = createLife(parts);
@@ -370,7 +391,7 @@ export function createPlateRenderer(gl, canvas) {
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.soft);
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.ident);
     gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D_ARRAY,stampTex);
-    for (const program of [boxP, groundP, floorP, ...Object.values(cuts), ...trees.flatMap(p=>Object.values(p))]) {
+    for (const program of [boxP, groundP, floorP, ...Object.values(cuts), ...trees.flatMap(p=>Object.values(p)), ...Object.values(meshes)]) {
       const u = program.u;
       gl.useProgram(program.p);
       gl.uniformMatrix4fv(u('uCamera'), false, projection); gl.uniformMatrix3fv(u('uTilt'), false, tilt);
@@ -392,6 +413,7 @@ export function createPlateRenderer(gl, canvas) {
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(2, 4);
       gl.useProgram(cuts[7].p); gl.uniformMatrix4fv(cuts[7].u('uCamera'), false, shadeMat); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
       drawTrees(7,shadeMat);
+      drawMeshes(7, shadeMat);
       gl.disable(gl.POLYGON_OFFSET_FILL);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
     }
@@ -409,10 +431,10 @@ export function createPlateRenderer(gl, canvas) {
       // a surface is the one in front: each sample is shaded once.
       gl.disable(gl.BLEND); gl.depthMask(true); gl.colorMask(false, false, false, false); gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
       gl.useProgram(cuts[5].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
-      drawTrees(5,projection);gl.bindVertexArray(partVao);
+      drawTrees(5,projection);drawMeshes(5,projection);gl.bindVertexArray(partVao);
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE); gl.colorMask(true, true, true, true); gl.depthMask(false); gl.depthFunc(gl.EQUAL);
       gl.useProgram(cuts[2].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
-      drawTrees(2,projection);gl.bindVertexArray(partVao);
+      drawTrees(2,projection);drawMeshes(2,projection);gl.bindVertexArray(partVao);
       // 3. Mist floats over everything and writes no depth.
       gl.depthFunc(gl.LEQUAL); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.solid, plate.mist);

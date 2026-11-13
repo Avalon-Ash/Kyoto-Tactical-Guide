@@ -11,6 +11,8 @@
 //   crisp 0..1  takamaki edge: a raised plane with a defined border
 //   lines       tsukegaki: fine raised line work
 
+import {meshTorii, meshKakezukuri} from './frame-mesh.js';
+
 export const PLATE = {halfW: 360, halfH: 230};
 export const MAT = {ground: 1, nashijiLight: 2, mura: 3, gyobu: 4, gold: 5, silver: 6, kirikane: 7, kirigin: 8, aogai: 9,
   hyomonGold: 10, hyomonSilver: 11, water: 12, kasumi: 13, lacquer: 14, lamp: 15};
@@ -220,46 +222,18 @@ export function romon(id, cx, zBase, halfW, {layer = 2} = {}) {
  * lintel that lifts at both ends. `s` scales the whole gate (1 is about 116 wide and 104 tall).
  * With `cap` the lintel carries a silver lip, as the roofs do.
  */
-export function torii(id, cx, zFoot, s = 1, {layer = 2, group = id, order = 0, mat = MAT.gold, cap = false} = {}) {
-  const P = (dx, h) => [cx + dx * s, zFoot - h * s];
-  const thick = Math.max(12, Math.min(24, 6 + 18 * s));
-  const p = part(id, KIND.tier, layer, mat, [cx, zFoot], {group, order, thick});
-  for (const side of [-1, 1]) {
-    p.fills.push({d: [P(side * 36 - 4.4, 0), P(side * 36 + 4.4, 0), P(side * 32 + 3.8, 90), P(side * 32 - 3.8, 90)], soft: .3, crisp: .85});
-    p.fills.push({d: [P(side * 36 - 7.5, 0), P(side * 36 + 7.5, 0), P(side * 36 + 5.8, 7), P(side * 36 - 5.8, 7)], soft: .2, crisp: 1});
-  }
-  p.fills.push({d: [P(-47, 53), P(47, 53), P(47, 60), P(-47, 60)], soft: .2, crisp: .8});
-  // The strut would close a small gate's slot into two holes; only a gate large enough to show it carries one.
-  if (s >= 1) p.fills.push({d: [P(-3.6, 60), P(3.6, 60), P(3.6, 90), P(-3.6, 90)], soft: .2, crisp: 1});
-  p.fills.push({d: [...quad(P(-53, 94), P(0, 83), P(53, 94), 12), ...quad(P(58, 104), P(0, 91), P(-58, 104), 12)], soft: .3, crisp: .9});
-  p.lines.push({d: quad(P(-54, 98.5), P(0, 86.5), P(54, 98.5), 12), w: Math.max(.5, .9 * s), amp: .9});
-  for (const side of [-1, 1]) p.lines.push({d: [P(side * 36, 9), P(side * 32.6, 52)], w: Math.max(.45, .7 * s), amp: .6});
-  if (!cap) return [p];
-  const lip = part(`${id}-lip`, KIND.tier, layer, MAT.silver, [cx, zFoot], {group, order, thick});
-  lip.fills.push({d: [...quad(P(-58, 104), P(0, 91), P(58, 104), 12), ...quad(P(58.6, 100.6), P(0, 87.6), P(-58.6, 100.6), 12)], soft: 0, crisp: 1});
-  return [p, lip];
+export function torii(id, cx, zFoot, s = 1, opts = {}) {
+  return meshTorii(id, cx, zFoot, s, opts);
 }
 
 /**
  * Kakezukuri: a deck carried out over a drop on a lattice of posts and tie beams, with a railing along its edge.
  * The posts all meet the ground on one line (zGround), which is the line the whole structure stands on.
  */
-export function kakezukuri(id, x0, x1, zDeck, zGround, {layer = 2, group = id, order = 0, posts = 9, ties = 3} = {}) {
+export function kakezukuri(id, x0, x1, zDeck, zGround, opts = {}) {
+  const {posts = 9} = opts;
   if (!(posts >= 2)) throw new Error(`kakezukuri(${id}): posts must be >= 2`);
-  const cx = (x0 + x1) / 2, frame = part(`${id}-frame`, KIND.tier, layer, MAT.gold, [cx, zGround], {group, order, thick: 14, reach: 3});
-  for (let i = 0; i < posts; i++) {
-    const x = lerp(x0 + 4, x1 - 4, i / (posts - 1));
-    frame.fills.push({d: [[x - 2.6, zDeck + 4], [x + 2.6, zDeck + 4], [x + 3, zGround], [x - 3, zGround]], soft: .3, crisp: .85});
-  }
-  for (let k = 1; k <= ties; k++) {
-    const z = lerp(zDeck + 5, zGround, k / (ties + 1));
-    frame.fills.push({d: [[x0 - 4, z - 1.8], [x1 + 4, z - 1.8], [x1 + 4, z + 1.8], [x0 - 4, z + 1.8]], soft: .2, crisp: 1});
-  }
-  const deck = part(`${id}-deck`, KIND.tier, layer, MAT.kirigin, [cx, zGround], {group, order: order + 1});
-  deck.fills.push({d: [[x0 - 9, zDeck - 3], [x1 + 9, zDeck - 3], [x1 + 7, zDeck + 5], [x0 - 7, zDeck + 5]], soft: .2, crisp: .9});
-  deck.lines.push({d: [[x0 - 8, zDeck + 1], [x1 + 8, zDeck + 1]], w: .7, amp: .8});
-  railing(deck, x0 - 9, x1 + 9, zDeck - 3, 10, 13);
-  return [frame, deck];
+  return meshKakezukuri(id, x0, x1, zDeck, zGround, opts);
 }
 
 /** One maple leaf: five points about the head of its stalk, the middle one longest, with deep notches between. */

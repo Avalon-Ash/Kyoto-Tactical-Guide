@@ -315,3 +315,316 @@ test('preparePlate rejects malformed tree geometry before GPU upload', () => {
   assert.match(preparePlate([{...tree,limbs:[{points:[[0,0,NaN],[0,2,1]]}]}]).errors.join(),/bad limb/);
   assert.match(preparePlate([{...tree,stamps:[{x:0,z:0,w:0,h:10,turn:0,offset:3,relief:.3,cell:2,mat:MAT.gold}]}]).errors.join(),/bad stamp/);
 });
+
+const triInXZ = ([px, pz], a, b, c) => {
+  const s1 = (b[0] - a[0]) * (pz - a[2]) - (b[2] - a[2]) * (px - a[0]);
+  const s2 = (c[0] - b[0]) * (pz - b[2]) - (c[2] - b[2]) * (px - b[0]);
+  const s3 = (a[0] - c[0]) * (pz - c[2]) - (a[2] - c[2]) * (px - c[0]);
+  return (s1 >= -1e-6 && s2 >= -1e-6 && s3 >= -1e-6) || (s1 <= 1e-6 && s2 <= 1e-6 && s3 <= 1e-6);
+};
+
+const topTrianglesXZ = (meshChunks, pt) => {
+  for (const chunk of meshChunks) {
+    const v = chunk.vertices;
+    for (let i = 0; i < v.length; i += 24) {
+      if (v[i + 4] > .5 && v[i + 12] > .5 && v[i + 20] > .5) {
+        if (triInXZ(pt, [v[i], v[i + 1], v[i + 2]], [v[i + 8], v[i + 9], v[i + 10]], [v[i + 16], v[i + 17], v[i + 18]])) return true;
+      }
+    }
+  }
+  return false;
+};
+
+const assertValidMeshChunks = chunks => {
+  assert.ok(Array.isArray(chunks) && chunks.length > 0);
+  for (const c of chunks) {
+    assert.ok(Object.values(MAT).includes(c.mat));
+    assert.ok(Array.isArray(c.vertices) && c.vertices.length > 0 && c.vertices.length % 24 === 0);
+    const v = c.vertices;
+    for (let i = 0; i < v.length; i += 24) {
+      for (let k = 0; k < 24; k++) assert.ok(Number.isFinite(v[i + k]));
+      const abx = v[i + 8] - v[i], aby = v[i + 9] - v[i + 1], abz = v[i + 10] - v[i + 2];
+      const acx = v[i + 16] - v[i], acy = v[i + 17] - v[i + 1], acz = v[i + 18] - v[i + 2];
+      const area = .5 * Math.hypot(aby * acz - abz * acy, abz * acx - abx * acz, abx * acy - aby * acx);
+      assert.ok(area > 1e-8, `non-degenerate triangle area (${area})`);
+      for (const off of [3, 11, 19]) {
+        const len = Math.hypot(v[i + off], v[i + off + 1], v[i + off + 2]);
+        assert.ok(Math.abs(len - 1) < 1e-4, `unit normal length (${len})`);
+      }
+    }
+  }
+};
+
+test('explicit mesh geometry builders produce closed non-degenerate meshes and reject bad input', async () => {
+  const {extrudeConvex, sweepHalfTube, ribbonMesh} = await import('../src/studies/toji/plate/mesh-geometry.js');
+
+  const bar = extrudeConvex([[0, 0], [2, 0], [2, 10], [0, 10]], 0, 6, MAT.gold);
+  assertValidMeshChunks([bar]);
+  const xs = [], ys = [], zs = [];
+  for (let i = 0; i < bar.vertices.length; i += 8) {
+    xs.push(bar.vertices[i]); ys.push(bar.vertices[i + 1]); zs.push(bar.vertices[i + 2]);
+  }
+  assert.ok(Math.abs(Math.min(...xs) - 0) < 1e-5 && Math.abs(Math.max(...xs) - 2) < 1e-5);
+  assert.ok(Math.abs(Math.min(...ys) - 0) < 1e-5 && Math.abs(Math.max(...ys) - 6) < 1e-5);
+  assert.ok(Math.abs(Math.min(...zs) - 0) < 1e-5 && Math.abs(Math.max(...zs) - 10) < 1e-5);
+  let hasTop = false, hasBottom = false, hasSide = false;
+  for (let i = 0; i < bar.vertices.length; i += 8) {
+    const ny = bar.vertices[i + 4];
+    if (ny > .99) hasTop = true;
+    else if (ny < -.99) hasBottom = true;
+    else if (Math.abs(ny) < 1e-5) hasSide = true;
+  }
+  assert.ok(hasTop && hasBottom && hasSide, 'extrudeConvex has top, bottom, and side faces');
+
+  const tube = sweepHalfTube([[0, 0, 1], [0, -20, 1]], {heightRatio: .6, baseY: 0, mat: MAT.gold, sides: 12});
+  assertValidMeshChunks([tube]);
+  const txs = [], tys = [];
+  let hasTubeBottom = false, hasTubeCaps = 0;
+  for (let i = 0; i < tube.vertices.length; i += 8) {
+    txs.push(tube.vertices[i]); tys.push(tube.vertices[i + 1]);
+    if (tube.vertices[i + 4] < -.99) hasTubeBottom = true;
+    if (Math.abs(tube.vertices[i + 5]) > .99) hasTubeCaps++;
+  }
+  assert.ok(Math.abs(Math.max(...txs) - Math.min(...txs) - 2) < 1e-5);
+  assert.ok(Math.abs(Math.min(...tys) - 0) < 1e-5 && Math.abs(Math.max(...tys) - .6) < 1e-5);
+  assert.ok(hasTubeBottom && hasTubeCaps >= 72, 'sweepHalfTube has flat bottom and both end caps');
+
+  const rib = ribbonMesh([[0, 2, 0], [10, 2, 0], [10, 2, 10]], 2, .5, MAT.hyomonGold);
+  assertValidMeshChunks([rib]);
+  const rxs = [], rys = [], rzs = [];
+  for (let i = 0; i < rib.vertices.length; i += 8) {
+    rxs.push(rib.vertices[i]); rys.push(rib.vertices[i + 1]); rzs.push(rib.vertices[i + 2]);
+  }
+  assert.ok(Math.max(...rxs) <= 11 + 1e-5 && Math.min(...rzs) >= -1 - 1e-5, 'bevel join avoids miter spike');
+  assert.ok(Math.abs(Math.min(...rys) - 2) < 1e-5 && Math.abs(Math.max(...rys) - 2.5) < 1e-5);
+
+  assert.throws(() => extrudeConvex([], 0, 2, MAT.gold));
+  assert.throws(() => extrudeConvex([[0, 0], [NaN, 0], [1, 1]], 0, 2, MAT.gold));
+  assert.throws(() => extrudeConvex([[0, 0], [2, 0], [2, 2], [0, 2]], 4, 2, MAT.gold));
+  assert.throws(() => extrudeConvex([[0, 0], [2, 0], [2, 2], [0, 2]], 2, 2, MAT.gold));
+  assert.throws(() => extrudeConvex([[0, 0], [4, 0], [1, 1], [0, 4]], 0, 2, MAT.gold));
+  assert.throws(() => sweepHalfTube([[0, 0, 1]], {mat: MAT.gold}));
+  assert.throws(() => sweepHalfTube([[0, 0, 0], [0, -10, 1]], {mat: MAT.gold}));
+  assert.throws(() => sweepHalfTube([[0, 0, 1], [0, 0, 1]], {mat: MAT.gold}));
+  assert.throws(() => sweepHalfTube([[0, 0, 1], [0, -10, NaN]], {mat: MAT.gold}));
+  assert.throws(() => ribbonMesh([[0, 0, 0]], 1, .2, MAT.gold));
+  assert.throws(() => ribbonMesh([[0, 0, 0], [5, 0, 0]], 0, .2, MAT.gold));
+  assert.throws(() => ribbonMesh([[0, 0, 0], [0, 1, 0]], 1, .2, MAT.gold));
+});
+
+test('torii and kakezukuri keep true open apertures, real beam/post coverage, and valid meshes', async () => {
+  const {torii} = await import('../src/studies/toji/plate/vocab.js');
+  for (const s of [1.22, .74, .44]) {
+    const parts = torii('t', 0, 0, s, {cap: s === 1.22});
+    assert.equal(parts.length, s === 1.22 ? 2 : 1);
+    const gate = parts[0];
+    assert.equal(gate.thick, 0);
+    assertValidMeshChunks(gate.mesh);
+    if (parts[1]) {
+      assert.equal(parts[1].thick, 0);
+      assert.equal(parts[1].motionWith, 't');
+      assertValidMeshChunks(parts[1].mesh);
+    }
+    const lowerHole = [0, -26 * s];
+    assert.equal(gate.fills.some(f => inside(lowerHole, f.d)), false, `torii s=${s} lower hole not in fills`);
+    assert.equal(topTrianglesXZ(gate.mesh, lowerHole), false, `torii s=${s} lower hole has no top triangles`);
+    const upperHoles = s >= 1 ? [[-16 * s, -74 * s], [16 * s, -74 * s]] : [[0, -74 * s]];
+    for (const uh of upperHoles) {
+      assert.equal(gate.fills.some(f => inside(uh, f.d)), false, `torii s=${s} upper hole not in fills`);
+      assert.equal(topTrianglesXZ(gate.mesh, uh), false, `torii s=${s} upper hole has no top triangles`);
+    }
+    const nukiMid = [0, -56.5 * s];
+    assert.equal(gate.fills.some(f => inside(nukiMid, f.d)), true, `torii s=${s} nuki midpoint in fills`);
+    assert.equal(topTrianglesXZ(gate.mesh, nukiMid), true, `torii s=${s} nuki midpoint in mesh`);
+    for (const side of [-1, 1]) {
+      const postMid = [side * 34 * s, -45 * s];
+      assert.equal(gate.fills.some(f => inside(postMid, f.d)), true, `torii s=${s} post ${side} in fills`);
+    }
+  }
+
+  const [frame, deck] = kakezukuri('butai', -40, 252, -8, 104, {posts: 8, ties: 3});
+  assert.equal(frame.thick, 0);
+  assert.equal(deck.thick, 0);
+  assert.equal(frame.rigidGroup, true);
+  assertValidMeshChunks(frame.mesh);
+  assertValidMeshChunks(deck.mesh);
+  for (const x of [-36, 248]) {
+    assert.equal(frame.fills.some(f => inside([x, 48], f.d)), true, `outer post at x=${x} in fills`);
+    assert.equal(topTrianglesXZ(frame.mesh, [x, 48]), true, `outer post at x=${x} in mesh`);
+  }
+  const holeX = (-36 + (-40 + 4 + (292 - 8) / 7)) / 2;
+  for (const z of [10, 37, 64, 90]) {
+    assert.equal(frame.fills.some(f => inside([holeX, z], f.d)), false, `frame hole (${holeX},${z}) not in fills`);
+    assert.equal(topTrianglesXZ(frame.mesh, [holeX, z]), false, `frame hole (${holeX},${z}) has no top triangles`);
+  }
+  const railHole = [-40 - 9 + .9 + 6.5, -8 - 3 - 5];
+  assert.equal(deck.fills.some(f => inside(railHole, f.d)), false, 'railing hole not in fills');
+  assert.equal(topTrianglesXZ(deck.mesh, railHole), false, 'railing hole has no top triangles');
+});
+
+test('preparePlate validates mesh/motionWith and preserves all 11 wards without migrating non-targets', () => {
+  const basePart = {id: 'a', kind: KIND.tier, group: 'g', order: 0, layer: 2, mat: MAT.gold, reach: 1, thick: 0, bias: 0, anchor: [0, 0], fills: [{d: [[0, 0], [2, 0], [2, 2]], soft: 0, crisp: 1}], lines: []};
+  assert.match(preparePlate([{...basePart, mesh: []}]).errors.join(), /bad mesh/);
+  assert.match(preparePlate([{...basePart, mesh: [{mat: 999, vertices: new Array(24).fill(0)}]}]).errors.join(), /bad mesh chunk/);
+  assert.match(preparePlate([{...basePart, mesh: [{mat: MAT.gold, vertices: [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, NaN, 0, 1, 0, 1, 0, 0, 0]}]}]).errors.join(), /non-finite mesh/);
+  assert.match(preparePlate([{...basePart, mesh: [{mat: MAT.gold, vertices: [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0]}]}]).errors.join(), /degenerate mesh/);
+  assert.match(preparePlate([{...basePart, mesh: [{mat: MAT.gold, vertices: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0]}]}]).errors.join(), /bad mesh normal/);
+
+  assert.match(preparePlate([{...basePart, motionWith: 'missing'}]).errors.join(), /motionWith unknown/);
+  assert.match(preparePlate([{...basePart, motionWith: 'a'}]).errors.join(), /motionWith self/);
+  assert.match(preparePlate([basePart, {...basePart, id: 'b', group: 'other', motionWith: 'a'}]).errors.join(), /motionWith crosses group/);
+  assert.match(preparePlate([{...basePart, motionWith: 'b'}, {...basePart, id: 'b', motionWith: 'a'}]).errors.join(), /motionWith cycle/);
+  assert.match(preparePlate([basePart, {...basePart, id: 'b', kind: KIND.bird}, {...basePart, id: 'c', motionWith: 'b'}]).errors.join(), /motionWith bird/);
+  assert.match(preparePlate([{...basePart, rigidGroup: true}, {...basePart, id: 'b', rigidGroup: true}]).errors.join(), /multiple rigidGroup/);
+
+  const expectedCounts = {W_MINAMI: 48, W_UKYO: 25, W_NISHIKYO: 33, W_YAMASHINA: 34, W_FUSHIMI: 36, W_KITA: 29, W_KAMIGYO: 39, W_SAKYO: 31, W_NAKAGYO: 42, W_HIGASHIYAMA: 26, W_SHIMOGYO: 28};
+  for (const [ward, build] of Object.entries(PLATES)) {
+    const {parts, errors} = preparePlate(build());
+    assert.deepEqual(errors, [], ward);
+    assert.equal(parts.length, expectedCounts[ward], `${ward} part count`);
+  }
+
+  const fushimi = preparePlate(PLATES.W_FUSHIMI()).parts;
+  for (const p of fushimi) {
+    const isTorii = p.id === 'torii' || p.id === 'torii-lip' || p.id.startsWith('gate-');
+    if (isTorii) {
+      assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
+      assert.equal(p.thick, 0, `${p.id} thick is 0`);
+    } else {
+      assert.equal(p.mesh, undefined, `${p.id} is not migrated`);
+    }
+  }
+  assert.equal(fushimi.find(p => p.id === 'torii-lip').motionWith, 'torii');
+
+  const higashiyama = preparePlate(PLATES.W_HIGASHIYAMA()).parts;
+  for (const p of higashiyama) {
+    if (p.id === 'butai-frame' || p.id === 'butai-deck') {
+      assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
+      assert.equal(p.thick, 0, `${p.id} thick is 0`);
+    } else {
+      assert.equal(p.mesh, undefined, `${p.id} is not migrated`);
+    }
+    if (p.group === 'butai' && p.id !== 'butai-frame') {
+      assert.equal(p.motionWith, 'butai-frame', `${p.id} follows butai-frame`);
+    }
+  }
+});
+
+test('life syncs butai rigidGroup motion while keeping materials independent, and packMeshes produces valid GPU data', async () => {
+  const {packMeshes} = await import('../src/studies/toji/plate/mesh-geometry.js');
+  const hParts = preparePlate(PLATES.W_HIGASHIYAMA()).parts;
+  const life = createLife(hParts);
+  const frame = hParts.find(p => p.id === 'butai-frame');
+  const followers = hParts.filter(p => p.group === 'butai' && p.id !== 'butai-frame');
+  assert.equal(followers.length, 5);
+
+  // Wake near one end of hondo so distances differ across members
+  const awake = run(life, 1.2, {light: [40, 10]});
+  for (const f of followers) {
+    assert.equal(awake.a[f.index * 4], awake.a[frame.index * 4], `${f.id} sway matches frame`);
+    assert.equal(awake.a[f.index * 4 + 1], awake.a[frame.index * 4 + 1], `${f.id} stand matches frame`);
+    assert.equal(awake.b[f.index * 4], awake.b[frame.index * 4], `${f.id} dx matches frame`);
+    assert.equal(awake.b[f.index * 4 + 1], awake.b[frame.index * 4 + 1], `${f.id} dz matches frame`);
+    assert.equal(awake.b[f.index * 4 + 2], awake.b[frame.index * 4 + 2], `${f.id} lift matches frame`);
+  }
+  const roof = hParts.find(p => p.id === 'hondo-roof');
+  const lamp = hParts.find(p => p.id === 'hondo-wall-lamp');
+  // At low light far from the group, each part keeps its own breathing phase in a.z (rise)
+  const dimOut = run(life, .5, {light: [-320, 180], presence: .2}, 1500);
+  assert.notEqual(dimOut.a[lamp.index * 4 + 2], dimOut.a[frame.index * 4 + 2], 'rise stays per-part');
+
+  // After act(), lift and glow behave properly without splitting the rigid group
+  assert.equal(life.act(roof.index, 2000), true);
+  const acted = run(life, .2, {light: [40, 10]}, 2000);
+  for (const f of followers) {
+    assert.equal(acted.b[f.index * 4 + 2], acted.b[frame.index * 4 + 2], `${f.id} lift stays synced after act`);
+    assert.ok(acted.a[f.index * 4 + 3] > 0, `${f.id} glow wakes on act`);
+  }
+
+  // Under still: true, all motion channels zero while wake still answers light
+  const stillLife = createLife(hParts);
+  const stillOut = stillLife.update(1 / 60, {time: 5000, light: lamp.centre, presence: 1, still: true, lift: 1});
+  for (const f of [frame, ...followers]) {
+    assert.equal(stillOut.a[f.index * 4], 0);
+    assert.equal(stillOut.a[f.index * 4 + 1], 0);
+    assert.equal(stillOut.b[f.index * 4], 0);
+    assert.equal(stillOut.b[f.index * 4 + 1], 0);
+    assert.equal(stillOut.b[f.index * 4 + 2], 0);
+  }
+  assert.ok(stillOut.a[lamp.index * 4 + 2] > .5);
+
+  // Verify packed mesh buffers for Fushimi & Higashiyama
+  for (const ward of ['W_FUSHIMI', 'W_HIGASHIYAMA']) {
+    const parts = preparePlate(PLATES[ward]()).parts;
+    const meshParts = parts.filter(p => p.mesh);
+    const buf = packMeshes(meshParts);
+    assert.ok(buf instanceof Float32Array && buf.length > 0 && buf.length % 16 === 0);
+    for (let i = 0; i < buf.length; i++) assert.ok(Number.isFinite(buf[i]));
+    let cursor = 0;
+    for (const p of meshParts) {
+      for (const chunk of p.mesh) {
+        const count = chunk.vertices.length / 8;
+        for (let k = 0; k < count; k++) {
+          const base = (cursor + k) * 16;
+          assert.equal(buf[base + 8], p.index);
+          assert.equal(buf[base + 9], Math.fround(p.foot));
+          assert.equal(buf[base + 10], Math.fround(p.anchor[0]));
+          assert.equal(buf[base + 11], Math.fround(p.anchor[1]));
+          assert.equal(buf[base + 12], Math.fround(p.hinge));
+          assert.equal(buf[base + 13], chunk.mat);
+          assert.equal(buf[base + 14], 0);
+          assert.equal(buf[base + 15], Math.fround(p.bias));
+        }
+        cursor += count;
+      }
+    }
+    assert.equal(cursor, buf.length / 16);
+  }
+});
+
+test('torii post ribbons and kakezukuri deck front band exist at true surface heights', async () => {
+  const {torii} = await import('../src/studies/toji/plate/vocab.js');
+  const yBounds = v => {
+    let minY = Infinity, maxY = -Infinity, minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (let i = 0; i < v.length; i += 8) {
+      minX = Math.min(minX, v[i]); maxX = Math.max(maxX, v[i]);
+      minY = Math.min(minY, v[i + 1]); maxY = Math.max(maxY, v[i + 1]);
+      minZ = Math.min(minZ, v[i + 2]); maxZ = Math.max(maxZ, v[i + 2]);
+    }
+    return {minX, maxX, minY, maxY, minZ, maxZ};
+  };
+
+  for (const s of [1.22, .74, .44]) {
+    const [gate] = torii('t', 0, 0, s);
+    assertValidMeshChunks(gate.mesh);
+    const ribbons = gate.mesh.filter(c => c.mat === MAT.hyomonGold);
+    assert.equal(ribbons.length, 3, `torii s=${s} has kasagi + 2 post gold ribbons`);
+    const postRibbons = ribbons.filter(c => yBounds(c.vertices).maxZ > -60 * s);
+    assert.equal(postRibbons.length, 2, `torii s=${s} has both post ribbons`);
+    for (const pr of postRibbons) {
+      const b = yBounds(pr.vertices);
+      assert.ok(Math.abs(b.minZ - (-52 * s)) < .05 * s && Math.abs(b.maxZ - (-9 * s)) < .05 * s, `s=${s} post ribbon z range`);
+      // Tapered semi-elliptical post drops from h=9 (~3.64*s) to h=52 (~3.29*s), plus .15*s ribbon thickness.
+      assert.ok(b.maxY - b.minY > .35 * s, `s=${s} post ribbon follows curved/tapered surface rather than fixed y`);
+      assert.ok(b.minY > 3.1 * s && b.maxY < 4.0 * s, `s=${s} post ribbon sits on post surface`);
+    }
+  }
+
+  const fushimiGates = preparePlate(PLATES.W_FUSHIMI()).parts.filter(p => p.id === 'torii' || p.id.startsWith('gate-'));
+  assert.equal(fushimiGates.length, 6);
+  for (const g of fushimiGates) {
+    assert.equal(g.mesh.filter(c => c.mat === MAT.hyomonGold).length, 3, `${g.id} retains all 3 gold bands`);
+  }
+
+  const [, deck] = kakezukuri('butai', -40, 252, -8, 104, {posts: 8, ties: 3});
+  assertValidMeshChunks(deck.mesh);
+  const silverBands = deck.mesh.filter(c => c.mat === MAT.hyomonSilver);
+  assert.equal(silverBands.length, 1, 'butai-deck has front hyomonSilver band');
+  const sb = yBounds(silverBands[0].vertices);
+  assert.ok(Math.abs(sb.minX - (-48)) < 1e-5 && Math.abs(sb.maxX - 260) < 1e-5, 'deck front band x span');
+  assert.ok(Math.abs(sb.minZ - (-7.35)) < 1e-5 && Math.abs(sb.maxZ - (-6.65)) < 1e-5, 'deck front band z width .7 at zDeck+1');
+  assert.ok(Math.abs(sb.minY - 10) < 1e-5 && Math.abs(sb.maxY - 10.15) < 1e-5, 'deck front band sits on y=10 with .15 thickness');
+
+  const hDeck = preparePlate(PLATES.W_HIGASHIYAMA()).parts.find(p => p.id === 'butai-deck');
+  assert.equal(hDeck.mesh.filter(c => c.mat === MAT.hyomonSilver).length, 1, 'W_HIGASHIYAMA butai-deck keeps front silver band');
+});
