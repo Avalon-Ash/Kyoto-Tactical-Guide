@@ -260,3 +260,58 @@ test('vocab builders reject invalid counts, mismatched widths, and empty arrays'
   assert.throws(() => shell('sh', []), /shell.*spots/);
   assert.throws(() => steppingStones('ss', []), /steppingStones.*points/);
 });
+
+test('all trees use finite limbs and bounded stamps, without inflated crown geometry', async () => {
+  const {stampOutline} = await import('../src/studies/toji/plate/stamps.js');
+  const {limbMesh,stampInstances} = await import('../src/studies/toji/plate/limbs.js');
+  for (const [ward,build] of Object.entries(PLATES)) {
+    const {parts,errors}=preparePlate(build()); assert.deepEqual(errors,[]);
+    const trees=parts.filter(p=>p.kind===KIND.pine);
+    assert.ok(trees.length>0,ward);
+    for (const p of trees) {
+      assert.ok(Array.isArray(p.limbs)&&Array.isArray(p.stamps),p.id);
+      assert.equal(p.thick,0,'tree geometry cannot feed the pillow height');
+      for(const l of p.limbs) for(const point of l.points) {
+        assert.ok(point.every(Number.isFinite)); assert.ok(point[2]>0&&point[2]<=30);
+      }
+      for(const s of p.stamps) {
+        assert.ok(s.w>=1&&s.w<=160&&s.h>=1&&s.h<=160);
+        assert.ok(Object.values(MAT).includes(s.mat));
+        for(const [x,z] of stampOutline(s)) assert.ok(Math.abs(x)<=360&&Math.abs(z)<=230,ward+': '+p.id+' stamp stays on lid');
+      }
+    }
+    assert.ok(limbMesh(trees).every(Number.isFinite));assert.ok(stampInstances(trees).every(Number.isFinite));
+    assert.ok(parts.length<MAX_PARTS);
+  }
+});
+
+test('a four-unit twig keeps its actual width and elliptical height without a blur map', async () => {
+  const {limbMesh,LIMB_HEIGHT}=await import('../src/studies/toji/plate/limbs.js');
+  const mesh=limbMesh([{index:1,foot:0,anchor:[0,0],hinge:1.1,mat:MAT.gold,limbs:[{points:[[0,0,2],[0,-20,2]]}]}]);
+  const xs=[],ys=[];for(let i=0;i<mesh.length;i+=16){xs.push(mesh[i]);ys.push(mesh[i+1]);}
+  assert.equal(Math.max(...xs)-Math.min(...xs),4);
+  assert.ok(Math.abs(Math.max(...ys)-2*LIMB_HEIGHT)<1e-6);assert.equal(Math.min(...ys),0);
+});
+
+test('both bird feet rest inside actual branches in all migrated wards', () => {
+  for(const [ward,build] of Object.entries(PLATES)) {
+    const {parts}=preparePlate(build());
+    for(const bird of parts.filter(p=>p.kind===KIND.bird&&p.treeRider)) {
+      const wood=parts.filter(p=>p.group===bird.attach&&p.limbs?.length);
+      assert.ok(wood.length>0);
+      for(const line of bird.lines.slice(-2)) assert.ok(wood.some(p=>p.fills.some(f=>inside(line.d.at(-1),f.d))),ward+': '+bird.id+' foot is on wood, not a bounding box');
+    }
+    const life=createLife(parts),state=run(life,3,{light:[-200,130]});
+    for(const p of parts.filter(p=>p.treeRider||p.limbs&&p.order>0)) {
+      const carrier=parts.find(t=>t.group===(p.attach??p.group)&&t.limbs?.length);
+      assert.equal(state.a[p.index*4],state.a[carrier.index*4],'shared sway');
+      assert.equal(state.a[p.index*4+1],state.a[carrier.index*4+1],'shared hinge');
+    }
+  }
+});
+
+test('preparePlate rejects malformed tree geometry before GPU upload', () => {
+  const tree=PLATES.W_MINAMI().find(p=>p.limbs?.length);
+  assert.match(preparePlate([{...tree,limbs:[{points:[[0,0,NaN],[0,2,1]]}]}]).errors.join(),/bad limb/);
+  assert.match(preparePlate([{...tree,stamps:[{x:0,z:0,w:0,h:10,turn:0,offset:3,relief:.3,cell:2,mat:MAT.gold}]}]).errors.join(),/bad stamp/);
+});

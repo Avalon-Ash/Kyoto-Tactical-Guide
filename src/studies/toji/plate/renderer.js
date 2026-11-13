@@ -3,7 +3,10 @@
 import {PLATE, MAT, KIND} from './vocab.js';
 import {PLATES, LAYERS, MAX_PARTS, preparePlate, createLife, partAt} from './parts.js';
 import {paintLayer, identMaps} from './bake.js';
-import {boxVert, partVert, frag, BLUR_VERT, BLUR_FRAG} from './shaders.js';
+import {boxVert, partVert, frag, BLUR_VERT, BLUR_FRAG, GROUND} from './shaders.js';
+import {treeVert} from './tree-shaders.js';
+import {limbMesh, stampInstances} from './limbs.js';
+import {bakeStamps} from './stamps.js';
 import {stepSpring} from './spring.js';
 import {createCord, cordTube} from './cord.js';
 import {groundPoint, normalize, trailIntensity} from '../geometry.js';
@@ -139,7 +142,7 @@ export function solidMesh(standing, maps, mw, mh, cell = 2) {
       const corners = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j], [i + 1, j + 1], [i, j + 1]], ids = corners.map(([a, b]) => home[b * (nx + 1) + a]);
       const any = ids.find(Boolean);
       if (!any) continue;
-      corners.forEach(([a, b], k) => { const p = own.get(ids[k] || any); out.push(x0 + a * cell, z0 + b * cell, p.index, p.layer, p.foot, p.thick, p.anchor[0], p.anchor[1], p.hinge, p.bias); });
+      corners.forEach(([a, b], k) => { const p = own.get(ids[k] || any); out.push(x0 + a * cell, z0 + b * cell, p.index, p.layer, p.foot, p.thick, p.anchor[0], p.anchor[1], p.treeRider ? -p.hinge : p.hinge, p.bias); });
     }
   }
   return out;
@@ -188,6 +191,27 @@ export function createPlateRenderer(gl, canvas) {
   const boxP = compile(boxVert(0), frag(0), ['aPos', 'aNormal', 'aUv', 'aMeta']), groundP = compile(boxVert(1), frag(1), ['aPos', 'aNormal', 'aUv', 'aMeta']),
     floorP = compile(boxVert(6), frag(6), ['aPos', 'aNormal', 'aUv', 'aMeta']), blur = compile(BLUR_VERT, BLUR_FRAG);
   const cuts = Object.fromEntries([5, 2, 4, 7].map(mode => [mode, compile(partVert(mode), frag(mode), ['aPos', 'aPart', 'aInfo'])]));
+  const trees = [1,2].map(type => Object.fromEntries([5,2,7].map(mode => [mode,
+    compile(treeVert(mode,type===2,GROUND),frag(mode,type),type===2?['aPlacement','aStamp','aOwner','aStyle']:['aPos','aNormal','aUv','aOwner','aStyle'])])));
+  const treeBuffers = [false,true].map(instanced => {
+    const vao=own(gl.createVertexArray(),gl.deleteVertexArray),buffer=own(gl.createBuffer(),gl.deleteBuffer);
+    gl.bindVertexArray(vao); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    const layout=instanced?[[4,0],[4,16],[4,32],[4,48]]:[[3,0],[3,12],[2,24],[4,32],[4,48]];
+    layout.forEach(([size,offset],i)=>{gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,size,gl.FLOAT,false,64,offset);if(instanced)gl.vertexAttribDivisor(i,1);});
+    gl.bindVertexArray(null); return {vao,buffer,count:0};
+  });
+  const brush=bakeStamps(canvas.ownerDocument),stampTex=own(gl.createTexture(),gl.deleteTexture);
+  gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D_ARRAY,stampTex);
+  gl.texStorage3D(gl.TEXTURE_2D_ARRAY,Math.floor(Math.log2(brush.size))+1,gl.RGBA8,brush.size,brush.size,brush.layers.length);
+  brush.layers.forEach((pixels,i)=>gl.texSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,i,brush.size,brush.size,1,gl.RGBA,gl.UNSIGNED_BYTE,pixels));
+  gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.generateMipmap(gl.TEXTURE_2D_ARRAY);gl.bindTexture(gl.TEXTURE_2D_ARRAY,null);gl.activeTexture(gl.TEXTURE0);
+  const drawTrees = (mode,camera) => trees.forEach((programs,i)=>{
+    const program=programs[mode],mesh=treeBuffers[i]; if(!mesh.count)return;
+    gl.useProgram(program.p);gl.uniformMatrix4fv(program.u('uCamera'),false,camera);gl.bindVertexArray(mesh.vao);
+    if(i)gl.drawArraysInstanced(gl.TRIANGLES,0,6,mesh.count);else gl.drawArrays(gl.TRIANGLES,0,mesh.count);
+  });
   const box = buildBox();
   const vao = own(gl.createVertexArray(), gl.deleteVertexArray), empty = own(gl.createVertexArray(), gl.deleteVertexArray);
   const buffer = own(gl.createBuffer(), gl.deleteBuffer);
@@ -280,7 +304,7 @@ export function createPlateRenderer(gl, canvas) {
     for (let layer = 0; layer < LAYERS; layer++) gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, mw, mh, 1, gl.RG, gl.UNSIGNED_BYTE, packed[layer]);
     scratch.width = scratch.height = 1;
     // The solids' grids first, then one quad per band of mist.
-    const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist), mist = parts.filter(p => p.kind === KIND.mist);
+    const standing = parts.filter(p => p.layer > 0 && p.kind !== KIND.mist && !p.limbs), mist = parts.filter(p => p.kind === KIND.mist);
     const quads = solidMesh(standing, maps, mw, mh), solid = quads.length / 10;
     for (const p of mist) {
       const pad = 3, [x0, z0, x1, z1] = [p.bounds[0] - pad, p.bounds[1] - pad, p.bounds[2] + pad, p.bounds[3] + pad];
@@ -288,6 +312,11 @@ export function createPlateRenderer(gl, canvas) {
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, partBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quads), gl.STATIC_DRAW);
     plate = {fine, soft, ident, tmp, parts, maps, mw, mh, solid, mist: mist.length * 6};
+    const treeParts=parts.filter(p=>p.limbs);
+    [limbMesh(treeParts),stampInstances(treeParts)].forEach((data,i)=>{
+      gl.bindBuffer(gl.ARRAY_BUFFER,treeBuffers[i].buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);treeBuffers[i].count=data.length/16;
+    });
+    canvas.dataset.treeVertices=String(treeBuffers[0].count);canvas.dataset.treeStamps=String(treeBuffers[1].count);
     canvas.dataset.solidVertices = String(solid);
     life = createLife(parts);
     canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
@@ -340,7 +369,8 @@ export function createPlateRenderer(gl, canvas) {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.fine);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.soft);
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.ident);
-    for (const program of [boxP, groundP, floorP, ...Object.values(cuts)]) {
+    gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D_ARRAY,stampTex);
+    for (const program of [boxP, groundP, floorP, ...Object.values(cuts), ...trees.flatMap(p=>Object.values(p))]) {
       const u = program.u;
       gl.useProgram(program.p);
       gl.uniformMatrix4fv(u('uCamera'), false, projection); gl.uniformMatrix3fv(u('uTilt'), false, tilt);
@@ -351,6 +381,7 @@ export function createPlateRenderer(gl, canvas) {
       gl.uniform4fv(u('uA[0]'), state.a); gl.uniform4fv(u('uB[0]'), state.b);
       gl.uniform3fv(u('uTrails[0]'), packed);
       gl.uniform1i(u('uFine'), 0); gl.uniform1i(u('uSoft'), 1); gl.uniform1i(u('uIdent'), 2);
+      gl.uniform1i(u('uStamps'),4);
       gl.uniform1i(u('uShade'), 3); gl.uniformMatrix4fv(u('uShadeMat'), false, shadeMat);
     }
     gl.bindVertexArray(partVao);
@@ -360,6 +391,7 @@ export function createPlateRenderer(gl, canvas) {
       gl.depthMask(true); gl.clear(gl.DEPTH_BUFFER_BIT); gl.disable(gl.BLEND);
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(2, 4);
       gl.useProgram(cuts[7].p); gl.uniformMatrix4fv(cuts[7].u('uCamera'), false, shadeMat); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
+      drawTrees(7,shadeMat);
       gl.disable(gl.POLYGON_OFFSET_FILL);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
     }
@@ -377,12 +409,15 @@ export function createPlateRenderer(gl, canvas) {
       // a surface is the one in front: each sample is shaded once.
       gl.disable(gl.BLEND); gl.depthMask(true); gl.colorMask(false, false, false, false); gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
       gl.useProgram(cuts[5].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
+      drawTrees(5,projection);gl.bindVertexArray(partVao);
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE); gl.colorMask(true, true, true, true); gl.depthMask(false); gl.depthFunc(gl.EQUAL);
       gl.useProgram(cuts[2].p); gl.drawArrays(gl.TRIANGLES, 0, plate.solid);
+      drawTrees(2,projection);gl.bindVertexArray(partVao);
       // 3. Mist floats over everything and writes no depth.
       gl.depthFunc(gl.LEQUAL); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(cuts[4].p); gl.drawArrays(gl.TRIANGLES, plate.solid, plate.mist);
     }
+    gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D_ARRAY,null);
     // Leave the context as the relief renderer expects to find it.
     gl.depthMask(true); gl.disable(gl.BLEND); gl.bindVertexArray(null);
     gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, null);

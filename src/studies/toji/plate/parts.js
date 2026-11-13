@@ -27,6 +27,17 @@ export const hasPlate = ward => Object.hasOwn(PLATES, ward);
 
 /** Bounds, centre and radius for each part; ids become 1-based indices (0 is the bare ground). */
 export function preparePlate(parts) {
+  // A bird supplied with an old perch follows the new carrier's actual exposed twig.
+  // Translate all its geometry together; its two feet stay 3.96 units apart.
+  parts = parts.map(p => {
+    const carrier = p.attach && parts.find(t => t.group === p.attach && t.limbs);
+    if (!carrier || p.kind !== KIND.bird) return p;
+    const feet = p.lines.slice(-2).map(l => l.d.at(-1));
+    const centre = [(feet[0][0]+feet[1][0])/2, (feet[0][1]+feet[1][1])/2];
+    const shift = [carrier.perch[0]-centre[0], carrier.perch[1]-centre[1]];
+    const move = shapes => shapes.map(s => ({...s, d:s.d.map(([x,z])=>[x+shift[0],z+shift[1]])}));
+    return {...p, anchor:[...carrier.anchor], bias:carrier.perch[2], fills:move(p.fills), lines:move(p.lines), treeRider:true};
+  });
   const errors = [], seen = new Set();
   if (parts.length > MAX_PARTS - 1) errors.push(`too many parts: ${parts.length}`);
   const prepared = parts.map((p, i) => {
@@ -38,6 +49,15 @@ export function preparePlate(parts) {
     for (const shape of [...p.fills, ...p.lines]) for (const [x, z] of shape.d) {
       if (!Number.isFinite(x) || !Number.isFinite(z)) errors.push(`${p.id}: bad point`);
       x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z);
+    }
+    if (p.limbs) {
+      if (!Array.isArray(p.stamps)) errors.push(p.id+': missing stamps');
+      for (const limb of p.limbs) {
+        if (limb.points.length < 2 || limb.points.some(q=>q.length!==3 || !q.every(Number.isFinite) || q[2]<=0 || q[2]>30)) errors.push(p.id+': bad limb');
+      }
+      for (const s of p.stamps ?? []) {
+        if (![s.x,s.z,s.w,s.h,s.turn,s.offset,s.relief,s.cell,s.mat].every(Number.isFinite) || s.w<1 || s.h<1 || s.w>160 || s.h>160 || !Number.isInteger(s.cell) || s.cell<0 || s.cell>7 || s.relief<0 || s.relief>2 || s.offset<0 || s.offset>20) errors.push(p.id+': bad stamp');
+      }
     }
     for (const f of p.fills) {
       if (f.d.length < 3 || f.soft < 0 || f.soft > 1 || f.crisp < 0 || f.crisp > 1) errors.push(`${p.id}: bad fill`);
@@ -192,6 +212,17 @@ export function createLife(parts) {
       a[i + 2] = Math.max(0, Math.min(1.2, s.wake.x * (.35 + .65 * body)));
       a[i + 3] = Math.max(0, Math.min(1, s.glow.x));
       b[i] = s.dx.x; b[i + 1] = s.dz.x; b[i + 2] = Math.max(0, s.lift.x); b[i + 3] = p.groupIndex ?? 0;
+    }
+    // A tree is one rigid picture: its stamps, limbs and rider use exactly the same hinge and sway.
+    for (const p of parts) if (p.limbs && p.order > 0) {
+      const carrier = parts.find(t => t.group === p.group && t.limbs?.length);
+      const i=p.index*4,c=carrier.index*4;
+      a[i]=a[c]; a[i+1]=a[c+1]; b[i]=b[c]; b[i+1]=b[c+1];
+    }
+    for (const p of parts) if (p.treeRider) {
+      const carrier = parts.find(t => t.group === p.attach && t.limbs);
+      const i=p.index*4, c=carrier.index*4;
+      a[i]=a[c]; a[i+1]=a[c+1]; b[i]=b[c]; b[i+1]=b[c+1];
     }
     // Slot 0 is the bare ground: it only breathes with the lid.
     a[1] = 0; a[2] = .35 + .65 * body;

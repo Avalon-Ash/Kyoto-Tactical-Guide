@@ -1,6 +1,6 @@
 // 東山区・清水. One mass held in the air: the hall and its stage on a lattice over the drop, Otowa behind it,
 // maples in the valley. The left third is the drop itself: empty ground, a far ridge and a thread of water.
-import {MAT, hill, stream, suyari, rock, hall, bird, shell, kakezukuri, branchMaple as maple, fallenLeaves} from './vocab.js';
+import {MAT, hill, stream, suyari, rock, hall, bird, shell, kakezukuri, stampedMaple as maple, fallenLeaves} from './vocab.js';
 
 export function higashiyama() {
   return [

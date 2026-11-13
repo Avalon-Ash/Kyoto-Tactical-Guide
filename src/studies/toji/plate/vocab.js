@@ -273,156 +273,6 @@ function mapleLeaf(cx, cz, radius, turn) {
   d.push([cx - Math.cos(turn) * radius * .22, cz - Math.sin(turn) * radius * .22]);
   return d;
 }
-/** Six unequal cloud lobes, joined by broad bays rather than fine edge serrations. */
-function crownLobe(cx, cz, rx, rz, seed, flame = false) {
-  if (flame) return Array.from({length: 80}, (_, i) => {
-    const a = i / 80 * Math.PI * 2, sn = Math.sin(a);
-    const edge = .94 + .045 * Math.sin(a * 3 + seed) - .12 * Math.pow(.5 + .5 * Math.cos(a * 11 + seed), 3);
-    return [cx + Math.cos(a) * rx * edge * (.78 + .32 * sn), cz + sn * rz * edge];
-  });
-  // Each cubic is one rounded bulge; the shared endpoints are deep, unequal bays.
-  const bays = [[.35, -.67], [-.38, -.68], [-.68, -.25], [-.59, .35], [.08, .60], [.63, .10]];
-  const controls = [
-    [[.22, -1.22], [-.48, -1.18]],
-    [[-.99, -1.00], [-1.11, -.55]],
-    [[-1.16, -.05], [-1.20, .53]],
-    [[-.89, .98], [-.02, 1.01]],
-    [[.72, 1.02], [1.17, .40]],
-    [[1.23, .02], [1.02, -.94]],
-  ];
-  const mirror = seed % 2 ? -1 : 1, outline = [];
-  for (let k = 0; k < bays.length; k++) {
-    const a = bays[k], b = bays[(k + 1) % bays.length], [c, d] = controls[k];
-    for (let i = 0; i < 16; i++) {
-      const t = i / 16, u = 1 - t;
-      const px = u ** 3 * a[0] + 3 * u * u * t * c[0] + 3 * u * t * t * d[0] + t ** 3 * b[0];
-      const pz = u ** 3 * a[1] + 3 * u * u * t * c[1] + 3 * u * t * t * d[1] + t ** 3 * b[1];
-      outline.push([cx + rx * (mirror * px + .06 * Math.sin(seed) * pz), cz + rz * pz]);
-    }
-  }
-  return outline;
-}
-/** A forked trunk carries a thin cloud silhouette with rounded cushions; leaf species stay engraved. */
-function broadleaf(id, x, z, height, lean, seed, {stem = .5, crown = [.38, .47, -.13], mat = MAT.gold, mark, girth = .062, flame = false}) {
-  const r = rand(seed), anchor = [x, z], spine = [], len = height * stem;
-  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 3.2 + seed) * height * .035, z - len * t]); }
-  const trunk = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
-  const half = t => lerp(height * girth, height * girth * .5, t);
-  trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 10), pz]), ...spine.map(([px, pz], i) => [px + half(i / 10), pz]).reverse()], soft: .3, crisp: .85});
-  for (let i = 2; i < 8; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 10) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 10) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
-  const top = spine[10], fork = spine[2], cx = top[0], cz = top[1] + (crown[2] - (flame ? 0 : .04)) * height, rx = (flame ? crown[0] : Math.min(crown[0], .38)) * height, rz = (flame ? crown[1] : Math.max(crown[1], .44)) * height;
-  const leaf = part(`${id}-leaf-0`, KIND.pine, 3, mat, anchor, {group: id, order: 1, reach: 5, thick: 6, bias: 9});
-  // Keep the crown tip and its perches; lift the underside to expose more of the fork.
-  const crownZ = pz => cz - rz + (pz - cz + rz) * .96;
-  const outline = crownLobe(cx, cz, rx, rz, seed, flame).map(([px, pz]) => [px, crownZ(pz)]);
-  leaf.fills.push({d: outline, soft: .45, crisp: .65});
-  const contains = ([px, pz], d) => {
-    let hit = false;
-    for (let i = 0, j = d.length - 1; i < d.length; j = i++) {
-      const [ax, az] = d[i], [bx, bz] = d[j];
-      if ((az > pz) !== (bz > pz) && px < (bx - ax) * (pz - az) / (bz - az) + ax) hit = !hit;
-    }
-    return hit;
-  };
-  const pads = [];
-  const mirror = seed % 2 ? -1 : 1;
-  const lobes = flame
-    ? [[0, -.65, .14, .20], [-.30, -.26, .20, .24], [.29, -.24, .19, .24], [-.43, .30, .24, .26], [.40, .34, .24, .26], [0, .62, .24, .18], [0, .13, .31, .35]]
-    : [[-.03, -.73, .27, .26], [-.70, -.46, .27, .28], [-.79, .18, .28, .28], [-.34, .64, .31, .25], [.51, .48, .30, .29], [.73, -.28, .29, .31], [0, -.02, .35, .38]];
-  lobes.forEach(([lx, lz, rw, rh], i) => {
-    const px = cx + rx * (flame ? lx : mirror * lx + .06 * Math.sin(seed) * lz), pz = crownZ(cz + rz * lz);
-    // Bury BODY's lower wall in the base (9 + 6); keep the narrow bays between cushions.
-    // Layer 1 belongs to the bird, including the footprint of its inactive perch.
-    const pad = part(id + '-cushion-' + i, KIND.pine, 2, mat, anchor, {group: id, order: 1, reach: 5, thick: i === 6 ? 32 : 26, bias: i === 6 ? -3 : 0});
-    let d = blob(px, pz, rx * rw, rz * rh * .96, seed + i, .035, 40);
-    if (!flame && i < 6) {
-      const arc = Array.from({length: 17}, (_, j) => outline[(i * 16 + j) % outline.length]);
-      const mid = [cx + (px - cx) * .14, crownZ(cz) + (pz - crownZ(cz)) * .14];
-      d = [...arc, ...quad(arc[16], mid, arc[0], 16).slice(1, -1)];
-      d = d.map(([vx, vz]) => [px + (vx - px) * .97, pz + (vz - pz) * .97]);
-    }
-    if (flame) d = d.map(([vx, vz]) => [px + (vx - px) * .94, pz + (vz - pz) * .94]);
-    pad.fills.push({d, soft: .45, crisp: .65});
-    for (let j = 0; j < 2; j++) {
-      const a = r() * Math.PI * 2, q = .23;
-      mark(pad, px + Math.cos(a) * rx * rw * q, pz + Math.sin(a) * rz * rh * q, height * (.04 + r() * .012), r() * Math.PI * 2);
-    }
-    pad.lines = pad.lines.filter(l => l.d.every(v => contains(v, d) && contains(v, outline)));
-    pads.push(pad);
-  });
-  for (const side of [-1, 1]) {
-    const w = height * .026, end = [cx + side * rx * .58, cz + rz * .40];
-    trunk.fills.push({d: [[fork[0] - w, fork[1]], [fork[0] + w, fork[1]], [end[0] + w, end[1]], [end[0] - w, end[1]]], soft: .3, crisp: .85});
-  }
-  // Continue the three boughs as surface engraving where the solid crown covers them.
-  for (const side of [-1, 0, 1]) {
-    leaf.lines.push({d: quad([cx - rx * .06, cz + rz * .55], [cx + side * rx * .22, cz + rz * .25], [cx + side * rx * .48, cz - rz * (side ? -.08 : .16)], 10), w: .9, amp: .8});
-  }
-  return [trunk, leaf, ...pads];
-}
-const rays = (leaf, x, z, angles, lengths) => angles.forEach((a, i) => leaf.lines.push({d: [[x, z], [x + Math.cos(a) * lengths[i], z + Math.sin(a) * lengths[i]]], w: .6, amp: .9}));
-
-/** A maple: a broad low crown, five-pointed leaves engraved on it. Pair it with fallenLeaves. */
-export function maple(id, x, z, height, lean, seed) {
-  return broadleaf(id, x, z, height, lean, seed, {
-    mark: (leaf, lx, lz, size, turn) => rays(leaf, lx, lz, [-2, -1, 0, 1, 2].map(j => turn + j * .95), [.58, .84, 1, .84, .58].map(k => k * size)),
-  });
-}
-
-/** Sparse deciduous branches: relief is wood, botanical identity is thin leaf / flower inlay.
- * The old broadleaf exports remain for callers whose perch migration is not yet applied.
- */
-function branchBroadleaf(id, x, z, height, lean, seed, species) {
-  const anchor = [x, z], h = height, gold = species !== 'cherry';
-  const stem = part(id + '-trunk', KIND.pine, 3, MAT.gold, anchor, {group: id, thick: species === 'ginkgo' ? 21 : 12, reach: 4});
-  const at = t => [x + lean * t + Math.sin(t * Math.PI * 1.8) * h * .055, z - h * t];
-  wood(stem, Array.from({length: 25}, (_, i) => at(i / 24 * .91)), species === 'ginkgo' ? h * .16 : 10, 7);
-  const tips = [[x - h * .24 + lean * .6, z - h * .69], [x + h * .27 + lean * .5, z - h * .57], at(.94)];
-  for (const [i, end] of tips.slice(0, 2).entries()) {
-    const start = at(.29), side = i === 0 ? -1 : 1;
-    wood(stem, quad(start, [x + side * h * .28, z - h * .40], end, 18), 10, 7);
-  }
-  for (let i = 1; i < 7; i++) {
-    const [px,pz] = at(i * .105);
-    stem.lines.push({d: [[px - 2, pz + 2], [px + 2, pz - 3]], w: .65, amp: .8});
-  }
-  const leaf = part(id + '-leaf-0', KIND.pine, 2, gold ? MAT.gold : MAT.silver, anchor,
-    {group: id, order: 1, thick: species === 'cherry' ? 4 : 2.5, bias: species === 'ginkgo' ? 21 : 12, reach: 4});
-  const inlay = part(id + '-inlay', KIND.pine, 2, species === 'cherry' ? MAT.aogai : MAT.hyomonGold, anchor,
-    {group: id, order: 1, thick: .6, bias: species === 'cherry' ? 16.5 : 15, reach: 3});
-  tips.forEach(([px,pz], i) => {
-    const turn = -Math.PI / 2 + (i - 1) * .25, radius = Math.max(13, h * .16);
-    let d;
-    if (species === 'maple') {
-      d = mapleLeaf(px,pz,radius,turn);
-      rays(leaf, px,pz,[-2,-1,0,1,2].map(j=>turn+j*.95),[.58,.84,1,.84,.58].map(v=>v*radius*.82));
-    } else if (species === 'ginkgo') {
-      d = ginkgoLeaf(px,pz,radius*1.12,turn);
-      rays(leaf,px,pz,[-.8,-.4,0,.4,.8].map(a=>turn+a),Array(5).fill(radius*.87));
-    } else if (species === 'citrus') {
-      // Paired narrow oval leaves; fruit is sheet metal, with no raised berry.
-      d = blob(px-4,pz-4,radius*.48,radius*.85,seed+i,.025,28);
-      leaf.fills.push({d: blob(px+7,pz+2,radius*.42,radius*.7,seed+i+4,.025,28),soft:0,crisp:.8});
-      inlay.fills.push({d:blob(px+8,pz+8,3.2,3.2,1,0,20),soft:0,crisp:1});
-      leaf.lines.push({d:[[px-4,pz+5],[px-4,pz-radius*.8]],w:.6,amp:1});
-    } else {
-      // Three shallow flower clouds, broken edges; no backing crown or cushion stack.
-      d = blob(px,pz-3,radius*1.12,radius*.83,seed+i,.17,64);
-      for (let j=0;j<5;j++) {
-        const a=j*Math.PI*2/5;
-        inlay.fills.push({d:petal(px+Math.cos(a)*radius*.42,pz-3+Math.sin(a)*radius*.3,3.1,a),soft:0,crisp:1});
-      }
-    }
-    leaf.fills.push({d,soft:0,crisp:.8});
-  });
-  return inlay.fills.length ? [stem,leaf,inlay] : [stem,leaf];
-}
-export function branchMaple(id,x,z,height,lean,seed) { return branchBroadleaf(id,x,z,height,lean,seed,'maple'); }
-export function branchGinkgo(id,x,z,height) { return branchBroadleaf(id,x,z,height,3,6,'ginkgo'); }
-export function branchCourtTree(id,x,z,height,{citrus=false}={}) {
-  return branchBroadleaf(id,x,z,height,citrus?-3:4,citrus?5:3,citrus?'citrus':'cherry');
-}
-
 /**
  * Small shapes inlaid flat in the lid, one part per material. They are ground, so each keeps its outline however
  * small it is: this is where a picture says what the solids are too round to say. Densest at the centre of the drift.
@@ -515,101 +365,6 @@ export function fox(id, x, z, flip = 1, s = 1, {layer = 2} = {}) {
   jewel.fills.push({d: blob(jx, jz, 7 * s, 6 * s, 1, 0, 24), soft: 0, crisp: 1});
   jewel.fills.push({d: [[jx - 4 * s, jz - 3 * s], [jx + 1 * s, jz - 12 * s], [jx + 4 * s, jz - 3 * s]], soft: 0, crisp: 1});
   return [jewel, stone, body];
-}
-
-/** A tapered, curved solid bough; the fine bark belongs to its surface. */
-function wood(p, path, width, tip = width * .65) {
-  const left = [], right = [];
-  path.forEach(([x, z], i) => {
-    const a = path[Math.max(0, i - 1)], b = path[Math.min(path.length - 1, i + 1)];
-    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, w = lerp(width, tip, i / (path.length - 1)) / 2;
-    const nx = -(b[1] - a[1]) / len, nz = (b[0] - a[0]) / len;
-    left.push([x + nx * w, z + nz * w]); right.push([x - nx * w, z - nz * w]);
-  });
-  p.fills.push({d: [...left, ...right.reverse()], soft: .25, crisp: .8});
-}
-
-/** Old pine: sinuous raised wood and six to eight thin, separated needle fans.
- * clusters counts branch tiers, each carrying two fans; never a single swollen canopy.
- */
-export function branchPine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 3} = {}) {
-  const anchor = [x, z], dir = Math.sign(lean) || 1, rows = Math.max(3, Math.min(4, clusters));
-  const at = t => [x + lean * t + dir * Math.sin(t * Math.PI * 2) * height * .095, z - height * t];
-  const spine = Array.from({length: 33}, (_, i) => at(i / 32 * .94));
-  const trunk = part(id + '-trunk', KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, thick: 16, reach: 5});
-  wood(trunk, spine, Math.max(14, height * .12), 12);
-  for (let i = 2; i < 30; i += 3) {
-    const [px, pz] = spine[i], side = (i + seed) % 2 ? 1 : -1;
-    trunk.lines.push({d: quad([px - 3.5, pz + 3], [px + side * 5, pz + 1], [px + 2.8, pz - 3], 6), w: .65, amp: .9});
-  }
-  const bough = part(id + '-boughs', KIND.pine, 3, MAT.gold, anchor, {group: id, thick: 10, reach: 4});
-  const leaves = [];
-  for (let k = 0; k < rows; k++) {
-    const t = .44 + k * .46 / (rows - 1), s = at(t), cx = s[0] + dir * (k === 1 ? -7 : 8);
-    const cz = s[1], width = Math.max(24, Math.min(30, height * .22)) - k * .3;
-    const gap = 12, spread = (width + gap) / 2;
-    const leaf = part(id + '-leaf-' + k, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor,
-      {group: id, order: 1, thick: 3, bias: 10, reach: 4});
-    const branchZ = cz + 8;
-    wood(bough, quad(at(t - .17), [cx - dir * 13, branchZ + 7], [cx + dir * (spread + 3), branchZ], 16), 11, 8);
-    wood(bough, quad([cx, branchZ + 2], [cx - dir * 12, branchZ + 2], [cx - dir * spread, cz + 2], 12), 8, 7);
-    for (const side of [-1, 1]) {
-      const lx = cx + side * spread, lz = cz + 4 + (side === dir ? 0 : -3);
-      // Low fan: almost level top, scalloped lower rim, no pillow underneath.
-      const d = quad([lx - width / 2, lz], [lx - width * .45, lz - 9], [lx, lz - 8], 10);
-      d.push(...quad([lx, lz - 8], [lx + width * .46, lz - 9], [lx + width / 2, lz], 10).slice(1));
-      d.push([lx + width * .28, lz + 1.5], [lx + width * .13, lz], [lx, lz + 2], [lx - width * .18, lz], [lx - width * .34, lz + 1]);
-      leaf.fills.push({d, soft: 0, crisp: .8});
-      for (let j = 0; j < 9; j++) {
-        const u = j / 8 * 2 - 1;
-        leaf.lines.push({d: [[lx + u * 1.1, lz], [lx + u * width * .43, lz - 6.5 + Math.abs(u) * 2]], w: .5, amp: 1});
-      }
-      wood(bough, [[lx, branchZ], [lx, lz - 1]], 7, 6);
-    }
-    leaves.push(leaf);
-  }
-  return [trunk, bough, ...leaves];
-}
-
-/**
- * A pine as makie draws it: a leaning trunk carrying pads of foliage, gold and pale gold in turn. A pad is a low
- * cloud of two or three lobes with a nearly flat underside; its needles are drawn as small tufts, one fan to a lobe
- * and a few between, never one fan for the whole pad.
- * The whole tree answers the wind about its foot; each pad lags a little behind the one below.
- */
-export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 4} = {}) {
-  const r = rand(seed), anchor = [x, z], spine = [], parts = [];
-  for (let i = 0; i <= 12; i++) { const t = i / 12; spine.push([x + lean * t * t + Math.sin(t * 5 + seed) * height * .035, z - height * t]); }
-  const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
-  const half = t => lerp(height * .045, height * .012, t);
-  trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 12), pz]), ...spine.map(([px, pz], i) => [px + half(i / 12), pz]).reverse()], soft: .3, crisp: .85});
-  for (let i = 2; i < 11; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 12) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 12) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
-  parts.push(trunk);
-  for (let k = 0; k < clusters; k++) {
-    const t = .46 + k / clusters * .54, s = spine[Math.round(t * 12)], side = k % 2 ? -1 : 1;
-    const w = height * lerp(.34, .2, k / clusters) * (.9 + r() * .2), h = w * .34;
-    const cx = k === clusters - 1 ? s[0] : s[0] + side * w * (.55 + r() * .25), cz = s[1] - h * .2;
-    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 6, thick: 24, bias: 9 + k * 1.5});
-    // The pad's outline: the upper envelope of its lobes over a shallow belly.
-    const lobes = w > height * .26 ? 3 : 2, humps = [];
-    for (let i = 0; i < lobes; i++) {
-      const u = lobes === 1 ? 0 : i / (lobes - 1) * 2 - 1, mid = 1 - Math.abs(u);
-      humps.push({x: cx + u * w * .56 + (r() - .5) * w * .08, r: w * (.40 + .12 * mid) * (.92 + r() * .16), lift: h * (.25 + .55 * mid)});
-    }
-    const top = x => Math.max(0, ...humps.map(m => { const d = (x - m.x) / m.r; return d * d < 1 ? Math.sqrt(1 - d * d) * m.r * .62 + m.lift : 0; }));
-    const outline = [], n = 36;
-    for (let i = 0; i <= n; i++) { const x = cx - w + 2 * w * i / n, edge = Math.sin(Math.PI * i / n); outline.push([x, cz - top(x) * Math.pow(edge, .35)]); }
-    for (let i = n; i >= 0; i--) { const x = cx - w + 2 * w * i / n; outline.push([x, cz + h * .34 * Math.sin(Math.PI * i / n)]); }
-    leaf.fills.push({d: outline, soft: .45, crisp: .6});
-    // Needle tufts: a small fan on each lobe, and a lower row between them.
-    const tuft = (tx, tz, tr, count) => { for (let i = 0; i < count; i++) { const a = Math.PI * (1.12 + .76 * i / (count - 1)); leaf.lines.push({d: [[tx + Math.cos(a) * tr * .22, tz + Math.sin(a) * tr * .22], [tx + Math.cos(a) * tr, tz + Math.sin(a) * tr]], w: .55, amp: .9}); } };
-    for (const m of humps) tuft(m.x, cz - m.lift * .55, m.r * .62, 7);
-    for (let i = 0; i < lobes - 1; i++) tuft((humps[i].x + humps[i + 1].x) / 2, cz + h * .12, w * .26, 5);
-    // The bough that carries it.
-    trunk.lines.push({d: [s, [lerp(s[0], cx, .6), lerp(s[1], cz, .3) + h * .3], [cx, cz + h * .28]], w: 1.5, amp: 1});
-    parts.push(leaf);
-  }
-  return parts;
 }
 
 /** Uguisu, the first song of the year: a small bird of cut silver. It rests at one perch at a time. */
@@ -761,25 +516,6 @@ export function corridor(id, x0, x1, zBase, {height = 26, open = true, group = i
   return [body, ...roof(`${id}-roof`, cx, zBase - height, w, 11, {group, order: order + 1, ridgeHalf: w * .82, upturn: 3, tiles: bays * 2})];
 }
 
-/** The court's cherry (silver crown, blossoms engraved) or tachibana (compact gold crown, fruit engraved). */
-export function courtTree(id, x, z, height, {citrus = false} = {}) {
-  return broadleaf(id, x, z, height, citrus ? -3 : 4, citrus ? 5 : 3, citrus ? {
-    crown: [.41, .32, -.1],
-    mark: (leaf, lx, lz, size) => leaf.lines.push({d: [...blob(lx, lz, size * .6, size * .6, 1, 0, 14), [lx + size * .6, lz]], w: 1, amp: 1}),
-  } : {
-    mat: MAT.silver,
-    mark: (leaf, lx, lz, size, turn) => rays(leaf, lx, lz, [0, 1, 2, 3, 4].map(j => turn + j * 1.2566), Array(5).fill(size * .8)),
-  });
-}
-
-/** A great ginkgo: a tall straight trunk and a crown higher than it is wide, fan leaves engraved on it. Pair it with fallenFans. */
-export function ginkgo(id, x, z, height) {
-  return broadleaf(id, x, z, height, 3, 6, {
-    stem: .46, girth: .07, crown: [.4, .43, -.23], flame: true,
-    mark: (leaf, lx, lz, size) => { rays(leaf, lx, lz, [-2.3, -1.83, -1.31, -.84], Array(4).fill(size)); leaf.lines.push({d: [-2.3, -1.83, -1.31, -.84].map(a => [lx + Math.cos(a) * size, lz + Math.sin(a) * size]), w: .6, amp: .9}); },
-  });
-}
-
 /** Karamon: a lifted cusped gable over closed leaves of black lacquer, between two posts. */
 export function karamon(id, cx, zBase, halfW = 66) {
   const s = halfW / 66, P = (x, h) => [cx + x * s, zBase - h * s];
@@ -853,3 +589,9 @@ export function gardenGround(id, outline, {mat = MAT.mura, amp = .24} = {}) {
   p.fills.push({d: outline, soft: amp, crisp: 0});
   return [p];
 }
+
+// Trees bypass the inflated silhouette path. Branch-prefixed names are compatibility aliases for ward scores.
+export {stampedPine, stampedPine as pine, stampedPine as branchPine,
+  stampedMaple, stampedMaple as maple, stampedMaple as branchMaple,
+  stampedGinkgo as ginkgo, stampedGinkgo as branchGinkgo,
+  stampedCourtTree as courtTree, stampedCourtTree as branchCourtTree} from './trees.js';

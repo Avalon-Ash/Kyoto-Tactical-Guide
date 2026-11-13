@@ -1,6 +1,6 @@
 // 南区・東寺. A composition, not a survey: the pagoda on its bank, the hall half lost in mist,
 // a stream between two banks, pines in the foreground. A third of the ground stays empty nashiji.
-import {MAT, hill, stream, suyari, rock, pagoda, hall, branchPine as pine, bird, shell} from './vocab.js';
+import {MAT, hill, stream, suyari, rock, pagoda, hall, stampedPine as pine, bird, shell} from './vocab.js';
 
 export function minami() {
   return [

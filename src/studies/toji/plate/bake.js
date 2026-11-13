@@ -19,7 +19,7 @@ export function paintLayer(ctx, w, h, parts, layer) {
   toUnits(ctx, w, h);
   ctx.lineCap = ctx.lineJoin = 'round';
   for (const p of parts) {
-    if (p.layer !== layer) continue;
+    if (p.layer !== layer || p.limbs) continue;
     ctx.globalCompositeOperation = 'source-over';
     for (const f of p.fills) {
       // A standing part is a pillow: its whole silhouette feeds the blurred channel, which becomes its dome.

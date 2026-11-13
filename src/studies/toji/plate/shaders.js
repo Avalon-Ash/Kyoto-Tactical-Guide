@@ -3,7 +3,7 @@
 // polished back. Powder is resolved flake by flake only where a flake covers a few pixels; below that it is
 // its own average, so a distant lid is calm and a close one is grainy — and nothing shimmers in between.
 
-const GROUND = `
+export const GROUND = `
 uniform sampler2DArray uSoft, uIdent;
 uniform vec4 uA[64], uB[64];
 const vec2 HALF=vec2(360.,230.);
@@ -60,7 +60,7 @@ out vec3 vWorld, vNormal, vTanX, vTanZ; out vec2 vUv, vMeta; out vec4 vPart;
 void main(){
   int id=int(aPart.x+.5);
   vec4 A=uA[id],B=uB[id];
-  float foot=aPart.z,theta=A.y*aInfo.z,ct=cos(theta),st=sin(theta);
+  float foot=aPart.z,theta=A.y*abs(aInfo.z),ct=cos(theta),st=sin(theta);
   // Sway turns the picture in its own plane about its anchor.
   vec2 r=aPos-aInfo.xy;float cs=cos(A.x),sn=sin(A.x);
   vec2 q=aInfo.xy+vec2(cs*r.x-sn*r.y,sn*r.x+cs*r.y)+B.xy;
@@ -75,9 +75,12 @@ void main(){
   // Lying down, a part follows the banks under it; standing, it is rooted along its whole foot line. Either way
   // the ground never comes up through it. A layer that rides on another keeps clear of the body beneath (bias)
   // by the same share of its height that the body itself keeps asleep.
-  float up=aInfo.z>0.?smoothstep(.1,.7,A.y):0.;
+  float up=abs(aInfo.z)>0.?smoothstep(.1,.7,A.y):0.;
   float gy=mix(groundY(q),groundY(vec2(q.x,foot)),up);
-  vec3 p=vec3(q.x,gy+B.z+.35,foot)-down*h+n*(aInfo.w*mix(.6,1.,A.y)+slice*thick);
+  float offset=aInfo.w*mix(.6,1.,A.y)+slice*thick;
+  // A tree rider uses its carrier's rigid root plane; a thin foot meets the real twig surface.
+  if(aInfo.z<0.){gy=groundY(aInfo.xy)+.25;offset=aInfo.w+(slice-.3)*thick;}
+  vec3 p=vec3(q.x,gy+B.z+.35,foot)-down*h+n*offset;
   p.y+=uOpening*360.;p.z-=uOpening*650.;
   vec3 c=vec3(0.,-48.,0.);p=uTilt*(p-c)+c;
   vWorld=p;vNormal=uTilt*n;vTanX=uTilt*vec3(1.,0.,0.);vTanZ=uTilt*down;
@@ -106,11 +109,16 @@ void main(){
 // One fragment shader, compiled once per MODE so each pass carries only what it needs:
 //   0 box   1 the lid's ground   2 a slice of a part (colour)   4 mist   5 a slice (depth only)
 //   6 the shadow the box lays on what it stands on   7 a slice as the lamp sees it (the shade's depth picture)
-export const frag = mode => `#version 300 es
+export const frag = (mode, tree = 0) => `#version 300 es
 #define MODE ${mode}
+#define TREE ${tree}
 precision highp float; precision highp sampler2DArray;
 in vec3 vWorld, vNormal, vTanX, vTanZ; in vec2 vUv, vMeta; in vec4 vPart;
 uniform sampler2DArray uFine, uSoft, uIdent;
+#if TREE>0
+uniform sampler2DArray uStamps;
+in vec4 vTree; in vec2 vScale;
+#endif
 uniform vec3 uView, uKey, uLamp;
 uniform float uTime, uNight, uPresence, uPx, uOpening;
 uniform vec4 uA[64], uB[64];
@@ -137,6 +145,15 @@ void main(){
 #elif MODE==5||MODE==7
 void main(){
   if(uOpening>.999)discard;
+#if TREE>0
+  float alpha=1.;
+#if TREE==2
+  float cover=texture(uStamps,vTree.xyz).g;
+  alpha=clamp((cover-.5)/max(fwidth(cover),.02)+.5,0.,1.);
+  if(alpha<(MODE==7?.5:.04))discard;
+#endif
+  outColor=vec4(0.,0.,0.,alpha);
+#else
   int layer=int(vPart.y+.5);ivec2 im=ident(vUv,layer);
   vec4 fine=texture(uFine,puv(vUv,layer));float hs=texture(uSoft,puv(vUv,layer)).r;
   vec4 A=uA[im.x];
@@ -146,6 +163,7 @@ void main(){
   if(im.y==11)alpha*=smoothstep(.02,.35,A.z);
   if(alpha<(MODE==7?.5:.04))discard;
   outColor=vec4(0.,0.,0.,alpha);
+#endif
 }
 #else
 
@@ -292,13 +310,35 @@ void main(){
 #else
   int layer=int(vPart.y+.5);
 #endif
+#if TREE>0
+  int id=int(vPart.x+.5),mat=int(vPart.y+.5);
+#else
   ivec2 im=ident(p,layer);int id=im.x,mat=im.y;
 #if MODE==2
   if(id==0||int(uB[id].w+.5)!=int(vPart.x+.5))discard;
 #elif MODE==4
   if(id!=int(vPart.x+.5))discard;
 #endif
+#endif
   vec4 A=uA[id];float rise=A.z,glow=A.w;
+#if TREE>0
+  vec4 fine=vec4(0.);float hs=1.,alpha=1.;vec2 grad=vec2(0.);
+#if TREE==2
+  vec4 ink=texture(uStamps,vTree.xyz); fine=vec4(0.,ink.r,ink.b,ink.g);
+  if(ink.g<.04)discard;
+  vec2 e=1./vec2(textureSize(uStamps,0).xy);
+  grad=vec2(texture(uStamps,vTree.xyz+vec3(e.x,0.,0.)).r-texture(uStamps,vTree.xyz-vec3(e.x,0.,0.)).r,
+    texture(uStamps,vTree.xyz+vec3(0.,e.y,0.)).r-texture(uStamps,vTree.xyz-vec3(0.,e.y,0.)).r)*vTree.w/(2.*e*vScale);
+#else
+  // Pipe UV follows the limb, so scale plates and longitudinal grain wrap the real wood.
+  float u=vTree.x,v=vTree.y;
+  float grain=sin(u*2.5+.5*sin(v*.31));
+  float row=floor(v/6.5), cu=fract(u/5.+mod(row,2.)*.5)-.5, cv=fract(v/6.5)-.5;
+  float seam=abs(length(vec2(cu*1.7,cv))-.48)*5.;
+  fine.b=vTree.z>.5 ? 1.-smoothstep(.18,.6,seam) : smoothstep(.62,.93,grain);
+  grad=vec2(grain*.13,cos(v*.9)*.06);
+#endif
+#else
   vec4 fine=texture(uFine,puv(p,layer));float hs=texture(uSoft,puv(p,layer)).r;
   float alpha=1.;
 #if MODE==4
@@ -324,6 +364,7 @@ void main(){
        fz1=texture(uFine,puv(p+vec2(0.,eC),layer)),fz0=texture(uFine,puv(p-vec2(0.,eC),layer));
   vec2 grad=gs+vec2((fx1.g-fx0.g)*cH+(fx1.b-fx0.b)*lH,(fz1.g-fz0.g)*cH+(fz1.b-fz0.b)*lH)/(2.*eC)*mix(.55,1.,rise);
   grad*=min(1.,(MODE==2?4.5:2.4)/max(length(grad),1e-4));
+ #endif
   // Reflections that linger where the hand has been; on water the same touches leave rings.
   gWake=0.;float ring=0.;
   for(int i=0;i<20;i++){
@@ -364,7 +405,14 @@ void main(){
   else if(mat==13){wS=.82;wM=.18;f0=GOLD;tint=GOLD;} // continuous gold leaf, without scattered flakes
   else if(mat==14)c=LACQ*(.8+1.4*L)+coat()*2.2+GOLD*line*(.16+.80*L)*mix(.5,1.,rise);
   else c=mix(vec3(.10,.06,.025)*(.4+.5*L),vec3(1.,.62,.22)*1.15,glow)+LACQ;     // paper windows, lit from within when asked
+#if TREE>0
+  // Incised lines separate adjacent needles and leaf veins without turning every small leaf white.
+  c*=.25;
+#endif
   c+=wN*nashiji(p,dens,tint)+wM*metal(p,f0,rise)+wS*sheet(f0);
+#if TREE>0
+  c*=1.-fine.b*.40;
+#endif
   vec3 bigG;float bigX=flake(R2*p,bigCell,mix(.47,.30,bigSq),bigD,bigSq,.26,bigG);
   if(mat==7||mat==8){
     vec3 foil=mat==7?PALE:SILVER;
