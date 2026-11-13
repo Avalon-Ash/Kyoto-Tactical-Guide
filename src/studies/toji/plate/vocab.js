@@ -141,13 +141,13 @@ export function roof(id, cx, zEave, halfW, rise, {ridgeHalf = halfW * .2, upturn
 }
 
 /** A storey in elevation: black lacquer wall, gold posts, and paper windows that can hold a light. */
-export function storey(id, cx, zTop, zBottom, halfW, {bays = 3, layer = 2, group = id, order = 0} = {}) {
-  const wall = part(id, KIND.tier, layer, MAT.lacquer, [cx, zBottom], {group, order});
+export function storey(id, cx, zTop, zBottom, halfW, {bays = 3, layer = 2, group = id, order = 0, mat = MAT.lacquer, windowMat = MAT.lamp} = {}) {
+  const wall = part(id, KIND.tier, layer, mat, [cx, zBottom], {group, order});
   wall.fills.push({d: [[cx - halfW, zTop], [cx + halfW, zTop], [cx + halfW, zBottom], [cx - halfW, zBottom]], soft: 0, crisp: .45});
   for (let i = 0; i <= bays; i++) { const x = lerp(cx - halfW, cx + halfW, i / bays); wall.lines.push({d: [[x, zTop], [x, zBottom]], w: 1.5, amp: 1}); }
   wall.lines.push({d: [[cx - halfW - 3, zBottom], [cx + halfW + 3, zBottom]], w: 1.3, amp: 1});
   wall.lines.push({d: [[cx - halfW - 2, lerp(zTop, zBottom, .72)], [cx + halfW + 2, lerp(zTop, zBottom, .72)]], w: .7, amp: .8});
-  const lamp = part(`${id}-lamp`, KIND.tier, layer, MAT.lamp, [cx, zBottom], {group, order, thick: 15});
+  const lamp = part(`${id}-lamp`, KIND.tier, layer, windowMat, [cx, zBottom], {group, order, thick: 15});
   const bay = halfW * 2 / bays;
   for (let i = 0; i < bays; i++) {
     const x0 = cx - halfW + bay * i + bay * .2, x1 = x0 + bay * .6, z0 = lerp(zTop, zBottom, .16), z1 = lerp(zTop, zBottom, .66);
@@ -361,8 +361,8 @@ export function pine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 
 
 /** Uguisu, the first song of the year: a small bird of cut silver. It rests at one perch at a time. */
 export function bird(id, perches, layer = 1) {
-  return perches.map(([x, z, flip = 1, attach], i) => {
-    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 4, thick: 16, bias: 32, attach});
+  return perches.map(([x, z, flip = 1, attach, bias = 32], i) => {
+    const p = part(`${id}-${i}`, KIND.bird, layer, MAT.hyomonSilver, [x, z], {group: id, order: i, reach: 4, thick: 16, bias, attach});
     const S = 1.7, f = (dx, dz) => [x + dx * flip * S, z + dz * S];
     p.fills.push({d: blob(x, z - 3.4 * S, 5.6 * S, 3.3 * S, 9, .04, 18), soft: 0, crisp: 1});                       // body
     p.fills.push({d: blob(x + 5 * flip * S, z - 6.4 * S, 2.5 * S, 2.3 * S, 4, 0, 12), soft: 0, crisp: 1});             // head
@@ -377,5 +377,228 @@ export function bird(id, perches, layer = 1) {
 export function shell(id, spots, layer = 0) {
   const p = part(id, KIND.still, layer, MAT.aogai, spots[0].slice(0, 2));
   for (const [x, z, s, seed] of spots) p.fills.push({d: blob(x, z, s, s * .62, seed, .16, 12), soft: 0, crisp: .5});
+  return [p];
+}
+
+/** A still pond: a closed shore and widely spaced horizontal glints, never a flowing ribbon. */
+export function pond(id, cx, cz, rx, rz, seed, {reflection = null} = {}) {
+  const p = part(id, KIND.water, 0, MAT.water, [cx, cz]);
+  const shore = blob(cx, cz, rx, rz, seed, .055, 80);
+  p.fills.push({d: shore, soft: 0, crisp: .08});
+  p.lines.push({d: [...shore, shore[0]], w: .65, amp: .5});
+  for (let i = 0; i < 5; i++) {
+    const z = cz + (i - 2) * rz * .28, half = rx * (.5 + .14 * Math.sin(i * 2 + seed));
+    p.lines.push({d: [[cx - half, z], [cx + half * .7, z]], w: .6, amp: .45});
+  }
+  if (!reflection) return [p];
+  const {x, z, width, height} = reflection;
+  const image = part(`${id}-reflection`, KIND.still, 0, MAT.nashijiLight, [x, z]);
+  // Broken, inverted eaves read as a reflection without painting a second solid pavilion.
+  for (let i = 0; i < 3; i++) {
+    const half = width * (1 - i * .22), top = z + i * height / 3;
+    image.fills.push({d: [[x - half, top], [x + half, top], [x + half * .5, top + height * .19], [x - half * .5, top + height * .19]], soft: .12, crisp: .08});
+    image.lines.push({d: [[x - half * .8, top + 4], [x + half * .6, top + 4]], w: 1, amp: .5});
+  }
+  return [p, image];
+}
+
+/** A broad-winged phoenix crest. The wings and tail stay broad enough to survive swelling. */
+export function phoenix(id, x, z, s = 1, {group = id, order = 0} = {}) {
+  const p = part(id, KIND.tier, 2, MAT.hyomonGold, [x, z], {group, order, thick: 14});
+  const P = (dx, dz) => [x + dx * s, z + dz * s];
+  p.fills.push({d: [[-4, 0], [-8, -13], [-28, -20], [-33, -33], [-18, -28], [-5, -21], [4, -23], [17, -32], [30, -36], [25, -22], [9, -13], [5, 0]].map(([a, b]) => P(a, b)), soft: .2, crisp: .9});
+  p.fills.push({d: [[-2, -19], [0, -34], [8, -38], [18, -32], [8, -29], [7, -16]].map(([a, b]) => P(a, b)), soft: .2, crisp: .9});
+  p.lines.push({d: [P(-24, -26), P(-4, -17), P(0, -5), P(20, -29)], w: .8, amp: 1});
+  return [p];
+}
+
+/** Open bamboo platform: slats are surface lines, so the inflated deck cannot close a forest of tiny slots. */
+export function moonDeck(id, x0, x1, zBack, zFront, {group = id, order = 0} = {}) {
+  const p = part(id, KIND.tier, 2, MAT.gold, [(x0 + x1) / 2, zFront], {group, order, thick: 14});
+  p.fills.push({d: [[x0 + 7, zBack], [x1 - 7, zBack], [x1, zFront], [x0, zFront]], soft: .2, crisp: .8});
+  for (let x = x0 + 10; x < x1 - 7; x += 7) {
+    p.lines.push({d: [[x, zBack + 2], [x, zFront - 2]], w: .8, amp: .9});
+  }
+  for (const t of [.2, .78]) {
+    const z = lerp(zBack, zFront, t);
+    p.lines.push({d: [[x0 + 6, z], [x1 - 6, z]], w: 1.4, amp: .8});
+  }
+  return [p];
+}
+
+/** Inlaid stepping stones stay in the ground; each broad oval is separated by exposed lacquer. */
+export function steppingStones(id, points) {
+  const p = part(id, KIND.still, 0, MAT.kirigin, points[0].slice(0, 2));
+  points.forEach(([x, z, r], i) => p.fills.push({d: blob(x, z, r, r * .65, i + 3, .09, 16), soft: .2, crisp: .55}));
+  return [p];
+}
+
+/** A stone lantern in elevation, with a broad cap and a single dark light opening. */
+export function lantern(id, x, z, s = 1) {
+  const P = (a, h) => [x + a * s, z - h * s];
+  const stone = part(`${id}-stone`, KIND.tier, 2, MAT.nashijiLight, [x, z], {group: id, thick: 16});
+  const polygon = d => stone.fills.push({d: d.map(([a, h]) => P(a, h)), soft: .25, crisp: .8});
+  polygon([[-21, 0], [21, 0], [17, 10], [-17, 10]]);
+  polygon([[-6, 8], [6, 8], [6, 40], [-6, 40]]);
+  polygon([[-14, 37], [14, 37], [14, 60], [-14, 60]]);
+  const cap = part(`${id}-cap`, KIND.tier, 2, MAT.gold, [x, z], {group: id, order: 1, thick: 14});
+  cap.fills.push({d: [[-32, 58], [32, 58], [27, 65], [13, 72], [0, 79], [-13, 72], [-27, 65]].map(([a, h]) => P(a, h)), soft: .2, crisp: .85});
+  cap.fills.push({d: [[-5, 75], [5, 75], [5, 88], [-5, 88]].map(([a, h]) => P(a, h)), soft: .2, crisp: .8});
+  cap.lines.push({d: [P(-25, 62), P(25, 62)], w: .8, amp: 1});
+  const opening = part(`${id}-light`, KIND.tier, 3, MAT.lacquer, [x, z], {group: id, order: 1, thick: 6, bias: 13});
+  opening.fills.push({d: [P(-6, 42), P(6, 42), P(6, 55), P(-6, 55)], soft: 0, crisp: .5});
+  return [stone, cap, opening];
+}
+
+/** White sand is a ground field; raking is engraved line work, never a row of raised bars. */
+export function sandGarden(id, x0, x1, zBack, zFront, {raked = true, mat = MAT.silver} = {}) {
+  const p = part(id, KIND.still, 0, mat, [(x0 + x1) / 2, (zBack + zFront) / 2]);
+  p.fills.push({d: [[x0 + 12, zBack], [x1 - 12, zBack], [x1, zFront], [x0, zFront]], soft: .08, crisp: .12});
+  if (raked) for (let z = zBack + 8; z < zFront - 5; z += 9) {
+    p.lines.push({d: quad([x0 + 15, z], [(x0 + x1) / 2, z - 7], [x1 - 15, z], 24), w: .75, amp: .8});
+  }
+  return [p];
+}
+
+/** Kogetsudai in elevation: the level crown must rise with the flank to read as a truncated cone. */
+export function sandCone(id, cx, zBase, halfW, height) {
+  const p = part(id, KIND.tier, 2, MAT.silver, [cx, zBase], {thick: 18});
+  const top = zBase - height, r = halfW * .43;
+  p.fills.push({d: [[cx - r, top], [cx + r, top], ...quad([cx + halfW, zBase - 3], [cx, zBase + 10], [cx - halfW, zBase - 3], 24)], soft: .35, crisp: .65});
+  p.fills.push({d: blob(cx, top, r, r * .24, 4, 0, 40), soft: .2, crisp: .9});
+  p.lines.push({d: [...blob(cx, top, r * .87, r * .18, 4, 0, 40), [cx + r * .87, top]], w: .7, amp: .7});
+  return [p];
+}
+
+/** A low tiled wall or open gallery. Bays are engraved, keeping a quiet continuous silhouette. */
+export function corridor(id, x0, x1, zBase, {height = 26, open = true, group = id, order = 0} = {}) {
+  const cx = (x0 + x1) / 2, w = (x1 - x0) / 2;
+  const body = part(`${id}-body`, KIND.tier, 2, open ? MAT.lacquer : MAT.nashijiLight, [cx, zBase], {group, order, thick: 15});
+  body.fills.push({d: [[x0 + 5, zBase - height], [x1 - 5, zBase - height], [x1 - 5, zBase], [x0 + 5, zBase]], soft: .15, crisp: .6});
+  const bays = Math.max(2, Math.round((x1 - x0) / 22));
+  for (let i = 0; i <= bays; i++) {
+    const x = lerp(x0 + 6, x1 - 6, i / bays);
+    body.lines.push({d: [[x, zBase - height], [x, zBase]], w: open ? 2 : .65, amp: .9});
+  }
+  return [body, ...roof(`${id}-roof`, cx, zBase - height, w, 11, {group, order: order + 1, ridgeHalf: w * .82, upturn: 3, tiles: bays * 2})];
+}
+
+/** Court trees are emblems: three generous blossoms or three leathery leaves, not clusters of tiny dots. */
+export function courtTree(id, x, z, height, {citrus = false} = {}) {
+  const stem = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, [x, z], {group: id, thick: 15});
+  stem.fills.push({d: [[x - 5, z], [x + 5, z], [x + 3, z - height * .78], [x - 3, z - height * .78]], soft: .3, crisp: .8});
+  const parts = [stem];
+  for (const [i, dx, dz, size] of [[0, 0, -.76, .28], [1, -.28, -.54, .23], [2, .28, -.5, .24]]) {
+    const cx = x + dx * height, cz = z + dz * height, r = size * height;
+    const p = part(`${id}-crown-${i}`, KIND.pine, 3, citrus ? MAT.gold : i ? MAT.nashijiLight : MAT.silver,
+      [x, z], {group: id, order: i + 1, thick: 19, bias: 10});
+    const d = citrus ? blob(cx, cz, r, r * .62, i + 2, .08, 40) : Array.from({length: 60}, (_, k) => {
+      const a = k / 60 * Math.PI * 2, R = r * (.83 + .17 * Math.cos(a * 5));
+      return [cx + Math.cos(a) * R, cz + Math.sin(a) * R];
+    });
+    p.fills.push({d, soft: .3, crisp: .7});
+    if (citrus) {
+      p.lines.push({d: [[cx - r * .7, cz], [cx + r * .7, cz]], w: .8, amp: .9});
+      p.lines.push({d: [...blob(cx, cz + r * .1, r * .3, r * .3, i, 0, 24), [cx + r * .3, cz + r * .1]], w: 1.4, amp: 1});
+    } else for (let k = 0; k < 5; k++) {
+      const a = k / 5 * Math.PI * 2;
+      p.lines.push({d: [[cx + Math.cos(a) * r * .15, cz + Math.sin(a) * r * .15], [cx + Math.cos(a) * r * .65, cz + Math.sin(a) * r * .65]], w: .8, amp: .8});
+    }
+    stem.lines.push({d: [[x, z - height * .25], [cx, cz]], w: 2.5, amp: 1});
+    parts.push(p);
+  }
+  return parts;
+}
+
+/** Three oversized split fans carry the ginkgo's identity through the rounded relief. */
+export function ginkgo(id, x, z, height) {
+  const trunk = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, [x, z], {group: id, thick: 18});
+  trunk.fills.push({d: [[x - 8, z], [x + 7, z], [x + 4, z - height * .7], [x - 4, z - height * .7]], soft: .3, crisp: .85});
+  const parts = [trunk];
+  for (const [i, dx, dz, angle, scale] of [[0, 0, -.64, -Math.PI / 2, .44], [1, -.2, -.38, -2.35, .34], [2, .22, -.35, -.65, .33]]) {
+    const cx = x + dx * height, cz = z + dz * height, R = height * scale;
+    const p = part(`${id}-fan-${i}`, KIND.pine, 3, i === 1 ? MAT.nashijiLight : MAT.gold, [x, z], {group: id, order: i + 1, thick: 22, bias: 11});
+    const arc = [];
+    for (let k = 0; k <= 32; k++) {
+      const t = k / 32, a = angle + (t - .5) * 2.3;
+      const r = R * (1 - .22 * Math.exp(-Math.pow((t - .5) * 14, 2)) + .025 * Math.sin(t * 9 * Math.PI));
+      arc.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]);
+    }
+    p.fills.push({d: [[cx - 4, cz + 4], ...arc, [cx + 4, cz + 4]], soft: .35, crisp: .75});
+    for (let k = 1; k < 10; k++) {
+      const a = angle + (k / 10 - .5) * 2.15;
+      p.lines.push({d: [[cx, cz], [cx + Math.cos(a) * R * .72, cz + Math.sin(a) * R * .72]], w: .7, amp: .8});
+    }
+    trunk.lines.push({d: [[x, z - height * .18], [cx, cz]], w: 3.5, amp: 1});
+    parts.push(p);
+  }
+  return parts;
+}
+
+/** Karamon: a lifted cusped gable above an open passage. The opening is deliberately wider than the blur. */
+export function karamon(id, cx, zBase, halfW = 66) {
+  const s = halfW / 66, P = (x, h) => [cx + x * s, zBase - h * s];
+  const frame = part(`${id}-frame`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, thick: 18});
+  for (const x of [-39, 39]) frame.fills.push({d: [P(x - 5, 0), P(x + 5, 0), P(x + 5, 61), P(x - 5, 61)], soft: .2, crisp: .8});
+  frame.fills.push({d: [P(-45, 49), P(45, 49), P(45, 64), P(-45, 64)], soft: .2, crisp: .8});
+  const cap = part(`${id}-gable`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, order: 1});
+  const curve = [], lower = [];
+  for (let i = 0; i <= 48; i++) {
+    const u = i / 24 - 1, h = 72 + 31 * Math.exp(-u * u * 6) + 8 * Math.pow(Math.abs(u), 8);
+    curve.push(P(u * 66, h)); lower.push(P(u * 66, h - 13));
+  }
+  cap.fills.push({d: [...curve, P(66, 59), P(-66, 59)], soft: .2, crisp: .9});
+  cap.lines.push({d: curve.map(([x, z]) => [x, z + 5 * s]), w: 1, amp: 1});
+  cap.lines.push({d: lower, w: .8, amp: .8});
+  // One large floral carving survives where a row of small ornaments would turn into beads.
+  frame.lines.push({d: [P(-19, 56), P(-8, 61), P(0, 55), P(8, 61), P(19, 56)], w: 1.4, amp: 1});
+  return [frame, cap];
+}
+
+/** Masonry and its moat form a low ground border, with staggered joints drawn into a continuous bank. */
+export function moatWall(id, x0, x1, zTop, zBottom, waterFront) {
+  const water = part(`${id}-moat`, KIND.water, 0, MAT.water, [(x0 + x1) / 2, waterFront]);
+  water.fills.push({d: [[x0 - 6, zBottom + 4], [x1 + 6, zBottom + 4], [x1 + 6, waterFront], [x0 - 6, waterFront]], soft: 0, crisp: .1});
+  water.lines.push({d: [[x0, waterFront - 3], [x1, waterFront - 3]], w: .6, amp: .7});
+  const wall = part(id, KIND.rock, 1, MAT.mura, [(x0 + x1) / 2, zBottom], {thick: 15});
+  wall.fills.push({d: [[x0 + 6, zTop], [x1 - 6, zTop], [x1, zBottom], [x0, zBottom]], soft: .3, crisp: .65});
+  const mid = (zTop + zBottom) / 2;
+  wall.lines.push({d: [[x0 + 4, mid], [x1 - 4, mid]], w: 1, amp: .8});
+  for (let x = x0 + 23; x < x1 - 20; x += 42) {
+    wall.lines.push({d: [[x, zTop + 1], [x + 3, mid], [x + 21, mid], [x + 23, zBottom - 1]], w: .8, amp: .9});
+  }
+  return [water, wall];
+}
+
+/** Receding stone treads are part of the hillside, not a screen that hinges upright. */
+export function stoneSteps(id, cx, zBack, zFront, farW, nearW, count = 11) {
+  const p = part(id, KIND.still, 0, MAT.nashijiLight, [cx, zFront]);
+  p.fills.push({d: [[cx - farW, zBack], [cx + farW, zBack], [cx + nearW, zFront], [cx - nearW, zFront]], soft: .5, crisp: .25});
+  for (let i = 0; i <= count; i++) {
+    const t = i / count, z = lerp(zBack, zFront, t), w = lerp(farW, nearW, t);
+    p.lines.push({d: [[cx - w, z], [cx + w, z]], w: 1.4, amp: 1});
+    if (i < count) p.lines.push({d: [[cx + (i % 2 ? -.18 : .22) * w, z], [cx + (i % 2 ? -.18 : .22) * w, lerp(zBack, zFront, (i + 1) / count)]], w: .6, amp: .7});
+  }
+  return [p];
+}
+
+/** An open mountain gate: the lower passage is negative space, with all posts on the same foot line. */
+export function sanmon(id, cx, zBase, halfW) {
+  const p = part(`${id}-posts`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, thick: 18});
+  for (const side of [-1, 1]) {
+    const x = cx + side * halfW * .65;
+    p.fills.push({d: [[x - 6, zBase], [x + 6, zBase], [x + 6, zBase - halfW * .85], [x - 6, zBase - halfW * .85]], soft: .25, crisp: .8});
+  }
+  return [p,
+    ...storey(`${id}-upper`, cx, zBase - halfW * .86, zBase - halfW * .57, halfW * .73, {group: id, order: 1, bays: 3, windowMat: MAT.lacquer}),
+    ...roof(`${id}-roof`, cx, zBase - halfW * .88, halfW, halfW * .42, {group: id, order: 2, ridgeHalf: halfW * .5}),
+  ];
+}
+
+/** A quiet field of powdered earth joins a precinct without filling its reserved negative space with objects. */
+export function gardenGround(id, outline, {mat = MAT.mura, amp = .24} = {}) {
+  const centre = outline.reduce(([x, z], p) => [x + p[0] / outline.length, z + p[1] / outline.length], [0, 0]);
+  const p = part(id, KIND.still, 0, mat, centre);
+  p.fills.push({d: outline, soft: amp, crisp: 0});
   return [p];
 }

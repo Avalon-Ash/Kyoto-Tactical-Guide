@@ -5,6 +5,63 @@ import {PLATES, hasPlate, preparePlate, createLife, partAt, MAX_PARTS, LAYERS, D
 import {KIND, MAT, PLATE} from '../src/studies/toji/plate/vocab.js';
 import {buildBox, shadeMatrix, SHADE_H} from '../src/studies/toji/plate/renderer.js';
 
+const p3bWards = ['W_KITA', 'W_UKYO', 'W_NISHIKYO', 'W_SAKYO', 'W_KAMIGYO', 'W_SHIMOGYO', 'W_NAKAGYO', 'W_YAMASHINA'];
+const inside = ([x, z], polygon) => {
+  let hit = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [a, b] = polygon[i], [c, d] = polygon[j];
+    if ((b > z) !== (d > z) && x < (c - a) * (z - b) / (d - b) + a) hit = !hit;
+  }
+  return hit;
+};
+
+test('P3b compositions keep their margins and both bird feet on a solid carrier', () => {
+  for (const ward of p3bWards.filter(hasPlate)) {
+    const {parts} = preparePlate(PLATES[ward]());
+    for (const p of parts) {
+      const limit = p.layer === 0 ? [372, 232] : [360, 230];
+      for (const shape of [...p.fills, ...p.lines]) for (const [x, z] of shape.d) {
+        assert.ok(Math.abs(x) <= limit[0] && Math.abs(z) <= limit[1], `${ward}: ${p.id} stays within the picture`);
+      }
+    }
+    for (const bird of parts.filter(p => p.kind === KIND.bird)) {
+      const carriers = parts.filter(p => p.group === bird.attach && (p.layer === 3 || p.id.includes('roof')));
+      for (const line of bird.lines.slice(-2)) {
+        assert.ok(carriers.some(p => p.fills.some(f => inside(line.d.at(-1), f.d))), `${ward}: ${bird.id} has a supported foot`);
+      }
+    }
+    const groups = new Map();
+    for (const p of parts.filter(p => p.layer > 0 && p.kind !== KIND.mist)) {
+      const key = p.attach ?? p.group, a = groups.get(key), b = p.bounds;
+      groups.set(key, a ? [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])] : b);
+    }
+    const entries = [...groups];
+    for (let i = 0; i < entries.length; i++) for (let j = i + 1; j < entries.length; j++) {
+      const [a, A] = entries[i], [b, B] = entries[j];
+      assert.ok(Math.max(B[0] - A[2], A[0] - B[2], B[1] - A[3], A[1] - B[3]) >= 12,
+        `${ward}: ${a} and ${b} need breathing room`);
+    }
+  }
+});
+
+test('P3b ground fields reserve about a third of the lid and all eight wards are registered', () => {
+  for (const ward of p3bWards) {
+    assert.ok(hasPlate(ward), `${ward} has its own plate`);
+    const parts = PLATES[ward](), fills = parts.flatMap(p => p.fills.map(f => f.d));
+    const mist = parts.filter(p => p.kind === KIND.mist).length;
+    const rocks = parts.filter(p => p.kind === KIND.rock).length;
+    assert.ok(mist >= 2 && mist <= 4, `${ward} has two to four mist bands`);
+    assert.ok(rocks >= 1 && rocks <= 3, `${ward} has one to three rocks`);
+    // Sample the source silhouettes, not shadows or material brightness. Thin line work is not a ground field.
+    let bare = 0, total = 0;
+    for (let x = -356; x < 360; x += 8) for (let z = -226; z < 230; z += 8) {
+      total++;
+      if (!fills.some(p => inside([x, z], p))) bare++;
+    }
+    assert.ok(bare / total >= .26 && bare / total <= .46, `${ward} reserves ${(100 * bare / total).toFixed(1)}% of its source picture`);
+  }
+});
+
 test('a critically damped spring settles without overshoot at any frame rate', () => {
   for (const dt of [1 / 120, 1 / 60, 1 / 10]) {
     const s = {x: 0, v: 0}; let peak = 0;

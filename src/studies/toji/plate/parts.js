@@ -6,6 +6,14 @@ import {stepSpring, stepDamped} from './spring.js';
 import {minami} from './minami.js';
 import {fushimi} from './fushimi.js';
 import {higashiyama} from './higashiyama.js';
+import {kita} from './kita.js';
+import {ukyo} from './ukyo.js';
+import {nishikyo} from './nishikyo.js';
+import {sakyo} from './sakyo.js';
+import {kamigyo} from './kamigyo.js';
+import {shimogyo} from './shimogyo.js';
+import {nakagyo} from './nakagyo.js';
+import {yamashina} from './yamashina.js';
 
 export const MAX_PARTS = 64, LAYERS = 4;
 export const DWELL_MS = 400;
@@ -14,7 +22,7 @@ export const HINGE = {[KIND.tier]: 1.2, [KIND.pine]: 1.1, [KIND.bird]: 1.1};
 /** Even at rest a standing part is never quite flat: the picture always has some body. */
 export const STAND_REST = .14;
 /** Wards that have been redrawn as plates. The rest still use the relief mesh. */
-export const PLATES = {W_MINAMI: minami, W_FUSHIMI: fushimi, W_HIGASHIYAMA: higashiyama};
+export const PLATES = {W_MINAMI: minami, W_FUSHIMI: fushimi, W_HIGASHIYAMA: higashiyama, W_KITA: kita, W_UKYO: ukyo, W_NISHIKYO: nishikyo, W_SAKYO: sakyo, W_KAMIGYO: kamigyo, W_SHIMOGYO: shimogyo, W_NAKAGYO: nakagyo, W_YAMASHINA: yamashina};
 export const hasPlate = ward => Object.hasOwn(PLATES, ward);
 
 /** Bounds, centre and radius for each part; ids become 1-based indices (0 is the bare ground). */
