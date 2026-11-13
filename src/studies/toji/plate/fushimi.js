@@ -5,15 +5,9 @@ import {MAT, hill, suyari, rock, pine, bird, shell, torii, romon, fox, pawPrints
 
 /** Five gates up the slope, each smaller than the one before and clear of its neighbours. */
 function climb() {
-  const gates = [];
-  let x = -26;
-  for (let i = 0; i < 5; i++) {
-    const t = i / 4, s = .74 - t * .3, half = 58 * s;
-    x += half;
-    gates.push(...torii(`gate-${i}`, x, 100 - 198 * Math.pow(t, .88), s));
-    x += half + 7;
-  }
-  return gates;
+  // The z intervals clear the full height of the preceding gate, so their x spans can overlap safely.
+  const steps = [[14, 144], [76, 62], [132, -12], [181, -78], [224, -136]];
+  return steps.flatMap(([x, z], i) => torii(`gate-${i}`, x, z, .74 - i * .075));
 }
 
 export function fushimi() {
@@ -24,7 +18,7 @@ export function fushimi() {
     ...hill('bank-near', -372, -128, 152, 218, 41, {amp: .7, mat: MAT.gyobu, humps: 1}),
     ...shell('shell', [[-128, 132, 5, 8], [58, 122, 4.2, 2], [176, 58, 4.6, 5], [268, -12, 4, 3]]),
     // The approach: stones of cut silver under the gates, so the eye climbs with them.
-    ...steppingStones('sando', [[-60, 150, 7], [-22, 128, 7], [17, 112, 7], [62, 84, 6.5], [105, 53, 6.5], [146, 26, 6], [185, 4, 6], [221, -20, 5.5], [256, -43, 5.5], [288, -64, 5], [319, -87, 5]]),
+    ...steppingStones('sando', [[-47, 154, 7], [-17, 153, 7], [14, 153, 7], [45, 112, 6.5], [76, 71, 6.5], [104, 34, 6], [132, -3, 6], [158, -36, 5.5], [181, -69, 5.5], [204, -98, 5], [224, -127, 5]]),
     // The fox's own trail, in cut silver, from the gates to its stone.
     ...pawPrints('trail', [[34, 126], [56, 136], [80, 142], [104, 152], [128, 158], [146, 168]]),
     // Slot 1: mist and stones.
@@ -41,6 +35,6 @@ export function fushimi() {
     ...pine('pine-a', -100, 214, 100, 16, 3, {clusters: 3}),
     ...pine('pine-b', 288, 206, 112, -14, 6, {clusters: 3}),
     // The bird sits on the crown pad of either pine: on the pad, not above its edge, or it hangs in the air.
-    ...bird('uguisu', [[-80, 126, 1, 'pine-a'], [270, 106, -1, 'pine-b']]),
+    ...bird('uguisu', [[-80, 124.5, 1, 'pine-a'], [270, 103.5, -1, 'pine-b']]),
   ];
 }

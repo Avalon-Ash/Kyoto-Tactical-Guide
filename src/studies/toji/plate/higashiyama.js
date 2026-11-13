@@ -24,6 +24,6 @@ export function higashiyama() {
     ...maple('maple-a', -134, 216, 96, 10, 2),
     ...maple('maple-b', 150, 218, 78, -8, 9),
     ...maple('maple-c', 316, 122, 72, -6, 4),
-    ...bird('uguisu', [[-128, 140, 1, 'maple-a'], [314, 66, -1, 'maple-c']]),
+    ...bird('uguisu', [[-128, 140, 1, 'maple-a', 20], [314, 66, -1, 'maple-c', 20]]),
   ];
 }

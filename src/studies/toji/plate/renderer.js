@@ -57,6 +57,27 @@ export function buildBox() {
   band({hx: 118, hz: 224, y: -42}, {hx: 113, hz: 219, y: -42}, 21, 2, 0, 0, 1, TX);
   band({hx: 113, hz: 219, y: -42}, {hx: 113, hz: 219, y: -57}, 28, 2, 1, 1, -1, TX);
   flat(113, 219, -57, 28, 2, TX);
+  // Two small packets of ryoshi rest on the tray floor, below its rim.
+  const packet = (x0, x1, z0, z1, y0, y1, mat) => {
+    const p = [[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],
+      [x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]];
+    const faces = [[[4,7,6,5],[0,1,0]],[[0,1,2,3],[0,-1,0]],
+      [[0,4,5,1],[0,0,-1]],[[3,2,6,7],[0,0,1]],
+      [[0,3,7,4],[-1,0,0]],[[1,5,6,2],[1,0,0]]];
+    for (const [ids,n] of faces) for (const k of [0,1,2,0,2,3]) {
+      const q = p[ids[k]]; v(q,n,[q[0],q[2]],mat,2);
+    }
+  };
+  for (const z of [-116,84]) {
+    for (let i = 0; i < 3; i++) {
+      const dx = (i - 1) * 2, dz = i * 1.5, y = -57 + i * 2.4;
+      packet(TX-82+dx,TX+82+dx,z-56+dz,z+56+dz,y,y+2.4,23);
+    }
+    // A narrow gold paper band wraps each packet, leaving the paper legible.
+    packet(TX-3,TX+3,z-56,z+59,-49.8,-49.1,24);
+    packet(TX-3,TX+3,z-56.5,z-56,-57,-49.1,24);
+    packet(TX-3,TX+3,z+59,z+59.5,-57,-49.1,24);
+  }
   const cylinder = (x0, x1, y, z, r, mat, sides = 20) => {
     const at = (x, t) => [[x, y + Math.cos(t) * r, z + Math.sin(t) * r], [0, Math.cos(t), Math.sin(t)], [x, t * r]];
     for (let i = 0; i < sides; i++) {

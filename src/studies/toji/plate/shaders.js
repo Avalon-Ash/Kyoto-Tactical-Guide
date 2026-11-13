@@ -259,9 +259,9 @@ void main(){
     float d1=abs(y+64.+wv),d2=abs(y+71.+wv*.7+sin(x*.09)*1.5),d3=abs(y+57.+wv*1.2+sin(x*.06+2.)*2.),d4=abs(y+19.+wv*.35);
     float aa=max(uPx*.9,.25);
     float ln=max(max(1.-smoothstep(.55-aa,.55+aa,d1),1.-smoothstep(.4-aa,.4+aa,d2)),max((1.-smoothstep(.35-aa,.35+aa,d3))*step(.2,sin(x*.013+1.)),1.-smoothstep(.45-aa,.45+aa,d4)));
-    c=mix(c,metal(vUv,PALE,1.),ln);
+    c=mix(c,metal(vUv,GOLD,1.),ln);
     vec3 kg;float kx=flake(vUv*vec2(1.,1.)+7.,5.4,.30,.75*exp(-d1*d1/150.)*(.35+.65*vnoise(vec2(x*.03,2.))),1.,.26,kg);
-    c=mix(c,sheet(PALE)+PALE*(.10+.25*light()),kx)+PALE*kg*.6;
+    c=mix(c,sheet(GOLD)+GOLD*(.10+.25*light()),kx)+GOLD*kg*.6;
   }
   else if(m==27){
     // Kumihimo: vermilion silk, braided; a gold collar, then the tassel's loose threads.
@@ -302,7 +302,8 @@ void main(){
   vec4 fine=texture(uFine,puv(p,layer));float hs=texture(uSoft,puv(p,layer)).r;
   float alpha=1.;
 #if MODE==4
-  alpha=smoothstep(.03,.42,hs)*.94;
+  // Coverage follows the unblurred silhouette: foil has an edge, not a powder halo.
+  alpha=clamp((fine.a-.5)/max(fwidth(fine.a),.006)+.5,0.,1.)*.96;
   // Mist drifts, but never past the lip of the lid.
   vec2 lip=1.-smoothstep(HALF-5.,HALF-1.,abs(vMeta));alpha*=lip.x*lip.y;
 #endif
@@ -360,7 +361,7 @@ void main(){
   else if(mat==9||mat==12){wN=1.;}
   else if(mat==10){wS=1.;f0=PALE;c=PALE*glow*.5;}
   else if(mat==11){wS=1.;f0=SILVER;}
-  else if(mat==13){float dns=smoothstep(.04,.75,hs);wN=1.;dens=.5+.9*dns;tint=PALE;bigD=.16*dns;bigCell=5.2;}
+  else if(mat==13){wS=.82;wM=.18;f0=GOLD;tint=GOLD;} // continuous gold leaf, without scattered flakes
   else if(mat==14)c=LACQ*(.8+1.4*L)+coat()*2.2+GOLD*line*(.16+.80*L)*mix(.5,1.,rise);
   else c=mix(vec3(.10,.06,.025)*(.4+.5*L),vec3(1.,.62,.22)*1.15,glow)+LACQ;     // paper windows, lit from within when asked
   c+=wN*nashiji(p,dens,tint)+wM*metal(p,f0,rise)+wS*sheet(f0);
