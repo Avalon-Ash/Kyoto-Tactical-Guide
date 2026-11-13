@@ -23,6 +23,6 @@ export function kamigyo() {
     ...courtTree('ukon-tachibana', 91, 73, 79, {citrus: true}),
     ...pine('west-pine', -292, -84, 99, 12, 2, {clusters: 3}),
     ...pine('east-pine', 285, -83, 99, -12, 6, {clusters: 3}),
-    ...bird('uguisu', [[-278, -174, 1, 'west-pine', 22], [-94, 2, -1, 'sakon-sakura', 20]]),
+    ...bird('uguisu', [[-278, -174, 1, 'west-pine', 22], [-82.3, -28.9, -1, 'sakon-sakura', 20]]),
   ];
 }

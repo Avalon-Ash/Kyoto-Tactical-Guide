@@ -18,6 +18,6 @@ export function ukyo() {
     ...pine('west-pine', -289, -61, 104, 12, 2, {clusters: 3}),
     ...pine('ridge-pine', 263, -67, 98, -12, 6, {clusters: 3}),
     ...maple('near-maple', 272, 214, 104, -8, 9),
-    ...bird('uguisu', [[-274, -156, 1, 'west-pine', 22], [268, 136, -1, 'near-maple', 20]]),
+    ...bird('uguisu', [[-274, -156, 1, 'west-pine', 22], [267.6, 94.5, -1, 'near-maple', 20]]),
   ];
 }
