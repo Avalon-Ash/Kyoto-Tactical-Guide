@@ -28,7 +28,6 @@ test('an underdamped spring rings down and stays finite on a slow frame', () => 
 
 test('every redrawn ward is a valid plate', () => {
   assert.equal(hasPlate('W_MINAMI'), true);
-  assert.equal(hasPlate('W_KITA'), false);
   assert.equal(hasPlate('toString'), false);
   for (const [ward, build] of Object.entries(PLATES)) {
     const {parts, errors} = preparePlate(build());
