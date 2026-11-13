@@ -1,6 +1,6 @@
 // Borrowed scenery in three depths: the near hall looks across a broad pond to rocks and a distant ridge.
 // The empty foreground below the hall lets the eye cross the water before climbing into the mountain.
-import {MAT, gardenGround, hill, pond, hall, pine, maple, fallenLeaves, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hill, pond, hall, branchPine as pine, branchMaple as maple, fallenLeaves, bird, rock, suyari} from './vocab.js';
 
 export function ukyo() {
   return [
@@ -18,6 +18,6 @@ export function ukyo() {
     ...pine('west-pine', -289, -61, 104, 12, 2, {clusters: 3}),
     ...pine('ridge-pine', 263, -67, 98, -12, 6, {clusters: 3}),
     ...maple('near-maple', 272, 214, 104, -8, 9),
-    ...bird('uguisu', [[-274, -156, 1, 'west-pine', 22], [267.6, 94.5, -1, 'near-maple', 20]]),
+    ...bird('uguisu', [[-268.38, -103.48, 1, 'west-pine', 10], [298.77, 161.54, -1, 'near-maple', 12]]),
   ];
 }

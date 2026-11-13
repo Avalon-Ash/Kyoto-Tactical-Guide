@@ -1,6 +1,6 @@
 // Two textures face each other: dark timber over a small pond, silver raked sand with a single level-topped cone.
 // The pavilion stays at the far left, the cone at the near right; an open lower-left wedge separates them.
-import {MAT, gardenGround, hill, pond, sandGarden, sandCone, moon, storey, roof, hall, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hill, pond, sandGarden, sandCone, moonBowl, storey, roof, hall, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function sakyo() {
   return [
@@ -9,9 +9,7 @@ export function sakyo() {
     ...pond('kinkyo', -182, 36, 112, 67, 5),
     ...sandGarden('ginshadan', 14, 249, 0, 102),
     ...sandCone('kogetsudai', 190, 160, 50, 62),
-    // A moon of shell lies in the foreground lacquer, aligned with the cone.
-    // The current relief hinges a whole group together; a summit inlay would tilt with the flank.
-    ...moon('moon', 190, 199, 16, {ripples: 0}),
+    ...moonBowl('moon', 190, 98, 'kogetsudai'),
     ...suyari('mist-west', -336, -213, -37, 12, 6),
     ...suyari('mist-east', 59, 331, -198, 13, 11),
     ...rock('pond-stone', -112, 127, 25, 18, 4, {mat: MAT.kirikane}),
@@ -22,6 +20,6 @@ export function sakyo() {
     ...hall('togudo', 84, -102, 82, 32, {wallH: 24}),
     ...pine('near-pine', -293, 178, 99, 12, 2, {clusters: 3}),
     ...pine('east-pine', 282, -54, 112, -12, 6, {clusters: 3}),
-    ...bird('uguisu', [[-279, 88, 1, 'near-pine', 22], [267, -151, -1, 'east-pine', 22]]),
+    ...bird('uguisu', [[-272.56, 137.72, 1, 'near-pine', 10], [261.10, -100.00, -1, 'east-pine', 10]]),
   ];
 }

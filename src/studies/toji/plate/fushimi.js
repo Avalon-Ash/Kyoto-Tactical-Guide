@@ -1,7 +1,7 @@
 // 伏見区・稲荷. A diagonal, not a centre: the great torii in the near corner, the two-storey gate behind it, and
 // a line of gates climbing the mountain to the far corner. The fox keeps the other near corner.
 // The sky above the gate and the ground between the fox and the climb stay empty nashiji.
-import {MAT, hill, suyari, rock, pine, bird, shell, torii, romon, fox, pawPrints, steppingStones} from './vocab.js';
+import {MAT, hill, suyari, rock, branchPine as pine, bird, shell, torii, romon, fox, pawPrints, steppingStones} from './vocab.js';
 
 /** Five gates up the slope, each smaller than the one before and clear of its neighbours. */
 function climb() {
@@ -35,6 +35,6 @@ export function fushimi() {
     ...pine('pine-a', -100, 214, 100, 16, 3, {clusters: 3}),
     ...pine('pine-b', 288, 206, 112, -14, 6, {clusters: 3}),
     // The bird sits on the crown pad of either pine: on the pad, not above its edge, or it hangs in the air.
-    ...bird('uguisu', [[-80, 124.5, 1, 'pine-a'], [270, 103.5, -1, 'pine-b']]),
+    ...bird('uguisu', [[-77.76, 173.28, 1, 'pine-a', 10], [266.22, 160.00, -1, 'pine-b', 10]]),
   ];
 }

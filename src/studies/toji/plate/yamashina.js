@@ -1,6 +1,6 @@
 // An axial ascent: stone treads lead through an open gate to the hall, held between two large maple crests.
 // The lower outer corners are empty ground; the mist cuts across the ridge rather than across the stair.
-import {MAT, gardenGround, hill, hall, sanmon, stoneSteps, lantern, maple, fallenLeaves, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hill, hall, sanmon, stoneSteps, lantern, branchMaple as maple, fallenLeaves, bird, rock, suyari} from './vocab.js';
 
 export function yamashina() {
   return [
@@ -19,6 +19,6 @@ export function yamashina() {
     ...maple('east-maple', 274, 89, 111, -8, 9),
     ...rock('west-stone', -231, 185, 27, 20, 5),
     ...rock('east-stone', 272, 178, 24, 18, 7, {mat: MAT.kirigin}),
-    ...bird('uguisu', [[-257.7, -37.1, 1, 'west-maple', 20], [271.1, -32.9, -1, 'east-maple', 20]]),
+    ...bird('uguisu', [[-220.07, 46.60, 1, 'west-maple', 12], [302.47, 33.39, -1, 'east-maple', 12]]),
   ];
 }

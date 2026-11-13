@@ -1,6 +1,6 @@
 // Unequal twin roofs share a long baseline and a small connecting gallery, answered by a great fan-leaved tree.
 // The foreground between ginkgo and pine is an unpainted court; the back wall supplies a quiet horizontal limit.
-import {MAT, gardenGround, hall, corridor, ginkgo, fallenFans, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hall, corridor, branchGinkgo as ginkgo, fallenFans, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function shimogyo() {
   return [
@@ -16,6 +16,6 @@ export function shimogyo() {
     ...pine('east-pine', 284, 201, 112, -12, 6, {clusters: 3}),
     ...rock('ginkgo-stone', -104, 206, 21, 17, 4),
     ...rock('east-stone', 173, 178, 23, 16, 7, {mat: MAT.kirigin}),
-    ...bird('uguisu', [[269, 104, -1, 'east-pine', 22], [-222, 66, 1, 'great-ginkgo', 22]]),
+    ...bird('uguisu', [[263.10, 155.00, -1, 'east-pine', 10], [-192.73, 129.80, 1, 'great-ginkgo', 21]]),
   ];
 }

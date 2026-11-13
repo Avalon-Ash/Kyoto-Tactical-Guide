@@ -1,6 +1,6 @@
 // A ceremonial enclosure around a white court: the broad hall is its head and low galleries its open arms.
 // Blossom and citrus face across the court; the bare outer rim and open entrance keep the enclosure breathing.
-import {MAT, gardenGround, hall, sandGarden, corridor, courtTree, petals, fruits, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hall, sandGarden, corridor, branchCourtTree as courtTree, petals, fruits, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function kamigyo() {
   return [
@@ -23,6 +23,6 @@ export function kamigyo() {
     ...courtTree('ukon-tachibana', 91, 73, 79, {citrus: true}),
     ...pine('west-pine', -292, -84, 99, 12, 2, {clusters: 3}),
     ...pine('east-pine', 285, -83, 99, -12, 6, {clusters: 3}),
-    ...bird('uguisu', [[-278, -174, 1, 'west-pine', 22], [-82.3, -28.9, -1, 'sakon-sakura', 20]]),
+    ...bird('uguisu', [[-271.56, -124.28, 1, 'west-pine', 10], [-65.08, 27.28, -1, 'sakon-sakura', 12]]),
   ];
 }

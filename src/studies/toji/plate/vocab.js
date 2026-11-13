@@ -369,6 +369,60 @@ export function maple(id, x, z, height, lean, seed) {
   });
 }
 
+/** Sparse deciduous branches: relief is wood, botanical identity is thin leaf / flower inlay.
+ * The old broadleaf exports remain for callers whose perch migration is not yet applied.
+ */
+function branchBroadleaf(id, x, z, height, lean, seed, species) {
+  const anchor = [x, z], h = height, gold = species !== 'cherry';
+  const stem = part(id + '-trunk', KIND.pine, 3, MAT.gold, anchor, {group: id, thick: species === 'ginkgo' ? 21 : 12, reach: 4});
+  const at = t => [x + lean * t + Math.sin(t * Math.PI * 1.8) * h * .055, z - h * t];
+  wood(stem, Array.from({length: 25}, (_, i) => at(i / 24 * .91)), species === 'ginkgo' ? h * .16 : 10, 7);
+  const tips = [[x - h * .24 + lean * .6, z - h * .69], [x + h * .27 + lean * .5, z - h * .57], at(.94)];
+  for (const [i, end] of tips.slice(0, 2).entries()) {
+    const start = at(.29), side = i === 0 ? -1 : 1;
+    wood(stem, quad(start, [x + side * h * .28, z - h * .40], end, 18), 10, 7);
+  }
+  for (let i = 1; i < 7; i++) {
+    const [px,pz] = at(i * .105);
+    stem.lines.push({d: [[px - 2, pz + 2], [px + 2, pz - 3]], w: .65, amp: .8});
+  }
+  const leaf = part(id + '-leaf-0', KIND.pine, 2, gold ? MAT.gold : MAT.silver, anchor,
+    {group: id, order: 1, thick: species === 'cherry' ? 4 : 2.5, bias: species === 'ginkgo' ? 21 : 12, reach: 4});
+  const inlay = part(id + '-inlay', KIND.pine, 2, species === 'cherry' ? MAT.aogai : MAT.hyomonGold, anchor,
+    {group: id, order: 1, thick: .6, bias: species === 'cherry' ? 16.5 : 15, reach: 3});
+  tips.forEach(([px,pz], i) => {
+    const turn = -Math.PI / 2 + (i - 1) * .25, radius = Math.max(13, h * .16);
+    let d;
+    if (species === 'maple') {
+      d = mapleLeaf(px,pz,radius,turn);
+      rays(leaf, px,pz,[-2,-1,0,1,2].map(j=>turn+j*.95),[.58,.84,1,.84,.58].map(v=>v*radius*.82));
+    } else if (species === 'ginkgo') {
+      d = ginkgoLeaf(px,pz,radius*1.12,turn);
+      rays(leaf,px,pz,[-.8,-.4,0,.4,.8].map(a=>turn+a),Array(5).fill(radius*.87));
+    } else if (species === 'citrus') {
+      // Paired narrow oval leaves; fruit is sheet metal, with no raised berry.
+      d = blob(px-4,pz-4,radius*.48,radius*.85,seed+i,.025,28);
+      leaf.fills.push({d: blob(px+7,pz+2,radius*.42,radius*.7,seed+i+4,.025,28),soft:0,crisp:.8});
+      inlay.fills.push({d:blob(px+8,pz+8,3.2,3.2,1,0,20),soft:0,crisp:1});
+      leaf.lines.push({d:[[px-4,pz+5],[px-4,pz-radius*.8]],w:.6,amp:1});
+    } else {
+      // Three shallow flower clouds, broken edges; no backing crown or cushion stack.
+      d = blob(px,pz-3,radius*1.12,radius*.83,seed+i,.17,64);
+      for (let j=0;j<5;j++) {
+        const a=j*Math.PI*2/5;
+        inlay.fills.push({d:petal(px+Math.cos(a)*radius*.42,pz-3+Math.sin(a)*radius*.3,3.1,a),soft:0,crisp:1});
+      }
+    }
+    leaf.fills.push({d,soft:0,crisp:.8});
+  });
+  return inlay.fills.length ? [stem,leaf,inlay] : [stem,leaf];
+}
+export function branchMaple(id,x,z,height,lean,seed) { return branchBroadleaf(id,x,z,height,lean,seed,'maple'); }
+export function branchGinkgo(id,x,z,height) { return branchBroadleaf(id,x,z,height,3,6,'ginkgo'); }
+export function branchCourtTree(id,x,z,height,{citrus=false}={}) {
+  return branchBroadleaf(id,x,z,height,citrus?-3:4,citrus?5:3,citrus?'citrus':'cherry');
+}
+
 /**
  * Small shapes inlaid flat in the lid, one part per material. They are ground, so each keeps its outline however
  * small it is: this is where a picture says what the solids are too round to say. Densest at the centre of the drift.
@@ -461,6 +515,60 @@ export function fox(id, x, z, flip = 1, s = 1, {layer = 2} = {}) {
   jewel.fills.push({d: blob(jx, jz, 7 * s, 6 * s, 1, 0, 24), soft: 0, crisp: 1});
   jewel.fills.push({d: [[jx - 4 * s, jz - 3 * s], [jx + 1 * s, jz - 12 * s], [jx + 4 * s, jz - 3 * s]], soft: 0, crisp: 1});
   return [jewel, stone, body];
+}
+
+/** A tapered, curved solid bough; the fine bark belongs to its surface. */
+function wood(p, path, width, tip = width * .65) {
+  const left = [], right = [];
+  path.forEach(([x, z], i) => {
+    const a = path[Math.max(0, i - 1)], b = path[Math.min(path.length - 1, i + 1)];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, w = lerp(width, tip, i / (path.length - 1)) / 2;
+    const nx = -(b[1] - a[1]) / len, nz = (b[0] - a[0]) / len;
+    left.push([x + nx * w, z + nz * w]); right.push([x - nx * w, z - nz * w]);
+  });
+  p.fills.push({d: [...left, ...right.reverse()], soft: .25, crisp: .8});
+}
+
+/** Old pine: sinuous raised wood and six to eight thin, separated needle fans.
+ * clusters counts branch tiers, each carrying two fans; never a single swollen canopy.
+ */
+export function branchPine(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 3} = {}) {
+  const anchor = [x, z], dir = Math.sign(lean) || 1, rows = Math.max(3, Math.min(4, clusters));
+  const at = t => [x + lean * t + dir * Math.sin(t * Math.PI * 2) * height * .095, z - height * t];
+  const spine = Array.from({length: 33}, (_, i) => at(i / 32 * .94));
+  const trunk = part(id + '-trunk', KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, thick: 16, reach: 5});
+  wood(trunk, spine, Math.max(14, height * .12), 12);
+  for (let i = 2; i < 30; i += 3) {
+    const [px, pz] = spine[i], side = (i + seed) % 2 ? 1 : -1;
+    trunk.lines.push({d: quad([px - 3.5, pz + 3], [px + side * 5, pz + 1], [px + 2.8, pz - 3], 6), w: .65, amp: .9});
+  }
+  const bough = part(id + '-boughs', KIND.pine, 3, MAT.gold, anchor, {group: id, thick: 10, reach: 4});
+  const leaves = [];
+  for (let k = 0; k < rows; k++) {
+    const t = .44 + k * .46 / (rows - 1), s = at(t), cx = s[0] + dir * (k === 1 ? -7 : 8);
+    const cz = s[1], width = Math.max(24, Math.min(30, height * .22)) - k * .3;
+    const gap = 12, spread = (width + gap) / 2;
+    const leaf = part(id + '-leaf-' + k, KIND.pine, leafLayer, k % 2 ? MAT.nashijiLight : MAT.gold, anchor,
+      {group: id, order: 1, thick: 3, bias: 10, reach: 4});
+    const branchZ = cz + 8;
+    wood(bough, quad(at(t - .17), [cx - dir * 13, branchZ + 7], [cx + dir * (spread + 3), branchZ], 16), 11, 8);
+    wood(bough, quad([cx, branchZ + 2], [cx - dir * 12, branchZ + 2], [cx - dir * spread, cz + 2], 12), 8, 7);
+    for (const side of [-1, 1]) {
+      const lx = cx + side * spread, lz = cz + 4 + (side === dir ? 0 : -3);
+      // Low fan: almost level top, scalloped lower rim, no pillow underneath.
+      const d = quad([lx - width / 2, lz], [lx - width * .45, lz - 9], [lx, lz - 8], 10);
+      d.push(...quad([lx, lz - 8], [lx + width * .46, lz - 9], [lx + width / 2, lz], 10).slice(1));
+      d.push([lx + width * .28, lz + 1.5], [lx + width * .13, lz], [lx, lz + 2], [lx - width * .18, lz], [lx - width * .34, lz + 1]);
+      leaf.fills.push({d, soft: 0, crisp: .8});
+      for (let j = 0; j < 9; j++) {
+        const u = j / 8 * 2 - 1;
+        leaf.lines.push({d: [[lx + u * 1.1, lz], [lx + u * width * .43, lz - 6.5 + Math.abs(u) * 2]], w: .5, amp: 1});
+      }
+      wood(bough, [[lx, branchZ], [lx, lz - 1]], 7, 6);
+    }
+    leaves.push(leaf);
+  }
+  return [trunk, bough, ...leaves];
 }
 
 /**
@@ -619,6 +727,25 @@ export function sandCone(id, cx, zBase, halfW, height) {
   p.fills.push({d: blob(cx, top, r, r * .24, 4, 0, 40), soft: .2, crisp: .9});
   p.lines.push({d: [...blob(cx, top, r * .87, r * .18, 4, 0, 40), [cx + r * .87, top]], w: .7, amp: .7});
   return [p];
+}
+
+/** A small shinnuri vessel on the cone, with a shell moon inside its oval mouth.
+ * All members share the cone's hinge; the ellipse supplies the pictorial view into the bowl.
+ */
+export function moonBowl(id, cx, top, group) {
+  const anchor = [cx, top], rimZ = top - 13;
+  const bowl = part(id + '-vessel', KIND.tier, 3, MAT.lacquer, anchor, {group, thick: 12, bias: 18, reach: 4});
+  bowl.fills.push({d: [...quad([cx-18,rimZ], [cx,top+10], [cx+18,rimZ], 24),
+    ...quad([cx+18,rimZ], [cx,top-26], [cx-18,rimZ], 24).slice(1)], soft:0,crisp:1});
+  bowl.lines.push({d:[...blob(cx,rimZ,17,6.5,1,0,48),[cx+17,rimZ]],w:.7,amp:1});
+  const reflection = part(id + '-reflection', KIND.tier, 1, MAT.aogai, anchor, {group,thick:.7,bias:30.5,reach:3});
+  reflection.fills.push({d:blob(cx-2,rimZ-1,6.2,4.7,1,0,40),soft:0,crisp:1});
+  const light = part(id + '-light', KIND.tier, 1, MAT.hyomonSilver, anchor, {group,thick:.5,bias:30.5,reach:3});
+  for (const [dx,dz,len] of [[6,2,7],[-9,5,9],[6,7,6]]) {
+    light.fills.push({d:[[cx+dx-len/2,rimZ+dz],[cx+dx+len/2,rimZ+dz-.4],
+      [cx+dx+len/2-1,rimZ+dz+.8],[cx+dx-len/2,rimZ+dz+1]],soft:0,crisp:1});
+  }
+  return [bowl,reflection,light];
 }
 
 /** A low tiled wall or open gallery. Bays are engraved, keeping a quiet continuous silhouette. */

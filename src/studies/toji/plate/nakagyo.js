@@ -1,6 +1,6 @@
 // Six modest roofs descend in a goose-flight staircase, each with its own clear interval; there is no keep.
 // The cusped gate anchors the open left court, while the masonry and moat underline the entire procession.
-import {MAT, gardenGround, hall, karamon, moatWall, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hall, karamon, moatWall, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function nakagyo() {
   const rooms = [[-248, -172, 62], [-161, -110, 64], [-74, -48, 66], [13, 14, 62], [100, 76, 58], [187, 138, 58]];
@@ -15,6 +15,6 @@ export function nakagyo() {
     ...karamon('karamon', -172, 184, 69),
     ...pine('west-pine', -305, 62, 99, 12, 2, {clusters: 3}),
     ...pine('east-pine', 282, -79, 112, -12, 6, {clusters: 3}),
-    ...bird('uguisu', [[-291, -28, 1, 'west-pine', 22], [267, -176, -1, 'east-pine', 22]]),
+    ...bird('uguisu', [[-284.56, 21.72, 1, 'west-pine', 10], [261.10, -125.00, -1, 'east-pine', 10]]),
   ];
 }

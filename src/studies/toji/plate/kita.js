@@ -1,6 +1,6 @@
 // A horizontal mirror: three gold storeys rise from the far bank, their broken image lies in still water.
 // The island pine balances the pavilion; the entire lower-left quarter stays bare lacquer and nashiji.
-import {MAT, gardenGround, hill, pond, phoenix, storey, roof, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hill, pond, phoenix, storey, roof, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function kita() {
   const pavilion = [];
@@ -23,6 +23,6 @@ export function kita() {
     ...phoenix('ho-o', -85, -168, 1, {group: 'kinkaku', order: 6}),
     ...pine('island-pine', 171, 97, 124, -15, 6),
     ...pine('west-pine', -291, -28, 114, 12, 2, {clusters: 3}),
-    ...bird('uguisu', [[153, -12, -1, 'island-pine', 22], [-275, -132, 1, 'west-pine', 22]]),
+    ...bird('uguisu', [[148.36, 45.72, -1, 'island-pine', 10], [-270.03, -74.88, 1, 'west-pine', 10]]),
   ];
 }

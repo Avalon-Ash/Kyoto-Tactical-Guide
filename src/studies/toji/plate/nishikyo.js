@@ -1,6 +1,6 @@
 // A low shoreline of separate rooms, with an open bamboo deck reaching into the pond like a comma.
 // A loose arc of inlaid stones approaches from the left; the upper-right sky and near centre remain empty.
-import {MAT, gardenGround, pond, hall, moonDeck, moon, steppingStones, lantern, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, pond, hall, moonDeck, moon, steppingStones, lantern, branchPine as pine, bird, rock, suyari} from './vocab.js';
 
 export function nishikyo() {
   return [
@@ -18,6 +18,6 @@ export function nishikyo() {
     ...lantern('shore-lantern', 246, 171, .9),
     ...pine('near-pine', -291, 183, 99, 12, 2, {clusters: 3}),
     ...pine('far-pine', 286, -60, 112, -12, 6, {clusters: 3}),
-    ...bird('uguisu', [[-277, 93, 1, 'near-pine', 22], [271, -157, -1, 'far-pine', 22]]),
+    ...bird('uguisu', [[-270.56, 142.72, 1, 'near-pine', 10], [265.10, -106.00, -1, 'far-pine', 10]]),
   ];
 }

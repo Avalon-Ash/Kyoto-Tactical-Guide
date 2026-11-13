@@ -1,6 +1,6 @@
 // 南区・東寺. A composition, not a survey: the pagoda on its bank, the hall half lost in mist,
 // a stream between two banks, pines in the foreground. A third of the ground stays empty nashiji.
-import {MAT, hill, stream, suyari, rock, pagoda, hall, pine, bird, shell} from './vocab.js';
+import {MAT, hill, stream, suyari, rock, pagoda, hall, branchPine as pine, bird, shell} from './vocab.js';
 
 export function minami() {
   return [
@@ -25,6 +25,6 @@ export function minami() {
     ...pine('pine-c', 300, 150, 96, -14, 5, {clusters: 3}),
     // Slot 3 holds the foliage pads (from pine). The bird's two perches ride on their pines but are painted in
     // slot 1, clear of the stones and the mist, so the pad under a sleeping bird stays whole.
-    ...bird('uguisu', [[-240, 84, 1, 'pine-a'], [-112, 122, -1, 'pine-b']]),
+    ...bird('uguisu', [[-259.61, 109.28, 1, 'pine-a', 10], [-157.26, 147.52, -1, 'pine-b', 10]]),
   ];
 }
