@@ -8,13 +8,14 @@
 |---|---|
 | 主線 | `main`：2026-11-13 已含蒔繪浮雕盤（十一區都是 WebGL2 浮雕盤）與其前的十一區文庫、手機 UI、UI 翻新 P1／P3。實際 HEAD 以 `git log -1 main` 為準 |
 | 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤）：2026-11-13 兩度 fast-forward 併入 `main` 並 push（使用者分別同意），交接當下與 `main` 同一個 commit。後續在此分支或新分支接著做；接手計畫在 `MAKIE_PLATE_HANDOFF.md` §8 |
-| `ux-unify` | 2026-11-12 確認與 `main` 同在 `4ca3adb`，內容已全在 `main`；分支仍在，未刪 |
+| 分支清理 | 2026-11-13 刪除已併入 `main` 的本機 `ux-unify` 與遠端 `claude/relaxed-feynman-lh5xnr`；agy 用的 worktree（`C:\Git\Kyoto-agy`、`Kyoto-agy2`）、舊 clone `C:\Git\_wt_kyoto_chores` 與 `.shots/` 截圖一併刪除（使用者同意） |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
+| 改名 | 2026-11-13 專案改名 Kyoto Bunko 京洛文庫：GitHub repo 改為 `Avalon-Ash/Kyoto-Bunko`（Pages：`https://avalon-ash.github.io/Kyoto-Bunko/`），本機 remote 已指向新網址。門面 README 改成英／繁中／日三語（`README.md`、`README.zh-TW.md`、`README.ja.md`，附圖在 `docs/images/`）；原本的開發者長文移到 `docs/DEVELOPMENT.md`。本機資料夾預定改名為 `C:\Git\Kyoto-Bunko`，文件裡的路徑已照新名寫 |
 | 不提交 | `.claude/`、`dist/`、`node_modules/`、驗收截圖與日誌 |
 
 ```powershell
-Set-Location C:\Git\Kyoto-Tactical-Guide
+Set-Location C:\Git\Kyoto-Bunko
 git fetch --prune; git status -sb; git log --oneline -5
 Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
 # 3000 沒有 listener 時才啟動：

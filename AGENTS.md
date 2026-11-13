@@ -1,11 +1,11 @@
-# Kyoto Tactical Guide — 代理執行合約
+# Kyoto Bunko — 代理執行合約
 
 更新：2026-11-11。適用於主代理、Codex 子代理及 IDE 執行代理。
 本合約參照 FFT 專案的分工方法，規則已依京都專案調整；不依賴 FFT 的工具、hook 或測試。
 
 ## 1. 開工入口與權限
 
-- 先讀本檔、`docs/HANDOFF.md` 的目前狀態、`docs/AGENT_EXECUTION_PLAN.md`、`docs/PLAN.md` 的指定任務，以及 README 的資料錄入規範。
+- 先讀本檔、`docs/HANDOFF.md` 的目前狀態、`docs/AGENT_EXECUTION_PLAN.md`、`docs/PLAN.md` 的指定任務，以及 `docs/DEVELOPMENT.md` 的資料錄入規範。
 - 使用者當次指令與已核准的 D1–D5 優先；代理流程依本合約及派工計畫，功能需求依 PLAN。發現真正衝突，回報具體段落，由主代理處理，不自行放寬驗收。
 - 規劃任務只產出文件，不代表已授權啟動實作、子代理或發布。實作啟動時明確記錄本輪任務與子代理授權。
 - 主代理負責派工、整合、驗收與 Git 操作。子代理只在派工單指定的絕對路徑與檔案範圍工作。
@@ -22,7 +22,7 @@
 - 地圖座標集中於 `map-centers.ts`；GeoJSON 順序是 `[lng, lat]`，Leaflet 點位通常是 `[lat, lng]`，不得混用。
 - 導航共用現有 `buildGoogleMapsUrl`，不在其他元件複製拼接規則。
 - 查證身分、地址、座標要提供來源與查核日期。未知資料不得當作精確值提交；既有錯誤標籤不應靠新增虛構座標消除警告。
-- 食處變更遵守 README 的 Tabelog 查核要求。查不到或來源衝突時列為未確認，不推測仍在營業。
+- 食處變更遵守 `docs/DEVELOPMENT.md` 的 Tabelog 查核要求。查不到或來源衝突時列為未確認，不推測仍在營業。
 - 不新增大型繪圖依賴、不重寫整體狀態架構、不順手整理無關檔案。
 - 不新增 `as any` 逃避型別檢查；PLAN 中範例若含此寫法，應以適當 GeoJSON 型別或驗證取代並說明。
 

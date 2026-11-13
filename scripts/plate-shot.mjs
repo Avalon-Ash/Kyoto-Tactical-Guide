@@ -5,6 +5,7 @@
 import {spawn} from 'node:child_process';
 import {writeFileSync, mkdirSync} from 'node:fs';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 const PORT = 9377, CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const [outDir, ...jobs] = process.argv.slice(2);
@@ -12,7 +13,7 @@ mkdirSync(outDir, {recursive: true});
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const alive = async () => { try { return (await fetch(`http://127.0.0.1:${PORT}/json/version`)).ok; } catch { return false; } };
 if (!await alive()) {
-  spawn(CHROME, ['--headless=new', `--remote-debugging-port=${PORT}`, '--user-data-dir=C:/Git/Kyoto-Tactical-Guide/node_modules/.cache/chrome-profile', '--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars', '--window-size=1440,900', 'about:blank'], {detached: true, stdio: 'ignore'}).unref();
+  spawn(CHROME, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${fileURLToPath(new URL('../node_modules/.cache/chrome-profile', import.meta.url))}`, '--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars', '--window-size=1440,900', 'about:blank'], {detached: true, stdio: 'ignore'}).unref();
   for (let i = 0; i < 40 && !await alive(); i++) await sleep(250);
 }
 const target = await (await fetch(`http://127.0.0.1:${PORT}/json/new?about:blank`, {method: 'PUT'})).json();

@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const CACHE = path.join(ROOT, '.claude/ward-geo-cache');
 const OUTPUT = path.join(ROOT, 'src/data/geo/ward-boundaries.ts');
-const USER_AGENT = 'Kyoto-Tactical-Guide/1.0 (https://github.com/Avalon-Ash/Kyoto-Tactical-Guide; one-off ward boundary build)';
+const USER_AGENT = 'Kyoto-Bunko/1.0 (https://github.com/Avalon-Ash/Kyoto-Bunko; one-off ward boundary build)';
 const THRESHOLD = 0.0005; // Do not re-fetch just to change simplification.
 const equal = (a, b) => a[0] === b[0] && a[1] === b[1];
 const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);

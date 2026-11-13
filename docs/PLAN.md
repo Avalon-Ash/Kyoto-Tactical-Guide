@@ -1,4 +1,4 @@
-# Kyoto Tactical Guide — 執行計畫（2026 Q4）
+# Kyoto Bunko — 執行計畫（2026 Q4）
 
 > **目前狀態以 [交接入口](HANDOFF.md) 為準**（2026-11-09 整理）。Phase 0–3 與 Phase 4 第一批（T4.1、T4.2）、文庫首頁 T4-M1～M4c、手機 UI T4-M5 都已完成並併入 `main`；各輪細節見 `agent-runs/`。下一項是 [UI 翻新](UI_RENEWAL_PLAN.md)（規劃完成，待使用者決定）。2026-11-09 以前在本檔頂端逐輪追加的狀態橫幅已移除，原文留在 Git 歷史。
 
@@ -24,7 +24,7 @@
    - `validate_data.js` 必須輸出 `Health Check Passed`，且 **WARN 數量不得高於任務開始前**。
 3. **每個任務一個 commit**，訊息格式：`<type>(<task-id>): <摘要>`，例如 `fix(T1.1): mirror ZH tags to schema`。
    子代理不 commit；主代理取得該輪提交授權後依任務分批 commit。進度表可同次打勾，該次 commit hash 在後續紀錄補上，不反覆 amend 尋求自我引用。**不要 push**，push 由 Ash 決定。
-4. **禁止修改**（README「封閉操作」）：`src/data/tags.ts`、`src/data/types.ts`、`src/data/areas.ts`、`src/data/wards.ts`、`src/data/index.ts`、`src/types.ts`。本計畫沒有任何任務需要改它們。
+4. **禁止修改**（`docs/DEVELOPMENT.md`「封閉操作」）：`src/data/tags.ts`、`src/data/types.ts`、`src/data/areas.ts`、`src/data/wards.ts`、`src/data/index.ts`、`src/types.ts`。本計畫沒有任何任務需要改它們。
 5. 不得 commit `.claude/`、`dist/`、`node_modules/`。
 6. 同一任務驗收失敗 **兩次** → 停止，依「回報格式」回報錯誤訊息，不要自行改變計畫。
 7. 標示 **【Ash 決策】** 的項目：先看「決策點」區的決定欄；若決定欄是空的，**跳過該項**並在回報中列出。

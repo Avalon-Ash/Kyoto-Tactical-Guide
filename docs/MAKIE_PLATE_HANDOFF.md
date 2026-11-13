@@ -11,7 +11,7 @@
 ## 2. 取得程式
 
 ```powershell
-Set-Location C:\Git\Kyoto-Tactical-Guide
+Set-Location C:\Git\Kyoto-Bunko
 git fetch --prune; git status -sb; git log --oneline -5
 npm ci        # 只有 node_modules 不在或 package-lock 變了才需要
 npm run dev -- --host 127.0.0.1 --strictPort   # 3000 埠；Claude 桌面版用 preview_start {name:'dev'}
@@ -187,9 +187,9 @@ Codex 逐張看過 193 張截圖，明細在[驗收報告](agent-runs/2026-11-13
 `scripts/plate-shot.mjs`：經 DevTools 協定操作無頭 Chrome，不需要 Playwright。
 
 ```bash
-node scripts/plate-shot.mjs C:/Git/Kyoto-Tactical-Guide/.shots/<資料夾> <job> [job…]
+node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/<資料夾> <job> [job…]
 # job = 名稱:步數:主題:寬x高:倍率:fx,fy
-node scripts/plate-shot.mjs C:/Git/Kyoto-Tactical-Guide/.shots/try kita:5:night:1440x900:1:0.42,0.4 yam-zoom:3:day:1440x900:2.6:0.62,0.66 fushimi-still:4:night-still:375x812:1:0.5,0.5
+node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:1:0.42,0.4 yam-zoom:3:day:1440x900:2.6:0.62,0.66 fushimi-still:4:night-still:375x812:1:0.5,0.5
 ```
 
 - 步數：從南區按「下一函」幾次（負數按「上一函」）。**南 0、右京 1、西京 2、山科 3、伏見 4、北 5、上京 −5、左京 −4、中京 −3、東山 −2、下京 −1。**
@@ -283,7 +283,7 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Tactical-Guide/.shots/try kita:5:night:
    - 改成靜態圖退回（每區一張預先算好的圖），然後刪舊浮雕。
    - 不支援，顯示說明文字。
 3. **刪除舊程式**（決定降級策略後才做）：`geometry.js` 的場景、`landmarks.js` 的建模（地標名稱文字要保留，標題在用）、舊 `renderer.js` 的網格路徑；對應的舊測試要改寫（先 `grep -rn "landmarks\|geometry" scripts src` 列出引用）。刪除前先確認 `study.js` 的 `groundPoint`、`cameraMatrix` 等共用函式的來源。
-4. 更新 `HANDOFF.md`、`README.md` 第 35 行附近關於「原生 WebGL 簡化幾何」的說明。
+4. 更新 `HANDOFF.md`、`docs/DEVELOPMENT.md` 第 35 行附近關於「原生 WebGL 簡化幾何」的說明。
 
 ### 8.6 要使用者決定的事（不要自己定）
 
@@ -294,7 +294,7 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Tactical-Guide/.shots/try kita:5:night:
 
 ### 8.7 派工給 Codex 的做法（2026-11-13 實測）
 
-- 指令：`node "<codex-companion.mjs>" task --model gpt-6-astra --effort high --write --cwd C:/Git/Kyoto-Tactical-Guide --prompt-file <派工單>`，背景執行。腳本路徑先 glob `~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs`。派工單放在 `.claude/dispatch/`（不提交）；當天用過的三份都還在那裡，可當範本：`astra-p3b.md`（八區實作）、`astra-verify.md`（驗收）。
+- 指令：`node "<codex-companion.mjs>" task --model gpt-6-astra --effort high --write --cwd C:/Git/Kyoto-Bunko --prompt-file <派工單>`，背景執行。腳本路徑先 glob `~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs`。派工單放在 `.claude/dispatch/`（不提交）；當天用過的三份都還在那裡，可當範本：`astra-p3b.md`（八區實作）、`astra-verify.md`（驗收）。
 - **這支指令回報「完成」不可信**：Codex 提問時它會當成結束，但執行緒其實還在跑。要看 `~/.codex/sessions/<日期>/rollout-*.jsonl` 最後幾行有沒有 `"type":"task_complete"`。當天因此誤以為它停了而重派一次，兩條執行緒同時在同一個 checkout。
 - 派工單要寫「不要提問；做不了就在報告寫未驗並繼續」，並先自己檢查既有測試有沒有「舊狀態斷言」會擋路。
 - **Codex 的沙箱開不了有 GPU 的 Chrome，也跑不動 `tsx`**。要它看畫面：主代理先在沙箱外開好 dev server（3000）與無頭 Chrome（9377，跑一次 `plate-shot.mjs` 就會開），派工單叫它連這兩個埠、不要自己開；這段期間主代理不碰那個瀏覽器。`validate` 與 `src/lib` 的測試由主代理自己跑。
