@@ -589,7 +589,7 @@ export function ginkgo(id, x, z, height) {
   });
 }
 
-/** Karamon: a lifted cusped gable above an open passage. The opening is deliberately wider than the blur. */
+/** Karamon: a lifted cusped gable over closed leaves of black lacquer, between two posts. */
 export function karamon(id, cx, zBase, halfW = 66) {
   const s = halfW / 66, P = (x, h) => [cx + x * s, zBase - h * s];
   const frame = part(`${id}-frame`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, thick: 18});

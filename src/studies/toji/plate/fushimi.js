@@ -26,7 +26,7 @@ export function fushimi() {
     // The approach: stones of cut silver under the gates, so the eye climbs with them.
     ...steppingStones('sando', [[-60, 150, 7], [-22, 128, 7], [17, 112, 7], [62, 84, 6.5], [105, 53, 6.5], [146, 26, 6], [185, 4, 6], [221, -20, 5.5], [256, -43, 5.5], [288, -64, 5], [319, -87, 5]]),
     // The fox's own trail, in cut silver, from the gates to its stone.
-    ...pawPrints('trail', [[34, 126], [56, 136], [80, 142], [104, 152], [128, 158], [150, 170], [168, 184]]),
+    ...pawPrints('trail', [[34, 126], [56, 136], [80, 142], [104, 152], [128, 158], [146, 168]]),
     // Slot 1: mist and stones.
     ...suyari('mist-sky', -372, -128, -196, 15, 6),
     ...suyari('mist-gate', -372, -214, -96, 13, 12),
@@ -37,10 +37,10 @@ export function fushimi() {
     ...torii('torii', -232, 204, 1.22, {cap: true}),
     ...romon('romon', -250, 40, 62),
     ...climb(),
-    ...fox('kitsune', 196, 200, -1, 1.5),
+    ...fox('kitsune', 176, 200, -1, 1.5),
     ...pine('pine-a', -100, 214, 100, 16, 3, {clusters: 3}),
-    ...pine('pine-b', 304, 206, 112, -14, 6, {clusters: 3}),
+    ...pine('pine-b', 288, 206, 112, -14, 6, {clusters: 3}),
     // The bird sits on the crown pad of either pine: on the pad, not above its edge, or it hangs in the air.
-    ...bird('uguisu', [[-80, 126, 1, 'pine-a'], [286, 106, -1, 'pine-b']]),
+    ...bird('uguisu', [[-80, 126, 1, 'pine-a'], [270, 106, -1, 'pine-b']]),
   ];
 }
