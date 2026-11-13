@@ -71,8 +71,13 @@ export const DetailView: React.FC<DetailViewProps> = ({ engine, preferences, onP
   const titleRef = useRef<HTMLHeadingElement>(null);
   React.useEffect(() => { titleRef.current?.focus(); }, []);
   const returnToIndex = () => { closeDetail(); engine.switchMode(mode); };
+  // Escape closes the scroll as it closes the cabinet; a panel that handles Escape itself stops it first.
+  const onEscape = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Escape' || event.defaultPrevented || (event.target as HTMLElement).closest('input, textarea, select')) return;
+    returnToIndex();
+  };
   const title = activeId ? t(activeId, mode === 'ward' ? WARD_NAMES : AREA_NAMES) : '';
-  return <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={reduceMotion ? {duration:0} : undefined} className="detail-view">
+  return <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={reduceMotion ? {duration:0} : undefined} className="detail-view" onKeyDown={onEscape}>
     <header className="detail-header">
       <div className="detail-topline">
         <button type="button" className="ui-button back-button" onClick={returnToIndex}><ChevronLeft size={18} />{t('btn_back')}</button>

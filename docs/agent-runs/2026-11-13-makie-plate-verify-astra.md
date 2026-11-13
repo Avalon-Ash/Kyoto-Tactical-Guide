@@ -1,44 +1,128 @@
 # 蒔繪浮雕盤 P3 十一區驗收與程式審閱
 
-- **任務：P3 收尾驗收／部分完成。E 已完成；A–D 因獨立 Chrome 啟動失敗未驗。不能據此關閉 P3 視覺驗收。**
-- 請求模型／強度：`gpt-6-astra`／high；實際設定：**未確認**（執行工具未提供模型設定證據）。未再派子代理。
-- 工作區：`C:\Git\Kyoto-Tactical-Guide`；分支：`claude/great-brahmagupta-ye2uqt`。
-- 開工 HEAD／派工 base：`5ec606c93f7f78d222d8aa027fb045cef27e85c9`。共享工作區在執行中前進至 `4ce4713ae325aba6558401b6fdb14d0596cf3b20`；本驗收代理沒有執行任何 commit、push 或分支變更。
-- E 綁定 **2026-11-13 18:59:15 +08:00** 的來源快照，當時 HEAD 為 `4ce4713`，plate 的工作目錄 diff 為空。完整 SHA-256 位於 `.shots/verify/source-E/manifest.json`；`vocab.js` 為 `e2b9f7960926fc08a2e25d7c073b2670dc8a7f12ee7167ad402180ff26d4646d`。19:00:53 再核對，快照內全部 plate 檔與工作區一致。
-- 變更範圍：本報告、自己新增的 `.claude/dispatch/verify*.mjs`、`.shots/verify/` 下的快照與日誌。原始碼、測試與 `shot.mjs` 未修改；未安裝套件。
-- **截圖產生 0 張、實際目視 0 張。** 沒有使用其他代理的截圖代替本輪證據，沒有目視「通過」結論。
+- **任務：第二輪 A–D 驗收已執行，P3 部分完成；確認 2 個鍵盤問題，尚不能宣告全部驗收通過。** E 依本輪指示保留前輪內容，不重做。使用者告知前輪 E 已處理，以下歷史 R01–R05 不是本輪重新確認仍存在的缺陷。
+- 請求模型／強度：`gpt-6-astra`／high；實際設定：**未確認**（工具沒有提供模型設定證據）。沒有再派子代理。
+- 工作區：`C:\Git\Kyoto-Tactical-Guide`；分支：`claude/great-brahmagupta-ye2uqt`；第二輪開始與結束 HEAD／base：`554bf25693165822747a8f97bb077a085a79ee95`。
+- 依授權接用 Chrome CDP `127.0.0.1:9377`、dev server `127.0.0.1:3000`；兩埠開工均 HTTP 200。沒有啟動 Chrome／server，沒有安裝、commit、push、切分支或修改原始碼與測試。
+- GPU 實際回報：`ANGLE (AMD, AMD Radeon(TM) Graphics (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)`；WebGL2，4× MSAA。不是舊交接記載的 RTX 4070。
+- **第二輪原始截圖 193 張，實際逐張目視 193 張**；以原圖或兩張並排縮圖檢視，疑點另開原圖。截圖、JSON、來源快照及目視清單均在 `.shots/verify/round2/`；`round2-summary.json` 列出每張檔名。contact sheet 是檢視副本，不重複計入截圖數。
+- 所有截圖的 plate SHA-256 與本輪結束來源一致，差異 **0**；22 張首頁換函完成畫面的 `ward === renderedWard`，兩側鄰函 ID 對照循環順序錯誤 **0**。證據只適用此本機 HEAD，不代表 main／線上 `5ec606c`。
 
-## 十一區 × 情境總表
+## 十一區 × 本輪情境總表
 
-A1 包含 1440 暖日、375 暖日與月光；A2 包含兩個暫停光位與目視躺平；B1 包含 1440／375 換函及鄰函；B2 為開蓋中／閱讀中／關回；B3 為中日與日夜；B4 為 Tab／方向鍵／Enter／Esc；B5 為 reduced-motion。A–D 全部受 ENV01 阻擋。
+A1＝1440×900 暖日、375×812 暖日／月光；A2＝暫停雙光位；A3＝2.5 倍主角局部近觀。B1＝1440／375 完整循環、完成幀與拖曳鄰函；B2＝開蓋中／閱讀／返回合蓋；B3＝中→日→中及日夜；B4＝鍵盤；B5＝減少動態。C「通過」指沒有應用 error／exception，另有一則預期的套件提示。D「通過」指兩組取樣完成，沒有設定真機效能門檻。
 
-E 的問題格包含共用語彙的邊界輸入與註解問題，**不代表十一區目前的正常輸入都壞掉**；目前資料的數值結果另列於下。
+| 區 | A1 | A2 | A3 | B1 | B2 | B3 | B4 | B5 | C | D |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 南 | 通過 | 通過 | 通過 | 通過 | 通過 | 通過 | 有問題（V01、V02） | 通過 | 通過 | 通過 |
+| 伏見 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 東山 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 北 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 上京 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 左京 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 中京 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 下京 | 通過 | 通過 | 通過 | 通過 | 未驗 | 未驗 | 未驗 | 通過 | 通過 | 通過 |
+| 右京 | 通過 | 通過 | 通過 | 通過 | 通過 | 未驗 | 有問題（V01） | 通過 | 通過 | 通過 |
+| 西京 | 通過 | 通過 | 通過 | 通過 | 通過 | 未驗 | 有問題（V01） | 通過 | 通過 | 通過 |
+| 山科 | 通過 | 通過 | 通過 | 通過 | 通過 | 未驗 | 有問題（V01） | 通過 | 通過 | 通過 |
 
-| 區 | A1 | A2 | A3 2.5× | B1 | B2 | B3 | B4 | B5 | C console | D 幀時間 | E 程式 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 南 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R01–R04） |
-| 伏見 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R01–R04） |
-| 東山 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 北 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 上京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 左京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 中京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R05） |
-| 下京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 右京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 西京 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
-| 山科 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 未驗 | 有問題（R02–R04） |
+B2 已驗右京／西京／山科桌機與南區手機，符合「至少三區」；B3 全套在南區一次，另有伏見切日文。B4 完整 Tab 流程在南區（桌機、手機），方向鍵至右京並 Enter；西京／山科也各驗 Enter／Esc。其餘格未驗是未擴成每區全套，不把共用控制程式當逐區瀏覽器證據。B5 的平伏、雙光位與直接換函逐區完成；減動開蓋抽驗南區，另外十區的減動開蓋未驗。
 
-## 阻塞與問題清單（依處理優先度）
+## 本輪問題清單（依嚴重度）
 
-### ENV01：獨立瀏覽器無法存活；伺服器另有 watcher 錯誤
+### V01：首頁閱讀頁按 Esc 不返回文箱
 
-- 區／情境：全部／A–D；**CONFIRMED，環境阻塞，不是已確認的應用渲染 bug**。
-- 截圖：無。日誌：`.shots/verify/chrome-stderr.log`、`environment.log`。
-- 第一次透過 Node spawn 啟動獨立 profile／9378，約 10 秒後仍無可連線 CDP，腳本 exit 1：`Independent Chrome 9378 unavailable`。
-- 第二次以 `Start-Process -WindowStyle Hidden` 啟動同樣的 Chrome，增加 stderr 記錄。日誌短暫出現 DevTools listening，隨後 GPU 子行程崩潰 9 次，Chrome 結束。未完成任何頁面導航。
-- 同時，自己的 3100 Vite 程序因監看 `.shots/verify/chrome-profile/Default/Network/Cookies` 發生 `EBUSY`，exit 1。不是以 build 或資料檢查推測瀏覽器正常。
-- 建議接續驗收時先確認執行環境能啟動有 GPU 的獨立 Chrome；profile 可置於已忽略的 `.claude/dispatch/` 子目錄，或由主代理另行調整 watcher 排除 profile。需先核對實際 watcher 設定；本輪不改 Vite 設定。
-- 依「同一情境失敗兩次」停止 Chrome 重試；沒有碰 3000、9377，沒有降低權限限制或改用他人的瀏覽器。
+- **CONFIRMED／功能，中優先度**。實際區：右京、西京、山科（1440），南（375；一般及 reduced-motion）。
+- 重現：首頁聚焦文箱 → Enter → 等候閱讀頁完成 → Esc → 等待 0.5–0.9 秒。畫面仍停在相同 DetailView，`#scene` 已不存在；按左上返回鈕才回到同區合蓋文箱。
+- 截圖：`B-{ukyo,nishikyo,yamashina}-reading.png`、`B-*-after-escape.png`、`B-*-returned.png`；`P-mobile-reading.png`、`P-mobile-escape.png`、`P-mobile-returned.png`；`B-reduced-after-escape.png`。
+- 位置：`src/components/DetailView.tsx:71` 的返回處理與 `:73` 的根元素；`src/components/HomeView.tsx:73` 開卷改入 DetailView；`src/studies/toji/study.js:262` 的 Esc 只屬文箱生命週期，不能接管已卸載後的閱讀頁。
+- 建議：在 DetailView 的鍵盤處理將 Escape 導向同一個返回函式，並在返回首頁後恢復文箱焦點；避免與地圖／標籤子面板的 Escape 冒泡衝突。這是建議，沒有實作。
+
+### V02：文箱有焦點，但焦點外框被裁掉
+
+- **CONFIRMED／可及性，中優先度**。南區 1440 與 375；共用 CSS 可疑影響全部區，其他區不宣稱逐一完成 Tab 目視。
+- 重現：重新載入首頁，Tab 七次到 `#scene`。`document.activeElement.id === "scene"`、`:focus-visible === true`，computed outline 為金色 2px，offset 4px；畫面沒有包住舞台的可見焦點外框。拖動文箱後，移入舞台內的那一邊金框才看得到。
+- 截圖：`B-keyboard-tab.png`、`P-mobile-focus.png`；對照 `B-minami-1440-neighbour.png`。逐 Tab 的控制項與 outline 紀錄在 `Bextra-results.json`；手機 computed style 在 `Bmore-results.json`。
+- 位置：`src/studies/toji/bunko.css:7` 設正 outline-offset；`:11` 的 stage 為 overflow:hidden；`:12` 的 canvas 佔滿舞台。
+- 建議：文箱使用內縮的 focus-visible 外框（例如負 offset），或舞台內獨立的焦點提示；保留換函時必要的裁切，不宜直接全域關閉 overflow:hidden。
+
+## 畫面與操作觀察
+
+- A1：十一區均為盤，手機暖日／月光下文字與控制項沒有壓住文箱。桌機暖日全景沒有觀察到持續的部品互穿或錯區殘留。
+- A2：採 `F-<ward>-still-left/right.png` 為正式雙光位證據；22 張均 `still=true`。屋宇、樹、鳥居等部品平伏，兩張高光分別位於左／右，地子與材質仍回應指標。`dataset.lift=0.820` 是文箱姿態參數，不能誤讀為部品 lift 未歸零。
+- 第一批 `A-*-still-*` 除南區外，高光差異不足以判定通過；固定 1440、移出後重新進入畫布並記錄 pointermove 的 F 補驗通過。原批保留，沒有刪除失敗證據；尺寸切換與輸入路由差異的根因未定位，不憑這個差異報成應用 bug。
+- A3：正式近觀為 `F-<ward>-zoom25.png`，11 張 `zoom=2.500`，對準各區主角：南五重塔、伏見樓門與鳥居、東山舞台、北金閣、上京紫宸殿、左京觀音殿、中京唐門、下京雙堂、西京書院與月見台、右京大方丈、山科山門與本殿。局部近觀會裁去主角邊緣或配景，不是完整建築立面圖。
+- 已見的鶯與載體之間沒有明顯懸空間隙；樹腳、堂身與投影沒有看到明顯分離。平嵌落葉／花瓣／果實／足跡／月與燈光碎片在全景或近觀中可見。這是所捕捉姿態的目視結論，沒有把低解析的小鳥或未取樣的動態中間幀判定為完整幾何驗證。
+- B1：兩種寬度共 22 張完成幀＋22 張左拖鄰函幀。右側可見鄰函外觀與下一區一致；兩側 DOM 快照 ID 均正確，完成後沒有留住鄰函／舊區的殘影。靜止時兩側 opacity=0 符合目前程式；不是要求三個完整盒子永遠同時可見。沒有逐幀錄影，因此不對所有瞬間閃爍／跳動下零缺陷結論。
+- B2：三個桌機開蓋截圖 opening 約 0.46–0.50，南區手機約 0.37；盒蓋與內部有分離、卷軸可見，進閱讀頁後按返回能回同區。Esc 問題另見 V01。
+- B3：南區中→日→中後文字與 `html.lang` 同步（ja／zh-Hant），日夜切換後 `data-theme=light` 且畫面轉暖日。截圖 `P-language-ja/zh.png`、`P-theme-day.png`。
+- B5：375 模擬 reduce，十一區雙光位均 `still=true`，`autoplay=false`、idlePhase=0，部品平伏而光位改變。十一個方向鍵換函返回時皆已換到新區且 closed，`getAnimations().length=0`；包含烘焙與 CDP 的觀測延遲 67–119 ms，不是動畫時長。南區 Enter 後 26 ms 的觀測即有 DetailView，沒有保留開蓋動畫。減動閱讀頁 Esc 同樣無效。
+
+## C：console 錯誤與警告
+
+全程在導航前訂閱 `Runtime.consoleAPICalled`、`Runtime.exceptionThrown`、`Log.entryAdded`。第二輪 **應用 console error 0、未捕捉例外 0、warning 1**。唯一警告發生於首次載入 reduce 首頁（南區），原文：
+
+```text
+You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled
+```
+
+來源是 motion/react 的 `useReducedMotion` 開發提示，記錄在 `Breduced-results.json`，不是 WebGL 失敗。其餘 probe／A／B／Bextra／F／Bmore／D 的 logs 為空。
+
+測試腳本 Bextra 曾因日文語系鈕 selector 寫錯而 exit 1（null.click）；這是驗收腳本錯誤，沒有算入應用 console。已以 DOM 中確認的共用工具鈕，在 Bmore 完成中日往返與日夜補驗。沒有重跑已成功的三區開蓋。
+
+## D：效能表與方法
+
+**無頭桌面 Chrome 的參考值，不代表手機真機、iOS Safari 或 GPU 完成時間。** 同一 AMD／D3D11 環境，展示頁預設月光；1440×900 DPR 1、375×812 DPR 2，`mobile:false`。每區暖機 750 ms 後，CDP 約每 32 ms 沿橢圓移動滑鼠約 5.15 秒；rAF 自頁內取約 5 秒 timestamp 差，列算術平均／最大／p95。含瀏覽器排程與 CDP 負載；沒有真機性能合格線，也沒有與上一版比較。
+
+| 區 | 1440 樣本 | 1440 平均／最差／p95 ms | 375 樣本 | 375 平均／最差／p95 ms |
+|---|---:|---|---:|---|
+| 南 | 284 | 17.61 / 18.60 / 18.10 | 285 | 17.52 / 18.60 / 18.10 |
+| 伏見 | 283 | 17.68 / 18.60 / 18.10 | 284 | 17.58 / 18.60 / 18.10 |
+| 東山 | 284 | 17.58 / 18.50 / 18.10 | 285 | 17.59 / 18.60 / 18.10 |
+| 北 | 284 | 17.62 / 18.60 / 18.10 | 285 | 17.56 / 18.60 / 18.10 |
+| 上京 | 284 | 17.58 / 18.60 / 18.10 | 285 | 17.56 / 18.60 / 18.10 |
+| 左京 | 285 | 17.54 / 18.50 / 18.10 | 284 | 17.57 / 18.60 / 18.10 |
+| 中京 | 285 | 17.59 / 18.50 / 18.10 | 285 | 17.54 / 18.50 / 18.10 |
+| 下京 | 284 | 17.56 / 18.50 / 18.10 | 284 | 17.56 / 18.60 / 18.10 |
+| 右京 | 284 | 17.60 / 18.70 / 18.10 | 282 | 17.67 / 18.60 / 18.10 |
+| 西京 | 285 | 17.56 / 18.60 / 18.10 | 284 | 17.56 / 18.70 / 18.10 |
+| 山科 | 284 | 17.61 / 18.50 / 18.10 | 284 | 17.58 / 18.60 / 18.10 |
+
+原始 22 組數值與實際期間見 `D-results.json`、`D-run.log`。沒有以這張表宣稱「手機流暢」。
+
+## 腳本、指令與證據
+
+第二輪自行新增的腳本均在不提交的 `.claude/dispatch/`，原 `shot.mjs`、`verify.mjs` 沒有修改。下列瀏覽器腳本只建立自己的 CDP 分頁，finally 關閉該分頁，保留主代理提供的瀏覽器與 server。
+
+| 指令 | 退出碼／產物 |
+|---|---|
+| `curl.exe --max-time 8 -sS -o NUL -w ... http://127.0.0.1:9377/json/version`；同樣檢查 3000 | 0；兩個 HTTP 200 |
+| `node .claude/dispatch/verify-round2.mjs probe` | 0；2 張、DOM／GPU 記錄 |
+| `node .claude/dispatch/verify-round2.mjs A` | 0；66 張；每區一組情境，完成各組後繼續下一區 |
+| `node .claude/dispatch/verify-round2-b.mjs B` | 0；44 張，桌機／手機十一區 |
+| `node .claude/dispatch/verify-round2-b.mjs Bextra` | 1；15 張成功保存；三區開蓋／Esc 已驗，語系往返因腳本 selector 中止 |
+| `node .claude/dispatch/verify-round2-focus.mjs F` | 0；33 張，固定尺寸補驗雙光位與主角近觀 |
+| `node .claude/dispatch/verify-round2-b.mjs Breduced` | 0；25 張，十一區減動＋南區開卷 |
+| `node .claude/dispatch/verify-round2-more.mjs Bmore` | 0；8 張，語系／主題補驗與南區手機鍵盤／開蓋 |
+| `node .claude/dispatch/verify-round2.mjs D` | 0；22 組 rAF |
+| `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/dispatch/verify-sheets.ps1 -Prefix ... [-RecordMode ...]` | 0；System.Drawing 產生兩張並排檢視圖，原始 PNG 保留 |
+| `node .claude/dispatch/verify-round2-summary.mjs` | 0；逐圖狀態、來源 hash、鄰函 ID 斷言與目視清單 |
+| `node .claude/dispatch/verify-report-round2.mjs` | 0；保留原 E、更新本報告，保留原 LF |
+| `git -c safe.directory=C:/Git/Kyoto-Tactical-Guide diff --check`、`status --short` | 文件／diff 範圍檢查；沒有修改全域 safe.directory |
+| lint／test／build／validate | 依指示不執行；本輪未改原始碼／測試 |
+
+## 未驗項與交接
+
+- 未驗：上表明列的其他區 B2／B3／完整 B4；B5 的另外十區減動開蓋。原因：依本輪指定「至少三區／各一次」採代表情境，沒有聲稱全部組合都跑過。
+- 未驗：換函每一個中間幀、全部光位下的微小穿插／鳥腳高度、最大倍率逐幀閃爍；本輪使用指定完成幀、拖曳幀與局部近觀，沒有逐幀影片。
+- 未驗：線上 main／部署版、實體手機觸控／實際幀率、iOS Safari、沒有 WebGL2 的降級。本輪指定的是現有本機 Chrome／3000，不能拿桌面 viewport 代替真機。
+- E 新 HEAD 重審未做，依使用者「E 已完成並已處理，這輪不要重做」；下一節完整保留原 E，時間／行號屬其舊快照。
+- 第二輪沒有啟動或終止 Chrome／dev server，只關閉自己的驗收分頁；所有原始碼差異為 0。交接給主代理審 V01／V02；沒有自行修 bug，沒有 commit／push。
+- 前輪 ENV01（獨立 GPU Chrome 啟動崩潰／3100 watcher EBUSY）已不阻擋本輪。完整前輪報告保留於 `.shots/verify/round2/report-before-round2.md`，前輪環境日誌仍留原路徑。
+
+## E：前輪原文保留（本輪未重審）
+
+前輪 E 綁定 **2026-11-13 18:59:15 +08:00**、HEAD `4ce4713` 的來源快照；完整 SHA-256 在 `.shots/verify/source-E/manifest.json`。`vocab.js` 為 `e2b9f7960926fc08a2e25d7c073b2670dc8a7f12ee7167ad402180ff26d4646d`。以下原文保留；使用者告知已處理，本輪不以舊問題狀態覆蓋修復結果。
 
 ### R01：南區、伏見的外側松葉超出可烘焙盤面
 
@@ -116,86 +200,3 @@ E 的問題格包含共用語彙的邊界輸入與註解問題，**不代表十�
 - **暫停數值補查**：每區先跑 120 次 1/60 秒的 `createLife.update` 喚醒，再傳 `still:true`。所有部品的 sway、stand、dx、dz、lift 都為 0（`stillNonzero=[]`）。這不是 DOM 的 `dataset.still` 斷言，也不是視覺躺平驗收，因此 A2／B5 仍填未驗。
 - **重複程式，可選整理**：`vocab.js:287`–`305` 與 `:412`–`418` 都有 spine、漸細樹幹多邊形與樹皮線的組裝；可抽純幾何的幹形 helper，保留 broadleaf／pine 各自的採樣、樹冠與 seed。`nishikyo.js:19`–`21`、`sakyo.js:21`–`23`、`nakagyo.js:16`–`18` 等重複松樹＋兩棲點搭配，可將棲點與載體放在同一構圖描述中，減少未來移樹漏移鶯；不要把不同區的構圖強制共用固定座標。這是維護建議，不是缺陷，也未實作。
 - **最新美術變更**：快照的 `moonDeck` 已是 layer 0／`KIND.still`（`vocab.js:500`–`509`），沒有沿用較早讀取時「月見台會立起」的判斷。共享工作區更新照常接受，證據以快照為準。
-
-## C：console 與環境日誌
-
-**頁面 console 未驗，不能記為 error 0／warning 0。** Chrome 未存活到 Runtime 訂閱與頁面導航；下列是瀏覽器程序 stderr，不冒充 JavaScript console。
-
-第二次啟動的原始英文訊息摘錄（完整內容含時間、PID 與本機系統訊息，保留於 `chrome-stderr.log`）：
-
-```text
-Encryption is not available.
-GPU process exited unexpectedly: exit_code=-1073741790
-The GPU process has crashed 1 time(s)
-The GPU process has crashed 9 time(s)
-GPU process isn't usable. Goodbye.
-```
-
-另有 `Failed to encrypt`、Google Update 登錄鍵存取失敗、DawnGraphiteCache 開檔失敗、`Error observing HKCU`、`Failed to create IAppCapability`、`Unexpected variant type: 4127`。全部發生於啟動 `about:blank`，沒有任何一區的應用情境可歸因。
-
-Vite exec session `32887` 的原始主要錯誤：
-
-```text
-Error: EBUSY: resource busy or locked, watch 'C:\Git\Kyoto-Tactical-Guide\.shots\verify\chrome-profile\Default\Network\Cookies'
-errno: -4082
-syscall: 'watch'
-```
-
-## D：效能表與方法
-
-無頭 Chrome 的幀時間只能作參考，不能代表手機真機或 iOS Safari。本輪沒有可用數值。
-
-| 區 | 1440 平均／最差 ms | 375 平均／最差 ms |
-|---|---|---|
-| 南 | 未驗 | 未驗 |
-| 伏見 | 未驗 | 未驗 |
-| 東山 | 未驗 | 未驗 |
-| 北 | 未驗 | 未驗 |
-| 上京 | 未驗 | 未驗 |
-| 左京 | 未驗 | 未驗 |
-| 中京 | 未驗 | 未驗 |
-| 下京 | 未驗 | 未驗 |
-| 右京 | 未驗 | 未驗 |
-| 西京 | 未驗 | 未驗 |
-| 山科 | 未驗 | 未驗 |
-
-已編寫、**未成功執行**的 `verify.mjs D` 方法：各區暖機後，以 CDP mouseMoved 沿橢圓路徑移動指標約 5 秒，同步收集 rAF timestamp 差，輸出樣本數、實際期間、算術平均、最大與 p95；1440×900 DPR 1、375×812 DPR 2，均為桌面 Chrome viewport 模擬，不是觸控裝置。rAF callback 間隔不等於 GPU 完成時間；主代理同時作業也可能影響數字。
-
-## 腳本、指令與退出狀態
-
-| 指令／動作 | 結果與證據 |
-|---|---|
-| `git -c safe.directory=C:/Git/Kyoto-Tactical-Guide status --short`、`branch --show-current`、`rev-parse HEAD` | 成功，只讀；以單次 `-c` 處理執行帳號 ownership，不改全域 Git 設定 |
-| `npm run dev -- --host 127.0.0.1 --port 3100 --strictPort` | exit 1，PowerShell 禁止執行 npm.ps1；改用 npm.cmd |
-| `npm.cmd run dev -- --host 127.0.0.1 --port 3100 --strictPort` | 曾成功啟動；後因上述 EBUSY exit 1，session 32887 |
-| `Copy-Item .claude/dispatch/shot.mjs .claude/dispatch/verify.mjs`，再擴充新副本 | 完成；原始 `shot.mjs` 未修改 |
-| `node .claude/dispatch/verify.mjs probe` | exit 1；Chrome 第一次啟動失敗，session 16273 |
-| `Start-Process ...chrome.exe -WindowStyle Hidden ...` | 診斷 wrapper exit 0，只代表命令完成；Chrome 第二次仍崩潰，詳見 stderr。未取得可靠的 Chrome 主程序退出碼，不把 wrapper 0 當成功 |
-| `node .claude/dispatch/verify-audit.mjs` | exit 0；`E-audit.json`、`E-audit.log`、`source-E/`、`source-E.diff`。數值 findings 見上表；不是 lint／資料 validator 的 ERROR/WARN |
-| `node .claude/dispatch/verify-finish.mjs` | exit 0；`completion-evidence.json` 記錄來源比對、總數、PNG 數與程序／埠清理結果 |
-| lint／test／build／validate | 依派工單不執行；未改應用或測試，不能引用前一輪結果當本輪成功 |
-
-Chrome 第二次的實際參數：
-
-```text
-C:/Program Files/Google/Chrome/Application/chrome.exe
---headless=new
---remote-debugging-port=9378
---user-data-dir=C:/Git/Kyoto-Tactical-Guide/.shots/verify/chrome-profile
---use-angle=d3d11 --enable-gpu --ignore-gpu-blocklist
---hide-scrollbars --window-size=1440,900 --enable-logging=stderr about:blank
-```
-
-`verify.mjs` 目前包含 probe、A、D 與 Bprobe 草稿；因啟動阻塞，A／D 與 Bprobe 都沒有執行，完整 B 流程未擴充。近觀草稿預設畫布中央，尚未逐區校正主角位置，接續時不能直接把它的輸出當作 A3 合格證據。
-
-## 未驗項、清理與交接
-
-- A：全部 11 區的暖日桌機、暖日／月光手機、暫停雙光位、2.5 倍主角近觀，均未驗。
-- B：兩種寬度的完整換函圈、鄰函快照、至少三區開關蓋、語系與日夜、鍵盤焦點、reduced-motion 均未驗。
-- C：頁面 console 未收集；僅保存 Chrome／Vite 的環境錯誤。
-- D：22 組 5 秒量測全部未驗。
-- 陰影是否貼根、部品動態穿插、鶯的實際高度、平嵌意象遮擋、手機控制項壓箱、暫停是否仍立著：全數未目視，沒有「應該沒問題」的結論。
-- 線上部署版、真機觸控、iOS Safari、無 WebGL2 降級也未驗。指定本輪網址是自己的本機 3100，本輪不聲稱驗過線上版本。
-- 已確認自己啟動的 Chrome PID `39752`、`29684` 不存在，3100／9378 無 listening socket；Vite session 已回報結束。未終止其他 Chrome 或其他代理程序。profile 與診斷資料保留在允許的 `.shots/verify/`。
-- 資料來源為本機程式、指定交接文件與本輪執行日誌；沒有旅遊資料新增或事實查核需求。
-- 交接：E 審閱完成；A–D 需要在可啟動獨立 GPU Chrome 的環境續驗。本驗收代理未 commit／push，所有問題僅列報告，未修原始碼。

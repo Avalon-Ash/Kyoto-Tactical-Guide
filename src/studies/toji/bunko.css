@@ -5,6 +5,8 @@
 .bunko button { font:inherit; cursor:pointer; color:inherit; background:none; border:1px solid transparent; min-height:44px; padding:10px 16px; border-radius:2px; touch-action:manipulation; }
 .bunko button:hover { background:var(--entry-selected); }
 .bunko button:focus-visible, .bunko canvas:focus-visible, .bunko a:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+/* The stage clips what lies outside it, so the cabinet's own ring is drawn inside its edge. */
+.bunko canvas:focus-visible { outline-offset:-6px; }
 .bunko button[aria-pressed=true] { border-color:var(--gold); background:var(--entry-selected); }
 .bunko button:disabled { opacity:.5; cursor:default; }
 
