@@ -112,8 +112,11 @@ test('a flat lid and reduced motion', () => {
   const first = Array.from(a.a), firstB = Array.from(a.b);
   const b = still.update(1 / 60, {time: 5000, light: leaf.centre, presence: 1, still: true, lift: 1});
   assert.equal(b.a[leaf.index * 4], 0, 'no sway');
-  assert.equal(b.a[leaf.index * 4 + 1], first[leaf.index * 4 + 1], 'the pose holds');
-  assert.ok(b.a[leaf.index * 4 + 1] > .4, 'but the volume is kept');
+  for (const p of parts) {
+    assert.equal(b.a[p.index * 4 + 1], 0, `${p.id} does not stand`);
+    assert.equal(b.b[p.index * 4 + 2], 0, `${p.id} does not float`);
+  }
+  assert.ok(b.a[leaf.index * 4 + 2] > first[roof.index * 4 + 2], 'the part under the light still wakes more than one far from it');
   assert.deepEqual(Array.from(b.b), firstB, 'nothing travels');
 });
 

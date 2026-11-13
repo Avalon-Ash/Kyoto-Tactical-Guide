@@ -75,7 +75,7 @@ export function createRenderer(canvas, wardId) {
       const u = prog.uniform, quiet = f.flat || f.still;
       gl.uniformMatrix4fv(u.camera, false, matrix); gl.uniformMatrix4fv(u.lightMatrix, false, lightMatrix);
       gl.uniform1f(u.opening, f.opening * f.opening * (3 - 2 * f.opening));
-      gl.uniform2f(u.pointer, quiet ? 0 : f.px, quiet ? 0 : f.py); gl.uniform1f(u.lift, f.lift); gl.uniform1f(u.time, f.time / 1000);
+      gl.uniform2f(u.pointer, f.flat ? 0 : f.px, f.flat ? 0 : f.py); gl.uniform1f(u.lift, f.lift); gl.uniform1f(u.time, f.time / 1000);
       gl.uniform1f(u.moving, f.moving && !quiet ? 1 : 0);
     }
     return {

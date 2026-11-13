@@ -157,9 +157,10 @@ export function createLife(parts) {
       }
       const stand = (STAND_REST + (1 - STAND_REST) * up) * body;
       if (still) {
-        // Reduced motion keeps the light, the materials and the volume; nothing travels, swings or unfolds.
-        s.wake.x = wake; s.stand.x = .6 * body; s.wake.v = s.stand.v = 0;
-        s.dx.x = s.dz.x = s.sway.x = 0; s.dx.v = s.dz.v = s.sway.v = s.lift.v = 0; s.lift.x = p.kind === KIND.mist ? 8 : 0;
+        // Motion off: the picture lies in the lid. Nothing stands, floats, travels or swings; the light still
+        // moves over it and each material still answers the light.
+        s.wake.x = wake; s.stand.x = 0; s.wake.v = s.stand.v = 0;
+        s.dx.x = s.dz.x = s.sway.x = s.lift.x = 0; s.dx.v = s.dz.v = s.sway.v = s.lift.v = 0;
         stepSpring(s.glow, 0, 2.2, dt);
       } else {
         stepSpring(s.wake, wake, wake > s.wake.x ? 7 : 2.6, dt);   // quick to wake, about half a second to sink back

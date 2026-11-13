@@ -314,7 +314,7 @@ export function createPlateRenderer(gl, canvas) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     const packed = new Float32Array(60);
-    f.trails.forEach((p, i) => packed.set([p.x, p.z, trailIntensity(p.time, f.time, f.still)], i * 3));
+    f.trails.forEach((p, i) => packed.set([p.x, p.z, trailIntensity(p.time, f.time)], i * 3));
     const opening = f.opening * f.opening * (3 - 2 * f.opening);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.fine);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D_ARRAY, plate.soft);

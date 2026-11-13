@@ -193,7 +193,8 @@ function tick(time){
   const target=flat?.025:still()?.82:autoPlaying?.88+Math.sin(idlePhase*.7)*.12:(hover||demoStart||bookState==='switching')?1:options.embedded?.88:.55;
   const ease=1-Math.exp(-dt/170);
   lift=still()?target:lift+(target-lift)*ease;
-  px=still()?0:px+(tx-px)*ease;py=still()?0:py+(ty-py)*ease;
+  // Motion off stops what moves by itself. The light is the hand's own and keeps following it.
+  px+=(tx-px)*ease;py+=(ty-py)*ease;
   if(Math.abs(target-lift)<.0005)lift=target;
   if(Math.abs(tx-px)<.0005)px=tx;if(Math.abs(ty-py)<.0005)py=ty;
   if(!pinch&&!gesture?.panning){
@@ -203,15 +204,15 @@ function tick(time){
     if(Math.abs(zoomTarget-zoom)<.0005)zoom=zoomTarget;if(Math.abs(panTX-panX)<.05)panX=panTX;if(Math.abs(panTY-panY)<.05)panY=panTY;
   }
   syncZoomUi();
-  trails=still()?[]:trails.filter(p=>trailIntensity(p.time,time)>0);
+  trails=trails.filter(p=>trailIntensity(p.time,time)>0);
   render(time,Boolean(autoPlaying||demoStart||trails.length));
   canvas.dataset.autoplay=String(autoPlaying);canvas.dataset.idlePhase=idlePhase.toFixed(3);
   canvas.dataset.bookState=bookState;canvas.dataset.opening=bookProgress.toFixed(3);
   canvas.dataset.mode=flat?'flat':'relief';canvas.dataset.lift=lift.toFixed(3);canvas.dataset.trails=String(trails.length);canvas.dataset.still=String(still());canvas.dataset.zoom=zoom.toFixed(3);canvas.dataset.pan=`${panX.toFixed(1)},${panY.toFixed(1)}`;
-  if(zoom!==zoomTarget||panX!==panTX||panY!==panTY||bookProgress!==bookTarget||bookState==='unrolling'||demoStart||trails.length||(!still()&&(lift!==target||px!==tx||py!==ty))||(options.embedded&&!still()&&bookState==='closed'))schedule();
+  if(zoom!==zoomTarget||panX!==panTX||panY!==panTY||bookProgress!==bookTarget||bookState==='unrolling'||demoStart||trails.length||lift!==target||px!==tx||py!==ty||(options.embedded&&!still()&&bookState==='closed'))schedule();
 }
 function addTrail(x,y,time=performance.now()){
-  if(still()||flat||bookState!=='closed'||!projection)return;
+  if(flat||bookState!=='closed'||!projection)return;
   const [wx,wz]=groundPoint(projection,x,-y);
   if(Math.abs(wx)>364||Math.abs(wz)>234)return;
   const previous=trails.at(-1);
