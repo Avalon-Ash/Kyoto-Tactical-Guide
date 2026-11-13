@@ -1,12 +1,12 @@
 # 蒔繪浮雕盤・交接
 
-更新：2026-11-13 深夜（P3 完成並部署）。接手者先讀 `../AGENTS.md`、`HANDOFF.md`，再讀本檔。本檔只講首頁文箱改畫為蒔繪浮雕盤這條工作線。**接手要做什麼，直接看 §8。**
+更新：2026-11-13 深夜（P3 部署後，W1–W4 完成，未 push）。接手者先讀 `../AGENTS.md`、`HANDOFF.md`，再讀本檔。本檔只講首頁文箱改畫為蒔繪浮雕盤這條工作線。**接手要做什麼，直接看 §8。**
 
-逐輪紀錄（由舊到新）：[雲端 P0–P1](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[本機接續](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間（造形修整與修正）](agent-runs/2026-11-13-makie-plate-p3d.md)。
+逐輪紀錄（由舊到新）：[雲端 P0–P1](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[本機接續](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間（造形修整與修正）](agent-runs/2026-11-13-makie-plate-p3d.md)、[W2（Codex）](agent-runs/2026-11-13-makie-plate-w2-astra.md)、[W2 第二輪（Codex）](agent-runs/2026-11-13-makie-plate-w2b-astra.md)、[W3（agy）](agent-runs/2026-11-13-makie-plate-w3-agy.md)、[W4 補驗（agy）](agent-runs/2026-11-13-makie-plate-w4-agy.md)。
 
 ## 1. 現況一句話
 
-**十一區都已是 WebGL2 浮雕盤，已併入 `main` 並部署到 GitHub Pages**（2026-11-13，使用者分別同意合併與 push）。P0–P3 完成。使用者確認「形意方向對」。剩下的是：使用者看線上版與真機後的回饋、蒔自己還不滿意的幾處造形、未驗的情境，以及尚未開始的 P4（效能、降級、刪舊浮雕）。沒有 WebGL2 的裝置仍走舊的浮雕網格。
+**十一區都已是 WebGL2 浮雕盤，已併入 `main` 並部署到 GitHub Pages**（2026-11-13，使用者分別同意合併與 push）。P0–P3 完成。使用者確認「形意方向對」。之後（同日深夜）：W1 使用者回報效能與視覺沒有意見；W2 造形精進兩輪、W3 輸入防呆、W4 補驗與它抓到的換函空白（W4-01）都已 commit 在工作分支（`4a9058e`、`ac06b40`、`766a43a`、`be8cd16`），**尚未合併 `main`、尚未 push**。剩下的是 §8.0a 的待辦與尚未開始的 P4（效能、降級、刪舊浮雕）。沒有 WebGL2 的裝置仍走舊的浮雕網格。
 
 ## 2. 取得程式
 
@@ -19,7 +19,7 @@ npm run dev -- --host 127.0.0.1 --strictPort   # 3000 埠；Claude 桌面版用 
 
 | 項目 | 值 |
 |---|---|
-| 分支 | `main` 與 `claude/great-brahmagupta-ye2uqt` 在交接當下是同一個 commit，都已 push。後續工作在後者或新分支上做；**合併進 `main`、push 各自要使用者同意，分開問** |
+| 分支 | `claude/great-brahmagupta-ye2uqt` 比 `main` 多 W1–W4 的四個 commit 與本檔更新（未 push）。後續工作在後者或新分支上做；**合併進 `main`、push 各自要使用者同意，分開問** |
 | 線上版 | GitHub Pages，由 `.github/workflows/deploy.yml` 在 `main` 被 push 後自動部署；`gh run list --branch main --limit 1` 看結果 |
 | 預覽 | 首頁 `/`（嵌入模式：三函同框、拖曳換函、閒置巡光）；獨立展示頁 `/toji-study/index.html`（有日夜、暫停、換函按鈕，截圖用這頁） |
 | 交接當下的 HEAD | 以 `git log -1` 為準；本檔所在的 commit 就是交接點 |
@@ -173,13 +173,19 @@ Codex 逐張看過 193 張截圖，明細在[驗收報告](agent-runs/2026-11-13
 - 幀時間：每區平均約 17.6 ms、最差約 18.6 ms（1440 與 375 相同）。**這是桌面無頭 Chrome 的參考值，不代表手機。**
 - 主代理另外看過十一區的 1440 月光全景與若干近觀，並用實際按鍵驗過「Enter 進閱讀頁、Esc 回同一區、焦點回文箱」。
 
+### 已驗（W4，agy Hydrogen，2026-11-13，`9b2c31b`；明細見 W4 報告）
+
+- 首頁鍵盤開蓋、閱讀、Esc 返回：伏見、東山、北、上京、左京、中京、下京七區都回到同一區、焦點回文箱。
+- 減少動態下十一區開蓋與 Esc：直接切換、部品躺平。
+- 文箱焦點框（1440 與 375）：金框完整在舞台內側。
+- 沒有 WebGL2：十一區都退回舊浮雕、`plate` 為 `false`、無錯誤。連 WebGL 都沒有：顯示 `bunko_failed` 文字、無例外。
+- 拖曳換函（南→右京）：抓到 W4-01（放手後文箱滑離滑鼠觸發 `pointerleave`，把軌道拉回，鄰函消失約半秒），`4a9058e` 修好並重拍確認。
+
 ### 未驗
 
 - 線上版本身、實體手機觸控與幀率、iOS Safari。
-- 沒有 WebGL2 的退回路徑（做法見 §8 的 W4）。
-- 換函與開蓋的每個中間幀；最大倍率下逐幀閃爍。
-- 伏見、東山、北、上京、左京、中京、下京的開蓋與完整鍵盤流程；十區在減少動態下的開蓋。
-- 文箱焦點框改到內側後的實際樣子（只確認了 `outline-offset: -6px` 生效，沒截圖）。
+- 換函只驗了南→右京一個方向，取樣間隔約 0.4 秒；開蓋中間幀；最大倍率下逐幀閃爍。
+- W2 之後十一區鶯的第二棲點逐點近觀（Codex 的點選工具在部分區取不到棲點）；W2 之後的手機寬度全區複查。
 - 修整後的造形在手機寬度與暖日下的樣子（Codex 的 193 張是在 `554bf25` 拍的，涵蓋了這些修整；主代理自己只看了 1440 月光）。
 
 ### 截圖工具
@@ -207,6 +213,23 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 - `scripts/shots.mjs` 是舊的 Playwright 版，專案沒裝 Playwright，從未產生過截圖。
 
 ## 8. 接手計畫（給下一位主代理）
+
+### 8.0a 進度（2026-11-13 深夜）
+
+| 工作 | 狀態 |
+|---|---|
+| W1 | 使用者：效能還好、視覺沒有太大意見。完成 |
+| W2 | 兩輪（Codex Astra high）＋主代理收尾，`ac06b40`、`be8cd16`。§8.2 表格是當時的待修清單，保留作紀錄 |
+| W3 | agy Hydrogen，`766a43a`；十一區未觸發新檢查，烘焙不變 |
+| W4 | agy Hydrogen，結果見 §7；W4-01 修正 `4a9058e` |
+| W5（P4） | 未開始，動手前要使用者同意；使用者說目前效能還好 |
+
+蒔看完兩輪 W2 後仍不滿意、下一輪可做的（依影響排）：
+
+1. 闊葉樹立起時像一塊立著的切板（正面平、樹幹短）；可讓樹冠中央更鼓、樹幹再長一點。
+2. 左京的月改為平嵌在向月台前方的地子上（Codex 試過台頂，斜視下不成立）。**使用者還沒看過，要給他看再定**（§8.6）。
+3. 松在全景像傘或蘑菇（北區最明顯）；松屬既有語言，動之前先問使用者。
+4. 霞在某些角度像平的金色長條；狐尾仍厚、坐姿偏雕像；山科燈籠全景仍短粗。
 
 ### 8.0 開工流程
 
@@ -299,7 +322,9 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 - 派工單要寫「不要提問；做不了就在報告寫未驗並繼續」，並先自己檢查既有測試有沒有「舊狀態斷言」會擋路。
 - **Codex 的沙箱開不了有 GPU 的 Chrome，也跑不動 `tsx`**。要它看畫面：主代理先在沙箱外開好 dev server（3000）與無頭 Chrome（9377，跑一次 `plate-shot.mjs` 就會開），派工單叫它連這兩個埠、不要自己開；這段期間主代理不碰那個瀏覽器。`validate` 與 `src/lib` 的測試由主代理自己跑。
 - 它構圖與看圖的能力好、回報誠實（做不到的都寫未驗）；主代理仍要自己重跑四項檢查、自己看截圖，不能只信報告。
-- agy（Gemini）的派法見 §10。全域規則：外派額度見底就由主代理自己做。
+- Codex 沙箱寫 `ukyo.js`、`shimogyo.js`、`yamashina.js` 時多次 EPERM（ACL 看起來正常，原因未明）；它算好的改動寫在報告裡，由主代理套用。
+- 2026-11-13 兩輪 W2 用掉 Codex 週額度約 46%，深夜剩約 14%（`~/.claude/QUOTA.md`）。
+- agy 的派法見全域 `agy-call` skill：主力 `gemini-4-hydrogen-high`；無頭模式讀不到工作區外的檔，派工單、參考檔、允許清單都放進它的 clone（`C:\Git\_wt_kyoto_<topic>`）。§10 是歷史紀錄。全域規則：外派額度見底就由主代理自己做。
 
 ### 8.8 當天踩過的坑
 
@@ -321,11 +346,12 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 | 點蓋開箱的命中判定沒算箱體傾斜（最大約 3 度） | PLAUSIBLE，影響應很小 |
 | 霞沒有影子（陰影改成深度圖後） | 已知取捨 |
 | 陰影深度圖每幀多畫一次實體網格；手機效能未量 | PLAUSIBLE |
-| 狐像坐著的狗；鳥居列在斜視角下仍近乎水平 | 待修，見 §8.2 |
-| 左京與西京意象重複；樹冠與松相近；切金小葉有方格紋 | 待修，見 §8.2 |
-| 幾個語彙在不合理輸入下產生 NaN 或零面積（十一區不會觸發） | CONFIRMED，見 §8.3 |
+| 狐像坐著的狗；鳥居列在斜視角下仍近乎水平 | W2 已修（`ac06b40`） |
+| 左京與西京意象重複；樹冠與松相近；切金小葉有方格紋 | W2 已修；仍不滿意之處見 §8.0a |
+| 幾個語彙在不合理輸入下產生 NaN 或零面積（十一區不會觸發） | W3 已加防呆（`766a43a`） |
 | 盤面斜視，立起的部品擋住後方地子上的平嵌意象 | 已知限制，構圖時避開 |
 | `codex-companion.mjs task` 的完成訊號不可靠 | CONFIRMED，見 §8.7 |
+| 拖曳換函放手後鄰函消失、舞台空白約半秒（W4-01） | 已修（`4a9058e`） |
 
 ## 10. agy 派工單（歷史：2026-11-12 已執行 A1、A2；A3 已派出，結果見本機接續紀錄。Codex 的派法在 §8.7）
 
