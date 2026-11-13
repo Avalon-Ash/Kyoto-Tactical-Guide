@@ -257,44 +257,72 @@ export function kakezukuri(id, x0, x1, zDeck, zGround, {layer = 2, group = id, o
   return [frame, deck];
 }
 
-/** One maple leaf: five broad points about the head of its stalk, the middle one longest, with deep notches between. */
+/** One maple leaf: five points about the head of its stalk, the middle one longest, with deep notches between. */
 function mapleLeaf(cx, cz, radius, turn) {
   const tips = [1, .84, .58], d = [], at = (a, len) => d.push([cx + Math.cos(a) * len, cz + Math.sin(a) * len]);
   for (let i = -2; i <= 2; i++) {
     const a = turn + i * .95, len = radius * tips[Math.abs(i)];
     if (i > -2) at(a - .475, radius * .3);
-    // Shoulders keep each point broad enough to stand as a solid.
     at(a - .2, len * .72); at(a, len); at(a + .2, len * .72);
   }
   d.push([cx - Math.cos(turn) * radius * .22, cz - Math.sin(turn) * radius * .22]);
   return d;
 }
+/** One lobe of a broadleaf crown: a dome with a ragged upper edge and a nearly flat underside. */
+function crownLobe(cx, cz, rx, rz, seed) {
+  const d = [], n = 44;
+  for (let i = 0; i < n; i++) {
+    const a = i / n * 6.283, c = Math.cos(a), sn = Math.sin(a);
+    const edge = sn < 0 ? 1 + .07 * Math.cos(a * 9 + seed) + .04 * Math.sin(a * 4 + seed * 2) : 1;
+    d.push([cx + c * rx * edge, cz + sn * rz * (sn < 0 ? edge : .42)]);
+  }
+  return d;
+}
 /**
- * A maple, drawn the way a crest draws it: a short trunk carrying a few leaves far larger than life, one at the
- * crown and one on each bough. A leaf has to be large to keep its points once it is raised into a solid; a cloud
- * of small leaves only swells into a ball. It answers the wind as the pine does.
+ * A maple is a tree first: a short trunk that forks low and one broad crown of three lobes, wider than it is tall.
+ * What says "maple" is not the crown's outline, which no solid this small can keep, but the small leaves engraved
+ * on it and the leaves of cut gold and silver lying on the lid around it (see fallenLeaves).
+ * It answers the wind as the pine does.
  */
 export function maple(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 3} = {}) {
-  const r = rand(seed), anchor = [x, z], spine = [], parts = [], stem = height * .7;
-  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 4 + seed) * height * .03, z - stem * t]); }
+  const r = rand(seed), anchor = [x, z], spine = [], parts = [], stem = height * .5;
+  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 3.2 + seed) * height * .035, z - stem * t]); }
   const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
-  const half = t => lerp(height * .05, height * .02, t);
+  const half = t => lerp(height * .062, height * .03, t);
   trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 10), pz]), ...spine.map(([px, pz], i) => [px + half(i / 10), pz]).reverse()], soft: .3, crisp: .85});
+  for (let i = 2; i < 8; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 10) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 10) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
   parts.push(trunk);
-  const top = spine[10], fork = spine[6];
-  // Where each leaf springs from, which way it points, and how large it is, all in tree heights.
-  const crowns = [[0, -.02, -Math.PI / 2, .44], [-.36, .2, Math.PI + .3, .27], [.36, .12, -.3, .27]];
-  for (let k = 0; k < Math.min(clusters, crowns.length); k++) {
-    const [sx, sz, way, size] = crowns[k], R = height * size * (.94 + r() * .12), turn = way + (r() - .5) * .3;
-    const cx = top[0] + sx * height, cz = top[1] + sz * height;
-    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 4, thick: 18, bias: 9 + k * 1.5});
-    leaf.fills.push({d: mapleLeaf(cx, cz, R, turn), soft: .45, crisp: .7});
-    for (let i = -2; i <= 2; i++) { const a = turn + i * .95, len = R * [1, .84, .58][Math.abs(i)] * .84; leaf.lines.push({d: [[cx, cz], [cx + Math.cos(a) * len, cz + Math.sin(a) * len]], w: .6, amp: .9}); }
-    // The bough that carries it.
-    if (k) trunk.lines.push({d: [fork, [lerp(fork[0], cx, .6), lerp(fork[1], cz, .5) + R * .3], [cx, cz]], w: 2.2, amp: 1});
+  const top = spine[10], fork = spine[5];
+  // Centre, half-width and half-height of each lobe, in tree heights: the middle one stands highest.
+  const lobes = [[0, -.2, .3, .25], [-.3, -.07, .24, .2], [.31, -.1, .23, .19]];
+  for (let k = 0; k < Math.min(clusters, lobes.length); k++) {
+    const [sx, sz, wx, wz] = lobes[k], cx = top[0] + sx * height, cz = top[1] + sz * height, rx = wx * height, rz = wz * height;
+    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 5, thick: 22, bias: 9 + k * 1.5});
+    leaf.fills.push({d: crownLobe(cx, cz, rx, rz, seed + k * 3), soft: .45, crisp: .6});
+    // Small leaves engraved on the crown; lines do not change the solid.
+    for (let i = 0; i < (k ? 4 : 7); i++) {
+      const a = r() * 6.283, q = Math.sqrt(r()) * .62, lx = cx + Math.cos(a) * rx * q, lz = cz - Math.abs(Math.sin(a)) * rz * q * .9 - rz * .05, turn = r() * 6.283, size = height * (.05 + r() * .02);
+      for (let j = -2; j <= 2; j++) { const t = turn + j * .95, len = size * [1, .84, .58][Math.abs(j)]; leaf.lines.push({d: [[lx, lz], [lx + Math.cos(t) * len, lz + Math.sin(t) * len]], w: .6, amp: .9}); }
+    }
+    // The limb that carries it: broad enough to stand as a solid, so the trunk is seen to fork under the crown.
+    if (k) { const w = height * .034, end = [cx, cz + rz * .2]; trunk.fills.push({d: [[fork[0] - w, fork[1]], [fork[0] + w, fork[1]], [end[0] + w, end[1]], [end[0] - w, end[1]]], soft: .3, crisp: .85}); }
     parts.push(leaf);
   }
   return parts;
+}
+/**
+ * Fallen maple leaves, inlaid flat in the lid: cut gold, and one in three cut silver. They are ground, so each
+ * keeps its five points however small it is. Thickest near the centre, thinning toward the edge of the drift.
+ */
+export function fallenLeaves(id, cx, cz, rx, rz, count, seed, {size = 11} = {}) {
+  const r = rand(seed), gold = part(`${id}-gold`, KIND.still, 0, MAT.kirikane, [cx, cz]), silver = part(`${id}-silver`, KIND.still, 0, MAT.kirigin, [cx, cz]);
+  const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+  for (let i = 0; i < count; i++) {
+    const a = r() * 6.283, q = Math.pow(r(), .7), R = size * (.75 + r() * .6), m = R + 2;
+    const x = clamp(cx + Math.cos(a) * rx * q, PLATE.halfW - m), z = clamp(cz + Math.sin(a) * rz * q, PLATE.halfH - m);
+    (i % 3 === 2 ? silver : gold).fills.push({d: mapleLeaf(x, z, R, r() * 6.283), soft: 0, crisp: 1});
+  }
+  return [gold, silver].filter(p => p.fills.length);
 }
 
 /** Inari's fox, seated on its stone with its tail up: silver on a block of cut gold. `flip` -1 faces it left. */
