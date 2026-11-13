@@ -279,50 +279,107 @@ function crownLobe(cx, cz, rx, rz, seed) {
   return d;
 }
 /**
- * A maple is a tree first: a short trunk that forks low and one broad crown of three lobes, wider than it is tall.
- * What says "maple" is not the crown's outline, which no solid this small can keep, but the small leaves engraved
- * on it and the leaves of cut gold and silver lying on the lid around it (see fallenLeaves).
- * It answers the wind as the pine does.
+ * A broadleaf tree is a tree first: a trunk that forks and a crown of three lobes. No solid this small can keep
+ * a leaf's outline, so the crown stays a plain mass; what kind of tree it is, is told by the small marks engraved
+ * on the crown and by what lies inlaid on the lid around it. It answers the wind as the pine does.
+ * `lobes`: centre, half-width and half-height of each lobe in tree heights. `mark(leaf, x, z, size, turn)` engraves one leaf.
  */
-export function maple(id, x, z, height, lean, seed, {trunkLayer = 2, leafLayer = 3, clusters = 3} = {}) {
-  const r = rand(seed), anchor = [x, z], spine = [], parts = [], stem = height * .5;
-  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 3.2 + seed) * height * .035, z - stem * t]); }
-  const trunk = part(`${id}-trunk`, KIND.pine, trunkLayer, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
-  const half = t => lerp(height * .062, height * .03, t);
+function broadleaf(id, x, z, height, lean, seed, {stem = .5, lobes, mats = [MAT.gold, MAT.nashijiLight, MAT.nashijiLight], mark, girth = .062}) {
+  const r = rand(seed), anchor = [x, z], spine = [], parts = [], len = height * stem;
+  for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 3.2 + seed) * height * .035, z - len * t]); }
+  const trunk = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
+  const half = t => lerp(height * girth, height * girth * .5, t);
   trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 10), pz]), ...spine.map(([px, pz], i) => [px + half(i / 10), pz]).reverse()], soft: .3, crisp: .85});
   for (let i = 2; i < 8; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 10) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 10) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
   parts.push(trunk);
   const top = spine[10], fork = spine[5];
-  // Centre, half-width and half-height of each lobe, in tree heights: the middle one stands highest.
-  const lobes = [[0, -.2, .3, .25], [-.3, -.07, .24, .2], [.31, -.1, .23, .19]];
-  for (let k = 0; k < Math.min(clusters, lobes.length); k++) {
-    const [sx, sz, wx, wz] = lobes[k], cx = top[0] + sx * height, cz = top[1] + sz * height, rx = wx * height, rz = wz * height;
-    const leaf = part(`${id}-leaf-${k}`, KIND.pine, leafLayer, k ? MAT.nashijiLight : MAT.gold, anchor, {group: id, order: k + 1, reach: 5, thick: 22, bias: 9 + k * 1.5});
+  lobes.forEach(([sx, sz, wx, wz], k) => {
+    const cx = top[0] + sx * height, cz = top[1] + sz * height, rx = wx * height, rz = wz * height;
+    const leaf = part(`${id}-leaf-${k}`, KIND.pine, 3, mats[k] ?? mats[0], anchor, {group: id, order: k + 1, reach: 5, thick: 22, bias: 9 + k * 1.5});
     leaf.fills.push({d: crownLobe(cx, cz, rx, rz, seed + k * 3), soft: .45, crisp: .6});
-    // Small leaves engraved on the crown; lines do not change the solid.
     for (let i = 0; i < (k ? 4 : 7); i++) {
-      const a = r() * 6.283, q = Math.sqrt(r()) * .62, lx = cx + Math.cos(a) * rx * q, lz = cz - Math.abs(Math.sin(a)) * rz * q * .9 - rz * .05, turn = r() * 6.283, size = height * (.05 + r() * .02);
-      for (let j = -2; j <= 2; j++) { const t = turn + j * .95, len = size * [1, .84, .58][Math.abs(j)]; leaf.lines.push({d: [[lx, lz], [lx + Math.cos(t) * len, lz + Math.sin(t) * len]], w: .6, amp: .9}); }
+      const a = r() * 6.283, q = Math.sqrt(r()) * .62;
+      mark(leaf, cx + Math.cos(a) * rx * q, cz - Math.abs(Math.sin(a)) * rz * q * .9 - rz * .05, height * (.05 + r() * .02), r() * 6.283);
     }
     // The limb that carries it: broad enough to stand as a solid, so the trunk is seen to fork under the crown.
     if (k) { const w = height * .034, end = [cx, cz + rz * .2]; trunk.fills.push({d: [[fork[0] - w, fork[1]], [fork[0] + w, fork[1]], [end[0] + w, end[1]], [end[0] - w, end[1]]], soft: .3, crisp: .85}); }
     parts.push(leaf);
-  }
+  });
   return parts;
 }
+const rays = (leaf, x, z, angles, lengths) => angles.forEach((a, i) => leaf.lines.push({d: [[x, z], [x + Math.cos(a) * lengths[i], z + Math.sin(a) * lengths[i]]], w: .6, amp: .9}));
+
+/** A maple: a broad low crown, five-pointed leaves engraved on it. Pair it with fallenLeaves. */
+export function maple(id, x, z, height, lean, seed, {clusters = 3} = {}) {
+  return broadleaf(id, x, z, height, lean, seed, {
+    lobes: [[0, -.2, .3, .25], [-.3, -.07, .24, .2], [.31, -.1, .23, .19]].slice(0, clusters),
+    mark: (leaf, lx, lz, size, turn) => rays(leaf, lx, lz, [-2, -1, 0, 1, 2].map(j => turn + j * .95), [.58, .84, 1, .84, .58].map(k => k * size)),
+  });
+}
+
 /**
- * Fallen maple leaves, inlaid flat in the lid: cut gold, and one in three cut silver. They are ground, so each
- * keeps its five points however small it is. Thickest near the centre, thinning toward the edge of the drift.
+ * Small shapes inlaid flat in the lid, one part per material. They are ground, so each keeps its outline however
+ * small it is: this is where a picture says what the solids are too round to say. Densest at the centre of the drift.
  */
-export function fallenLeaves(id, cx, cz, rx, rz, count, seed, {size = 11} = {}) {
-  const r = rand(seed), gold = part(`${id}-gold`, KIND.still, 0, MAT.kirikane, [cx, cz]), silver = part(`${id}-silver`, KIND.still, 0, MAT.kirigin, [cx, cz]);
+function scatter(id, cx, cz, rx, rz, count, seed, size, shape, mats) {
+  const r = rand(seed), parts = mats.map(([name, mat]) => part(`${id}-${name}`, KIND.still, 0, mat, [cx, cz]));
   const clamp = (v, m) => Math.max(-m, Math.min(m, v));
   for (let i = 0; i < count; i++) {
     const a = r() * 6.283, q = Math.pow(r(), .7), R = size * (.75 + r() * .6), m = R + 2;
     const x = clamp(cx + Math.cos(a) * rx * q, PLATE.halfW - m), z = clamp(cz + Math.sin(a) * rz * q, PLATE.halfH - m);
-    (i % 3 === 2 ? silver : gold).fills.push({d: mapleLeaf(x, z, R, r() * 6.283), soft: 0, crisp: 1});
+    parts[i % 3 === 2 ? parts.length - 1 : 0].fills.push({d: shape(x, z, R, r() * 6.283), soft: 0, crisp: 1});
   }
-  return [gold, silver].filter(p => p.fills.length);
+  return parts.filter(p => p.fills.length);
+}
+/** Fallen maple leaves: cut gold, and one in three cut silver. */
+export function fallenLeaves(id, cx, cz, rx, rz, count, seed, {size = 11} = {}) {
+  return scatter(id, cx, cz, rx, rz, count, seed, size, mapleLeaf, [['gold', MAT.kirikane], ['silver', MAT.kirigin]]);
+}
+/** One ginkgo leaf: a fan on a stalk, split at the middle of its rim. */
+function ginkgoLeaf(cx, cz, radius, turn) {
+  const d = [[cx - Math.cos(turn) * radius * .5, cz - Math.sin(turn) * radius * .5]];
+  for (let i = 0; i <= 10; i++) { const t = i / 10, a = turn + (t - .5) * 2; d.push([cx + Math.cos(a) * radius * (i === 5 ? .62 : 1), cz + Math.sin(a) * radius * (i === 5 ? .62 : 1)]); }
+  return d;
+}
+/** Fallen ginkgo leaves: a carpet of cut gold. */
+export function fallenFans(id, cx, cz, rx, rz, count, seed, {size = 10} = {}) {
+  return scatter(id, cx, cz, rx, rz, count, seed, size, ginkgoLeaf, [['gold', MAT.kirikane], ['pale', MAT.nashijiLight]]);
+}
+/** One cherry petal: a drop with a notched tip. */
+function petal(cx, cz, radius, turn) {
+  const at = (a, len) => [cx + Math.cos(turn + a) * len * radius, cz + Math.sin(turn + a) * len * radius];
+  return [at(Math.PI, .9), at(2.2, .75), at(1.1, .95), at(.25, 1.05), at(0, .7), at(-.25, 1.05), at(-1.1, .95), at(-2.2, .75)];
+}
+/** Scattered cherry petals of shell. */
+export function petals(id, cx, cz, rx, rz, count, seed, {size = 6} = {}) {
+  return scatter(id, cx, cz, rx, rz, count, seed, size, petal, [['shell', MAT.aogai]]);
+}
+/** Fallen fruit of the tachibana: small rounds of cut gold. */
+export function fruits(id, cx, cz, rx, rz, count, seed, {size = 4.5} = {}) {
+  return scatter(id, cx, cz, rx, rz, count, seed, size, (x, z, R, turn) => blob(x, z, R, R, Math.round(turn * 10), .05, 12), [['gold', MAT.kirikane]]);
+}
+/** The moon, or its image in still water: a disc of shell and two or three broken strokes of cut silver beneath it. */
+export function moon(id, cx, cz, radius, {ripples = 3} = {}) {
+  const disc = part(id, KIND.still, 0, MAT.aogai, [cx, cz]);
+  disc.fills.push({d: blob(cx, cz, radius, radius, 2, 0, 40), soft: 0, crisp: 1});
+  if (!ripples) return [disc];
+  const wake = part(`${id}-wake`, KIND.still, 0, MAT.kirigin, [cx, cz + radius * 2]);
+  for (let i = 0; i < ripples; i++) {
+    const z = cz + radius * (1.5 + i * .62), half = radius * (.95 - i * .22), h = Math.max(1.4, radius * .1), dx = (i % 2 ? -1 : 1) * radius * .22;
+    wake.fills.push({d: [[cx + dx - half, z - h], [cx + dx + half, z - h], [cx + dx + half * .8, z + h], [cx + dx - half * .8, z + h]], soft: 0, crisp: 1});
+  }
+  return [disc, wake];
+}
+/** A fox's trail in cut silver: `points` are [x, z] along its way, the prints falling left and right of the line. */
+export function pawPrints(id, points, {size = 4.6} = {}) {
+  const p = part(id, KIND.still, 0, MAT.kirigin, points[0]);
+  points.forEach(([x, z], i) => {
+    const [nx, nz] = points[Math.min(i + 1, points.length - 1)], [px, pz] = points[Math.max(i - 1, 0)], a = Math.atan2(nz - pz, nx - px);
+    const side = i % 2 ? 1 : -1, ox = x - Math.sin(a) * side * size * .9, oz = z + Math.cos(a) * side * size * .9;
+    p.fills.push({d: blob(ox, oz, size, size * .8, 3, .04, 14), soft: 0, crisp: 1});
+    for (const t of [-.6, 0, .6]) p.fills.push({d: blob(ox + Math.cos(a + t) * size * 1.7, oz + Math.sin(a + t) * size * 1.7, size * .42, size * .42, 1, 0, 8), soft: 0, crisp: 1});
+  });
+  return [p];
 }
 
 /** Inari's fox, seated on its stone with its tail up: silver on a block of cut gold. `flip` -1 faces it left. */
@@ -461,21 +518,25 @@ export function steppingStones(id, points) {
   return [p];
 }
 
-/** A stone lantern in elevation, with a broad cap and a single dark light opening. */
+/**
+ * A stone lantern in elevation: squat, with a broad cap. What makes it a lantern is its light, which no solid can
+ * show: chips of cut gold strewn on the ground before it, densest at its foot.
+ */
 export function lantern(id, x, z, s = 1) {
   const P = (a, h) => [x + a * s, z - h * s];
   const stone = part(`${id}-stone`, KIND.tier, 2, MAT.nashijiLight, [x, z], {group: id, thick: 16});
-  const polygon = d => stone.fills.push({d: d.map(([a, h]) => P(a, h)), soft: .25, crisp: .8});
-  polygon([[-21, 0], [21, 0], [17, 10], [-17, 10]]);
-  polygon([[-6, 8], [6, 8], [6, 40], [-6, 40]]);
-  polygon([[-14, 37], [14, 37], [14, 60], [-14, 60]]);
+  const polygon = (p, d) => p.fills.push({d: d.map(([a, h]) => P(a, h)), soft: .25, crisp: .8});
+  polygon(stone, [[-22, 0], [22, 0], [18, 9], [-18, 9]]);
+  polygon(stone, [[-10, 7], [10, 7], [9, 26], [-9, 26]]);
+  polygon(stone, [[-19, 24], [19, 24], [17, 47], [-17, 47]]);
   const cap = part(`${id}-cap`, KIND.tier, 2, MAT.gold, [x, z], {group: id, order: 1, thick: 14});
-  cap.fills.push({d: [[-32, 58], [32, 58], [27, 65], [13, 72], [0, 79], [-13, 72], [-27, 65]].map(([a, h]) => P(a, h)), soft: .2, crisp: .85});
-  cap.fills.push({d: [[-5, 75], [5, 75], [5, 88], [-5, 88]].map(([a, h]) => P(a, h)), soft: .2, crisp: .8});
-  cap.lines.push({d: [P(-25, 62), P(25, 62)], w: .8, amp: 1});
-  const opening = part(`${id}-light`, KIND.tier, 3, MAT.lacquer, [x, z], {group: id, order: 1, thick: 6, bias: 13});
-  opening.fills.push({d: [P(-6, 42), P(6, 42), P(6, 55), P(-6, 55)], soft: 0, crisp: .5});
-  return [stone, cap, opening];
+  polygon(cap, [[-33, 45], [33, 45], [26, 53], [10, 62], [0, 66], [-10, 62], [-26, 53]]);
+  polygon(cap, [[-6, 63], [6, 63], [5, 76], [-5, 76]]);
+  cap.lines.push({d: [P(-25, 49), P(25, 49)], w: .8, amp: 1});
+  const opening = part(`${id}-light`, KIND.tier, 3, MAT.lamp, [x, z], {group: id, order: 1, thick: 6, bias: 13});
+  opening.fills.push({d: [P(-9, 29), P(9, 29), P(9, 43), P(-9, 43)], soft: 0, crisp: .5});
+  const chip = (cx, cz, R, turn) => [0, 1, 2, 3].map(i => [cx + Math.cos(turn + i * 1.5708) * R, cz + Math.sin(turn + i * 1.5708) * R]);
+  return [stone, cap, opening, ...scatter(`${id}-glow`, x, z + 20 * s, 46 * s, 16 * s, 16, 5, 2.8, chip, [['gold', MAT.kirikane]])];
 }
 
 /** White sand is a ground field; raking is engraved line work, never a row of raised bars. */
@@ -511,56 +572,23 @@ export function corridor(id, x0, x1, zBase, {height = 26, open = true, group = i
   return [body, ...roof(`${id}-roof`, cx, zBase - height, w, 11, {group, order: order + 1, ridgeHalf: w * .82, upturn: 3, tiles: bays * 2})];
 }
 
-/** Court trees are emblems: three generous blossoms or three leathery leaves, not clusters of tiny dots. */
+/** The court's cherry (silver crown, blossoms engraved) or tachibana (compact gold crown, fruit engraved). */
 export function courtTree(id, x, z, height, {citrus = false} = {}) {
-  const stem = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, [x, z], {group: id, thick: 15});
-  stem.fills.push({d: [[x - 5, z], [x + 5, z], [x + 3, z - height * .78], [x - 3, z - height * .78]], soft: .3, crisp: .8});
-  const parts = [stem];
-  for (const [i, dx, dz, size] of [[0, 0, -.76, .28], [1, -.28, -.54, .23], [2, .28, -.5, .24]]) {
-    const cx = x + dx * height, cz = z + dz * height, r = size * height;
-    const p = part(`${id}-crown-${i}`, KIND.pine, 3, citrus ? MAT.gold : i ? MAT.nashijiLight : MAT.silver,
-      [x, z], {group: id, order: i + 1, thick: 19, bias: 10});
-    const d = citrus ? blob(cx, cz, r, r * .62, i + 2, .08, 40) : Array.from({length: 60}, (_, k) => {
-      const a = k / 60 * Math.PI * 2, R = r * (.83 + .17 * Math.cos(a * 5));
-      return [cx + Math.cos(a) * R, cz + Math.sin(a) * R];
-    });
-    p.fills.push({d, soft: .3, crisp: .7});
-    if (citrus) {
-      p.lines.push({d: [[cx - r * .7, cz], [cx + r * .7, cz]], w: .8, amp: .9});
-      p.lines.push({d: [...blob(cx, cz + r * .1, r * .3, r * .3, i, 0, 24), [cx + r * .3, cz + r * .1]], w: 1.4, amp: 1});
-    } else for (let k = 0; k < 5; k++) {
-      const a = k / 5 * Math.PI * 2;
-      p.lines.push({d: [[cx + Math.cos(a) * r * .15, cz + Math.sin(a) * r * .15], [cx + Math.cos(a) * r * .65, cz + Math.sin(a) * r * .65]], w: .8, amp: .8});
-    }
-    stem.lines.push({d: [[x, z - height * .25], [cx, cz]], w: 2.5, amp: 1});
-    parts.push(p);
-  }
-  return parts;
+  return broadleaf(id, x, z, height, citrus ? -3 : 4, citrus ? 5 : 3, citrus ? {
+    lobes: [[0, -.16, .26, .24], [-.22, -.04, .2, .18], [.23, -.06, .2, .18]], mats: [MAT.gold, MAT.gold, MAT.nashijiLight],
+    mark: (leaf, lx, lz, size) => leaf.lines.push({d: [...blob(lx, lz, size * .6, size * .6, 1, 0, 14), [lx + size * .6, lz]], w: 1, amp: 1}),
+  } : {
+    lobes: [[0, -.2, .3, .25], [-.3, -.07, .24, .2], [.31, -.1, .23, .19]], mats: [MAT.silver, MAT.nashijiLight, MAT.silver],
+    mark: (leaf, lx, lz, size, turn) => rays(leaf, lx, lz, [0, 1, 2, 3, 4].map(j => turn + j * 1.2566), Array(5).fill(size * .8)),
+  });
 }
 
-/** Three oversized split fans carry the ginkgo's identity through the rounded relief. */
+/** A great ginkgo: a tall straight trunk and a crown higher than it is wide, fan leaves engraved on it. Pair it with fallenFans. */
 export function ginkgo(id, x, z, height) {
-  const trunk = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, [x, z], {group: id, thick: 18});
-  trunk.fills.push({d: [[x - 8, z], [x + 7, z], [x + 4, z - height * .7], [x - 4, z - height * .7]], soft: .3, crisp: .85});
-  const parts = [trunk];
-  for (const [i, dx, dz, angle, scale] of [[0, 0, -.64, -Math.PI / 2, .44], [1, -.2, -.38, -2.35, .34], [2, .22, -.35, -.65, .33]]) {
-    const cx = x + dx * height, cz = z + dz * height, R = height * scale;
-    const p = part(`${id}-fan-${i}`, KIND.pine, 3, i === 1 ? MAT.nashijiLight : MAT.gold, [x, z], {group: id, order: i + 1, thick: 22, bias: 11});
-    const arc = [];
-    for (let k = 0; k <= 32; k++) {
-      const t = k / 32, a = angle + (t - .5) * 2.3;
-      const r = R * (1 - .22 * Math.exp(-Math.pow((t - .5) * 14, 2)) + .025 * Math.sin(t * 9 * Math.PI));
-      arc.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]);
-    }
-    p.fills.push({d: [[cx - 4, cz + 4], ...arc, [cx + 4, cz + 4]], soft: .35, crisp: .75});
-    for (let k = 1; k < 10; k++) {
-      const a = angle + (k / 10 - .5) * 2.15;
-      p.lines.push({d: [[cx, cz], [cx + Math.cos(a) * R * .72, cz + Math.sin(a) * R * .72]], w: .7, amp: .8});
-    }
-    trunk.lines.push({d: [[x, z - height * .18], [cx, cz]], w: 3.5, amp: 1});
-    parts.push(p);
-  }
-  return parts;
+  return broadleaf(id, x, z, height, 3, 6, {
+    stem: .46, girth: .07, lobes: [[0, -.36, .2, .22], [-.14, -.14, .25, .2], [.15, -.1, .24, .19]], mats: [MAT.gold, MAT.nashijiLight, MAT.gold],
+    mark: (leaf, lx, lz, size) => { rays(leaf, lx, lz, [-2.3, -1.83, -1.31, -.84], Array(4).fill(size)); leaf.lines.push({d: [-2.3, -1.83, -1.31, -.84].map(a => [lx + Math.cos(a) * size, lz + Math.sin(a) * size]), w: .6, amp: .9}); },
+  });
 }
 
 /** Karamon: a lifted cusped gable above an open passage. The opening is deliberately wider than the blur. */
@@ -580,7 +608,12 @@ export function karamon(id, cx, zBase, halfW = 66) {
   cap.lines.push({d: lower, w: .8, amp: .8});
   // One large floral carving survives where a row of small ornaments would turn into beads.
   frame.lines.push({d: [P(-19, 56), P(-8, 61), P(0, 55), P(8, 61), P(19, 56)], w: 1.4, amp: 1});
-  return [frame, cap];
+  // Closed leaves of black lacquer with gold studs: without them the gable on two posts reads as a bench.
+  const doors = part(`${id}-doors`, KIND.tier, 2, MAT.lacquer, [cx, zBase], {group: id, thick: 12});
+  doors.fills.push({d: [P(-34, 0), P(34, 0), P(34, 50), P(-34, 50)], soft: 0, crisp: .5});
+  doors.lines.push({d: [P(0, 0), P(0, 50)], w: 1.2, amp: 1});
+  for (const x of [-22, -11, 11, 22]) for (const h of [12, 26, 40]) doors.lines.push({d: [P(x - 1.6, h), P(x + 1.6, h)], w: 2.6, amp: 1});
+  return [doors, frame, cap];
 }
 
 /** Masonry and its moat form a low ground border, with staggered joints drawn into a continuous bank. */

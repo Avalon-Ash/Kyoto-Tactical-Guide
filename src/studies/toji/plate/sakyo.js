@@ -1,6 +1,6 @@
 // Two textures face each other: dark timber over a small pond, silver raked sand with a single level-topped cone.
 // The pavilion stays at the far left, the cone at the near right; an open lower-left wedge separates them.
-import {MAT, gardenGround, hill, pond, sandGarden, sandCone, storey, roof, hall, pine, bird, rock, suyari} from './vocab.js';
+import {MAT, gardenGround, hill, pond, sandGarden, sandCone, moon, storey, roof, hall, pine, bird, rock, suyari} from './vocab.js';
 
 export function sakyo() {
   return [
@@ -8,7 +8,8 @@ export function sakyo() {
     ...hill('higashiyama', -345, 85, -216, -169, 4, {amp: .35}),
     ...pond('kinkyo', -182, 36, 112, 67, 5),
     ...sandGarden('ginshadan', 14, 249, 0, 102),
-    ...sandCone('kogetsudai', 190, 160, 53, 45),
+    ...sandCone('kogetsudai', 190, 160, 50, 62),
+    ...moon('moon', -196, 22, 15, {ripples: 2}),
     ...suyari('mist-west', -336, -213, -37, 12, 6),
     ...suyari('mist-east', 59, 331, -198, 13, 11),
     ...rock('pond-stone', -112, 127, 25, 18, 4, {mat: MAT.kirikane}),
