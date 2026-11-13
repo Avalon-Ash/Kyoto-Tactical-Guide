@@ -1,13 +1,13 @@
 # 京都專案交接入口
 
-更新：2026-11-12。這是**唯一的目前狀態入口**；各輪細節在 `agent-runs/`，舊狀態以 Git 歷史為準，不再在文件頂端堆疊「最新狀態」。新對話依序讀 `../AGENTS.md`、本檔、`AGENT_EXECUTION_PLAN.md`，以及 `PLAN.md` 中指定的任務。
+更新：2026-11-13。這是**唯一的目前狀態入口**；各輪細節在 `agent-runs/`，舊狀態以 Git 歷史為準，不再在文件頂端堆疊「最新狀態」。新對話依序讀 `../AGENTS.md`、本檔、`MAKIE_PLATE_HANDOFF.md`（文箱蒔繪盤，§8.1 是接手清單）。
 
 ## 1. Git 狀態
 
 | 項目 | 狀態 |
 |---|---|
 | 主線 | `main`：包含十一區文庫（`6d6a132`）、UI 翻新規劃文件（`1608263`）、T4-M5 手機 UI、UI 翻新 P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞）。實際 HEAD 以 `git log -1 main` 為準 |
-| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤；`6e53778` 已 push，其後的本機 commit 未 push；未開 PR、未合併 `main`）。實際內容以 `git log main..claude/great-brahmagupta-ye2uqt` 為準 |
+| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤）：2026-11-13 依使用者指示 fast-forward 併入 `main` 並 push；十一區都已是盤，但屬進行中的版本，待辦見 `MAKIE_PLATE_HANDOFF.md` §8.1。後續可直接在此分支或新分支接著做 |
 | `ux-unify` | 2026-11-12 確認與 `main` 同在 `4ca3adb`，內容已全在 `main`；分支仍在，未刪 |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
