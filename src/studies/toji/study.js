@@ -368,8 +368,10 @@ function returnCabinet(){
   const offset=dragOffset;dragOffset=0;placeTrack(0);syncTrack(0);
   if(offset&&!still()&&typeof canvas.animate==='function')dragAnimation=slide(offset,0,180);
 }
-listen(canvas,'pointerleave',()=>{if((options.embedded||gesture?.panning)&&gesture)return;endDrag();returnCabinet();release();});
-listen(canvas,'pointercancel',()=>{endDrag();returnCabinet();release();});
+// Once the hand has let go, the track belongs to whatever the release started (a switch slides the
+// cabinet out from under a resting mouse): leaving only lets the light go, it does not pull the track back.
+listen(canvas,'pointerleave',()=>{if(!gesture){release();return;}if(options.embedded||gesture.panning)return;endDrag();returnCabinet();release();});
+listen(canvas,'pointercancel',()=>{if(!gesture){release();return;}endDrag();returnCabinet();release();});
 listen(canvas,'lostpointercapture',()=>{if(gesture){endDrag();returnCabinet();release();}});
 listen(canvas,'pointerup',e=>{
   if(!gesture||gesture.id!==e.pointerId||multiTouch)return;
