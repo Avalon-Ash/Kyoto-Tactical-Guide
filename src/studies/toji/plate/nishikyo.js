@@ -13,7 +13,7 @@ export function nishikyo() {
     ...hall('middle-shoin', -18, -65, 75, 31, {wallH: 25}),
     ...hall('new-shoin', 144, -29, 62, 29, {wallH: 24}),
     ...moon('pond-moon', -52, 62, 15),
-    ...moonDeck('tsukimi', -277, -115, -74, -44, {group: 'old-shoin', order: 2}),
+    ...moonDeck('tsukimi', -188, -112, -44, 8),
     ...steppingStones('approach', [[-210, 114, 11], [-178, 129, 12], [-145, 140, 11], [-110, 146, 12], [-74, 148, 11]]),
     ...lantern('shore-lantern', 246, 171, .9),
     ...pine('near-pine', -291, 183, 99, 12, 2, {clusters: 3}),

@@ -497,17 +497,15 @@ export function phoenix(id, x, z, s = 1, {group = id, order = 0} = {}) {
   return [p];
 }
 
-/** Open bamboo platform: slats are surface lines, so the inflated deck cannot close a forest of tiny slots. */
-export function moonDeck(id, x0, x1, zBack, zFront, {group = id, order = 0} = {}) {
-  const p = part(id, KIND.tier, 2, MAT.gold, [(x0 + x1) / 2, zFront], {group, order, thick: 14});
-  p.fills.push({d: [[x0 + 7, zBack], [x1 - 7, zBack], [x1, zFront], [x0, zFront]], soft: .2, crisp: .8});
-  for (let x = x0 + 10; x < x1 - 7; x += 7) {
-    p.lines.push({d: [[x, zBack + 2], [x, zFront - 2]], w: .8, amp: .9});
-  }
-  for (const t of [.2, .78]) {
-    const z = lerp(zBack, zFront, t);
-    p.lines.push({d: [[x0 + 6, z], [x1 - 6, z]], w: 1.4, amp: .8});
-  }
+/**
+ * A moon-viewing deck of bamboo: a floor, so it is inlaid flat in the lid, never stood up like a screen.
+ * Its slats run toward the water; the moon it waits for is drawn in the pond (see moon).
+ */
+export function moonDeck(id, x0, x1, zBack, zFront) {
+  const p = part(id, KIND.still, 0, MAT.gold, [(x0 + x1) / 2, zFront]);
+  p.fills.push({d: [[x0, zBack], [x1, zBack], [x1, zFront], [x0, zFront]], soft: 0, crisp: .7});
+  for (let x = x0 + 5; x < x1 - 2; x += 6) p.lines.push({d: [[x, zBack + 1], [x, zFront - 1]], w: .8, amp: 1});
+  for (const z of [zBack + 1.5, zFront - 1.5]) p.lines.push({d: [[x0, z], [x1, z]], w: 1.4, amp: 1});
   return [p];
 }
 

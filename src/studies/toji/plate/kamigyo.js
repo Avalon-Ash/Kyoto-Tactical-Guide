@@ -13,8 +13,10 @@ export function kamigyo() {
     ...hall('shishinden', 0, -106, 153, 59, {wallH: 38, bays: 9}),
     ...corridor('west-gallery', -293, -181, 44, {height: 27}),
     ...corridor('east-gallery', 181, 293, 44, {height: 27}),
-    ...corridor('south-west', -264, -57, 167, {height: 22}),
-    ...corridor('south-east', 57, 264, 167, {height: 22}),
+    // The south range is one wall: two galleries and the gate between them, standing on one line.
+    ...corridor('south-west', -264, -50, 167, {height: 22, group: 'south'}),
+    ...corridor('jomei-mon', -50, 50, 167, {height: 36, group: 'south', order: 2}),
+    ...corridor('south-east', 50, 264, 167, {height: 22, group: 'south'}),
     ...petals('sakura-fall', -86, 96, 56, 26, 18, 4),
     ...fruits('tachibana-fall', 94, 92, 40, 16, 7, 9),
     ...courtTree('sakon-sakura', -91, 73, 89),
