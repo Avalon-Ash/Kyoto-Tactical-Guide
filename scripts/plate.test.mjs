@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {stepSpring, stepDamped, settled} from '../src/studies/toji/plate/spring.js';
 import {PLATES, hasPlate, preparePlate, createLife, partAt, MAX_PARTS, LAYERS, DWELL_MS, STAND_REST} from '../src/studies/toji/plate/parts.js';
-import {KIND, MAT, PLATE} from '../src/studies/toji/plate/vocab.js';
+import {KIND, MAT, PLATE, roof, storey, kakezukuri, stoneSteps, stream, shell, steppingStones} from '../src/studies/toji/plate/vocab.js';
 import {buildBox, shadeMatrix, SHADE_H} from '../src/studies/toji/plate/renderer.js';
 
 const p3bWards = ['W_KITA', 'W_UKYO', 'W_NISHIKYO', 'W_SAKYO', 'W_KAMIGYO', 'W_SHIMOGYO', 'W_NAKAGYO', 'W_YAMASHINA'];
@@ -242,4 +242,21 @@ test('a cord keeps its length, stays on the floor and out of the box, and comes 
   const tube = cordTube(cord.points, out);
   assert.equal(tube.length, (cord.points.length - 1) * 6 * 6 * 10);
   assert.ok(tube.every(Number.isFinite));
+});
+
+test('preparePlate reports zero-area fills while ignoring pure line work', () => {
+  const base = {id: 'z', kind: KIND.still, group: 'z', order: 0, layer: 0, mat: MAT.gold, reach: 1, thick: 0, bias: 0, anchor: [0, 0], fills: [], lines: []};
+  assert.match(preparePlate([{...base, fills: [{d: [[0, 0], [10, 0], [20, 0]], soft: 0, crisp: 1}]}]).errors.join(), /z: zero-area fill/);
+  assert.match(preparePlate([{...base, fills: [{d: [[5, 5], [5, 5], [5, 5]], soft: 0, crisp: 1}]}]).errors.join(), /z: zero-area fill/);
+  assert.deepEqual(preparePlate([{...base, lines: [{d: [[0, 0], [10, 0]], w: 1, amp: 1}]}]).errors, []);
+});
+
+test('vocab builders reject invalid counts, mismatched widths, and empty arrays', () => {
+  assert.throws(() => roof('r', 0, 0, 40, 20, {tiles: 0}), /roof.*tiles/);
+  assert.throws(() => storey('s', 0, -20, 0, 40, {bays: 0}), /storey.*bays/);
+  assert.throws(() => kakezukuri('k', -40, 40, -30, 0, {posts: 1}), /kakezukuri.*posts/);
+  assert.throws(() => stoneSteps('st', 0, -20, 20, 10, 20, 0), /stoneSteps.*count/);
+  assert.throws(() => stream('w', [[0, 0], [20, 10]], [5]), /stream.*widths/);
+  assert.throws(() => shell('sh', []), /shell.*spots/);
+  assert.throws(() => steppingStones('ss', []), /steppingStones.*points/);
 });

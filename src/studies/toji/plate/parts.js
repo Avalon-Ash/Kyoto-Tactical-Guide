@@ -39,7 +39,17 @@ export function preparePlate(parts) {
       if (!Number.isFinite(x) || !Number.isFinite(z)) errors.push(`${p.id}: bad point`);
       x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z);
     }
-    for (const f of p.fills) if (f.d.length < 3 || f.soft < 0 || f.soft > 1 || f.crisp < 0 || f.crisp > 1) errors.push(`${p.id}: bad fill`);
+    for (const f of p.fills) {
+      if (f.d.length < 3 || f.soft < 0 || f.soft > 1 || f.crisp < 0 || f.crisp > 1) errors.push(`${p.id}: bad fill`);
+      if (f.d.length >= 3) {
+        let area = 0;
+        for (let k = 0, n = f.d.length; k < n; k++) {
+          const [ax, az] = f.d[k], [bx, bz] = f.d[(k + 1) % n];
+          area += ax * bz - bx * az;
+        }
+        if (Math.abs(area) * .5 < 1e-6) errors.push(`${p.id}: zero-area fill`);
+      }
+    }
     return {...p, index: i + 1, bounds: [x0, z0, x1, z1], centre: [(x0 + x1) / 2, (z0 + z1) / 2], radius: Math.hypot(x1 - x0, z1 - z0) / 2};
   });
   // A group stands on one line: the lowest edge of its picture. A rider stands on its carrier's line.

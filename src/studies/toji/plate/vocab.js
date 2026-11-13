@@ -55,6 +55,8 @@ export function hill(id, x0, x1, crown, foot, seed, {amp = .7, mat = MAT.mura, l
 
 /** A stream: a band that widens as it nears the viewer, with togidashi flow lines inside. */
 export function stream(id, points, widths, layer = 0) {
+  if (points.length < 2) throw new Error(`stream(${id}): points must have at least 2 points`);
+  if (widths.length !== points.length) throw new Error(`stream(${id}): widths length (${widths.length}) must equal points length (${points.length})`);
   const n = 64, centre = [], left = [], right = [];
   const at = t => {
     const f = t * (points.length - 1), i = Math.min(points.length - 2, Math.floor(f)), u = f - i;
@@ -126,6 +128,7 @@ function roofShape(cx, zEave, halfW, rise, ridgeHalf, upturn) {
   return {outline: [...left, ...right, ...slopeR, ...slopeL], eave: [...left, ...right], slopeL, slopeR};
 }
 export function roof(id, cx, zEave, halfW, rise, {ridgeHalf = halfW * .2, upturn = halfW * .09, layer = 2, group = id, order = 0, tiles = 15, mat = MAT.gold} = {}) {
+  if (!(tiles >= 1)) throw new Error(`roof(${id}): tiles must be >= 1`);
   const s = roofShape(cx, zEave, halfW, rise, ridgeHalf, upturn);
   const p = part(id, KIND.tier, layer, mat, [cx, zEave], {group, order});
   p.fills.push({d: s.outline, soft: .25, crisp: .8});
@@ -142,6 +145,7 @@ export function roof(id, cx, zEave, halfW, rise, {ridgeHalf = halfW * .2, upturn
 
 /** A storey in elevation: black lacquer wall, gold posts, and paper windows that can hold a light. */
 export function storey(id, cx, zTop, zBottom, halfW, {bays = 3, layer = 2, group = id, order = 0, mat = MAT.lacquer, windowMat = MAT.lamp} = {}) {
+  if (!(bays >= 1)) throw new Error(`storey(${id}): bays must be >= 1`);
   const wall = part(id, KIND.tier, layer, mat, [cx, zBottom], {group, order});
   wall.fills.push({d: [[cx - halfW, zTop], [cx + halfW, zTop], [cx + halfW, zBottom], [cx - halfW, zBottom]], soft: 0, crisp: .45});
   for (let i = 0; i <= bays; i++) { const x = lerp(cx - halfW, cx + halfW, i / bays); wall.lines.push({d: [[x, zTop], [x, zBottom]], w: 1.5, amp: 1}); }
@@ -241,6 +245,7 @@ export function torii(id, cx, zFoot, s = 1, {layer = 2, group = id, order = 0, m
  * The posts all meet the ground on one line (zGround), which is the line the whole structure stands on.
  */
 export function kakezukuri(id, x0, x1, zDeck, zGround, {layer = 2, group = id, order = 0, posts = 9, ties = 3} = {}) {
+  if (!(posts >= 2)) throw new Error(`kakezukuri(${id}): posts must be >= 2`);
   const cx = (x0 + x1) / 2, frame = part(`${id}-frame`, KIND.tier, layer, MAT.gold, [cx, zGround], {group, order, thick: 14, reach: 3});
   for (let i = 0; i < posts; i++) {
     const x = lerp(x0 + 4, x1 - 4, i / (posts - 1));
@@ -458,6 +463,7 @@ export function bird(id, perches, layer = 1) {
 
 /** A few petals of shell, used sparingly. */
 export function shell(id, spots, layer = 0) {
+  if (!spots.length) throw new Error(`shell(${id}): spots must not be empty`);
   const p = part(id, KIND.still, layer, MAT.aogai, spots[0].slice(0, 2));
   for (const [x, z, s, seed] of spots) p.fills.push({d: blob(x, z, s, s * .62, seed, .16, 12), soft: 0, crisp: .5});
   return [p];
@@ -510,6 +516,7 @@ export function moonDeck(id, x0, x1, zBack, zFront) {
 
 /** Inlaid stepping stones stay in the ground; each broad oval is separated by exposed lacquer. */
 export function steppingStones(id, points) {
+  if (!points.length) throw new Error(`steppingStones(${id}): points must not be empty`);
   const p = part(id, KIND.still, 0, MAT.kirigin, points[0].slice(0, 2));
   points.forEach(([x, z, r], i) => p.fills.push({d: blob(x, z, r, r * .65, i + 3, .09, 16), soft: .2, crisp: .55}));
   return [p];
@@ -631,6 +638,7 @@ export function moatWall(id, x0, x1, zTop, zBottom, waterFront) {
 
 /** Receding stone treads are part of the hillside, not a screen that hinges upright. */
 export function stoneSteps(id, cx, zBack, zFront, farW, nearW, count = 11) {
+  if (!(count >= 1)) throw new Error(`stoneSteps(${id}): count must be >= 1`);
   const p = part(id, KIND.still, 0, MAT.nashijiLight, [cx, zFront]);
   p.fills.push({d: [[cx - farW, zBack], [cx + farW, zBack], [cx + nearW, zFront], [cx - nearW, zFront]], soft: .5, crisp: .25});
   for (let i = 0; i <= count; i++) {
