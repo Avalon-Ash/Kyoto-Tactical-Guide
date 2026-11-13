@@ -19,6 +19,6 @@ export function yamashina() {
     ...maple('east-maple', 274, 89, 111, -8, 9),
     ...rock('west-stone', -231, 185, 27, 20, 5),
     ...rock('east-stone', 272, 178, 24, 18, 7, {mat: MAT.kirigin}),
-    ...bird('uguisu', [[-240, 4, 1, 'west-maple', 20], [268, -1, -1, 'east-maple', 20]]),
+    ...bird('uguisu', [[-257.7, -37.1, 1, 'west-maple', 20], [271.1, -32.9, -1, 'east-maple', 20]]),
   ];
 }

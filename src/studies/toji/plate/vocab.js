@@ -273,33 +273,57 @@ function mapleLeaf(cx, cz, radius, turn) {
   d.push([cx - Math.cos(turn) * radius * .22, cz - Math.sin(turn) * radius * .22]);
   return d;
 }
-/** One continuous crown, with broad inward cuts that survive the relief's rounded edge. */
+/** Six unequal cloud lobes, joined by broad bays rather than fine edge serrations. */
 function crownLobe(cx, cz, rx, rz, seed, flame = false) {
-  return Array.from({length: 80}, (_, i) => {
+  if (flame) return Array.from({length: 80}, (_, i) => {
     const a = i / 80 * Math.PI * 2, sn = Math.sin(a);
     const edge = .94 + .045 * Math.sin(a * 3 + seed) - .12 * Math.pow(.5 + .5 * Math.cos(a * 11 + seed), 3);
-    const taper = flame ? .78 + .32 * sn : 1;
-    return [cx + Math.cos(a) * rx * edge * taper, cz + sn * rz * edge];
+    return [cx + Math.cos(a) * rx * edge * (.78 + .32 * sn), cz + sn * rz * edge];
   });
+  // Each cubic is one rounded bulge; the shared endpoints are deep, unequal bays.
+  const bays = [[.35, -.67], [-.38, -.68], [-.68, -.25], [-.59, .35], [.08, .60], [.63, .10]];
+  const controls = [
+    [[.22, -1.22], [-.48, -1.18]],
+    [[-.99, -1.00], [-1.11, -.55]],
+    [[-1.16, -.05], [-1.20, .53]],
+    [[-.89, .98], [-.02, 1.01]],
+    [[.72, 1.02], [1.17, .40]],
+    [[1.23, .02], [1.02, -.94]],
+  ];
+  const mirror = seed % 2 ? -1 : 1, outline = [];
+  for (let k = 0; k < bays.length; k++) {
+    const a = bays[k], b = bays[(k + 1) % bays.length], [c, d] = controls[k];
+    for (let i = 0; i < 16; i++) {
+      const t = i / 16, u = 1 - t;
+      const px = u ** 3 * a[0] + 3 * u * u * t * c[0] + 3 * u * t * t * d[0] + t ** 3 * b[0];
+      const pz = u ** 3 * a[1] + 3 * u * u * t * c[1] + 3 * u * t * t * d[1] + t ** 3 * b[1];
+      outline.push([cx + rx * (mirror * px + .06 * Math.sin(seed) * pz), cz + rz * pz]);
+    }
+  }
+  return outline;
 }
 /** A forked trunk carries a single ragged mass; engraved leaves and fallen inlays name the species. */
-function broadleaf(id, x, z, height, lean, seed, {stem = .5, crown = [.51, .37, -.13], mat = MAT.gold, mark, girth = .062, flame = false}) {
+function broadleaf(id, x, z, height, lean, seed, {stem = .5, crown = [.38, .47, -.13], mat = MAT.gold, mark, girth = .062, flame = false}) {
   const r = rand(seed), anchor = [x, z], spine = [], len = height * stem;
   for (let i = 0; i <= 10; i++) { const t = i / 10; spine.push([x + lean * t * t + Math.sin(t * 3.2 + seed) * height * .035, z - len * t]); }
   const trunk = part(`${id}-trunk`, KIND.pine, 2, MAT.gold, anchor, {group: id, order: 0, reach: 5, thick: 16});
   const half = t => lerp(height * girth, height * girth * .5, t);
   trunk.fills.push({d: [...spine.map(([px, pz], i) => [px - half(i / 10), pz]), ...spine.map(([px, pz], i) => [px + half(i / 10), pz]).reverse()], soft: .3, crisp: .85});
   for (let i = 2; i < 8; i += 2) trunk.lines.push({d: [[spine[i][0] - half(i / 10) * .5, spine[i][1] + 3], [spine[i + 1][0] + half(i / 10) * .4, spine[i + 1][1] - 2]], w: .6, amp: .7});
-  const top = spine[10], fork = spine[5], cx = top[0], cz = top[1] + crown[2] * height, rx = crown[0] * height, rz = crown[1] * height;
+  const top = spine[10], fork = spine[2], cx = top[0], cz = top[1] + (crown[2] - (flame ? 0 : .04)) * height, rx = (flame ? crown[0] : Math.min(crown[0], .38)) * height, rz = (flame ? crown[1] : Math.max(crown[1], .44)) * height;
   const leaf = part(`${id}-leaf-0`, KIND.pine, 3, mat, anchor, {group: id, order: 1, reach: 5, thick: 12, bias: 9});
   leaf.fills.push({d: crownLobe(cx, cz, rx, rz, seed, flame), soft: .45, crisp: .65});
   for (let i = 0; i < 15; i++) {
-    const a = r() * Math.PI * 2, q = Math.sqrt(r()) * .65;
+    const a = r() * Math.PI * 2, q = Math.sqrt(r()) * (flame ? .65 : .5);
     mark(leaf, cx + Math.cos(a) * rx * q * (flame ? .55 : 1), cz + Math.sin(a) * rz * q, height * (.045 + r() * .025), r() * Math.PI * 2);
   }
   for (const side of [-1, 1]) {
-    const w = height * .034, end = [cx + side * rx * .55, cz + rz * .5];
+    const w = height * .026, end = [cx + side * rx * .82, cz + rz * .40];
     trunk.fills.push({d: [[fork[0] - w, fork[1]], [fork[0] + w, fork[1]], [end[0] + w, end[1]], [end[0] - w, end[1]]], soft: .3, crisp: .85});
+  }
+  // Continue the three boughs as surface engraving where the solid crown covers them.
+  for (const side of [-1, 0, 1]) {
+    leaf.lines.push({d: quad([cx - rx * .06, cz + rz * .55], [cx + side * rx * .22, cz + rz * .25], [cx + side * rx * .48, cz - rz * (side ? -.08 : .16)], 10), w: .9, amp: .8});
   }
   return [trunk, leaf];
 }
