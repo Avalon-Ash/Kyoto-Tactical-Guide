@@ -6,8 +6,8 @@
 
 | 項目 | 狀態 |
 |---|---|
-| 主線 | `main`：包含十一區文庫（`6d6a132`）、UI 翻新規劃文件（`1608263`）、T4-M5 手機 UI、UI 翻新 P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞）。實際 HEAD 以 `git log -1 main` 為準 |
-| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤）：2026-11-13 依使用者指示 fast-forward 併入 `main` 並 push；十一區都已是盤，但屬進行中的版本，待辦見 `MAKIE_PLATE_HANDOFF.md` §8.1。後續可直接在此分支或新分支接著做 |
+| 主線 | `main`：2026-11-13 已含蒔繪浮雕盤（十一區都是 WebGL2 浮雕盤）與其前的十一區文庫、手機 UI、UI 翻新 P1／P3。實際 HEAD 以 `git log -1 main` 為準 |
+| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤）：2026-11-13 兩度 fast-forward 併入 `main` 並 push（使用者分別同意），交接當下與 `main` 同一個 commit。後續在此分支或新分支接著做；接手計畫在 `MAKIE_PLATE_HANDOFF.md` §8 |
 | `ux-unify` | 2026-11-12 確認與 `main` 同在 `4ca3adb`，內容已全在 `main`；分支仍在，未刪 |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
@@ -28,12 +28,12 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 範圍 | 狀態 |
 |---|---|
 | 資料 | 809 筆，`validate_data.js --strict` ERROR 0／WARN 0。綠燈不代表全庫事實查核完成 |
-| 首頁文庫 | 十一區文箱（原生 WebGL 2.5D 浮雕）；單指盒面移光（撫摩），長拖沿隱形軌道跟手換函（死區 14px、跟隨比 0.6、位移達畫布寬 26% 且上限 200px 放手換函，無 TAB 或按鈕換函，左右方向鍵換函保留；首頁畫布 `touch-action:none`）；雙指捏合／滾輪／快捷鍵放大（上限 3 倍）；點蓋／Enter／空白鍵開蓋直入 `DetailView`（該行政區的卷，無文字搜尋，原本 `library.ts` 書卷對話框已刪除）；文箱核心（`mountBunko`）與展示頁外殼（`mountStudy`）解耦；月光預設、閒置移光 |
+| 首頁文庫 | 十一區文箱（2026-11-13 起每區都是 WebGL2 蒔繪浮雕盤；沒有 WebGL2 時退回舊的 2.5D 浮雕）；單指盒面移光（撫摩），長拖沿隱形軌道跟手換函（死區 14px、跟隨比 0.6、位移達畫布寬 26% 且上限 200px 放手換函，無 TAB 或按鈕換函，左右方向鍵換函保留；首頁畫布 `touch-action:none`）；雙指捏合／滾輪／快捷鍵放大（上限 3 倍）；點蓋／Enter／空白鍵開蓋直入 `DetailView`（該行政區的卷，無文字搜尋，原本 `library.ts` 書卷對話框已刪除）；文箱核心（`mountBunko`）與展示頁外殼（`mountStudy`）解耦；月光預設、閒置移光 |
 | 全站 UI | 手機優先、深色預設；暖日／月光、語系、減少動態全站共用（`App.tsx` → `.kyoto-app[data-theme]`，色票唯一來源為 `src/theme.css`）；卷軸外觀由 `ScrollRoller.tsx` 統一（`DetailView` 與御秘帖標籤結果頁 overlay）；詳細頁固定底部列表／地圖切換；地圖縮放與全區按鈕 |
 | 程式審查與 UI 統一 | 2026-11-09 完成：修地圖重繪跳回全區、返回焦點；刪死碼、未用依賴與 1 MB 原型圖；色票集中 `src/theme.css`、文案集中 `i18n.ts`。已併入 `main`，見執行紀錄 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 已刪除（Git 歷史可取回） |
 | UI 翻新 | P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已併入 `main`。`ux-unify` 再加上十一區各自的紋樣、霞帶配置與一行短句（`src/studies/toji/ward-art.js`；配對與短句是主代理的設計稿，待使用者看過）。P2 蒔繪光澤、`src/lib/spring.ts` 尚未做。規劃見[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md) |
-| 蒔繪浮雕盤 | 2026-11-12 起：南區已重畫為浮雕盤原型（`src/studies/toji/plate/`，WebGL2）：地子隆起、部品為厚實的膨脹實體並隨手立起、鶯換枝、組紐與紐金具、箱側紋飾、內梨地與懸子。2026-11-13：陰影改為深度圖，伏見與東山兩區範本完成。其餘八區與無 WebGL2 的裝置仍走原浮雕網格。兩區範本停在關卡待使用者過目，之後才做其餘八區。接續工作先讀 [蒔繪浮雕盤交接](MAKIE_PLATE_HANDOFF.md)；驗收見 [雲端紀錄](agent-runs/2026-11-12-makie-plate-p0-p1.md) 與 [本機接續紀錄](agent-runs/2026-11-12-makie-plate-p1-local.md) |
+| 蒔繪浮雕盤 | P0–P3 完成並部署（2026-11-13）：十一區都重畫為浮雕盤（`src/studies/toji/plate/`，WebGL2）。地子隆起、部品為膨脹實體並隨手立起、深度圖陰影、鶯換枝、組紐與紐金具、箱側紋飾、換函軌道與三函同框。造形原則「形歸形、意歸意」：立體只做認得出的大形，特徵用平嵌的切金、切銀、青貝意象（落葉、花瓣、水中月、足跡、燈光）。暫停＝部品全躺平、光仍跟手。南、伏見、東山由主代理構圖，其餘八區由 Codex 構圖。待辦（使用者的線上版回饋、幾處造形、補驗、P4）與派工做法見 [MAKIE_PLATE_HANDOFF.md](MAKIE_PLATE_HANDOFF.md) §8 |
 | 文箱架構 | `study.js`（`mountBunko`：手勢、移光、縮放、換函、開蓋）、`renderer.js`（WebGL）、`interaction.js`／`view.js`（純函式）、`backdrop.js`＋`ward-art.js`（背景）、`template.ts`（`BUNKO_STAGE`）。獨立展示頁另由 `study-chrome.js`（`mountStudy`）包一層控制，主站不載入 |
 
 ## 3. 最近一次驗收（2026-11-11，`ux-unify`）
@@ -72,6 +72,6 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | Phase 4 資料與地圖 | `2026-11-04-phase04-data.md`、`2026-11-04-phase04-location-makie.md` |
 | 文庫首頁（T4-M1～M4c） | `2026-11-05-phase04-*.md`、`2026-11-06-phase04-*.md`；主線交付見 `2026-11-06-phase04-main-release.md` |
 | 手機 UI（T4-M5） | [2026-11-06-mobile-bunko-ui.md](agent-runs/2026-11-06-mobile-bunko-ui.md)（含 11-09 補驗） |
-| 蒔繪浮雕盤 P0–P1 | [2026-11-12-makie-plate-p0-p1.md](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[2026-11-12-makie-plate-p1-local.md](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2 前半](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)；agy：[A1](agent-runs/2026-11-12-agy-a1.md)、[A2](agent-runs/2026-11-12-agy-a2.md) |
+| 蒔繪浮雕盤 P0–P3 | [P0–P1 雲端](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[P1 本機](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間](agent-runs/2026-11-13-makie-plate-p3d.md) |
 | UI 翻新 P3 背景 | [2026-11-09-ui-renewal-p3-backdrop.md](agent-runs/2026-11-09-ui-renewal-p3-backdrop.md) |
 | 程式審查與 UI 統一 | [2026-11-09-code-review-ui-unify.md](agent-runs/2026-11-09-code-review-ui-unify.md) |
