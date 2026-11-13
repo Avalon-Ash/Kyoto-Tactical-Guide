@@ -44,6 +44,8 @@ npm run dev -- --host 127.0.0.1 --strictPort   # 3000 埠；Claude 桌面版用 
 
 所有新程式在 `src/studies/toji/plate/`。
 
+> **2026-11-14 起樹走另一條管線**：幹與枝是骨架掃出的半管網格（`limbs.js`），葉與針是程式畫出的蒔繪印記表上的 instanced 印記（`stamps.js`、`trees.js`、`tree-shaders.js`），說明在 [`MAKIE_STAMPS.md`](MAKIE_STAMPS.md)，參考在 [`MAKIE_REFERENCES.md`](MAKIE_REFERENCES.md)。下面講的「膨脹」（模糊剪影＋`body()`）只剩地子、建築、岩、霞、箱子在用；它做不出細枝與分開的小葉，這是前四輪樹失敗的原因。
+
 | 檔案 | 職責 |
 |---|---|
 | `vocab.js` | 繪畫語彙，只產生純資料部品（多邊形與折線），不碰 DOM。**地子**：`hill`、`stream`、`pond`、`gardenGround`、`sandGarden`、`stoneSteps`、`steppingStones`、`moonDeck`、`shell`。**霞與岩**：`suyari`、`rock`、`moatWall`。**屋宇**：`roof`、`storey`、`pagoda`、`hall`、`romon`、`sanmon`、`karamon`、`corridor`、`kakezukuri`、`torii`。**樹**：`pine`、`maple`、`ginkgo`、`courtTree`（後三者共用內部的 `broadleaf`）。**其他立體**：`fox`、`bird`、`phoenix`、`lantern`、`sandCone`。**平嵌意象**：`fallenLeaves`、`fallenFans`、`petals`、`fruits`、`moon`、`pawPrints`（共用內部的 `scatter`） |
@@ -226,6 +228,7 @@ node scripts/plate-shot.mjs C:/Git/Kyoto-Bunko/.shots/try kita:5:night:1440x900:
 
 蒔看完兩輪 W2 後仍不滿意、下一輪可做的（依影響排）：
 
+0. **樹（2026-11-14）**：W2 第三輪、樹的重做（`e1dba6c`）都失敗後，改架構重建（形體＋印記）。使用者對樹的回饋尚未收到。
 1. ~~闊葉樹正面像立著的切板~~：W2 第三輪（2026-11-14）改成薄底冠加七個鼓包墊，鼓包間有暗谷、樹幹露出。
 2. **左京的月（使用者 2026-11-14 定案）**：用千利休的典故——真塗（黑漆）的器盛水，放在向月台頂上，映出月影（信長大悅的那則）。做法：向月台頂上一只真塗的器，器中以青貝做月影，加一點切銀／平文的月光意象；斜視下要讀得出「台上一器、器中有月」。現況（平嵌在台前地子）是過渡版。
 3. **松（使用者 2026-11-14：要動，排下一輪 Astra）**：全景像傘或蘑菇（北區最明顯）。保留「橫的幾層」的松語言，讓層次與輪廓不再讀成傘。
