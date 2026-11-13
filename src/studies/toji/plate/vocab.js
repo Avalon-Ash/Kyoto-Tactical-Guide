@@ -382,7 +382,7 @@ export function pawPrints(id, points, {size = 4.6} = {}) {
   return [p];
 }
 
-/** Inari's fox, seated on its stone with its tail up: silver on a block of cut gold. `flip` -1 faces it left. */
+/** Inari's fox, seated on its stone, its brush curled low behind it: silver on a block of cut gold. `flip` -1 faces it left. */
 export function fox(id, x, z, flip = 1, s = 1, {layer = 2} = {}) {
   const f = (dx, h) => [x + dx * flip * s, z - h * s], B = 16;
   const stone = part(`${id}-stone`, KIND.tier, layer, MAT.kirikane, [x, z], {group: id, order: 0});
@@ -396,8 +396,8 @@ export function fox(id, x, z, flip = 1, s = 1, {layer = 2} = {}) {
   body.fills.push({d: [f(8, B + 36), f(22, B + 29.5), f(9, B + 25.5)], soft: .2, crisp: 1});                           // muzzle
   body.fills.push({d: [f(.6, B + 33.5), f(1.6, B + 46), f(6.4, B + 36)], soft: .2, crisp: 1});                         // ears
   body.fills.push({d: [f(6, B + 36), f(10.4, B + 45), f(11.6, B + 34.4)], soft: .2, crisp: 1});
-  body.fills.push({d: [...quad(f(-8, B + 1), f(-30, B + 12), f(-19, B + 48), 10), ...quad(f(-19, B + 48), f(-17, B + 24), f(-7, B + 9), 10)], soft: .3, crisp: .85});   // tail
-  body.lines.push({d: quad(f(-11, B + 6), f(-25, B + 20), f(-16, B + 40), 8), w: .6, amp: .8});
+  body.fills.push({d: [...quad(f(-8, B + 1), f(-30, B + 1), f(-27, B + 26), 10), ...quad(f(-27, B + 26), f(-19, B + 15), f(-7, B + 11), 10)], soft: .3, crisp: .85});   // tail
+  body.lines.push({d: quad(f(-11, B + 5), f(-25, B + 6), f(-24, B + 21), 8), w: .6, amp: .8});
   body.lines.push({d: quad(f(-9, B + 18), f(-1, B + 20), f(1, B + 8), 6), w: .6, amp: .7});
   body.lines.push({d: [f(7.6, B + 32.4), f(10, B + 31.6)], w: .7, amp: 1});
   return [stone, body];
@@ -519,7 +519,7 @@ export function steppingStones(id, points) {
 }
 
 /**
- * A stone lantern in elevation: squat, with a broad cap. What makes it a lantern is its light, which no solid can
+ * A stone lantern in elevation: squat, with a broad cap and a window of cut gold. What makes it a lantern is its light, which no solid can
  * show: chips of cut gold strewn on the ground before it, densest at its foot.
  */
 export function lantern(id, x, z, s = 1) {
@@ -533,7 +533,7 @@ export function lantern(id, x, z, s = 1) {
   polygon(cap, [[-33, 45], [33, 45], [26, 53], [10, 62], [0, 66], [-10, 62], [-26, 53]]);
   polygon(cap, [[-6, 63], [6, 63], [5, 76], [-5, 76]]);
   cap.lines.push({d: [P(-25, 49), P(25, 49)], w: .8, amp: 1});
-  const opening = part(`${id}-light`, KIND.tier, 3, MAT.lamp, [x, z], {group: id, order: 1, thick: 6, bias: 13});
+  const opening = part(`${id}-light`, KIND.tier, 3, MAT.kirikane, [x, z], {group: id, order: 1, thick: 6, bias: 13});
   opening.fills.push({d: [P(-9, 29), P(9, 29), P(9, 43), P(-9, 43)], soft: 0, crisp: .5});
   const chip = (cx, cz, R, turn) => [0, 1, 2, 3].map(i => [cx + Math.cos(turn + i * 1.5708) * R, cz + Math.sin(turn + i * 1.5708) * R]);
   return [stone, cap, opening, ...scatter(`${id}-glow`, x, z + 20 * s, 46 * s, 16 * s, 16, 5, 2.8, chip, [['gold', MAT.kirikane]])];

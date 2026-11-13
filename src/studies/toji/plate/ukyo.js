@@ -12,7 +12,7 @@ export function ukyo() {
     ...suyari('mist-ridge', -330, -107, -201, 12, 4),
     ...suyari('mist-pond', 45, 235, -123, 12, 8),
     ...suyari('mist-near', -310, -115, 157, 14, 3),
-    ...rock('dragon-stone', 65, -55, 29, 33, 3),
+    ...rock('dragon-stone', 65, -55, 38, 22, 3),
     ...rock('shore-stone', 140, -48, 24, 20, 7, {mat: MAT.kirigin}),
     ...hall('hojo', -164, 48, 128, 54, {wallH: 34, bays: 9}),
     ...pine('west-pine', -289, -61, 104, 12, 2, {clusters: 3}),

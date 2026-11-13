@@ -11,7 +11,7 @@ export function shimogyo() {
     ...hall('amidado', -154, -65, 101, 43, {wallH: 26, group: 'twin-halls'}),
     ...hall('goeido', 128, -80, 135, 59, {wallH: 41, bays: 9, group: 'twin-halls'}),
     ...corridor('watari', -62, 32, -39, {height: 17, group: 'twin-halls'}),
-    ...fallenFans('ginkgo-fall', -176, 194, 132, 28, 26, 6),
+    ...fallenFans('ginkgo-fall', -170, 190, 150, 32, 42, 6, {size: 12}),
     ...ginkgo('great-ginkgo', -224, 198, 139),
     ...pine('east-pine', 284, 201, 112, -12, 6, {clusters: 3}),
     ...rock('ginkgo-stone', -104, 206, 21, 17, 4),
