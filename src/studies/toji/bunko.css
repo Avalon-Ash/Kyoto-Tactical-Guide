@@ -75,3 +75,8 @@
   .bunko[data-embedded] #cabinet-context { font-size:11px; max-width:none; }
   .bunko .zoom-reset { right:14px; bottom:16px; }
 }
+/* While the ?three=1 plate renderer loads, the stage stays open: the words and a breathing gold rule over the backdrop. */
+.bunko .loading[data-kind="plate"] { background:transparent; pointer-events:none; color:var(--ink); }
+.bunko .loading[data-kind="plate"]::after { content:""; justify-self:center; width:96px; height:1px; margin-top:12px; background:linear-gradient(90deg,transparent,var(--hira-gold),transparent); animation:bunko-loading 1.6s ease-in-out infinite; }
+@keyframes bunko-loading { 0%,100% { opacity:.25; transform:scaleX(.55); } 50% { opacity:1; transform:scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .bunko .loading[data-kind="plate"]::after { animation:none; opacity:.7; } }

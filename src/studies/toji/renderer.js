@@ -112,6 +112,8 @@ export function createRenderer(canvas, wardId, onPlateReady) {
     }
     return {
       setMesh,
+      /** True while the deferred ?three=1 renderer is still loading (the canvas is blank meanwhile). */
+      loading: () => threeLoading,
       /** A tap on a part of a plate in close-up; '' when there is no plate or nothing was met. */
       poke: (x, z, time) => plateActive ? plate.poke(x, z, time) : '',
       /** Draws one frame and returns the camera matrix it used. @param {Frame} f */

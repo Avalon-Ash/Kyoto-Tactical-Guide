@@ -421,13 +421,13 @@ const intersection=new IntersectionObserver(entries=>{visible=entries[0].isInter
 const resize=new ResizeObserver(()=>{syncBackdrop();schedule();queueSnapshot();});resize.observe(canvas);
 
 function init(){
-  const renderer=createRenderer(canvas,cabinet.id,()=>{if(!destroyed){queueSnapshot();schedule();}});
+  const renderer=createRenderer(canvas,cabinet.id,()=>{if(!destroyed){$('loading').hidden=true;$('loading').dataset.kind='';queueSnapshot();schedule();}});
   updateMesh=()=>renderer.setMesh(cabinet.id);setMeshRaw=id=>renderer.setMesh(id);rawDraw=frame=>renderer.draw(frame);queueSnapshot();
   render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0,offset:dragOffset,kick});kick=0;};
   poke=renderer.poke;
-  dispose=renderer.dispose;failed=false;$('loading').hidden=true;canvas.dataset.renderer='webgl';schedule();
+  dispose=renderer.dispose;failed=false;{const pending=Boolean(renderer.loading?.());$('loading').hidden=!pending;$('loading').dataset.kind=pending?'plate':'';}canvas.dataset.renderer='webgl';schedule();
 }
-function failure(error){failed=true;render=null;updateMesh=null;poke=null;rawDraw=setMeshRaw=null;canvas.dataset.renderer='failed';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
+function failure(error){failed=true;render=null;updateMesh=null;poke=null;rawDraw=setMeshRaw=null;canvas.dataset.renderer='failed';$('loading').dataset.kind='';$('loading').hidden=false;syncLanguage();syncMotion();console.error('Toji study:',error);}
 listen(canvas,'webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(frame);frame=0;dispose?.();failure('Context lost');});
 listen(canvas,'webglcontextrestored',()=>{try{init();syncMotion();}catch(e){failure(e);}});
 listen(window,'pagehide',event=>{cancelAnimationFrame(frame);frame=0;if(!event.persisted)dispose?.();});
