@@ -13,6 +13,7 @@
 
 import {meshTorii, meshKakezukuri} from './frame-mesh.js';
 import {meshRoof, meshStorey, meshPagoda, meshHall, meshRomon, meshSanmon, meshKaramon, meshCorridor} from './architecture-mesh.js';
+import {meshLantern} from './lantern-mesh.js';
 
 export const PLATE = {halfW: 360, halfH: 230};
 export const MAT = {ground: 1, nashijiLight: 2, mura: 3, gyobu: 4, gold: 5, silver: 6, kirikane: 7, kirigin: 8, aogai: 9,
@@ -350,21 +351,8 @@ export function steppingStones(id, points) {
  * show: chips of cut gold strewn on the ground before it, densest at its foot.
  */
 export function lantern(id, x, z, s = 1) {
-  const P = (a, h) => [x + a * s, z - h * s];
-  const stone = part(`${id}-stone`, KIND.tier, 2, MAT.nashijiLight, [x, z], {group: id, thick: 16});
-  const polygon = (p, d) => p.fills.push({d: d.map(([a, h]) => P(a, h)), soft: .25, crisp: .8});
-  polygon(stone, [[-22, 0], [22, 0], [18, 9], [-18, 9]]);
-  const shaft = Math.max(6 / s, 7);
-  polygon(stone, [[-shaft, 7], [shaft, 7], [shaft, 30], [-shaft, 30]]);
-  polygon(stone, [[-17, 29], [17, 29], [16, 49], [-16, 49]]);
-  const cap = part(`${id}-cap`, KIND.tier, 2, MAT.gold, [x, z], {group: id, order: 1, thick: 14});
-  polygon(cap, [[-35, 47], [35, 47], [28, 54], [12, 61], [0, 65], [-12, 61], [-28, 54]]);
-  polygon(cap, [[-6, 63], [6, 63], [5, 76], [-5, 76]]);
-  cap.lines.push({d: [P(-30, 50), P(30, 50)], w: .8, amp: 1});
-  const opening = part(`${id}-light`, KIND.tier, 3, MAT.kirikane, [x, z], {group: id, order: 1, thick: 6, bias: 13});
-  opening.fills.push({d: [P(-8, 33), P(8, 33), P(8, 45), P(-8, 45)], soft: 0, crisp: .5});
   const chip = (cx, cz, R, turn) => [0, 1, 2, 3].map(i => [cx + Math.cos(turn + i * 1.5708) * R, cz + Math.sin(turn + i * 1.5708) * R]);
-  return [stone, cap, opening, ...scatter(`${id}-glow`, x, z + 20 * s, 46 * s, 16 * s, 16, 5, 2.8, chip, [['gold', MAT.kirikane]])];
+  return [...meshLantern(id, x, z, s), ...scatter(`${id}-glow`, x, z + 20 * s, 46 * s, 16 * s, 16, 5, 2.8, chip, [['gold', MAT.kirikane]])];
 }
 
 /** White sand is a ground field; raking is engraved line work, never a row of raised bars. */

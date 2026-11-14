@@ -778,3 +778,247 @@ test('p2 pagoda: five storeys that each move as one, nine separate rings, a long
   }
   assert.ok(seen.some(([low, high]) => low > high + 1e-4), 'the lowest storey stands before the top one');
 });
+
+test('meshLantern builds accurate proportions, recessed window, 6-faceted cap, and rejects non-positive scale', async () => {
+  const {meshLantern} = await import('../src/studies/toji/plate/lantern-mesh.js');
+  const boundsOf = chunks => {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const c of chunks) {
+      const v = c.vertices;
+      for (let i = 0; i < v.length; i += 8) {
+        minX = Math.min(minX, v[i]); maxX = Math.max(maxX, v[i]);
+        minY = Math.min(minY, v[i + 1]); maxY = Math.max(maxY, v[i + 1]);
+        minZ = Math.min(minZ, v[i + 2]); maxZ = Math.max(maxZ, v[i + 2]);
+      }
+    }
+    return {minX, maxX, minY, maxY, minZ, maxZ};
+  };
+
+  for (const s of [.9, 1]) {
+    const cx = 100, cz = 150;
+    const [stone, cap, opening] = meshLantern('lan', cx, cz, s);
+    for (const p of [stone, cap, opening]) {
+      assert.equal(p.thick, 0);
+      assert.equal(p.bias, 0);
+      assert.equal(p.reach, .6);
+      assertValidMeshChunks(p.mesh);
+    }
+    assert.equal(stone.rigidGroup, true);
+    assert.equal(cap.motionWith, 'lan-stone');
+    assert.equal(opening.motionWith, 'lan-stone');
+
+    const allBounds = boundsOf([...stone.mesh, ...cap.mesh, ...opening.mesh]);
+    assert.ok(Math.abs((allBounds.maxZ - allBounds.minZ) - 76 * s) < .1, `s=${s} total height is 76*s`);
+    const capBounds = boundsOf(cap.mesh);
+    assert.ok(Math.abs((capBounds.maxX - capBounds.minX) - 70 * s) < 1e-4, `s=${s} cap width is 70*s`);
+
+    // Shaft width <= 6.8*s and narrowest top section exists without clipping
+    const shaftChunk = stone.mesh[3];
+    const shaftBounds = boundsOf([shaftChunk]);
+    assert.ok(shaftBounds.maxX - shaftBounds.minX <= 6.8 * s + 1e-4, `s=${s} shaft width <= 6.8*s`);
+    const topRingXs = [];
+    for (let i = 0; i < shaftChunk.vertices.length; i += 8) {
+      if (Math.abs(shaftChunk.vertices[i + 2] - (cz - 31 * s)) < 1e-3) topRingXs.push(shaftChunk.vertices[i]);
+    }
+    assert.ok(topRingXs.length > 0 && Math.max(...topRingXs) - Math.min(...topRingXs) >= 5.5 * s, `s=${s} narrowest shaft ring >= 5.5*s`);
+    assert.equal(topTrianglesXZ([shaftChunk], [cx, cz - 28 * s]), true, `s=${s} narrowest exposed shaft at h=28 exists`);
+
+    // Recessed window: frame front y=8*s, window front y=3*s (recess >= 4*s), window inside frame aperture
+    const frameMesh = stone.mesh.filter(c => c.mat === MAT.nashijiLight);
+    let frameMaxY = -Infinity;
+    for (const chunk of frameMesh) {
+      const v = chunk.vertices;
+      for (let i = 0; i < v.length; i += 8) {
+        const h = (cz - v[i + 2]) / s;
+        if (h >= 33 - 1e-4 && h <= 49 + 1e-4) frameMaxY = Math.max(frameMaxY, v[i + 1]);
+      }
+    }
+    const winBounds = boundsOf(opening.mesh);
+    assert.ok(frameMaxY - winBounds.maxY >= 4 * s - 1e-5, `s=${s} window recessed >= 4*s behind frame front`);
+    assert.ok(winBounds.minX >= cx - 11.5 * s && winBounds.maxX <= cx + 11.5 * s, `s=${s} window x inside frame`);
+    assert.ok(winBounds.minZ >= cz - 47 * s && winBounds.maxZ <= cz - 35 * s, `s=${s} window z inside frame`);
+    assert.equal(topTrianglesXZ(frameMesh, [cx, cz - 41 * s]), false, `s=${s} stone frame leaves window aperture open`);
+
+    const lacquerBack = stone.mesh.filter(c => c.mat === MAT.lacquer);
+    assert.equal(lacquerBack.length, 1, `s=${s} stone has lacquer backing plate`);
+    assert.ok(Math.abs(boundsOf(lacquerBack).maxY - 2.7 * s) < 1e-4, `s=${s} lacquer backing at y=2.7*s`);
+
+    // Hexagonal cap: outer corners (|a| > 34) sit >= 4*s higher than lowest eave (h=48) and normals vary across facets
+    const capTopNormals = new Set();
+    let outerCornerH = -Infinity, lowestEaveH = Infinity;
+    const hexV = cap.mesh[0].vertices;
+    for (let i = 0; i < hexV.length; i += 24) {
+      const nKey = `${hexV[i + 3].toFixed(3)},${hexV[i + 4].toFixed(3)},${hexV[i + 5].toFixed(3)}`;
+      capTopNormals.add(nKey);
+      for (let k = 0; k < 24; k += 8) {
+        const vx = hexV[i + k], vy = hexV[i + k + 1], vz = hexV[i + k + 2];
+        const a = (vx - cx) / s, h = (cz - vz) / s;
+        if (Math.abs(a) > 34.5 && vy > 6.9 * s && vy < 7.1 * s) outerCornerH = Math.max(outerCornerH, h);
+        if (Math.abs(Math.abs(a) - 17.5) < .2 && h > 47) lowestEaveH = Math.min(lowestEaveH, h);
+      }
+    }
+    assert.ok(outerCornerH - lowestEaveH >= 4 - 1e-4, `s=${s} outer cap corner >= 4*s above lowest eave`);
+    assert.ok(capTopNormals.size >= 6, `s=${s} cap facets have distinct cross-product normals`);
+  }
+
+  assert.throws(() => meshLantern('bad', 0, 0, 0), /scale/);
+  assert.throws(() => meshLantern('bad', 0, 0, -1), /scale/);
+  assert.throws(() => meshLantern('bad', 0, 0, NaN), /scale/);
+});
+
+test('all three ward lanterns migrate to rigidGroup mesh while keeping part counts, motion sync, and deterministic glow', async () => {
+  const {lantern, rand} = await import('../src/studies/toji/plate/vocab.js');
+
+  const wardLanterns = [
+    ['W_NISHIKYO', 33, ['shore-lantern']],
+    ['W_YAMASHINA', 34, ['west-lantern', 'east-lantern']],
+  ];
+  for (const [ward, count, ids] of wardLanterns) {
+    const {parts, errors} = preparePlate(PLATES[ward]());
+    assert.deepEqual(errors, [], ward);
+    assert.equal(parts.length, count, `${ward} part count unchanged`);
+
+    const life = createLife(parts);
+    for (const id of ids) {
+      const stone = parts.find(p => p.id === `${id}-stone`);
+      const cap = parts.find(p => p.id === `${id}-cap`);
+      const light = parts.find(p => p.id === `${id}-light`);
+      const glow = parts.find(p => p.id === `${id}-glow-gold`);
+      assert.ok(stone && cap && light && glow, `${ward}: ${id} has all 4 parts`);
+      for (const p of [stone, cap, light]) {
+        assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} uses mesh`);
+        assert.equal(p.thick, 0);
+        assert.equal(p.bias, 0);
+        assert.equal(p.reach, .6);
+      }
+      assert.equal(stone.rigidGroup, true);
+      assert.equal(cap.motionWith, stone.id);
+      assert.equal(light.motionWith, stone.id);
+      assert.equal(glow.kind, KIND.still);
+      assert.equal(glow.layer, 0);
+      assert.equal(glow.mesh, undefined);
+
+      const awake = run(life, 1.2, {light: stone.centre});
+      for (const f of [cap, light]) {
+        assert.equal(awake.a[f.index * 4], awake.a[stone.index * 4], `${f.id} sway matches stone`);
+        assert.equal(awake.a[f.index * 4 + 1], awake.a[stone.index * 4 + 1], `${f.id} stand matches stone`);
+        assert.equal(awake.b[f.index * 4], awake.b[stone.index * 4], `${f.id} dx matches stone`);
+        assert.equal(awake.b[f.index * 4 + 1], awake.b[stone.index * 4 + 1], `${f.id} dz matches stone`);
+        assert.equal(awake.b[f.index * 4 + 2], awake.b[stone.index * 4 + 2], `${f.id} lift matches stone`);
+      }
+
+      assert.equal(life.act(stone.index, 2000), true);
+      const acted = run(life, .2, {light: stone.centre}, 2000);
+      for (const f of [cap, light]) {
+        assert.equal(acted.b[f.index * 4 + 2], acted.b[stone.index * 4 + 2], `${f.id} lift stays synced after act`);
+        assert.ok(acted.a[f.index * 4 + 3] > 0, `${f.id} glow wakes after act`);
+      }
+
+      const stillLife = createLife(parts);
+      const stillOut = stillLife.update(1 / 60, {time: 5000, light: light.centre, presence: 1, still: true, lift: 1});
+      for (const f of [stone, cap, light]) {
+        assert.equal(stillOut.a[f.index * 4], 0);
+        assert.equal(stillOut.a[f.index * 4 + 1], 0);
+        assert.equal(stillOut.b[f.index * 4], 0);
+        assert.equal(stillOut.b[f.index * 4 + 1], 0);
+        assert.equal(stillOut.b[f.index * 4 + 2], 0);
+      }
+      assert.ok(stillOut.a[light.index * 4 + 2] > .5, `${light.id} still wakes under light`);
+    }
+  }
+
+  // Deterministic scatter glow fills match original scatter(seed=5, count=16, cx=x, cz=z+20*s, rx=46*s, rz=16*s, size=2.8)
+  const sample = lantern('det-lantern', 246, 171, .9);
+  assert.deepEqual(sample.map(p => p.id), ['det-lantern-stone', 'det-lantern-cap', 'det-lantern-light', 'det-lantern-glow-gold']);
+  const glow = sample[3];
+  assert.equal(glow.fills.length, 16);
+  const r = rand(5);
+  const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+  const expected = [];
+  for (let i = 0; i < 16; i++) {
+    const a = r() * 6.283, q = Math.pow(r(), .7), R = 2.8 * (.75 + r() * .6), m = R + 2;
+    const gx = clamp(246 + Math.cos(a) * (46 * .9) * q, PLATE.halfW - m);
+    const gz = clamp(171 + 20 * .9 + Math.sin(a) * (16 * .9) * q, PLATE.halfH - m);
+    const turn = r() * 6.283;
+    expected.push([0, 1, 2, 3].map(k => [gx + Math.cos(turn + k * 1.5708) * R, gz + Math.sin(turn + k * 1.5708) * R]));
+  }
+  assert.deepEqual(glow.fills.map(f => f.d), expected, 'glow fills match deterministic scatter output');
+});
+
+test('meshLantern upper frame and hidden cap support join hexCapMesh with 0.3-0.5*s embedment and no top protrusion', async () => {
+  const {meshLantern} = await import('../src/studies/toji/plate/lantern-mesh.js');
+  const rayH = (chunks, px, py, cz, s) => {
+    let minH = Infinity, maxH = -Infinity, count = 0;
+    for (const chunk of chunks) {
+      const v = chunk.vertices;
+      for (let i = 0; i < v.length; i += 24) {
+        const ax = v[i], ay = v[i + 1], az = v[i + 2];
+        const bx = v[i + 8], by = v[i + 9], bz = v[i + 10];
+        const cx = v[i + 16], cy = v[i + 17], czV = v[i + 18];
+        const denom = (by - ay) * (cx - ax) - (bx - ax) * (cy - ay);
+        if (Math.abs(denom) <= 1e-10) continue;
+        const u = ((by - py) * (cx - px) - (bx - px) * (cy - py)) / denom;
+        const w = ((cy - py) * (ax - px) - (cx - px) * (ay - py)) / denom;
+        const t = 1 - u - w;
+        if (u >= -1e-6 && w >= -1e-6 && t >= -1e-6) {
+          const zHit = u * az + w * bz + t * czV;
+          const h = (cz - zHit) / s;
+          minH = Math.min(minH, h);
+          maxH = Math.max(maxH, h);
+          count++;
+        }
+      }
+    }
+    return {minH, maxH, count};
+  };
+
+  for (const s of [.9, 1]) {
+    const cx = 100, cz = 150;
+    const [stone, cap] = meshLantern('join', cx, cz, s);
+    assertValidMeshChunks(stone.mesh);
+    assertValidMeshChunks(cap.mesh);
+
+    const capShell = [cap.mesh[0]];
+    const upperFrame = [stone.mesh[7]];
+    const support = [stone.mesh[11]];
+
+    // Back side y=1.1*s: upper frame must not exist where capBottomH + 0.4 < 47, and no stone triangle pierces cap top
+    for (const a of [-12, -5, 0, 5, 12]) {
+      const px = cx + a * s, py = 1.1 * s;
+      const capHit = rayH(capShell, px, py, cz, s);
+      const stoneHit = rayH(stone.mesh, px, py, cz, s);
+      const frameHit = rayH(upperFrame, px, py, cz, s);
+      assert.ok(capHit.count > 0, `s=${s} cap covers (${a}, 1.1)`);
+      assert.equal(frameHit.count, 0, `s=${s} upper frame trimmed away at y=1.1, a=${a}`);
+      assert.ok(stoneHit.maxH <= capHit.maxH - 1.5, `s=${s} stone stays below cap top at y=1.1, a=${a}`);
+      assert.ok(stoneHit.maxH <= capHit.minH + .4 + 1e-4, `s=${s} stone embedment <= 0.4*s at y=1.1, a=${a}`);
+    }
+
+    // Transition slope y=1.5*s: upper frame embeds 0.3..0.5*s into cap bottom without piercing cap top
+    for (const a of [-10, 0, 10]) {
+      const px = cx + a * s, py = 1.5 * s;
+      const capHit = rayH(capShell, px, py, cz, s);
+      const frameHit = rayH(upperFrame, px, py, cz, s);
+      assert.ok(frameHit.count > 0, `s=${s} upper frame present at y=1.5, a=${a}`);
+      const embed = frameHit.maxH - capHit.minH;
+      assert.ok(embed >= .3 - 1e-4 && embed <= .5 + 1e-4, `s=${s} upper frame embeds 0.3..0.5*s at y=1.5 (got ${embed})`);
+      assert.ok(frameHit.maxH < capHit.maxH - 1.5, `s=${s} upper frame stays below cap top at y=1.5`);
+    }
+
+    // Central hidden support across y=2.5..8*s, a=-11..11: 0.3..0.5*s embedment into both upper frame and cap bottom
+    for (const y of [2.5, 3, 4.5, 7, 8]) {
+      for (const a of [-11, -5, 0, 5, 11]) {
+        const px = cx + a * s, py = y * s;
+        const capHit = rayH(capShell, px, py, cz, s);
+        const frameHit = rayH(upperFrame, px, py, cz, s);
+        const supHit = rayH(support, px, py, cz, s);
+        assert.ok(supHit.count > 0 && frameHit.count > 0 && capHit.count > 0, `s=${s} continuous stack at (${a}, ${y})`);
+        const botEmbed = frameHit.maxH - supHit.minH;
+        const topEmbed = supHit.maxH - capHit.minH;
+        assert.ok(botEmbed >= .3 - 1e-4 && botEmbed <= .5 + 1e-4, `s=${s} support bottom embeds 0.3..0.5*s at (${a},${y}) (got ${botEmbed})`);
+        assert.ok(topEmbed >= .3 - 1e-4 && topEmbed <= .5 + 1e-4, `s=${s} support top embeds 0.3..0.5*s at (${a},${y}) (got ${topEmbed})`);
+        assert.ok(supHit.maxH < capHit.maxH - 1.5, `s=${s} support stays below cap top at (${a},${y})`);
+      }
+    }
+  }
+});
