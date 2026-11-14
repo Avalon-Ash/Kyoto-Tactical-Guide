@@ -156,3 +156,15 @@ L1 有效：岩腳、金閣與五重塔基部的暗部接近參考圖。下一�
   - 背光的銀面在網站的俯視角裡多半看不到；要讀出「金銀兩面」可能得靠移光或放大
 交接：已依使用者授權併入 main 並 push（見 git log）
 ```
+
+## 9. 追加：換盒不卡（p5，2026-11-14 晚）
+
+- 量測（開發模式，`?three=1`，CDP longtask＋rAF 間隔，每種 2–3 次換盒）：
+
+  | | 換盒長任務（前） | 最長幀間隔（前） | 換盒長任務（後） | 最長幀間隔（後） |
+  |---|---|---|---|---|
+  | 桌機 | 121–150 ms | 121–167 ms | 無 | 25–46 ms |
+  | CPU ×4（模擬手機） | 526–671 ms | 525–675 ms | 換盒本身 0–1 ms | 146–192 ms（背景預建） |
+
+- 做法：setWard 拆成 `buildWard`（generator，8 個 yield 點）與 `activate`；快取 3 盒；換盒後 0.9 秒起用 requestIdleCallback 逐步預建左右鄰盒，建好後 `initTexture` 與 `compileAsync` 預熱。agy（gemini-4-hydrogen-high）實作；主代理加了延遲並拿掉 idle 的 timeout。
+- 未解決（PLAUSIBLE）：慢 CPU 上預建的單步（identMaps、preparePlate）仍約 100–190 ms，換盒後約 2 秒內會有幾次小頓。徹底解法是把烘焙搬進 Worker（OffscreenCanvas），屬下一輪。未在實機量。

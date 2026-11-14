@@ -5,6 +5,7 @@ import {vertex, fragment, depth} from './shaders.js';
 import {viewBox, renderDpr} from './view.js';
 import {createPlateRenderer} from './plate/renderer.js';
 import {hasPlate} from './plate/parts.js';
+import {adjacentCabinet} from './collection';
 
 // Fixed home camera; the backdrop's cabinet keepout shares it.
 const EYE = [430, 720, 920], CAMERA_VIEW = lookAt(EYE, [0, 40, 0]);
@@ -61,7 +62,10 @@ export function createRenderer(canvas, wardId, onPlateReady) {
       }
       plateActive = Boolean(plate && hasPlate(id) && plate.setWard(id));
       canvas.dataset.plate = String(plateActive);
-      if (plateActive) return;
+      if (plateActive) {
+        plate.prefetch?.([adjacentCabinet(id, -1).id, adjacentCabinet(id, 1).id]);
+        return;
+      }
       mesh = buildScene(id); gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
     };
     if (gl2) {

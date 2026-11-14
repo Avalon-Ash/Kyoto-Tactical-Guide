@@ -423,132 +423,306 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
   const stampMaterial = materialCache((m, spec) => patchStampMaterial(m, spec), {alphaTest: .45, alphaToCoverage: true});
   const IDENTITY = new THREE.Matrix4();
 
-  let plate = null, life = null, lastTime = 0, wardGroup = null, wardTextures = [];
-  const scratch = doc.createElement('canvas');
+  const MAX_CACHED = 3; // Maximum number of ward plate entries kept in cache (active + two neighbours)
+  let plate = null, life = null, lastTime = 0, wardGroup = null, disposed = false;
+  const PREFETCH_DELAY_MS = 900; // let the switch animation settle before the neighbours start building
+  let lastNeighbours = [], idleHandle = null, prefetchTimer = null;
+  const cache = new Map();
   const presence = {x: 0, v: 0}, drift = {offset: 0, velocity: 0}, size = {w: 0, h: 0};
+  const hasIdleCallback = typeof requestIdleCallback === 'function';
+  const idle = cb => hasIdleCallback ? requestIdleCallback(cb) : setTimeout(cb, 32);
+  const cancelIdle = handle => {
+    if (handle === null) return;
+    if (hasIdleCallback) cancelIdleCallback(handle);
+    else clearTimeout(handle);
+  };
+
+  function disposeResources(group, textures) {
+    if (group) group.traverse(o => { o.geometry?.dispose(); o.dispose?.(); });
+    for (const tex of textures) tex.dispose();
+  }
+
+  function disposeEntry(entry) {
+    disposeResources(entry.group, entry.textures);
+  }
+
+  function evict(keep) {
+    for (const [w, slot] of cache) {
+      if (keep.has(w)) continue;
+      if (slot.entry) disposeEntry(slot.entry);
+      else slot.gen?.return();
+      cache.delete(w);
+    }
+    for (const [w, slot] of cache) {
+      if (cache.size <= MAX_CACHED) break;
+      if (w === plate?.ward) continue;
+      if (slot.entry) disposeEntry(slot.entry);
+      else slot.gen?.return();
+      cache.delete(w);
+    }
+  }
+
+  /** Incrementally builds a ward's textures, meshes, and stats, yielding after each heavy step. */
+  function* buildWard(ward) {
+    const group = new THREE.Group();
+    const textures = [];
+    const scratch = doc.createElement('canvas');
+    let committed = false;
+    let buildMs = 0;
+    try {
+      let t = performance.now();
+      const {parts, errors} = preparePlate(PLATES[ward]());
+      if (errors.length) throw Error(`Plate ${ward}: ${errors.join('; ')}`);
+      const w = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), canvas.clientWidth < 700 ? 1152 : 1536), h = Math.round(w * PLATE.halfH / PLATE.halfW);
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      scratch.width = w; scratch.height = h;
+      const ctx = scratch.getContext('2d', {willReadFrequently: true});
+      paintLayer(ctx, w, h, parts, 0);
+      let fine0Img = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
+      const fine0Tex = new THREE.DataTexture(fine0Img, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
+      fine0Tex.minFilter = THREE.LinearMipmapLinearFilter; fine0Tex.magFilter = THREE.LinearFilter;
+      fine0Tex.generateMipmaps = true; fine0Tex.anisotropy = maxAniso; fine0Tex.unpackAlignment = 1; fine0Tex.needsUpdate = true;
+      textures.push(fine0Tex);
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      const soft = bakeSoftLayer(fine0Img, w, h);
+      fine0Img = null;
+      const softHalf = new Uint16Array(soft.data.length);
+      for (let i = 0; i < soft.data.length; i++) softHalf[i] = THREE.DataUtils.toHalfFloat(soft.data[i]);
+      const soft0Tex = new THREE.DataTexture(softHalf, soft.sw, soft.sh, THREE.RedFormat, THREE.HalfFloatType);
+      soft0Tex.minFilter = soft0Tex.magFilter = THREE.LinearFilter; soft0Tex.unpackAlignment = 1; soft0Tex.needsUpdate = true;
+      textures.push(soft0Tex);
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      const mw = Math.round(w / 2), mh = Math.round(h / 2), {maps, packed} = identMaps(doc, parts, mw, mh, LAYERS, MAT.ground);
+      const ident0Tex = new THREE.DataTexture(packed[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
+      ident0Tex.minFilter = ident0Tex.magFilter = THREE.NearestFilter; ident0Tex.unpackAlignment = 1; ident0Tex.needsUpdate = true;
+      textures.push(ident0Tex);
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      const placeholderTex = new THREE.CanvasTexture(paintPlaceholder(doc, parts, w, h));
+      placeholderTex.flipY = false; placeholderTex.colorSpace = THREE.SRGBColorSpace; placeholderTex.anisotropy = maxAniso; placeholderTex.needsUpdate = true;
+      textures.push(placeholderTex);
+      // Bare nashiji, for reference only (fillers.js): share farther than 12 units from any part / largest empty radius.
+      const occupied = new Uint8Array(mw * mh);
+      for (const map of maps) for (let i = 0; i < map.length; i++) if (map[i]) occupied[i] = 1;
+      const blank = blankStats(occupied, mw, mh, PLATE.halfW * 2 / mw);
+      const blankStr = `${(blank.ratio * 100).toFixed(1)}%/${blank.radius.toFixed(0)}`;
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      const addInterleaved = (byMat, getMaterial, depth) => {
+        let vertices = 0;
+        for (const [mat, data] of byMat) {
+          const g = new THREE.BufferGeometry(), buffer = new THREE.InterleavedBuffer(data, 16);
+          g.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0)); g.setAttribute('normal', new THREE.InterleavedBufferAttribute(buffer, 3, 3));
+          g.setAttribute('uv', new THREE.InterleavedBufferAttribute(buffer, 2, 6));
+          g.setAttribute('aOwner', new THREE.InterleavedBufferAttribute(buffer, 4, 8)); g.setAttribute('aStyle', new THREE.InterleavedBufferAttribute(buffer, 4, 12));
+          group.add(mesh(g, getMaterial(mat), depth));
+          vertices += data.length / 16;
+        }
+        return vertices;
+      };
+      const meshVertices = addInterleaved(meshesByMaterial(parts), partMaterial, partDepth);
+      const treeVertices = addInterleaved(limbsByMaterial(parts), limbMaterial, limbDepth);
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      let treeStamps = 0;
+      for (const [mat, s] of stampsByMaterial(parts)) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-.5, 0, -.5, .5, 0, -.5, .5, 0, .5, -.5, 0, .5]), 3));
+        g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), 3));
+        g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]), 2));
+        g.setIndex([0, 1, 2, 0, 2, 3]);
+        g.setAttribute('aPlacement', new THREE.InstancedBufferAttribute(s.placement, 4));
+        g.setAttribute('aStamp', new THREE.InstancedBufferAttribute(s.stamp, 4));
+        g.setAttribute('aOwner', new THREE.InstancedBufferAttribute(s.owner, 4));
+        g.setAttribute('aStyle', new THREE.InstancedBufferAttribute(s.style, 4));
+        const im = new THREE.InstancedMesh(g, stampMaterial(mat), s.count);
+        for (let i = 0; i < s.count; i++) im.setMatrixAt(i, IDENTITY);
+        im.instanceMatrix.needsUpdate = true;
+        im.frustumCulled = false; im.castShadow = true; im.receiveShadow = true; im.customDepthMaterial = stampDepth;
+        group.add(im);
+        treeStamps += s.count;
+      }
+      buildMs += performance.now() - t;
+      yield;
+
+      t = performance.now();
+      const uniforms = {uFine0: fine0Tex, uSoft0: soft0Tex, uIdent0: ident0Tex, uPlaceholder: placeholderTex};
+      const mistParts = parts.filter(p => p.kind === KIND.mist);
+      if (mistParts.length) {
+        paintLayer(ctx, w, h, mistParts.map(p => ({...p, layer: 1})), 1);
+        const mistFineImg = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
+        const mistFineTex = new THREE.DataTexture(mistFineImg, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
+        mistFineTex.minFilter = THREE.LinearMipmapLinearFilter; mistFineTex.magFilter = THREE.LinearFilter;
+        mistFineTex.generateMipmaps = true; mistFineTex.anisotropy = maxAniso; mistFineTex.unpackAlignment = 1; mistFineTex.needsUpdate = true;
+
+        const {packed: mistPacked} = identMaps(doc, mistParts.map(p => ({...p, layer: 0})), mw, mh, 1, 0);
+        const mistIdentTex = new THREE.DataTexture(mistPacked[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
+        mistIdentTex.minFilter = mistIdentTex.magFilter = THREE.NearestFilter; mistIdentTex.unpackAlignment = 1; mistIdentTex.needsUpdate = true;
+
+        textures.push(mistFineTex, mistIdentTex);
+        uniforms.uMistFine = mistFineTex;
+        uniforms.uMistIdent = mistIdentTex;
+
+        const {position, owner} = mistGeometryData(mistParts);
+        const mg = new THREE.BufferGeometry();
+        mg.setAttribute('position', new THREE.BufferAttribute(position, 3));
+        mg.setAttribute('aOwner', new THREE.BufferAttribute(owner, 4));
+        const mistMesh = new THREE.Mesh(mg, mistMaterial);
+        mistMesh.frustumCulled = false; mistMesh.castShadow = false; mistMesh.receiveShadow = false; mistMesh.renderOrder = 5;
+        group.add(mistMesh);
+      }
+      scratch.width = scratch.height = 1;
+      buildMs += performance.now() - t;
+      yield;
+
+      committed = true;
+      return {
+        ward,
+        group,
+        textures,
+        uniforms,
+        stats: {meshVertices, treeVertices, treeStamps, boxVertices, parts: parts.length, blank: blankStr},
+        plate: {parts, maps, mw, mh, ward, soft, ident: packed[0]},
+        buildMs,
+      };
+    } finally {
+      if (!committed) {
+        scratch.width = scratch.height = 1;
+        disposeResources(group, textures);
+      }
+    }
+  }
+
+  function finish(ward) {
+    let slot = cache.get(ward);
+    if (!slot) {
+      slot = {gen: buildWard(ward), entry: null, warmed: false};
+      cache.set(ward, slot);
+    }
+    if (!slot.entry) {
+      try {
+        let step = slot.gen.next();
+        while (!step.done) step = slot.gen.next();
+        slot.entry = step.value;
+        slot.gen = null;
+      } catch (err) {
+        cache.delete(ward);
+        throw err;
+      }
+    }
+    return slot.entry;
+  }
 
   function freePlate() {
-    if (wardGroup) {
-      scene.remove(wardGroup);
-      wardGroup.traverse(o => { o.geometry?.dispose(); o.dispose?.(); });
-    }
-    for (const tex of wardTextures.splice(0)) tex.dispose();
+    if (wardGroup) scene.remove(wardGroup);
     shared.uFine0.value = shared.uPlaceholder.value = shared.uMistFine.value = dummyRgba;
     shared.uIdent0.value = shared.uMistIdent.value = dummyRg;
     shared.uSoft0.value = dummySoft;
     wardGroup = null; plate = null; life = null;
   }
 
-  /** Builds a ward's plate. Returns false when the ward has not been redrawn as a plate. */
+  function activate(entry, started, prefetched) {
+    if (wardGroup) scene.remove(wardGroup);
+    shared.uFine0.value = entry.uniforms.uFine0;
+    shared.uSoft0.value = entry.uniforms.uSoft0;
+    shared.uIdent0.value = entry.uniforms.uIdent0;
+    shared.uPlaceholder.value = entry.uniforms.uPlaceholder;
+    shared.uMistFine.value = entry.uniforms.uMistFine ?? dummyRgba;
+    shared.uMistIdent.value = entry.uniforms.uMistIdent ?? dummyRg;
+    scene.add(entry.group);
+    wardGroup = entry.group;
+    plate = {...entry.plate, frames: 0};
+    life = createLife(entry.plate.parts);
+    canvas.dataset.renderer = 'three'; canvas.dataset.ward = entry.ward;
+    canvas.dataset.meshVertices = String(entry.stats.meshVertices); canvas.dataset.parts = String(entry.stats.parts);
+    canvas.dataset.treeVertices = String(entry.stats.treeVertices); canvas.dataset.treeStamps = String(entry.stats.treeStamps);
+    canvas.dataset.boxVertices = String(entry.stats.boxVertices); canvas.dataset.blank = entry.stats.blank;
+    canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
+    canvas.dataset.prefetched = String(prefetched);
+  }
+
+  /** Builds or activates a ward's plate. Returns false when the ward has not been redrawn as a plate. */
   function setWard(ward) {
-    freePlate();
-    if (!Object.hasOwn(PLATES, ward)) return false;
-    const started = performance.now();
-    const {parts, errors} = preparePlate(PLATES[ward]());
-    if (errors.length) throw Error(`Plate ${ward}: ${errors.join('; ')}`);
-    const w = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), canvas.clientWidth < 700 ? 1152 : 1536), h = Math.round(w * PLATE.halfH / PLATE.halfW);
-
-    scratch.width = w; scratch.height = h;
-    const ctx = scratch.getContext('2d', {willReadFrequently: true});
-    paintLayer(ctx, w, h, parts, 0);
-    const fine0Img = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
-    const fine0Tex = new THREE.DataTexture(fine0Img, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
-    fine0Tex.minFilter = THREE.LinearMipmapLinearFilter; fine0Tex.magFilter = THREE.LinearFilter;
-    fine0Tex.generateMipmaps = true; fine0Tex.anisotropy = maxAniso; fine0Tex.unpackAlignment = 1; fine0Tex.needsUpdate = true;
-
-    const soft = bakeSoftLayer(fine0Img, w, h);
-    const softHalf = new Uint16Array(soft.data.length);
-    for (let i = 0; i < soft.data.length; i++) softHalf[i] = THREE.DataUtils.toHalfFloat(soft.data[i]);
-    const soft0Tex = new THREE.DataTexture(softHalf, soft.sw, soft.sh, THREE.RedFormat, THREE.HalfFloatType);
-    soft0Tex.minFilter = soft0Tex.magFilter = THREE.LinearFilter; soft0Tex.unpackAlignment = 1; soft0Tex.needsUpdate = true;
-
-    const mw = Math.round(w / 2), mh = Math.round(h / 2), {maps, packed} = identMaps(doc, parts, mw, mh, LAYERS, MAT.ground);
-    const ident0Tex = new THREE.DataTexture(packed[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
-    ident0Tex.minFilter = ident0Tex.magFilter = THREE.NearestFilter; ident0Tex.unpackAlignment = 1; ident0Tex.needsUpdate = true;
-
-    const placeholderTex = new THREE.CanvasTexture(paintPlaceholder(doc, parts, w, h));
-    placeholderTex.flipY = false; placeholderTex.colorSpace = THREE.SRGBColorSpace; placeholderTex.anisotropy = maxAniso; placeholderTex.needsUpdate = true;
-
-    // Bare nashiji, for reference only (fillers.js): share farther than 12 units from any part / largest empty radius.
-    const occupied = new Uint8Array(mw * mh);
-    for (const map of maps) for (let i = 0; i < map.length; i++) if (map[i]) occupied[i] = 1;
-    const blank = blankStats(occupied, mw, mh, PLATE.halfW * 2 / mw);
-    canvas.dataset.blank = `${(blank.ratio * 100).toFixed(1)}%/${blank.radius.toFixed(0)}`;
-
-    wardTextures.push(fine0Tex, soft0Tex, ident0Tex, placeholderTex);
-    shared.uFine0.value = fine0Tex;
-    shared.uSoft0.value = soft0Tex;
-    shared.uIdent0.value = ident0Tex;
-    shared.uPlaceholder.value = placeholderTex;
-
-    wardGroup = new THREE.Group(); scene.add(wardGroup);
-    const addInterleaved = (byMat, getMaterial, depth) => {
-      let vertices = 0;
-      for (const [mat, data] of byMat) {
-        const g = new THREE.BufferGeometry(), buffer = new THREE.InterleavedBuffer(data, 16);
-        g.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0)); g.setAttribute('normal', new THREE.InterleavedBufferAttribute(buffer, 3, 3));
-        g.setAttribute('uv', new THREE.InterleavedBufferAttribute(buffer, 2, 6));
-        g.setAttribute('aOwner', new THREE.InterleavedBufferAttribute(buffer, 4, 8)); g.setAttribute('aStyle', new THREE.InterleavedBufferAttribute(buffer, 4, 12));
-        wardGroup.add(mesh(g, getMaterial(mat), depth));
-        vertices += data.length / 16;
-      }
-      return vertices;
-    };
-    const meshVertices = addInterleaved(meshesByMaterial(parts), partMaterial, partDepth);
-    const treeVertices = addInterleaved(limbsByMaterial(parts), limbMaterial, limbDepth);
-
-    let treeStamps = 0;
-    for (const [mat, s] of stampsByMaterial(parts)) {
-      const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-.5, 0, -.5, .5, 0, -.5, .5, 0, .5, -.5, 0, .5]), 3));
-      g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), 3));
-      g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]), 2));
-      g.setIndex([0, 1, 2, 0, 2, 3]);
-      g.setAttribute('aPlacement', new THREE.InstancedBufferAttribute(s.placement, 4));
-      g.setAttribute('aStamp', new THREE.InstancedBufferAttribute(s.stamp, 4));
-      g.setAttribute('aOwner', new THREE.InstancedBufferAttribute(s.owner, 4));
-      g.setAttribute('aStyle', new THREE.InstancedBufferAttribute(s.style, 4));
-      const im = new THREE.InstancedMesh(g, stampMaterial(mat), s.count);
-      for (let i = 0; i < s.count; i++) im.setMatrixAt(i, IDENTITY);
-      im.instanceMatrix.needsUpdate = true;
-      im.frustumCulled = false; im.castShadow = true; im.receiveShadow = true; im.customDepthMaterial = stampDepth;
-      wardGroup.add(im);
-      treeStamps += s.count;
-    }
-
-    const mistParts = parts.filter(p => p.kind === KIND.mist);
-    if (mistParts.length) {
-      paintLayer(ctx, w, h, mistParts.map(p => ({...p, layer: 1})), 1);
-      const mistFineImg = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
-      const mistFineTex = new THREE.DataTexture(mistFineImg, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
-      mistFineTex.minFilter = THREE.LinearMipmapLinearFilter; mistFineTex.magFilter = THREE.LinearFilter;
-      mistFineTex.generateMipmaps = true; mistFineTex.anisotropy = maxAniso; mistFineTex.unpackAlignment = 1; mistFineTex.needsUpdate = true;
-
-      const {packed: mistPacked} = identMaps(doc, mistParts.map(p => ({...p, layer: 0})), mw, mh, 1, 0);
-      const mistIdentTex = new THREE.DataTexture(mistPacked[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
-      mistIdentTex.minFilter = mistIdentTex.magFilter = THREE.NearestFilter; mistIdentTex.unpackAlignment = 1; mistIdentTex.needsUpdate = true;
-
-      wardTextures.push(mistFineTex, mistIdentTex);
-      shared.uMistFine.value = mistFineTex;
-      shared.uMistIdent.value = mistIdentTex;
-
-      const {position, owner} = mistGeometryData(mistParts);
-      const mg = new THREE.BufferGeometry();
-      mg.setAttribute('position', new THREE.BufferAttribute(position, 3));
-      mg.setAttribute('aOwner', new THREE.BufferAttribute(owner, 4));
-      const mistMesh = new THREE.Mesh(mg, mistMaterial);
-      mistMesh.frustumCulled = false; mistMesh.castShadow = false; mistMesh.receiveShadow = false; mistMesh.renderOrder = 5;
-      wardGroup.add(mistMesh);
-    }
-    scratch.width = scratch.height = 1;
-
-    plate = {parts, maps, mw, mh, ward, soft, ident: packed[0], frames: 0};
-    life = createLife(parts);
-    canvas.dataset.renderer = 'three'; canvas.dataset.ward = ward;
-    canvas.dataset.meshVertices = String(meshVertices); canvas.dataset.parts = String(parts.length);
-    canvas.dataset.treeVertices = String(treeVertices); canvas.dataset.treeStamps = String(treeStamps);
-    canvas.dataset.boxVertices = String(boxVertices); canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
+    if (!Object.hasOwn(PLATES, ward)) { freePlate(); return false; }
+    const t0 = performance.now();
+    const prefetched = Boolean(cache.get(ward)?.entry);
+    const entry = finish(ward);
+    activate(entry, t0, prefetched);
+    evict(new Set([ward, ...lastNeighbours]));
     return true;
+  }
+
+  function warmEntry(slot) {
+    if (!slot.entry || slot.warmed) return;
+    slot.warmed = true;
+    for (const tex of slot.entry.textures) renderer.initTexture(tex);
+    renderer.compileAsync(slot.entry.group, camera, scene).catch(() => {});
+  }
+
+  function pumpPrefetch() {
+    if (disposed || idleHandle !== null) return;
+    const hasPending = lastNeighbours.some(w => {
+      if (w === plate?.ward) return false;
+      const slot = cache.get(w);
+      return slot && (!slot.entry || !slot.warmed);
+    });
+    if (!hasPending) return;
+    idleHandle = idle(() => {
+      idleHandle = null;
+      if (disposed) return;
+      for (const w of lastNeighbours) {
+        if (w === plate?.ward) continue;
+        const slot = cache.get(w);
+        if (!slot) continue;
+        if (!slot.entry) {
+          try {
+            const step = slot.gen.next();
+            if (step.done) {
+              slot.entry = step.value;
+              slot.gen = null;
+              warmEntry(slot);
+            }
+          } catch (error) {
+            cache.delete(w);
+            console.warn(`Prefetch ${w} failed:`, error);
+          }
+          pumpPrefetch();
+          return;
+        }
+        if (!slot.warmed) {
+          warmEntry(slot);
+          pumpPrefetch();
+          return;
+        }
+      }
+    });
+  }
+
+  /** Pre-builds and warms up neighbouring wards during idle time so switching stays off the main path. */
+  function prefetch(wards) {
+    if (disposed) return;
+    lastNeighbours = wards.filter(w => Object.hasOwn(PLATES, w));
+    evict(new Set([plate?.ward, ...lastNeighbours]));
+    for (const w of lastNeighbours) {
+      if (!cache.has(w)) cache.set(w, {gen: buildWard(w), entry: null, warmed: false});
+    }
+    clearTimeout(prefetchTimer);
+    prefetchTimer = setTimeout(pumpPrefetch, PREFETCH_DELAY_MS);
   }
 
   /**
@@ -634,9 +808,13 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
   }
 
   return {
-    setWard, draw, poke, active: () => Boolean(plate),
+    setWard, prefetch, draw, poke, active: () => Boolean(plate),
     dispose() {
+      disposed = true;
+      cancelIdle(idleHandle); clearTimeout(prefetchTimer);
+      idleHandle = null;
       freePlate();
+      evict(new Set());
       if (cordMesh) cordMesh.geometry.dispose();
       for (const d of disposables.splice(0)) d.dispose?.();
       scene.environment = null;
