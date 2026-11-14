@@ -160,7 +160,9 @@ export function createThreeRenderer(gl, canvas) {
     const isPart = call === 'kyotoMotion';
     // Only rock mounds (meshRock bodyMat) use MAT.mura among 3D part meshes; tiles use kirikane/kirigin.
     const isRock = isPart && spec.name === 'mura';
-    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2w' : ''}${isRock ? '-rock-kiri-v1' : ''}`;
+    // Black lacquer on the pieces (walls, plinths) is shin-nuri: polished to a dark mirror.
+    const isLacq = isPart && spec.name === 'lacquer';
+    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2w' : ''}${isRock ? '-rock-kiri-v1' : ''}${isLacq ? '-shinnuri' : ''}`;
     material.onBeforeCompile = shader => {
       bindGlow(shader, spec);
       shader.vertexShader = shader.vertexShader
@@ -205,7 +207,12 @@ roughnessFactor = mix(roughnessFactor, mix(K_KIRI_ROUGH, K_KIRI_ROUGH_NIGHT, uNi
   vec3 kyotoR=reflect(-normalize(uView),kyotoNW);
   float kyotoWin=smoothstep(1.-K_WIN_SOFT,1.,dot(kyotoR,normalize(uKey)));
   kyotoWin*=1.-smoothstep(.3,.8,material.roughness);
-  reflectedLight.directSpecular+=material.specularColorBlended*kyotoWin*K_WIN*mix(1.,.35,uNight)*kyotoContact;${isRock ? `
+  reflectedLight.directSpecular+=material.specularColorBlended*kyotoWin*K_WIN*mix(1.,.35,uNight)*kyotoContact;${isLacq ? `
+  // Shin-nuri: the black body shows what is around it, the gold ground below and the window above, more so at grazing angles.
+  float kyotoFres=.04+.96*pow(1.-clamp(dot(kyotoNW,normalize(uView)),0.,1.),5.);
+  float kyotoBelow=smoothstep(.75,.2,dot(kyotoNW,kyotoUp)); // walls and undersides face the gold ground; tops face the room
+  vec3 kyotoMirror=mix(K_LACQ_ROOM,K_BOUNCE_C*K_LACQ_GROUND,kyotoBelow)+vec3(1.,.95,.86)*pow(max(dot(kyotoR,normalize(uKey)),0.),K_LACQ_WIN_EXP)*K_LACQ_WIN;
+  reflectedLight.indirectSpecular+=kyotoMirror*mix(K_LACQ_MIN,1.,kyotoFres)*K_LACQ_MIRROR*mix(1.,.45,uNight)*kyotoContact;` : ''}${isRock ? `
   float kyotoRockGlint=kyotoKiriGlint(kyotoNW,kyotoRockTilt,kyotoRockKiri,normalize(uKey),normalize(uView),uNight);
   reflectedLight.directSpecular*=mix(vec3(1.),K_KIRI_NIGHT_SPEC_TINT,uNight*kyotoRockKiri);
   reflectedLight.directSpecular+=K_KIRI_GOLD*kyotoRockGlint*kyotoContact;` : ''}

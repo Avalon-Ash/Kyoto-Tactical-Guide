@@ -242,6 +242,10 @@ const float K_CONTACT_MIN=.45, K_CONTACT_H=10., K_BOUNCE=.8;
 const vec3 K_BOUNCE_C=vec3(1.,.72,.36);
 const float K_WIN=.55; // soft window reflection intensity on upward-facing metallic parts
 const float K_WIN_SOFT=.35; // soft window reflection angular width (larger is wider)
+// Shin-nuri black lacquer as a dark mirror: overall strength, the floor at head-on angles, how much gold ground and
+// room it shows, and the window's sharpness and strength in it.
+const float K_LACQ_MIRROR=.3, K_LACQ_MIN=.35, K_LACQ_GROUND=.9, K_LACQ_WIN=.8, K_LACQ_WIN_EXP=40.;
+const vec3 K_LACQ_ROOM=vec3(.05,.045,.04);
 uniform mat3 uTilt; uniform float uNight; uniform vec3 uView, uKey;
 varying float vLift;`;
 
