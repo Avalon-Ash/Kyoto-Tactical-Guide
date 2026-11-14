@@ -155,7 +155,7 @@ export function createThreeRenderer(gl, canvas) {
   /** Faces are lit by their own normals whichever way they wind, as the old pipeline did. */
   const patchMaterial = (material, spec, glsl, call) => {
     const isPart = call === 'kyotoMotion';
-    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2' : ''}`;
+    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2w' : ''}`;
     material.onBeforeCompile = shader => {
       bindGlow(shader, spec);
       shader.vertexShader = shader.vertexShader
@@ -181,6 +181,11 @@ export function createThreeRenderer(gl, canvas) {
   vec3 kyotoBounce=K_BOUNCE_C*K_BOUNCE*kyotoDown*mix(1.,.45,uNight)*kyotoContact;
   reflectedLight.indirectDiffuse+=material.diffuseContribution*kyotoBounce;
   reflectedLight.indirectSpecular+=material.specularColorBlended*kyotoBounce;
+  // Soft window reflection in the key-light direction for upward-facing metallic faces (e.g. gold roofs).
+  vec3 kyotoR=reflect(-normalize(uView),kyotoNW);
+  float kyotoWin=smoothstep(1.-K_WIN_SOFT,1.,dot(kyotoR,normalize(uKey)));
+  kyotoWin*=1.-smoothstep(.3,.8,material.roughness);
+  reflectedLight.directSpecular+=material.specularColorBlended*kyotoWin*K_WIN*mix(1.,.35,uNight)*kyotoContact;
 }`);
       }
     };

@@ -237,7 +237,9 @@ export const PART_LIGHT_GLSL = `
 // L1 the pieces darken where they meet the ground; L2 faces turned down catch the gold ground's bounce.
 const float K_CONTACT_MIN=.45, K_CONTACT_H=10., K_BOUNCE=.8;
 const vec3 K_BOUNCE_C=vec3(1.,.72,.36);
-uniform mat3 uTilt; uniform float uNight;
+const float K_WIN=.55; // soft window reflection intensity on upward-facing metallic parts
+const float K_WIN_SOFT=.35; // soft window reflection angular width (larger is wider)
+uniform mat3 uTilt; uniform float uNight; uniform vec3 uView, uKey;
 varying float vLift;`;
 
 const TREE_MOTION_CORE_GLSL = `
