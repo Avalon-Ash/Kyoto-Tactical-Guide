@@ -4,6 +4,7 @@ import {buildScene, multiply, lookAt, ortho, normalize, trailIntensity} from './
 import {vertex, fragment, depth} from './shaders.js';
 import {viewBox, renderDpr} from './view.js';
 import {createPlateRenderer} from './plate/renderer.js';
+import {createThreeRenderer} from './plate/three-renderer.js';
 import {hasPlate} from './plate/parts.js';
 
 // Fixed home camera; the backdrop's cabinet keepout shares it.
@@ -49,7 +50,9 @@ export function createRenderer(canvas, wardId) {
     let mesh, ward = wardId, draws = 0, plateActive = false;
     // If the plate renderer cannot be built on this device, every ward falls back to the relief mesh.
     let plate = null;
-    if (gl2) try { plate = createPlateRenderer(gl2, canvas); } catch (error) { console.warn('Makie plate unavailable:', error); }
+    // ?three=1 opts into the three.js plate renderer (docs/MAKIE_THREE_PLAN.md); without it nothing changes.
+    const useThree = typeof location !== 'undefined' && new URLSearchParams(location.search).get('three') === '1';
+    if (gl2) try { plate = (useThree ? createThreeRenderer : createPlateRenderer)(gl2, canvas); } catch (error) { console.warn('Makie plate unavailable:', error); }
     if (plate) resources.push(() => plate.dispose());
     const setMesh = id => {
       ward = id;

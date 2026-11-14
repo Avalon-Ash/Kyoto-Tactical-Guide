@@ -1022,3 +1022,59 @@ test('meshLantern upper frame and hidden cap support join hexCapMesh with 0.3-0.
     }
   }
 });
+
+// ---- three.js renderer (T0): pure data checks. The WebGL side is checked by screenshots (.claude/dispatch/shot.mjs). ----
+import {MATERIALS, BOX_MATERIALS, STATE_WIDTH, STATE_HEIGHT, packLifeState, meshesByMaterial, sliceBox} from '../src/studies/toji/plate/three-pack.js';
+import {packMeshes} from '../src/studies/toji/plate/mesh-geometry.js';
+import {createThreeRenderer} from '../src/studies/toji/plate/three-renderer.js';
+
+test('three: every MAT has a material entry with sane physical parameters', () => {
+  for (const [name, id] of Object.entries(MAT)) {
+    const m = MATERIALS[id];
+    assert.ok(m, `MAT.${name} has a MeshPhysicalMaterial entry`);
+    for (const k of ['metalness', 'roughness', 'clearcoat']) assert.ok(m[k] >= 0 && m[k] <= 1, `${name}.${k} in 0..1`);
+    assert.match(m.color, /^#[0-9a-f]{6}$/i); assert.match(m.paint, /^#[0-9a-f]{6}$/i);
+  }
+  assert.ok(MATERIALS[MAT.lacquer].clearcoat === 1 && MATERIALS[MAT.aogai].iridescence > 0 && MATERIALS[MAT.lamp].glow === true);
+  assert.ok(MATERIALS[MAT.gold].metalness === 1 && MATERIALS[MAT.gold].flake > 0);
+});
+
+test('three: the box splits into materials the renderer knows, losing no vertex', () => {
+  const box = buildBox();
+  const lid = sliceBox(box.data, 0, box.lidTop), rest = sliceBox(box.data, box.lidTop, box.opaque);
+  assert.equal([...lid.keys()].join(), '0');
+  for (const id of rest.keys()) assert.ok(BOX_MATERIALS[id], `box id ${id} has a material`);
+  let n = 0; for (const s of [...lid.values(), ...rest.values()]) { n += s.position.length / 3; assert.equal(s.part.length, s.position.length / 3); }
+  assert.equal(n, box.opaque);
+});
+
+test('three: life state packs into one float texture, row 0 = a, row 1 = b', () => {
+  const life = createLife(preparePlate(PLATES.W_MINAMI()).parts);
+  const out = packLifeState(life.a, life.b);
+  assert.equal(out.length, STATE_WIDTH * STATE_HEIGHT * 4);
+  life.a[4 * 3 + 1] = .5; life.b[4 * 3 + 2] = 7;
+  packLifeState(life.a, life.b, out);
+  assert.equal(out[3 * 4 + 1], .5, 'part 3 stand sits at texel 3 of row 0');
+  assert.equal(out[STATE_WIDTH * 4 + 3 * 4 + 2], 7, 'part 3 lift sits at texel 3 of row 1');
+  assert.throws(() => packLifeState(new Float32Array(3), life.b));
+});
+
+test('three: part meshes regroup by material without losing a vertex', () => {
+  for (const ward of Object.keys(PLATES)) {
+    const {parts} = preparePlate(PLATES[ward]());
+    const total = packMeshes(parts.filter(p => p.mesh)).length / 16, groups = meshesByMaterial(parts);
+    let n = 0;
+    for (const [mat, data] of groups) {
+      assert.ok(MATERIALS[mat], `${ward}: mesh material ${mat} is in the table`);
+      assert.equal(data.length % 16, 0);
+      for (let i = 0; i < data.length; i += 16) assert.equal(data[i + 13], mat, 'style.y carries the material');
+      n += data.length / 16;
+    }
+    assert.equal(n, total, `${ward}: vertex count`);
+    assert.ok(total > 0, `${ward}: has meshes`);
+  }
+});
+
+test('three: renderer factory has the plate renderer entry point', () => {
+  assert.equal(typeof createThreeRenderer, 'function');
+});
