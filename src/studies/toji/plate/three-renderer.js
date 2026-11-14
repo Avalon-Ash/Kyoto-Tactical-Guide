@@ -21,7 +21,7 @@ import {groundPoint, normalize, trailIntensity} from '../geometry.js';
 import {
   MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState,
   meshesByMaterial, limbsByMaterial, stampsByMaterial, sliceBox,
-  bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, PART_LIGHT_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
+  bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, PART_LIGHT_GLSL, PART_KIRIKANE_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
   TREE_LIMB_MOTION_GLSL, TREE_STAMP_MOTION_GLSL,
   MAKIE_GROUND_PARS_GLSL, MAKIE_GROUND_FRAG_GLSL, MAKIE_MIST_VERT_GLSL, MAKIE_MIST_FRAG_GLSL,
   BOX_SIDE_VERT_GLSL, BOX_SIDE_PARS_GLSL, BOX_SIDE_FRAG_GLSL,
@@ -158,7 +158,9 @@ export function createThreeRenderer(gl, canvas) {
   /** Faces are lit by their own normals whichever way they wind, as the old pipeline did. */
   const patchMaterial = (material, spec, glsl, call) => {
     const isPart = call === 'kyotoMotion';
-    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2w' : ''}`;
+    // Only rock mounds (meshRock bodyMat) use MAT.mura among 3D part meshes; tiles use kirikane/kirigin.
+    const isRock = isPart && spec.name === 'mura';
+    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2w' : ''}${isRock ? '-rock-kiri-v1' : ''}`;
     material.onBeforeCompile = shader => {
       bindGlow(shader, spec);
       shader.vertexShader = shader.vertexShader
@@ -166,9 +168,24 @@ export function createThreeRenderer(gl, canvas) {
         .replace('#include <beginnormal_vertex>', `vec3 kyotoP; vec3 objectNormal; ${call}(position, normal, kyotoP, objectNormal);`)
         .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP;');
       shader.fragmentShader = shader.fragmentShader
-        .replace('#include <common>', `#include <common>\nvarying float vGlow; uniform float uGlowBase, uGlowGain;${isPart ? `\n${PART_LIGHT_GLSL}` : ''}`)
+        .replace('#include <common>', `#include <common>\nvarying float vGlow; uniform float uGlowBase, uGlowGain;${isPart ? `\n${PART_LIGHT_GLSL}` : ''}${isRock ? `\nuniform float uPx, uOpening;\n${PART_KIRIKANE_GLSL}` : ''}`)
         .replace('#include <normal_fragment_begin>', NORMAL_FIX)
         .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= uGlowBase + vGlow * uGlowGain;');
+      if (isRock) {
+        shader.fragmentShader = shader.fragmentShader
+          .replace('#include <color_fragment>', `#include <color_fragment>
+vec3 kyotoRockW = ((vec4(-vViewPosition, 1.) - viewMatrix[3]) * viewMatrix).xyz;
+vec2 kyotoRockXZ = kyotoRockW.xz + vec2(0., uOpening * 650.);
+vec3 kyotoRockNW = inverseTransformDirection(normalize(vNormal), viewMatrix);
+float kyotoRockLit = smoothstep(K_ROCK_LIT_LO, K_ROCK_LIT_HI, dot(kyotoRockNW, normalize(uKey)));
+vec2 kyotoRockTilt;
+float kyotoRockKiri = kyotoKiriPattern(kyotoRockXZ, K_ROCK_KIRI_CELL, kyotoRockLit, uPx, kyotoRockTilt);
+diffuseColor.rgb = mix(K_M_OXID * K_ROCK_OXID_SCALE, K_ROCK_GOLD, kyotoRockLit);
+diffuseColor.rgb = mix(diffuseColor.rgb, K_KIRI_GOLD, kyotoRockKiri * K_ROCK_KIRI_COVER);`)
+          .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+roughnessFactor = mix(K_OXID_ROUGH, roughnessFactor, kyotoRockLit);
+roughnessFactor = mix(roughnessFactor, mix(K_KIRI_ROUGH, K_KIRI_ROUGH_NIGHT, uNight), kyotoRockKiri);`);
+      }
       if (isPart) {
         shader.fragmentShader = shader.fragmentShader.replace('#include <aomap_fragment>', `#include <aomap_fragment>
 {
@@ -188,14 +205,17 @@ export function createThreeRenderer(gl, canvas) {
   vec3 kyotoR=reflect(-normalize(uView),kyotoNW);
   float kyotoWin=smoothstep(1.-K_WIN_SOFT,1.,dot(kyotoR,normalize(uKey)));
   kyotoWin*=1.-smoothstep(.3,.8,material.roughness);
-  reflectedLight.directSpecular+=material.specularColorBlended*kyotoWin*K_WIN*mix(1.,.35,uNight)*kyotoContact;
+  reflectedLight.directSpecular+=material.specularColorBlended*kyotoWin*K_WIN*mix(1.,.35,uNight)*kyotoContact;${isRock ? `
+  float kyotoRockGlint=kyotoKiriGlint(kyotoNW,kyotoRockTilt,kyotoRockKiri,normalize(uKey),normalize(uView),uNight);
+  reflectedLight.directSpecular*=mix(vec3(1.),K_KIRI_NIGHT_SPEC_TINT,uNight*kyotoRockKiri);
+  reflectedLight.directSpecular+=K_KIRI_GOLD*kyotoRockGlint*kyotoContact;` : ''}
 }`);
       }
     };
     return material;
   };
   const patchLimbMaterial = (material, spec) => {
-    material.customProgramCacheKey = () => `kyoto-limb-${spec.glow ? 1 : 0}`;
+    material.customProgramCacheKey = () => `kyoto-limb-${spec.glow ? 1 : 0}-kiri-v1`;
     material.onBeforeCompile = shader => {
       bindGlow(shader, spec);
       shader.vertexShader = shader.vertexShader
@@ -203,7 +223,7 @@ export function createThreeRenderer(gl, canvas) {
         .replace('#include <beginnormal_vertex>', 'vec3 kyotoP, objectNormal, kyotoTx, kyotoTz; kyotoLimb(position, normal, kyotoP, objectNormal, kyotoTx, kyotoTz);')
         .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP; vTreeUv = uv; vBark = aStyle.z; vTreeTanX = normalize(normalMatrix * kyotoTx); vTreeTanZ = normalize(normalMatrix * kyotoTz);');
       shader.fragmentShader = shader.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying float vGlow;\nvarying vec2 vTreeUv;\nvarying float vBark;\nvarying vec3 vTreeTanX, vTreeTanZ;\nuniform float uGlowBase, uGlowGain;')
+        .replace('#include <common>', `#include <common>\nvarying float vGlow;\nvarying vec2 vTreeUv;\nvarying float vBark;\nvarying vec3 vTreeTanX, vTreeTanZ;\nuniform float uGlowBase, uGlowGain, uNight, uPx;\nuniform vec3 uView, uKey;\n${PART_KIRIKANE_GLSL}`)
         .replace('#include <color_fragment>', `#include <color_fragment>
 float kyotoGrain = sin(vTreeUv.x * 2.5 + .5 * sin(vTreeUv.y * .31));
 float kyotoRow = floor(vTreeUv.y / 6.5);
@@ -211,10 +231,26 @@ float kyotoCu = fract(vTreeUv.x / 5. + mod(kyotoRow, 2.) * .5) - .5;
 float kyotoCv = fract(vTreeUv.y / 6.5) - .5;
 float kyotoSeam = abs(length(vec2(kyotoCu * 1.7, kyotoCv)) - .48) * 5.;
 float kyotoBark = vBark > .5 ? 1. - smoothstep(.18, .6, kyotoSeam) : smoothstep(.62, .93, kyotoGrain);
-diffuseColor.rgb *= 1. - kyotoBark * .45;`)
-        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, .85, kyotoBark * .5);')
+vec3 kyotoTrunkNW = inverseTransformDirection(normalize(vNormal), viewMatrix);
+float kyotoTrunkLit = smoothstep(K_TRUNK_LIT_LO, K_TRUNK_LIT_HI, dot(kyotoTrunkNW, normalize(uKey)));
+vec2 kyotoTrunkTilt;
+float kyotoTrunkKiri = kyotoKiriPattern(vTreeUv, K_TRUNK_KIRI_CELL, kyotoTrunkLit, uPx, kyotoTrunkTilt) * (1. - kyotoBark * K_TRUNK_BARK_MASK);
+diffuseColor.rgb = mix(diffuseColor.rgb, K_M_OXID * K_TRUNK_OXID_SCALE, (1. - kyotoTrunkLit) * K_TRUNK_OXID_STRENGTH);
+diffuseColor.rgb *= 1. - kyotoBark * .45;
+diffuseColor.rgb = mix(diffuseColor.rgb, K_KIRI_GOLD, kyotoTrunkKiri * K_TRUNK_KIRI_COVER);`)
+        .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+roughnessFactor = mix(roughnessFactor, .85, kyotoBark * .5);
+roughnessFactor = mix(roughnessFactor, K_OXID_ROUGH, (1. - kyotoTrunkLit) * (1. - kyotoTrunkKiri) * K_TRUNK_OXID_STRENGTH);
+roughnessFactor = mix(roughnessFactor, mix(K_KIRI_ROUGH, K_KIRI_ROUGH_NIGHT, uNight), kyotoTrunkKiri);`)
         .replace('#include <normal_fragment_begin>', NORMAL_FIX)
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(normal - kyotoGrain * .13 * vTreeTanX - cos(vTreeUv.y * .9) * .06 * vTreeTanZ);')
+        .replace('#include <aomap_fragment>', `#include <aomap_fragment>
+{
+  vec3 kyotoTrunkN = inverseTransformDirection(normal, viewMatrix);
+  float kyotoTrunkGlint = kyotoKiriGlint(kyotoTrunkN, kyotoTrunkTilt, kyotoTrunkKiri, normalize(uKey), normalize(uView), uNight);
+  reflectedLight.directSpecular *= mix(vec3(1.), K_KIRI_NIGHT_SPEC_TINT, uNight * kyotoTrunkKiri);
+  reflectedLight.directSpecular += K_KIRI_GOLD * kyotoTrunkGlint;
+}`)
         .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= uGlowBase + vGlow * uGlowGain;');
     };
     return material;

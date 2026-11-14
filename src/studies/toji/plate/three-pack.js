@@ -242,6 +242,56 @@ const float K_WIN_SOFT=.35; // soft window reflection angular width (larger is w
 uniform mat3 uTilt; uniform float uNight; uniform vec3 uView, uKey;
 varying float vLift;`;
 
+/** Shared diamond-halftone kirikane & gold/oxidized-silver helpers for tree trunks and rock bodies. */
+export const PART_KIRIKANE_GLSL = `
+const vec3 K_M_OXID=vec3(.66,.66,.64); // oxidized silver-grey on shaded faces (matches M_OXID)
+const vec3 K_KIRI_GOLD=vec3(.92,.62,.14); // bright cut-gold foil color for halftone kirikane pieces
+const vec3 K_ROCK_GOLD=vec3(.76,.46,.09); // warm gold on the lit face of rock mounds
+const float K_ROCK_OXID_SCALE=.88; // oxidized silver brightness on shaded rock body relative to K_M_OXID
+const float K_TRUNK_OXID_SCALE=.76; // oxidized silver brightness on shaded tree trunks relative to K_M_OXID
+const float K_TRUNK_OXID_STRENGTH=.78; // blend weight toward oxidized silver on shaded trunk faces
+const float K_TRUNK_BARK_MASK=.55; // suppress kirikane pieces inside deep bark seams so grain stays readable
+const float K_ROCK_LIT_LO=.20; // rock N.L threshold where shaded M_OXID begins transitioning to gold
+const float K_ROCK_LIT_HI=.74; // rock N.L threshold where lit gold reaches full strength
+const float K_TRUNK_LIT_LO=-.30; // trunk N.L threshold where shaded M_OXID begins transitioning to gold
+const float K_TRUNK_LIT_HI=.55; // trunk N.L threshold where lit gold and dense kirikane reach full strength
+const float K_TRUNK_KIRI_CELL=2.8; // trunk kirikane diagonal lattice spacing in plate units
+const float K_ROCK_KIRI_CELL=3.0; // rock kirikane diagonal lattice spacing in plate units
+const float K_KIRI_SZ=.26; // base half-width of a kirikane square in cell units (<= 3 px at 1440px)
+const float K_KIRI_JITTER=.18; // per-cell position jitter in cell units (keeps squares inside cell bounds)
+const float K_KIRI_DENS_BASE=.12; // minimum cell occupancy fraction at low litness
+const float K_KIRI_DENS_GAIN=1.15; // litness multiplier controlling cell occupancy ramp
+const float K_KIRI_AA=.55; // anti-aliasing filter width in pixels for kirikane edges
+const float K_TRUNK_KIRI_COVER=.88; // color blend strength of kirikane foil over trunk bark
+const float K_ROCK_KIRI_COVER=.82; // color blend strength of kirikane foil over rock body
+const float K_OXID_ROUGH=.56; // slightly matte roughness on oxidized silver shaded faces
+const float K_KIRI_ROUGH=.36; // daytime metallic roughness on cut-gold kirikane pieces
+const float K_KIRI_ROUGH_NIGHT=.46; // calmer nighttime roughness on kirikane pieces to prevent glare
+const float K_KIRI_TILT=.45; // per-cell micro-facet normal tilt for subtle kirikane sparkle
+const float K_KIRI_SPEC_EXP=56.; // specular exponent for kirikane diamond glints
+const float K_KIRI_GLINT=.38; // daytime kirikane glint intensity
+const float K_KIRI_NIGHT_GLINT=.22; // nighttime glint scale so kirikane sparkle converges softly
+const vec3 K_KIRI_NIGHT_SPEC_TINT=vec3(.78,.66,.48); // warm attenuation on directSpecular at night to avoid grey-white glare
+float kyotoHash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+vec2 kyotoHash2(vec2 p){vec3 q=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));q+=dot(q,q.yzx+33.33);return fract((q.xx+q.yz)*q.zy);}
+float kyotoKiriPattern(vec2 p,float cell,float amount,float px,out vec2 tilt){
+  vec2 q=mat2(.7071,-.7071,.7071,.7071)*p/cell,id=floor(q),j=kyotoHash2(id)-.5,f=fract(q)-.5-j*K_KIRI_JITTER;
+  tilt=j;
+  float a=clamp(amount,0.,1.),baseSz=K_KIRI_SZ*sqrt(a);
+  float dens=clamp(K_KIRI_DENS_BASE+a*K_KIRI_DENS_GAIN,0.,1.);
+  float sz=baseSz*(.72+.48*kyotoHash(id+5.1))*step(kyotoHash(id+9.7),dens);
+  float pxSafe=max(px,.05),aa=pxSafe/cell*K_KIRI_AA;
+  float cov=(1.-smoothstep(sz-aa,sz+aa,max(abs(f.x),abs(f.y))))*step(.02,sz);
+  float vis=smoothstep(1.3,3.2,cell/pxSafe);
+  return mix(3.8*baseSz*baseSz*dens,cov,vis);
+}
+float kyotoKiriGlint(vec3 nw,vec2 tilt,float cov,vec3 keyDir,vec3 viewDir,float night){
+  vec3 nf=normalize(nw+vec3(tilt.x,0.,tilt.y)*K_KIRI_TILT);
+  vec3 hk=normalize(keyDir+viewDir);
+  float spec=pow(max(dot(nf,hk),1e-4),K_KIRI_SPEC_EXP);
+  return cov*spec*K_KIRI_GLINT*mix(1.,K_KIRI_NIGHT_GLINT,night);
+}`;
+
 const TREE_MOTION_CORE_GLSL = `
 uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
 varying float vGlow;
