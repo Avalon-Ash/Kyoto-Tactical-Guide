@@ -35,7 +35,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 程式審查與 UI 統一 | 2026-11-09 完成：修地圖重繪跳回全區、返回焦點；刪死碼、未用依賴與 1 MB 原型圖；色票集中 `src/theme.css`、文案集中 `i18n.ts`。已併入 `main`，見執行紀錄 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 已刪除（Git 歷史可取回） |
 | UI 翻新 | P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已併入 `main`。`ux-unify` 再加上十一區各自的紋樣、霞帶配置與一行短句（`src/studies/toji/ward-art.js`；配對與短句是主代理的設計稿，待使用者看過）。P2 蒔繪光澤、`src/lib/spring.ts` 尚未做。規劃見[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md) |
-| 蒔繪浮雕盤 | 預設仍是自寫 WebGL2 管線，但鳥居、清水舞台、屋宇、五重塔、門、迴廊、燈籠、高蒔繪岩已改成顯式網格（不再膨脹）。**2026-11-14 起改走 three.js**（使用者決定，AGENTS.md §2 例外）：網址加 `?three=1` 用新渲染器，盒身梨子地、地面浮雕、水、霞、樹、岩已遷移；狐、鳳凰、鶯仍是平塗佔位。入口文件 [`MAKIE_THREE_PLAN.md`](MAKIE_THREE_PLAN.md)（§2a 初音調度設計語言、§7 進度與待辦） |
+| 蒔繪浮雕盤 | 預設仍是自寫 WebGL2 管線，但鳥居、清水舞台、屋宇、五重塔、門、迴廊、燈籠、高蒔繪岩已改成顯式網格（不再膨脹）。**2026-11-14 起改走 three.js**（使用者決定，AGENTS.md §2 例外）：網址加 `?three=1` 用新渲染器，盒身梨子地、地面浮雕、水、霞、樹、岩已遷移；狐、鳳凰、鶯仍是平塗佔位。入口文件 [`MAKIE_THREE_PLAN.md`](MAKIE_THREE_PLAN.md)（§2a 初音調度設計語言、§7 進度與待辦）。2026-11-14 雲端 session 依原作照片重做了地：蜂蜜色梨子地、漆面窗光、金色流水、銀的暗面與銀岸、切金接濃梨子地的漸層、盒側梨子地（[`MAKIE_GROUND_PLAN.md`](MAKIE_GROUND_PLAN.md)）；隨機填隙做了又撤回（[`MAKIE_COMPOSITION_PLAN.md`](MAKIE_COMPOSITION_PLAN.md) §7）；ThreeRT 參考渲染路線打通（[`MAKIE_THREERT_REFERENCE.md`](MAKIE_THREERT_REFERENCE.md)） |
 | 文箱架構 | `study.js`（`mountBunko`：手勢、移光、縮放、換函、開蓋）、`renderer.js`（WebGL）、`interaction.js`／`view.js`（純函式）、`backdrop.js`＋`ward-art.js`（背景）、`template.ts`（`BUNKO_STAGE`）。獨立展示頁另由 `study-chrome.js`（`mountStudy`）包一層控制，主站不載入 |
 
 ## 3. 最近一次驗收（2026-11-14，工作分支 `4b8f9ea` 之後）
@@ -51,6 +51,8 @@ npm run dev -- --host 127.0.0.1 --strictPort
 未測：實機手感、Safari／iOS、手機幀時間（three 版）。
 
 ## 4. 下一步（依序）
+
+0. **地等使用者在實機看 `?three=1` 定稿**，之後才改肉合部件（使用者：「肉合蒔繪部件等地都好再改」）。ThreeRT 參考圖顯示即時畫面缺：部件底部接觸暗部、屋簷底面的金地反光、寬而柔的漆面窗光、軟陰影（`MAKIE_THREERT_REFERENCE.md`）；這些和岩、樹幹的網點切金與金銀兩面（`mKiri`、`M_OXID`）一起排在部件那一輪。小景只能依附於物、逐區設計，不可隨機撒。
 
 1. three.js 待辦見 `MAKIE_THREE_PLAN.md` §7：T3 材質（銀偏灰、燈窗橙色、青貝）、岩頂面切金覆蓋、T4 狐／鳳凰／鶯、T5 設為預設並刪舊管線。主代理直接做（研究原作與視覺調整是 Opus 5.5 強項，不等外派）；Astra（Codex 約 11/21 重設）或 Fable 5.2（Fable 週額度約 11/15 21:00 重設）有額度時可整包派出；小而具體的包給 Hydrogen。各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`。
 2. 派夜間流水線前，先照 [`agent-runs/2026-11-14/pipeline-retro.md`](agent-runs/2026-11-14/pipeline-retro.md) 的 A–H 改好並乾跑。
