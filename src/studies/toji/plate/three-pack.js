@@ -31,7 +31,7 @@ export const MATERIALS = {
 /** The box has its own small material ids (see buildBox in renderer.js). 25 is the shadow underlay and is not drawn here. */
 export const BOX_MATERIALS = {
   // Hatsune: the whole body is nashiji (amber lacquer over gold powder), not black lacquer (user decision, handoff §3).
-  20: {name: 'side', color: '#c4893a', metalness: .72, roughness: .4, clearcoat: 1, clearcoatRoughness: .06, flake: 0, nashijiSide: true},
+  20: {name: 'side', color: '#a8722e', metalness: .72, roughness: .45, clearcoat: 1, clearcoatRoughness: .06, flake: 0, nashijiSide: true},
   // The lid's lip: gold, as on the Hatsune boxes (museum photos show no silver rim).
   21: {name: 'rim', color: '#c39345', metalness: 1, roughness: .3, clearcoat: .2, clearcoatRoughness: .1, flake: .2},
   22: {name: 'inner', color: '#8c6a2d', metalness: .8, roughness: .5, clearcoat: .5, clearcoatRoughness: .1, flake: .5},
@@ -579,7 +579,8 @@ export const BOX_SIDE_FRAG_GLSL = `
   vec3 kg;float kv=mKiri(sp,4.2,smoothstep(.4,1.,g)*.85,kg);
   c=mix(c,mKiriColor(mix(M_GOLD,M_PALE,.6)),kv)+M_PALE*kg;
   // Walls face the room, not the window: keep them a warmer, slightly deeper amber than the lid.
-  outgoingLight=mFinish(c*vec3(1.,.86,.62)*.9,1.).rgb;
+  const float K_SIDE_DIM=.82; // dim box walls one step below the lid while keeping rim and edge bright
+  outgoingLight=mFinish(c*vec3(1.,.86,.62)*.9*K_SIDE_DIM,1.).rgb;
 }`;
 
 /** Vertex shader for KIND.mist (suyari-gasumi) bands floating above the hills. */
