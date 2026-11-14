@@ -18,7 +18,29 @@ npm run dev
 # 瀏覽器開 http://localhost:3000/toji-study/index.html?three=1&export=glb
 ```
 
-## 渲染（使用者的電腦）
+## 渲染：雲端 session，不需安裝（2026-11-14 實測可行）
+
+使用者希望「沒必要不要裝」，所以先在雲端容器裡從原始碼編譯。容器沒有 GPU，用 Playwright 附帶 Chromium 裡的 SwiftShader Vulkan 驅動（不用 apt 裝任何套件），ThreeRT 走它的軟體 BVH 與 8 個儲存緩衝的 merged 版面。
+
+```bash
+git clone --depth 1 https://github.com/meshy-dev/ThreeRT.git && cd ThreeRT
+(cd renderer && cargo build --release --bin threert-render)        # rust-toolchain.toml 指定 1.100.0；約 3.5 分鐘
+npm install --prefix ../esb --no-save esbuild@0.28.2               # 打包場景只需要 esbuild，不裝整個 workspace
+mkdir -p node_modules/@threert assets
+ln -s ../esb/node_modules/esbuild ../esb/node_modules/@esbuild node_modules/
+for p in scene gameplay voxel; do ln -s ../../packages/$p node_modules/@threert/$p; done
+cp <Kyoto-Bunko>/tools/threert/plate-reference.js scenes/kyoto-plate.ts
+cp kyoto-W_MINAMI.glb assets/                                        # 本 repo 的 ?export=glb 產物
+node tools/build-scenes.ts kyoto-plate
+VK_ICD_FILENAMES=/opt/pw-browsers/chromium-1243/chrome-linux64/vk_swiftshader_icd.json THREERT_MERGED=1 \
+  renderer/target/release/threert-render render out/bundles/kyoto-plate.js -o out/kyoto-plate.png --assets . --spp 4
+```
+
+- 不加 `THREERT_MERGED=1` 會失敗：SwiftShader 每個 stage 只給 10 個儲存緩衝，完整版面要 13 個。
+- 實測：Cornell box 4 spp 約 2 分鐘；南區（63,310 個三角形）1280×720、4 spp 加降噪約 4 分鐘。
+- 編譯產物和 ThreeRT 原始碼都在 session 的暫存資料夾，不進本 repo。
+
+## 渲染：使用者的電腦（備用）
 
 1. 從 <https://threert.dev/download/> 安裝 ThreeRT for Windows（需要 DX12 ray queries，RTX 4070 符合；目前是未簽章的預覽版）。安裝包含 `threert` 指令。
 2. `threert create kyoto-ref`，`cd kyoto-ref`。
