@@ -52,7 +52,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 
 ## 4. 下一步（依序）
 
-1. three.js 待辦見 `MAKIE_THREE_PLAN.md` §7：T3 材質（銀偏灰、燈窗橙色、青貝）、岩頂面切金覆蓋、T4 狐／鳳凰／鶯、T5 設為預設並刪舊管線。派工：Astra（Codex 約 11/21 重設）或 Fable 5.2（Claude 的 Fable 週額度約 11/15 21:00 重設）整包做；小而具體的包給 Hydrogen。各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`。
+1. three.js 待辦見 `MAKIE_THREE_PLAN.md` §7：T3 材質（銀偏灰、燈窗橙色、青貝）、岩頂面切金覆蓋、T4 狐／鳳凰／鶯、T5 設為預設並刪舊管線。主代理直接做（研究原作與視覺調整是 Opus 5.5 強項，不等外派）；Astra（Codex 約 11/21 重設）或 Fable 5.2（Fable 週額度約 11/15 21:00 重設）有額度時可整包派出；小而具體的包給 Hydrogen。各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`。
 2. 派夜間流水線前，先照 [`agent-runs/2026-11-14/pipeline-retro.md`](agent-runs/2026-11-14/pipeline-retro.md) 的 A–H 改好並乾跑。
 3. 設計語言一律依初音調度（`MAKIE_PLATE_HANDOFF.md` §3、`MAKIE_THREE_PLAN.md` §2a）；美術取捨由主代理判斷，不必先問。
 4. 其餘 Phase 4 工作照 `PLAN.md`，各自需要授權。

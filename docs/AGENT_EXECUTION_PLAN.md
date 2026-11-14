@@ -2,7 +2,7 @@
 
 > **目前狀態以 [交接入口](HANDOFF.md) 為準**（2026-11-11 更新）。2026-11-04～11-06 各輪（T4.1～T4-M5）都由主代理單獨完成核心渲染與驗收，未外派寫入；細節見 `agent-runs/`。原本逐輪追加在頂端的狀態橫幅已移除，原文留在 Git 歷史。驗收指令包含 `npm test`（= `node --test --test-concurrency=1 "scripts/*.test.mjs"` 加 `tsx --test "src/lib/*.test.ts"`，目前 67＋6 項全過；CI 也跑 `npm test`）。
 >
-> **派工以使用者全域合約為準**：長線機械性實作派 Gemini 3.8 Flash high（`agy`），一包最多 3 個任務、主代理逐包審；Codex 只派美術視覺判讀與第二意見，不派寫程式；架構與核心程式由主代理做。UI 翻新的分包與驗收見 [`UI_RENEWAL_ARCHITECTURE.md`](UI_RENEWAL_ARCHITECTURE.md) §0、§6、§7。下方 §2 模型表是 Phase 0–3 的歷史設定。
+> **派工以使用者全域合約為準**（2026-11-14 重訂，各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`）：主代理做架構、整合、研究與視覺；Astra 或 Fable 5.2 可派整包設計＋實作；Hydrogen 派小而具體的包。下方舊表的「Codex 只派美術判讀」「Flash 為實作主力」已失效。
 
 入口合約：`../AGENTS.md`；功能與驗收清單：`PLAN.md`。
 
