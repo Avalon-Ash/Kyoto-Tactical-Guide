@@ -31,14 +31,15 @@ export const MATERIALS = {
 /** The box has its own small material ids (see buildBox in renderer.js). 25 is the shadow underlay and is not drawn here. */
 export const BOX_MATERIALS = {
   // Hatsune: the whole body is nashiji (amber lacquer over gold powder), not black lacquer (user decision, handoff §3).
-  20: {name: 'side', color: '#a8742e', metalness: .75, roughness: .45, clearcoat: 1, clearcoatRoughness: .06, flake: .4},
-  21: {name: 'silverRim', color: '#d4d6d2', metalness: 1, roughness: .26, clearcoat: 0, clearcoatRoughness: 0, flake: .2},
+  20: {name: 'side', color: '#c4893a', metalness: .72, roughness: .4, clearcoat: 1, clearcoatRoughness: .06, flake: 0, nashijiSide: true},
+  // The lid's lip: gold, as on the Hatsune boxes (museum photos show no silver rim).
+  21: {name: 'rim', color: '#c39345', metalness: 1, roughness: .3, clearcoat: .2, clearcoatRoughness: .1, flake: .2},
   22: {name: 'inner', color: '#8c6a2d', metalness: .8, roughness: .5, clearcoat: .5, clearcoatRoughness: .1, flake: .5},
   23: {name: 'paper', color: '#cdbd98', metalness: 0, roughness: .9, clearcoat: 0, clearcoatRoughness: 0, flake: 0},
   24: {name: 'gold', color: '#d7a64a', metalness: 1, roughness: .3, clearcoat: .2, clearcoatRoughness: .1, flake: .3},
   26: {name: 'edge', color: '#c99a42', metalness: 1, roughness: .3, clearcoat: .2, clearcoatRoughness: .1, flake: .3},
   27: {name: 'cord', color: '#85100a', metalness: 0, roughness: .6, clearcoat: 0, clearcoatRoughness: 0, flake: 0},
-  28: {name: 'tray', color: '#9a7634', metalness: .8, roughness: .5, clearcoat: .5, clearcoatRoughness: .1, flake: .5},
+  28: {name: 'tray', color: '#b4843a', metalness: .8, roughness: .5, clearcoat: .5, clearcoatRoughness: .1, flake: .5},
 };
 
 /** The lid's own ground (box ids 0): the picture is painted on it. */
@@ -335,7 +336,7 @@ ivec2 mIdent0(vec2 p){
 float mHash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 vec2 mHash2(vec2 p){vec3 q=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));q+=dot(q,q.yzx+33.33);return fract((q.xx+q.yz)*q.zy);}
 float mVnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mHash(i),mHash(i+vec2(1.,0.)),f.x),mix(mHash(i+vec2(0.,1.)),mHash(i+1.),f.x),f.y);}
-vec3 mN, mHk, mHp, mKeyC, mPoolC, mAmbC; float mAtt, mDk, mDp, mWake=0., mSh=1.;
+vec3 mN, mHk, mHp, mKeyC, mPoolC, mAmbC, mWP; float mAtt, mDk, mDp, mWake=0., mSh=1., mBand=0.;
 vec3 mLight(){return M_AMB*mAmbC+(M_KEY*mDk*mKeyC+M_POOL*mAtt*mDp*mPoolC)*mSh;}
 vec3 mSpec(float e){return (M_KEY*pow(max(dot(mN,mHk),0.),e)*mKeyC+M_POOL*mAtt*pow(max(dot(mN,mHp),0.),e)*mPoolC)*mSh;}
 vec3 mRoom(float rough){
@@ -344,7 +345,7 @@ vec3 mRoom(float rough){
   return mAmbC*(.04+.30*up*up)+mKeyC*win*mix(1.15,.5,rough);
 }
 void mSetLight(vec3 n,vec3 worldPos){
-  mN=n;
+  mN=n;mWP=worldPos;
   mKeyC=mix(vec3(1.,.95,.86),vec3(.64,.72,.90),uNight);
   mPoolC=mix(vec3(1.,.93,.80),vec3(.96,.96,1.),uNight);
   mAmbC=mix(vec3(1.,.96,.90),vec3(.50,.60,.84),uNight);
@@ -352,6 +353,11 @@ void mSetLight(vec3 n,vec3 worldPos){
   mAtt=(uPresence/(1.+d2/24000.))+mWake*.55;
   mDk=max(dot(n,uKey),0.);mDp=max(dot(n,lp),0.);
   mHk=normalize(uKey+uView);mHp=normalize(lp+uView);
+  // Polished lacquer mirrors a soft window: a broad diagonal band whose place follows the reflected ray, so it
+  // sweeps across the lid as the box leans toward the hand (the 移光), and rests off-centre when the box is still.
+  vec3 r=reflect(-uView,n);
+  float s=dot(r.xz-vec2(-.35,-.74),vec2(.62,-.78))*6.5+dot(worldPos.xz,vec2(.0021,.0013))-.35;
+  mBand=exp(-s*s*2.2)*mSh;
 }
 float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out vec3 glint){
   float vis=smoothstep(1.3,3.2,cell/max(uPx,.05));
@@ -372,15 +378,19 @@ float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out v
   glint=mix(avg*broad*.55,cov*gl*2.6,vis);
   return mix(avg,cov,vis);
 }
-vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045;}
+vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045+mKeyC*mBand*.075;}
 vec3 mNashiji(vec2 p,float dens,vec3 tint){
+  // Gold powder sunk at three depths in amber lacquer (Hatsune: 金粉を透漆で塗りこむ). The lacquer absorbs blue
+  // first, so the deepest powder reads red-brown and the shallow powder bright orange-gold; the body between grains
+  // is the amber glow of powder further down, not black. Photos of the trousseau read honey-gold overall.
   vec3 L=mLight(),ga,gb,gc;
-  float a=mFlake(M_R1*p,.62,.47,dens*1.05,0.,.55,ga),b=mFlake(M_R2*p+13.7,1.35,.45,dens*.78,0.,.5,gb),c=mFlake(M_R3*p+41.3,2.5,.38,dens*.15,0.,.4,gc);
-  vec3 col=M_LACQ*(.6+L)+tint*vec3(.55,.26,.07)*min(dens,1.3)*(.03+.28*L);
-  col=mix(col,tint*vec3(.92,.55,.19)*(.05+.58*L),a*.85);
-  col=mix(col,tint*vec3(1.,.70,.30)*(.06+.78*L),b*.9);
-  col=mix(col,tint*vec3(1.,.78,.40)*(.07+.86*L),c);
-  return col+tint*M_AMBER*(ga*.8+gb*1.3+gc)+mCoat();
+  float a=mFlake(M_R1*p,.62,.47,dens*1.15,0.,.55,ga),b=mFlake(M_R2*p+13.7,1.35,.43,dens*.85,0.,.5,gb),c=mFlake(M_R3*p+41.3,2.4,.36,dens*.30,0.,.4,gc);
+  vec3 deep=tint*vec3(.82,.52,.17),mid=tint*vec3(1.,.70,.28),top=tint*vec3(1.,.86,.52);
+  vec3 col=tint*vec3(.44,.25,.07)*(.16+.52*L);
+  col=mix(col,deep*(.10+.62*L),a*.9);
+  col=mix(col,mid*(.10+.84*L),b*.92);
+  col=mix(col,top*(.12+1.02*L),c);
+  return col+tint*M_AMBER*(ga*.7+gb*1.2+gc*1.5)*(1.+2.2*mBand)+mCoat();
 }
 vec3 mMetal(vec2 p,vec3 f0,float rise){
   vec3 g;mFlake(p,.5,.4,.9,0.,.35,g);
@@ -410,7 +420,7 @@ vec2 kp=vKyotoPlate;
 if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
   vec2 e=abs(kp)-M_HALF;float out_=max(e.x,e.y);
   mWake=0.;mSh=1.;mSetLight(normalize(vKyotoNormal),vKyotoWorld);
-  vec3 bc=out_>7.4?mMetal(kp,M_GOLD*.92,1.):out_>6.4?mMetal(kp,M_SILVER*.8,1.):mNashiji(kp,.34,M_GOLD);
+  vec3 bc=out_>7.4?mMetal(kp,M_GOLD*.92,1.):out_>6.4?mMetal(kp,M_GOLD*.6,1.):mNashiji(kp,.9,M_GOLD);
   outgoingLight=mFinish(bc,1.).rgb;
   diffuseColor.a=1.;
 }else{
@@ -441,14 +451,16 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
   mSetLight(normalize(normalize(vKyotoNormal)-grad.x*vKyotoTanX-grad.y*vKyotoTanZ),vKyotoWorld);
   float line=fine.b;vec3 L=mLight();
   float w=smoothstep(.02,.34,hs);
-  float dens=.60+.16*mVnoise(kp*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
+  float dens=.82+.22*mVnoise(kp*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
   vec3 tint=M_GOLD,f0=M_GOLD,c=vec3(0.);
   if(mat==1)wN=1.;
   else if(mat==2||mat==3){
     float cloud=mat==3?mVnoise(kp*.045)*.6+mVnoise(kp*.13)*.3:.55;
-    wM=w*(.25+.6*cloud);wN=1.-wM;dens=mix(dens,1.05+.3*cloud,w);f0=mix(M_GOLD,M_PALE,.3);tint=mix(M_GOLD,M_PALE,.3*w);c=M_PALE*line*(.14+.6*L)*w;
+    // Land in the Hatsune lids is pale smooth gold; powder gathers thick at the foot and thins toward the crown.
+    wM=smoothstep(.06,.62,hs)*(.62+.3*cloud);wN=1.-wM;dens=mix(dens,1.25,smoothstep(.02,.3,hs)*(1.-wM));
+    f0=mix(M_GOLD,M_PALE,.55);tint=mix(M_GOLD,M_PALE,.35*w);rise=max(rise,.75);c=M_PALE*line*(.14+.6*L)*w;
   }
-  else if(mat==4){wN=1.;dens=mix(dens,.8,w);bigD=.85*w;c=M_PALE*line*(.12+.5*L)*w;}
+  else if(mat==4){wN=1.;dens=mix(dens,1.05,w);bigD=.42*w;bigCell=4.;c=M_PALE*line*(.12+.5*L)*w;}
   else if(mat==5){wM=1.;c=M_PALE*line*(.12+.6*L)*mix(.5,1.,rise);}
   else if(mat==6){wM=1.;f0=M_SILVER;}
   else if(mat==7){wM=1.;f0=M_GOLD*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=M_PALE*line*(.22+.6*L);}
@@ -473,14 +485,44 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     c=mix(c,film*(.16+.60*L)+vec3(.9,1.,1.)*mSpec(120.)*.9,clamp((fine.g-.2)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.));
   }
   if(mat==12){
+    // Ryusui: tight, swirling, roughly parallel gold lines over gold (the Hatsune trousseau's streams), not a grey band.
+    float m=clamp((fine.g-.035)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.);
+    vec2 q=kp+vec2(mVnoise(kp*.035),mVnoise(kp*.035+7.3))*14.;
+    float ph=(q.y+sin(q.x*.085+q.y*.02)*5.5+sin(q.x*.23+q.y*.05)*1.6)/3.4-uTime*.05;
+    float fw=fwidth(ph),d=abs(fract(ph)-.5)*2.;
+    float ln=mix(1.-smoothstep(.26-fw,.26+fw,d),.26,smoothstep(.22,.55,fw));
     float flow=.55+.45*sin(kp.y*.20-uTime*1.5+kp.x*.06);
-    vec3 wtr=c*vec3(.62,.72,.84)+M_SILVER*(.05+.14*L)+M_SILVER*line*(.22+.95*L)*(.5+.5*flow)+M_SILVER*max(ring,0.)*.5*(.2+L)+mCoat()*.6+M_SILVER*mRoom(.05)*.08;
-    c=mix(c,wtr,clamp((fine.g-.035)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.));
+    vec3 base=mMetal(kp,M_GOLD*.74,.9)*.82+tint*vec3(.36,.17,.045)*(.10+.30*L);
+    vec3 crest=mSheet(M_PALE)*.45+mix(M_PALE,M_GOLD,.3)*(.10+.62*L)*(.8+.2*flow)+M_PALE*mBand*.12;
+    vec3 wtr=mix(base,crest,ln)+M_SILVER*line*(.08+.36*L)*(.5+.5*flow)+M_SILVER*max(ring,0.)*.5*(.2+L)+mCoat()*.6;
+    c=mix(c,wtr*vec3(1.,.93,.80),m);
   }
   vec4 ph=texture(uPlaceholder,mPuv(kp));
   if(ph.a>.001)c=mix(c,ph.rgb*(.45+1.05*L),ph.a);
   outgoingLight=mFinish(c,1.).rgb;
   diffuseColor.a=1.;
+}`;
+
+/** Box sides (box id 20): the lid's nashiji continues down the walls, with a low gold bank and a faint mist band, as
+ * on the Hatsune stationery box and document box whose landscapes run onto the sides. uv = (perimeter run, world y). */
+export const BOX_SIDE_VERT_GLSL = `varying vec2 vKyotoSide; varying vec3 vKyotoSideW, vKyotoSideN;`;
+export const BOX_SIDE_PARS_GLSL = `
+varying vec2 vKyotoSide; varying vec3 vKyotoSideW, vKyotoSideN;
+${MAKIE_COMMON_GLSL}`;
+export const BOX_SIDE_FRAG_GLSL = `
+{
+  vec2 sp=vKyotoSide;
+  mWake=0.;mSh=1.;mSetLight(normalize(vKyotoSideN),vKyotoSideW);
+  float body=step(sp.y,-35.);
+  float bank=sp.y-(-92.+20.*mVnoise(vec2(sp.x*.011,1.3))+9.*mVnoise(vec2(sp.x*.043,4.1)));
+  float land=(1.-smoothstep(-1.5,1.5,bank))*body;
+  float mist=smoothstep(.56,.64,mVnoise(vec2(sp.x*.0075,(sp.y+(1.-body)*40.)*.05+2.)))*(1.-land);
+  vec3 c=mNashiji(sp,.95,M_GOLD);
+  c=mix(c,mMetal(sp,mix(M_GOLD,M_PALE,.5),1.)*.85+mNashiji(sp,1.3,M_PALE)*.2,land*.55);
+  c=mix(c,.5*mMetal(sp,M_PALE*.95,1.)+.25*mSheet(M_PALE)+.3*mNashiji(sp,1.6,M_PALE),mist*.45);
+  c+=M_PALE*(1.-smoothstep(0.,.9,abs(bank)))*body*(.06+.3*mLight());
+  // Walls face the room, not the window: keep them a warmer, slightly deeper amber than the lid.
+  outgoingLight=mFinish(c*vec3(1.,.86,.62)*.9,1.).rgb;
 }`;
 
 /** Vertex shader for KIND.mist (suyari-gasumi) bands floating above the hills. */
@@ -523,6 +565,7 @@ void main(){
   if(alpha<.01)discard;
   float rise=texelFetch(uState,ivec2(id,0),0).z;
   mWake=0.;mSh=1.;mSetLight(normalize(vKyotoNormal),vKyotoWorld);
-  vec3 c=.82*mSheet(M_GOLD)+.18*mMetal(vKyotoUv,M_GOLD,rise);
+  // Suyari-gasumi in the Hatsune lids is dense, bright gold (濃梨子地 into flat gold), clearly richer than the ground.
+  vec3 c=.5*mNashiji(vKyotoUv,1.6,mix(M_GOLD,M_PALE,.5))+.5*mMetal(vKyotoUv,M_PALE*.95,1.)+.25*mSheet(M_PALE);
   fragColor=mFinish(c,alpha);
 }`;

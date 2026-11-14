@@ -23,6 +23,7 @@ import {
   bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
   TREE_LIMB_MOTION_GLSL, TREE_STAMP_MOTION_GLSL,
   MAKIE_GROUND_PARS_GLSL, MAKIE_GROUND_FRAG_GLSL, MAKIE_MIST_VERT_GLSL, MAKIE_MIST_FRAG_GLSL,
+  BOX_SIDE_VERT_GLSL, BOX_SIDE_PARS_GLSL, BOX_SIDE_FRAG_GLSL,
 } from './three-pack.js';
 
 const EYE = [430, 720, 920], TARGET = [0, 40, 0];
@@ -302,7 +303,22 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
     const spec = BOX_MATERIALS[id];
     if (!spec) throw new Error(`three renderer: no material for box id ${id}`);
     // The cords are drawn live; the fixed geometry here never carries id 27 (they come from cordTube), but guard anyway.
-    boxGroup.add(mesh(buffers(slice.position, slice.normal, slice.uv, slice.part), patchMaterial(physical(spec), spec, BOX_MOTION_GLSL, 'kyotoBox'), boxDepth));
+    const boxMaterial = patchMaterial(physical(spec), spec, BOX_MOTION_GLSL, 'kyotoBox');
+    if (spec.nashijiSide) {
+      // The walls share the lid's nashiji shader (three-pack BOX_SIDE_*), on top of the box hinge patch.
+      const hinge = boxMaterial.onBeforeCompile;
+      boxMaterial.customProgramCacheKey = () => 'kyoto-box-side';
+      boxMaterial.onBeforeCompile = shader => {
+        hinge(shader);
+        shader.vertexShader = shader.vertexShader
+          .replace('#include <common>', `#include <common>\n${BOX_SIDE_VERT_GLSL}`)
+          .replace('vec3 transformed = kyotoP;', 'vec3 transformed = kyotoP; vKyotoSide = uv; vKyotoSideW = kyotoP; vKyotoSideN = objectNormal;');
+        shader.fragmentShader = shader.fragmentShader
+          .replace('#include <common>', `#include <common>\n${BOX_SIDE_PARS_GLSL}`)
+          .replace('#include <opaque_fragment>', `${BOX_SIDE_FRAG_GLSL}\n#include <opaque_fragment>`);
+      };
+    }
+    boxGroup.add(mesh(buffers(slice.position, slice.normal, slice.uv, slice.part), boxMaterial, boxDepth));
     boxVertices += slice.position.length / 3;
   }
 
