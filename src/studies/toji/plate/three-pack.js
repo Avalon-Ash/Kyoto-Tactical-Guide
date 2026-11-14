@@ -10,11 +10,11 @@ import {packMeshes} from './mesh-geometry.js';
  * for parts that are not yet three meshes (T1/T2 replace that). glow: emissive follows the part's glow state.
  */
 export const MATERIALS = {
-  [MAT.ground]: {name: 'ground', color: '#1a120d', paint: '#16100c', metalness: .25, roughness: .42, clearcoat: 1, clearcoatRoughness: .08, flake: .25},
+  [MAT.ground]: {name: 'ground', color: '#a8742e', paint: '#9a6c2c', metalness: .75, roughness: .45, clearcoat: 1, clearcoatRoughness: .08, flake: .35},
   [MAT.nashijiLight]: {name: 'nashijiLight', color: '#b88a3c', paint: '#a8823a', metalness: .85, roughness: .5, clearcoat: .6, clearcoatRoughness: .1, flake: .5},
   [MAT.mura]: {name: 'mura', color: '#9c7430', paint: '#6e5222', metalness: .8, roughness: .55, clearcoat: .6, clearcoatRoughness: .1, flake: .45},
   [MAT.gyobu]: {name: 'gyobu', color: '#c29a46', paint: '#8a6a2c', metalness: .85, roughness: .45, clearcoat: .5, clearcoatRoughness: .1, flake: .7},
-  [MAT.gold]: {name: 'gold', color: '#e0b04a', paint: '#d6a640', metalness: 1, roughness: .32, clearcoat: .3, clearcoatRoughness: .1, flake: .35},
+  [MAT.gold]: {name: 'gold', color: '#cf9e48', paint: '#d6a640', metalness: 1, roughness: .38, clearcoat: .3, clearcoatRoughness: .1, flake: .22},
   [MAT.silver]: {name: 'silver', color: '#d4d6d2', paint: '#cfd0cc', metalness: 1, roughness: .28, clearcoat: 0, clearcoatRoughness: 0, flake: .3},
   [MAT.kirikane]: {name: 'kirikane', color: '#f0c25a', paint: '#e0b650', metalness: 1, roughness: .22, clearcoat: 0, clearcoatRoughness: 0, flake: 0},
   [MAT.kirigin]: {name: 'kirigin', color: '#d0d3cf', paint: '#bfc0b8', metalness: 1, roughness: .22, clearcoat: 0, clearcoatRoughness: 0, flake: 0},
@@ -29,7 +29,8 @@ export const MATERIALS = {
 
 /** The box has its own small material ids (see buildBox in renderer.js). 25 is the shadow underlay and is not drawn here. */
 export const BOX_MATERIALS = {
-  20: {name: 'side', color: '#2b1d0b', metalness: .65, roughness: .38, clearcoat: 1, clearcoatRoughness: .05, flake: .5},
+  // Hatsune: the whole body is nashiji (amber lacquer over gold powder), not black lacquer (user decision, handoff §3).
+  20: {name: 'side', color: '#a8742e', metalness: .75, roughness: .45, clearcoat: 1, clearcoatRoughness: .06, flake: .4},
   21: {name: 'silverRim', color: '#d4d6d2', metalness: 1, roughness: .26, clearcoat: 0, clearcoatRoughness: 0, flake: .2},
   22: {name: 'inner', color: '#8c6a2d', metalness: .8, roughness: .5, clearcoat: .5, clearcoatRoughness: .1, flake: .5},
   23: {name: 'paper', color: '#cdbd98', metalness: 0, roughness: .9, clearcoat: 0, clearcoatRoughness: 0, flake: 0},

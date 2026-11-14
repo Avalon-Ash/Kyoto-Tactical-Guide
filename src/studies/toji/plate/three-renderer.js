@@ -30,9 +30,10 @@ export function bakeFlakeNormal(doc, size = 256) {
   const canvas = doc.createElement('canvas'); canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d'), r = rand(7);
   ctx.fillStyle = 'rgb(128,128,255)'; ctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 1400; i++) {
-    const x = r() * size, y = r() * size, rad = 1.6 + r() * 4.2, a = r() * 6.283, sides = 4 + Math.floor(r() * 2);
-    ctx.fillStyle = `rgb(${Math.round(128 + (r() - .5) * 120)},${Math.round(128 + (r() - .5) * 120)},235)`;
+  // Nashiji powder is fine and dense (Hatsune trousseau close-ups): many small flat flakes, gentle tilt.
+  for (let i = 0; i < 5200; i++) {
+    const x = r() * size, y = r() * size, rad = .9 + r() * 1.6, a = r() * 6.283, sides = 4 + Math.floor(r() * 2);
+    ctx.fillStyle = `rgb(${Math.round(128 + (r() - .5) * 80)},${Math.round(128 + (r() - .5) * 80)},240)`;
     ctx.beginPath();
     for (let k = 0; k < sides; k++) { const t = a + k / sides * 6.283, s = rad * (.7 + r() * .5); ctx[k ? 'lineTo' : 'moveTo'](x + Math.cos(t) * s, y + Math.sin(t) * s); }
     ctx.closePath(); ctx.fill();
@@ -44,7 +45,7 @@ export function bakeFlakeNormal(doc, size = 256) {
     }
   }
   const texture = new THREE.CanvasTexture(canvas);
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(1 / 36, 1 / 36);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(1 / 16, 1 / 16);
   return texture;
 }
 
