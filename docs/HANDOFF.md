@@ -52,7 +52,7 @@ npm run dev -- --host 127.0.0.1 --strictPort
 
 ## 4. 下一步（依序）
 
-0. **地等使用者在實機看 `?three=1` 定稿**，之後才改肉合部件（使用者：「肉合蒔繪部件等地都好再改」）。ThreeRT 參考圖顯示即時畫面缺：部件底部接觸暗部、屋簷底面的金地反光、寬而柔的漆面窗光、軟陰影（`MAKIE_THREERT_REFERENCE.md`）；這些和岩、樹幹的網點切金與金銀兩面（`mKiri`、`M_OXID`）一起排在部件那一輪。小景只能依附於物、逐區設計，不可隨機撒。
+0. **地已定稿**（使用者 2026-11-14 晚在實機看過 L3 漆面窗光：「比之前好很多」）。下一輪是肉合部件：L1 接觸暗部、L2 屋簷底面的金地反光，再來岩與樹幹的網點切金與金銀兩面（`mKiri`、`M_OXID`）、L4 軟陰影（要量手機幀時間）、L5 盒側（美術決定）。各項的網站現況、近似法與成本見 [ThreeRT 參考報告](agent-runs/2026-11-14-threert-reference.md) §4；參考圖本機約 1 秒一張（`MAKIE_THREERT_REFERENCE.md`）。小景只能依附於物、逐區設計，不可隨機撒。
 
 1. three.js 待辦見 `MAKIE_THREE_PLAN.md` §7：T3 材質（銀偏灰、燈窗橙色、青貝）、岩頂面切金覆蓋、T4 狐／鳳凰／鶯、T5 設為預設並刪舊管線。主代理直接做（研究原作與視覺調整是 Opus 5.5 強項，不等外派）；Astra（Codex 約 11/21 重設）或 Fable 5.2（Fable 週額度約 11/15 21:00 重設）有額度時可整包派出；小而具體的包給 Hydrogen。各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`。
 2. 派夜間流水線前，先照 [`agent-runs/2026-11-14/pipeline-retro.md`](agent-runs/2026-11-14/pipeline-retro.md) 的 A–H 改好並乾跑。

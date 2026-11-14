@@ -109,7 +109,9 @@ export function plateScene(doc, pose) {
   }
   pctx.putImageData(img, 0, 0);
   const groundMap = new THREE.CanvasTexture(paint); groundMap.colorSpace = THREE.SRGBColorSpace; groundMap.flipY = false;
-  scene.add(new THREE.Mesh(geometry(gp, gn, gu), physical({name: 'ground-nashiji', color: '#ffffff', metalness: .9, roughness: .42, clearcoat: 1, clearcoatRoughness: .05}, {map: groundMap})));
+  // Nashiji is gold dust sunk in amber lacquer, not sheet gold: a deep amber tint over the colour map, the dust only
+  // partly metal, and the polished coat on top (a fully metal ground turned the whole box into one sheet of gold).
+  scene.add(new THREE.Mesh(geometry(gp, gn, gu), physical({name: 'ground-nashiji', color: '#c8945a', metalness: .6, roughness: .45, clearcoat: 1, clearcoatRoughness: .04}, {map: groundMap})));
 
   // The rest of the box (walls, rim, tray), as it stands.
   for (const [id, slice] of sliceBox(box.data, box.lidTop, box.opaque)) {

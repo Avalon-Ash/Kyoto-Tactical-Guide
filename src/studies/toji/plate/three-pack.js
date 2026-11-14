@@ -327,6 +327,11 @@ uniform sampler2D uSoft0, uIdent0;
 const vec2 M_HALF=vec2(360.,230.);
 const vec3 M_GOLD=vec3(1.,.70,.26), M_PALE=vec3(.98,.84,.48), M_SILVER=vec3(.84,.85,.83), M_LACQ=vec3(.020,.015,.013), M_AMBER=vec3(1.,.86,.58), M_OXID=vec3(.66,.66,.64);
 const float M_SWELL=17., M_AMB=.17, M_KEY=.44, M_POOL=1.75;
+// The lacquer's window (ThreeRT reference, docs/agent-runs/2026-11-14-threert-reference.md L3), in two layers: the
+// coat mirrors a narrow warm-white band (M_BAND_*), and the powder under it a broad gold sheen that brightens the
+// body without whitening it (M_SHEEN_*). SWEEP: how fast the place follows the lean; FALL: how fast it fades across
+// the lid; WIDTH: the gaussian's tightness (larger is narrower); GAIN: how bright, by day (a night keeps .45 of it).
+const float M_BAND_SWEEP=6.5, M_BAND_FALL=1., M_BAND_WIDTH=2.2, M_BAND_GAIN=.14, M_SHEEN_WIDTH=.35, M_SHEEN_GAIN=.55;
 const mat2 M_R1=mat2(.940,.342,-.342,.940), M_R2=mat2(.766,-.643,.643,.766), M_R3=mat2(.5,.866,-.866,.5);
 vec2 mPuv(vec2 q){return (clamp(q,-M_HALF,M_HALF)+M_HALF)/(2.*M_HALF);}
 ivec2 mIdent0(vec2 p){
@@ -336,7 +341,7 @@ ivec2 mIdent0(vec2 p){
 float mHash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 vec2 mHash2(vec2 p){vec3 q=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));q+=dot(q,q.yzx+33.33);return fract((q.xx+q.yz)*q.zy);}
 float mVnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mHash(i),mHash(i+vec2(1.,0.)),f.x),mix(mHash(i+vec2(0.,1.)),mHash(i+1.),f.x),f.y);}
-vec3 mN, mHk, mHp, mKeyC, mPoolC, mAmbC, mWP; float mAtt, mDk, mDp, mWake=0., mSh=1., mBand=0.;
+vec3 mN, mHk, mHp, mKeyC, mPoolC, mAmbC, mWP; float mAtt, mDk, mDp, mWake=0., mSh=1., mBand=0., mSheen=0.;
 vec3 mLight(){return M_AMB*mAmbC+(M_KEY*mDk*mKeyC+M_POOL*mAtt*mDp*mPoolC)*mSh;}
 vec3 mSpec(float e){return (M_KEY*pow(max(dot(mN,mHk),0.),e)*mKeyC+M_POOL*mAtt*pow(max(dot(mN,mHp),0.),e)*mPoolC)*mSh;}
 vec3 mRoom(float rough){
@@ -356,8 +361,10 @@ void mSetLight(vec3 n,vec3 worldPos){
   // Polished lacquer mirrors a soft window: a broad diagonal band whose place follows the reflected ray, so it
   // sweeps across the lid as the box leans toward the hand (the 移光), and rests off-centre when the box is still.
   vec3 r=reflect(-uView,n);
-  float s=dot(r.xz-vec2(-.35,-.74),vec2(.62,-.78))*6.5+dot(worldPos.xz,vec2(.0021,.0013))-.35;
-  mBand=exp(-s*s*2.2)*mSh;
+  float s=dot(r.xz-vec2(-.35,-.74),vec2(.62,-.78))*M_BAND_SWEEP+dot(worldPos.xz,vec2(.0021,.0013))*M_BAND_FALL-.35;
+  float dim=mix(1.,.45,uNight);
+  mBand=exp(-s*s*M_BAND_WIDTH)*mSh*dim;
+  mSheen=exp(-s*s*M_SHEEN_WIDTH)*mix(.6,1.,mSh)*dim;
 }
 float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out vec3 glint){
   float vis=smoothstep(1.3,3.2,cell/max(uPx,.05));
@@ -391,7 +398,7 @@ float mKiri(vec2 p,float cell,float amount,out vec3 glint){
   glint=cov*gl*2.4*vis;
   return mix(4.*sz*sz,cov,vis);
 }
-vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045+mKeyC*mBand*.075;}
+vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045+mKeyC*mBand*M_BAND_GAIN;}
 vec3 mNashiji(vec2 p,float dens,vec3 tint){
   // Gold powder sunk at three depths in amber lacquer (Hatsune: 金粉を透漆で塗りこむ). The lacquer absorbs blue
   // first, so the deepest powder reads red-brown and the shallow powder bright orange-gold; the body between grains
@@ -403,7 +410,8 @@ vec3 mNashiji(vec2 p,float dens,vec3 tint){
   col=mix(col,deep*(.10+.62*L),a*.9);
   col=mix(col,mid*(.10+.84*L),b*.92);
   col=mix(col,top*(.12+1.02*L),c);
-  return col+tint*M_AMBER*(ga*.7+gb*1.2+gc*1.5)*(1.+2.2*mBand)+mCoat();
+  col*=1.+M_SHEEN_GAIN*mSheen;
+  return col+tint*M_AMBER*(ga*.7+gb*1.2+gc*1.5)*(1.+2.2*mBand+1.2*mSheen)+mCoat();
 }
 vec3 mMetal(vec2 p,vec3 f0,float rise){
   vec3 g;mFlake(p,.5,.4,.9,0.,.35,g);

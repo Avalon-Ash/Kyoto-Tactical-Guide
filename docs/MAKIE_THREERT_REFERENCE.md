@@ -40,7 +40,17 @@ VK_ICD_FILENAMES=/opt/pw-browsers/chromium-1243/chrome-linux64/vk_swiftshader_ic
 - 實測：Cornell box 4 spp 約 2 分鐘；南區（63,310 個三角形）1280×720、4 spp 加降噪約 4 分鐘。
 - 編譯產物和 ThreeRT 原始碼都在 session 的暫存資料夾，不進本 repo。
 
-## 渲染：使用者的電腦（備用）
+## 渲染：使用者的電腦，從原始碼（2026-11-14 實測，主要路線）
+
+- 需要：rustup＋Rust 1.100.0 MSVC（`rust-toolchain.toml` 會自動裝）、Visual Studio 2022 Build Tools 的 C++ 工作負載（QuickJS、ring 是 C）。已裝在使用者的電腦。
+- ThreeRT clone 在 `C:\Git\_ext\ThreeRT`；`cargo build --release --bin threert-render` 約 2.5 分鐘，Windows 上第一次就過。
+- `node_modules` 的連結用目錄 junction（`New-Item -ItemType Junction`），不用 symlink；esbuild 的 postinstall 被 npm 擋下也能用。
+- 不設 `VK_ICD_FILENAMES`、`THREERT_MERGED`。wgpu 選 Vulkan，`hwrt: true`；1280×720、64 spp 約 1 秒一張。
+- 每區一個場景檔 `scenes/kyoto-plate-<區>.ts`（只改 `WARD`），bundle 可並存。
+- 匯出用無頭 Chrome 的 `Browser.setDownloadBehavior` 直接存到資料夾；換區會順便下載經過的各區，用不到的刪掉。
+- 細節與數字：[agent-runs/2026-11-14-threert-reference.md](agent-runs/2026-11-14-threert-reference.md)。
+
+## 渲染：ThreeRT for Windows 安裝包（備用，未試）
 
 1. 從 <https://threert.dev/download/> 安裝 ThreeRT for Windows（需要 DX12 ray queries，RTX 4070 符合；目前是未簽章的預覽版）。安裝包含 `threert` 指令。
 2. `threert create kyoto-ref`，`cd kyoto-ref`。
