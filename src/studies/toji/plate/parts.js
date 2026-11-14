@@ -51,7 +51,8 @@ export function preparePlate(parts) {
   }
   parts = parts.map(p => {
     const rootId = groupRoots.get(p.group);
-    return rootId && rootId !== p.id && !p.motionWith ? {...p, motionWith: rootId} : p;
+    // A rigid group moves as one: every member follows the root directly, even if it named a nearer owner.
+    return rootId && rootId !== p.id ? {...p, motionWith: rootId} : p;
   });
   const byId = new Map(parts.map(p => [p.id, p]));
   const prepared = parts.map((p, i) => {

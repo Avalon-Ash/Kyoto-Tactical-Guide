@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {stepSpring, stepDamped, settled} from '../src/studies/toji/plate/spring.js';
 import {PLATES, hasPlate, preparePlate, createLife, partAt, MAX_PARTS, LAYERS, DWELL_MS, STAND_REST} from '../src/studies/toji/plate/parts.js';
-import {KIND, MAT, PLATE, roof, storey, kakezukuri, stoneSteps, stream, shell, steppingStones} from '../src/studies/toji/plate/vocab.js';
+import {KIND, MAT, PLATE, roof, storey, kakezukuri, stoneSteps, stream, shell, steppingStones, corridor, romon, sanmon, karamon} from '../src/studies/toji/plate/vocab.js';
 import {buildBox, shadeMatrix, SHADE_H} from '../src/studies/toji/plate/renderer.js';
 
 const p3bWards = ['W_KITA', 'W_UKYO', 'W_NISHIKYO', 'W_SAKYO', 'W_KAMIGYO', 'W_SHIMOGYO', 'W_NAKAGYO', 'W_YAMASHINA'];
@@ -486,8 +486,9 @@ test('preparePlate validates mesh/motionWith and preserves all 11 wards without 
 
   const fushimi = preparePlate(PLATES.W_FUSHIMI()).parts;
   for (const p of fushimi) {
+    // Scope fence (p1, widened by p2): torii and the rōmon are explicit meshes; the rest of Fushimi is not migrated yet.
     const isTorii = p.id === 'torii' || p.id === 'torii-lip' || p.id.startsWith('gate-');
-    if (isTorii) {
+    if (isTorii || p.id.startsWith('romon-')) {
       assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
       assert.equal(p.thick, 0, `${p.id} thick is 0`);
     } else {
@@ -498,7 +499,8 @@ test('preparePlate validates mesh/motionWith and preserves all 11 wards without 
 
   const higashiyama = preparePlate(PLATES.W_HIGASHIYAMA()).parts;
   for (const p of higashiyama) {
-    if (p.id === 'butai-frame' || p.id === 'butai-deck') {
+    // Scope fence (p1, widened by p2): the stage and the hondō on it are explicit meshes.
+    if (p.id === 'butai-frame' || p.id === 'butai-deck' || p.id.startsWith('hondo-')) {
       assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
       assert.equal(p.thick, 0, `${p.id} thick is 0`);
     } else {
@@ -627,4 +629,152 @@ test('torii post ribbons and kakezukuri deck front band exist at true surface he
 
   const hDeck = preparePlate(PLATES.W_HIGASHIYAMA()).parts.find(p => p.id === 'butai-deck');
   assert.equal(hDeck.mesh.filter(c => c.mat === MAT.hyomonSilver).length, 1, 'W_HIGASHIYAMA butai-deck keeps front silver band');
+});
+
+// ---- p2: roofed buildings as explicit meshes -------------------------------------------------------------------
+const inPoly = (d, x, z) => {
+  let inside = false;
+  for (let i = 0, j = d.length - 1; i < d.length; j = i++) {
+    const [xi, zi] = d[i], [xj, zj] = d[j];
+    if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+  }
+  return inside;
+};
+const meshCovers = (v, x, z) => {
+  for (let i = 0; i < v.length; i += 24) {
+    const ax = v[i], az = v[i + 2], bx = v[i + 8], bz = v[i + 10], cx = v[i + 16], cz = v[i + 18];
+    const d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz);
+    if (Math.abs(d) < 1e-9) continue;
+    const l1 = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d, l2 = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d;
+    if (l1 >= 0 && l2 >= 0 && l1 + l2 <= 1) return true;
+  }
+  return false;
+};
+const covers = (parts, x, z) => parts.some(p => p.fills.some(f => inPoly(f.d, x, z)) || (p.mesh || []).some(c => meshCovers(c.vertices, x, z)));
+
+test('p2 roofs are shells on the original outline: real thickness, upturned wings, tile bands on the surface, mountY', async () => {
+  const {roofSurface} = await import('../src/studies/toji/plate/architecture-mesh.js');
+  for (const [halfW, mat] of [[58, MAT.gold], [153, MAT.lacquer]]) {
+    const k = halfW < 75 ? .8 : 1, rise = halfW * .4, ridgeHalf = halfW * .3, upturn = halfW * .09, tiles = 9;
+    const [p, lip] = roof('t', 0, 0, halfW, rise, {ridgeHalf, upturn, mat, tiles});
+    const S = roofSurface(0, 0, halfW, rise, ridgeHalf, upturn).at;
+    assert.equal(p.thick, 0);
+    assert.equal(lip.thick, 0);
+    assert.equal(lip.motionWith, 't');
+    assert.equal(p.mountY, 14 * k);
+    const ys = [];
+    for (let i = 1; i < p.mesh[0].vertices.length; i += 8) ys.push(p.mesh[0].vertices[i]);
+    assert.ok(Math.abs(Math.max(...ys) - 16.61 * k) < .15, `${halfW}: crown of the slope stands proud`);
+    assert.ok(Math.abs(Math.min(...ys) - 8.2 * k) < .05, `${halfW}: underside is 2.8 below the eave`);
+    assert.ok(S(-1, 1)[2] < S(0, 1)[2] - halfW * .05 && S(1, 1)[2] < S(0, 1)[2] - halfW * .05, `${halfW}: both wings turn up`);
+    assert.ok(S(0, 0)[2] < S(0, 1)[2] - rise * .9, `${halfW}: ridge above eave`);
+
+    const bands = p.mesh.slice(1, tiles + 2);
+    assert.equal(bands.length, tiles + 1);
+    for (const b of bands) assert.equal(b.mat, mat === MAT.gold ? MAT.hyomonGold : MAT.gold);
+    const nearest = (x, y, z) => {
+      let best = Infinity, bu = 0, bt = 0, du = 1 / 20, dt = 1 / 20;
+      for (let u = -1; u <= 1 + 1e-9; u += du) for (let t = 0; t <= 1 + 1e-9; t += dt) {
+        const q = S(u, t), d = Math.hypot(q[0] - x, q[1] - y, q[2] - z);
+        if (d < best) { best = d; bu = u; bt = t; }
+      }
+      for (let level = 0; level < 5; level++) {
+        du /= 4; dt /= 4;
+        const [cu, ct] = [bu, bt];
+        for (let i = -4; i <= 4; i++) for (let j = -4; j <= 4; j++) {
+          const u = Math.max(-1, Math.min(1, cu + i * du)), t = Math.max(0, Math.min(1, ct + j * dt));
+          const q = S(u, t), d = Math.hypot(q[0] - x, q[1] - y, q[2] - z);
+          if (d < best) { best = d; bu = u; bt = t; }
+        }
+      }
+      return best;
+    };
+    let low = 0, total = 0, reachEave = false;
+    const eaveMid = S(-1 + 2 * 4 / tiles, 1);
+    for (const b of bands) {
+      const v = b.vertices;
+      for (let i = 0; i < v.length; i += 8 * 5) {
+        const d = nearest(v[i], v[i + 1], v[i + 2]);
+        assert.ok(d >= .05 && d <= .31, `${halfW}: tile band vertex ${d.toFixed(3)} from the roof`);
+        if (d <= .18) low++;
+        total++;
+      }
+      for (let i = 0; i < v.length; i += 8) if (Math.hypot(v[i] - eaveMid[0], v[i + 2] - eaveMid[2]) < 1.2) reachEave = true;
+    }
+    assert.ok(low > total * .3 && low < total * .7, `${halfW}: band undersides sit .12 off the surface, tops .24`);
+    assert.ok(reachEave, `${halfW}: the middle tile band runs all the way to the eave`);
+  }
+});
+
+test('p2 openings are real holes: galleries, romon and sanmon show the ground; karamon leaves stay closed', () => {
+  const open = corridor('c', -110, 110, 100, {height: 26});
+  const pw = 3.2, bayX = (-110 + pw / 2 + (-110 + pw / 2 + (220 - pw) / 10)) / 2;
+  assert.equal(open.length, 3);
+  assert.ok(!covers(open, bayX, 87), 'open gallery bay is empty');
+  assert.ok(covers(open, -110 + pw / 2, 87), 'gallery post is solid');
+  assert.ok(covers(open, 0, 75 + 1.2), 'head beam is solid');
+  assert.ok(covers(corridor('w', -110, 110, 100, {height: 26, open: false}), bayX, 87), 'closed gallery stays a wall');
+  assert.equal(open[0].rigidGroup, undefined);
+  assert.equal(corridor('r', -110, 110, 100, {rigidGroup: true})[0].rigidGroup, true);
+  assert.equal(open[1].motionWith, 'c-body');
+
+  const r = romon('r', 0, 40, 62);
+  assert.deepEqual(r.map(p => p.id), ['r-lower', 'r-lower-lamp', 'r-upper', 'r-upper-lamp', 'r-balcony', 'r-roof', 'r-roof-lip']);
+  assert.ok(!covers(r, 0, 27), 'romon middle bay is open');
+  assert.ok(covers(r, 16.12, 27), 'romon post is solid');
+  assert.equal(r[0].rigidGroup, true);
+
+  const s = sanmon('s', 0, 40, 73);
+  assert.ok(!covers(s, 0, 20), 'sanmon passage is open');
+  assert.ok(covers(s, 73 * .65, 20), 'sanmon post is solid');
+
+  const k = karamon('k', 0, 100, 66);
+  assert.deepEqual(k.map(p => p.id), ['k-doors', 'k-frame', 'k-gable']);
+  assert.ok(covers([k[0]], 17, 75), 'karamon leaves are closed');
+  assert.equal(k[0].mesh.filter(c => c.mat === MAT.hyomonGold).length, 12, 'twelve flat studs');
+
+  const building = /^(kondo|pagoda|romon|hondo|kinkaku|hojo|old-shoin|middle-shoin|new-shoin|ginkaku|togudo|shishinden|west-gallery|east-gallery|south-west|jomei-mon|south-east|back-wall|amidado|goeido|watari|ninomaru-\d|karamon|honden|sanmon)-/;
+  for (const [ward, build] of Object.entries(PLATES)) {
+    for (const p of build()) {
+      if (!building.test(p.id) || !/-(wall|lamp|roof|lip|body|balcony|finial|posts|frame|doors|gable|lower|upper|base|eave|crown)(-\d+)?$/.test(p.id)) continue;
+      assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${ward} ${p.id} is a mesh`);
+      assert.equal(p.thick, 0, `${ward} ${p.id} thick is 0`);
+    }
+  }
+});
+
+test('p2 pagoda: five storeys that each move as one, nine separate rings, a long sorin inside the plate', () => {
+  const parts = preparePlate(PLATES.W_MINAMI()).parts, top = 128 - 17 - 4 * 40 - 25;
+  const walls = parts.filter(p => /^pagoda-wall-\d$/.test(p.id));
+  assert.equal(walls.length, 5);
+  assert.deepEqual(walls.map(p => p.order), [1, 2, 3, 4, 5]);
+  for (let i = 0; i < 5; i++) {
+    for (const id of [`pagoda-wall-${i}-lamp`, `pagoda-roof-${i}`, `pagoda-roof-${i}-lip`]) {
+      assert.equal(parts.find(p => p.id === id).motionWith, `pagoda-wall-${i}`, `${id} moves with its storey`);
+    }
+  }
+  const fin = parts.find(p => p.id === 'pagoda-finial');
+  assert.equal(fin.motionWith, 'pagoda-wall-4');
+  const rings = fin.fills.filter(f => f.d.length === 4 && Math.abs(f.d[2][1] - f.d[0][1] - 1.1) < 1e-6).map(f => f.d[0][1]).sort((a, b) => a - b);
+  assert.equal(rings.length, 9);
+  for (let i = 1; i < rings.length; i++) assert.ok(rings[i] - rings[i - 1] - 1.1 >= 4.8, 'rings keep a real gap');
+  let zMin = Infinity;
+  for (const c of fin.mesh) for (let i = 2; i < c.vertices.length; i += 8) zMin = Math.min(zMin, c.vertices[i]);
+  assert.ok(Math.abs(zMin - (top - 90)) < .01, 'tip at top - 90');
+  assert.ok(zMin > -PLATE.halfH, 'sorin stays on the plate');
+
+  const life = createLife(parts), byId = id => parts.find(p => p.id === id), light = byId('pagoda-wall-0').centre;
+  const seen = [];
+  let clock = 0;
+  for (const dt of [1 / 60, .15, .2, .35, .8, 1.5]) {
+    const out = run(life, dt, {light}, clock);
+    clock += dt * 1000;
+    for (let i = 0; i < 5; i++) {
+      const w = byId(`pagoda-wall-${i}`), r = byId(`pagoda-roof-${i}`);
+      assert.ok(Number.isFinite(out.a[w.index * 4 + 1]));
+      assert.equal(out.a[r.index * 4 + 1], out.a[w.index * 4 + 1], `storey ${i} roof stands with its wall`);
+    }
+    seen.push([0, 4].map(i => out.a[byId(`pagoda-wall-${i}`).index * 4 + 1]));
+  }
+  assert.ok(seen.some(([low, high]) => low > high + 1e-4), 'the lowest storey stands before the top one');
 });

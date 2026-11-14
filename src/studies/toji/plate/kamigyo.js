@@ -14,7 +14,7 @@ export function kamigyo() {
     ...corridor('west-gallery', -293, -181, 44, {height: 27}),
     ...corridor('east-gallery', 181, 293, 44, {height: 27}),
     // The south range is one wall: two galleries and the gate between them, standing on one line.
-    ...corridor('south-west', -264, -50, 167, {height: 22, group: 'south'}),
+    ...corridor('south-west', -264, -50, 167, {height: 22, group: 'south', rigidGroup: true}),
     ...corridor('jomei-mon', -50, 50, 167, {height: 36, group: 'south', order: 2}),
     ...corridor('south-east', 50, 264, 167, {height: 22, group: 'south'}),
     ...petals('sakura-fall', -86, 96, 56, 26, 18, 4),

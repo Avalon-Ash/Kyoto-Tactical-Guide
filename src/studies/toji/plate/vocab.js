@@ -12,6 +12,7 @@
 //   lines       tsukegaki: fine raised line work
 
 import {meshTorii, meshKakezukuri} from './frame-mesh.js';
+import {meshRoof, meshStorey, meshPagoda, meshHall, meshRomon, meshSanmon, meshKaramon, meshCorridor} from './architecture-mesh.js';
 
 export const PLATE = {halfW: 360, halfH: 230};
 export const MAT = {ground: 1, nashijiLight: 2, mura: 3, gyobu: 4, gold: 5, silver: 6, kirikane: 7, kirigin: 8, aogai: 9,
@@ -120,102 +121,30 @@ export function rock(id, cx, cz, w, h, seed, {mat = MAT.kirikane, layer = 1} = {
 
 /**
  * A roof in elevation: eaves that lift at the corners, a concave slope, tile lines fanning to the ridge.
- * zEave is the eave line; the roof rises toward -z.
+ * zEave is the eave line; the roof rises toward -z. Built as a thin shell (architecture-mesh.js).
  */
-function roofShape(cx, zEave, halfW, rise, ridgeHalf, upturn) {
-  const left = quad([cx - halfW, zEave - upturn], [cx - halfW * .72, zEave + upturn * .25], [cx - halfW * .3, zEave], 8);
-  const right = quad([cx + halfW * .3, zEave], [cx + halfW * .72, zEave + upturn * .25], [cx + halfW, zEave - upturn], 8);
-  const slopeR = quad([cx + halfW, zEave - upturn], [cx + halfW * .5, zEave - rise * .38], [cx + ridgeHalf, zEave - rise], 8);
-  const slopeL = quad([cx - ridgeHalf, zEave - rise], [cx - halfW * .5, zEave - rise * .38], [cx - halfW, zEave - upturn], 8);
-  return {outline: [...left, ...right, ...slopeR, ...slopeL], eave: [...left, ...right], slopeL, slopeR};
-}
-export function roof(id, cx, zEave, halfW, rise, {ridgeHalf = halfW * .2, upturn = halfW * .09, layer = 2, group = id, order = 0, tiles = 15, mat = MAT.gold} = {}) {
-  if (!(tiles >= 1)) throw new Error(`roof(${id}): tiles must be >= 1`);
-  const s = roofShape(cx, zEave, halfW, rise, ridgeHalf, upturn);
-  const p = part(id, KIND.tier, layer, mat, [cx, zEave], {group, order});
-  p.fills.push({d: s.outline, soft: .25, crisp: .8});
-  for (let i = 0; i <= tiles; i++) {
-    const t = i / tiles, e = s.eave[Math.round(t * (s.eave.length - 1))];
-    p.lines.push({d: [[lerp(cx - ridgeHalf, cx + ridgeHalf, t), zEave - rise + 1], [e[0], e[1] - 1.2]], w: .55, amp: .8});
-  }
-  p.lines.push({d: [[cx - ridgeHalf, zEave - rise], [cx + ridgeHalf, zEave - rise]], w: 1.6, amp: 1});
-  // The eave edge itself: a silver lip under the gold.
-  const lip = part(`${id}-lip`, KIND.tier, layer, MAT.silver, [cx, zEave], {group, order});
-  lip.fills.push({d: [...s.eave, ...s.eave.map(([x, z]) => [x, z + 2.6]).reverse()], soft: 0, crisp: 1});
-  return [p, lip];
+export function roof(id, cx, zEave, halfW, rise, opts = {}) {
+  if (!((opts.tiles ?? 15) >= 1)) throw new Error(`roof(${id}): tiles must be >= 1`);
+  return meshRoof(id, cx, zEave, halfW, rise, opts);
 }
 
 /** A storey in elevation: black lacquer wall, gold posts, and paper windows that can hold a light. */
-export function storey(id, cx, zTop, zBottom, halfW, {bays = 3, layer = 2, group = id, order = 0, mat = MAT.lacquer, windowMat = MAT.lamp} = {}) {
-  if (!(bays >= 1)) throw new Error(`storey(${id}): bays must be >= 1`);
-  const wall = part(id, KIND.tier, layer, mat, [cx, zBottom], {group, order});
-  wall.fills.push({d: [[cx - halfW, zTop], [cx + halfW, zTop], [cx + halfW, zBottom], [cx - halfW, zBottom]], soft: 0, crisp: .45});
-  for (let i = 0; i <= bays; i++) { const x = lerp(cx - halfW, cx + halfW, i / bays); wall.lines.push({d: [[x, zTop], [x, zBottom]], w: 1.5, amp: 1}); }
-  wall.lines.push({d: [[cx - halfW - 3, zBottom], [cx + halfW + 3, zBottom]], w: 1.3, amp: 1});
-  wall.lines.push({d: [[cx - halfW - 2, lerp(zTop, zBottom, .72)], [cx + halfW + 2, lerp(zTop, zBottom, .72)]], w: .7, amp: .8});
-  const lamp = part(`${id}-lamp`, KIND.tier, layer, windowMat, [cx, zBottom], {group, order, thick: 15});
-  const bay = halfW * 2 / bays;
-  for (let i = 0; i < bays; i++) {
-    const x0 = cx - halfW + bay * i + bay * .2, x1 = x0 + bay * .6, z0 = lerp(zTop, zBottom, .16), z1 = lerp(zTop, zBottom, .66);
-    lamp.fills.push({d: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], soft: 0, crisp: .3});
-  }
-  return [wall, lamp];
+export function storey(id, cx, zTop, zBottom, halfW, opts = {}) {
+  if (!((opts.bays ?? 3) >= 1)) throw new Error(`storey(${id}): bays must be >= 1`);
+  return meshStorey(id, cx, zTop, zBottom, halfW, opts);
 }
 
 /** Five-storey pagoda in elevation. Each storey is its own group member so the tower can wake from the ground up. */
-export function pagoda(id, cx, zBase, {storeys = 5, halfW = 66, taper = 6.5, pitch = 40, layer = 2} = {}) {
-  const parts = [];
-  const base = part(`${id}-base`, KIND.tier, layer, MAT.kirigin, [cx, zBase + 10], {group: id, order: 0});
-  base.fills.push({d: [[cx - halfW * .95, zBase], [cx + halfW * .95, zBase], [cx + halfW * 1.04, zBase + 9], [cx - halfW * 1.04, zBase + 9]], soft: .2, crisp: .9});
-  parts.push(base);
-  for (let i = 0; i < storeys; i++) {
-    const w = halfW - i * taper, zEave = zBase - 17 - i * pitch, group = id, order = i + 1;
-    parts.push(...storey(`${id}-wall-${i}`, cx, zEave + 1, zEave + 18, w * .5, {layer, group, order}));
-    parts.push(...roof(`${id}-roof-${i}`, cx, zEave, w, i === storeys - 1 ? 25 : 19, {layer, group, order, ridgeHalf: w * (i === storeys - 1 ? .05 : .46), tiles: 13 - i}));
-  }
-  // Sōrin: the mast and its nine rings are sheet gold, cut and laid flat.
-  const top = zBase - 17 - (storeys - 1) * pitch - 25;
-  const finial = part(`${id}-finial`, KIND.tier, layer, MAT.hyomonGold, [cx, top], {group: id, order: storeys + 1});
-  finial.fills.push({d: [[cx - 1.1, top - 62], [cx + 1.1, top - 62], [cx + 1.4, top + 1], [cx - 1.4, top + 1]], soft: 0, crisp: 1});
-  finial.fills.push({d: [[cx - 6, top - 3], [cx + 6, top - 3], [cx + 4, top + 1], [cx - 4, top + 1]], soft: 0, crisp: 1});
-  for (let k = 0; k < 9; k++) { const z = top - 9 - k * 4.2, w = 6.2 - k * .42; finial.fills.push({d: [[cx - w, z - 1.1], [cx + w, z - 1.1], [cx + w, z + 1.1], [cx - w, z + 1.1]], soft: 0, crisp: 1}); }
-  finial.fills.push({d: blob(cx, top - 52, 3.6, 5.4, 3, .2, 14), soft: 0, crisp: 1});
-  finial.fills.push({d: blob(cx, top - 63, 1.7, 1.7, 4, 0, 10), soft: 0, crisp: 1});
-  parts.push(finial);
-  return parts;
-}
+export function pagoda(id, cx, zBase, opts = {}) { return meshPagoda(id, cx, zBase, opts); }
 
 /** A hall: one broad hipped roof over a row of bays. Give it a group to make it one solid with what carries it. */
-export function hall(id, cx, zEave, halfW, rise, {layer = 2, bays = 7, wallH = 24, group = id, order = 0} = {}) {
-  return [
-    ...storey(`${id}-wall`, cx, zEave + 1, zEave + wallH, halfW * .74, {bays, layer, group, order}),
-    ...roof(`${id}-roof`, cx, zEave, halfW, rise, {layer, group, order: order + 1, ridgeHalf: halfW * .52, tiles: 23, upturn: halfW * .06}),
-  ];
-}
-
-/** A railing in elevation, added to a part: a top bar on balusters standing on zFloor. */
-function railing(p, x0, x1, zFloor, height, gap) {
-  p.fills.push({d: [[x0, zFloor - height], [x1, zFloor - height], [x1, zFloor - height + 2.2], [x0, zFloor - height + 2.2]], soft: 0, crisp: 1});
-  const n = Math.max(2, Math.round((x1 - x0) / gap));
-  for (let i = 0; i <= n; i++) { const x = lerp(x0 + 1, x1 - 1, i / n); p.fills.push({d: [[x - 1, zFloor - height], [x + 1, zFloor - height], [x + 1, zFloor], [x - 1, zFloor]], soft: 0, crisp: 1}); }
-}
+export function hall(id, cx, zEave, halfW, rise, opts = {}) { return meshHall(id, cx, zEave, halfW, rise, opts); }
 
 /**
- * Rōmon: a two-storey gate. A lower storey of three bays, a railed balcony round its waist, a shorter upper storey
- * and one hipped roof. It wakes from the ground up, like a tower.
+ * Rōmon: a two-storey gate. A lower storey of three open bays, a railed balcony round its waist, a shorter upper
+ * storey and one hipped roof. It wakes from the ground up, like a tower.
  */
-export function romon(id, cx, zBase, halfW, {layer = 2} = {}) {
-  const group = id, waist = zBase - halfW * .5, zEave = waist - 6 - halfW * .3;
-  const balcony = part(`${id}-balcony`, KIND.tier, layer, MAT.kirigin, [cx, waist], {group, order: 1});
-  balcony.fills.push({d: [[cx - halfW * .92, waist - 6], [cx + halfW * .92, waist - 6], [cx + halfW * .86, waist + 1.5], [cx - halfW * .86, waist + 1.5]], soft: .2, crisp: .9});
-  railing(balcony, cx - halfW * .92, cx + halfW * .92, waist - 6, 8, halfW * .2);
-  return [
-    ...storey(`${id}-lower`, cx, waist, zBase, halfW * .78, {bays: 3, layer, group, order: 0}),
-    ...storey(`${id}-upper`, cx, zEave + 1, waist - 6, halfW * .66, {bays: 3, layer, group, order: 2}),
-    balcony,
-    ...roof(`${id}-roof`, cx, zEave, halfW, halfW * .46, {layer, group, order: 3, ridgeHalf: halfW * .5, tiles: 19, upturn: halfW * .07}),
-  ];
-}
+export function romon(id, cx, zBase, halfW, opts = {}) { return meshRomon(id, cx, zBase, halfW, opts); }
 
 /**
  * Myōjin torii in elevation: two posts leaning together on stone feet, a tie beam through them, a strut, and a
@@ -478,42 +407,10 @@ export function moonBowl(id, cx, top, group) {
 }
 
 /** A low tiled wall or open gallery. Bays are engraved, keeping a quiet continuous silhouette. */
-export function corridor(id, x0, x1, zBase, {height = 26, open = true, group = id, order = 0} = {}) {
-  const cx = (x0 + x1) / 2, w = (x1 - x0) / 2;
-  const body = part(`${id}-body`, KIND.tier, 2, open ? MAT.lacquer : MAT.nashijiLight, [cx, zBase], {group, order, thick: 15});
-  body.fills.push({d: [[x0 + 5, zBase - height], [x1 - 5, zBase - height], [x1 - 5, zBase], [x0 + 5, zBase]], soft: .15, crisp: .6});
-  const bays = Math.max(2, Math.round((x1 - x0) / 22));
-  for (let i = 0; i <= bays; i++) {
-    const x = lerp(x0 + 6, x1 - 6, i / bays);
-    body.lines.push({d: [[x, zBase - height], [x, zBase]], w: open ? 2 : .65, amp: .9});
-  }
-  return [body, ...roof(`${id}-roof`, cx, zBase - height, w, 11, {group, order: order + 1, ridgeHalf: w * .82, upturn: 3, tiles: bays * 2})];
-}
+export function corridor(id, x0, x1, zBase, opts = {}) { return meshCorridor(id, x0, x1, zBase, opts); }
 
 /** Karamon: a lifted cusped gable over closed leaves of black lacquer, between two posts. */
-export function karamon(id, cx, zBase, halfW = 66) {
-  const s = halfW / 66, P = (x, h) => [cx + x * s, zBase - h * s];
-  const frame = part(`${id}-frame`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, thick: 18});
-  for (const x of [-39, 39]) frame.fills.push({d: [P(x - 5, 0), P(x + 5, 0), P(x + 5, 61), P(x - 5, 61)], soft: .2, crisp: .8});
-  frame.fills.push({d: [P(-45, 49), P(45, 49), P(45, 64), P(-45, 64)], soft: .2, crisp: .8});
-  const cap = part(`${id}-gable`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, order: 1});
-  const curve = [], lower = [];
-  for (let i = 0; i <= 48; i++) {
-    const u = i / 24 - 1, h = 72 + 31 * Math.exp(-u * u * 6) + 8 * Math.pow(Math.abs(u), 8);
-    curve.push(P(u * 66, h)); lower.push(P(u * 66, h - 13));
-  }
-  cap.fills.push({d: [...curve, P(66, 59), P(-66, 59)], soft: .2, crisp: .9});
-  cap.lines.push({d: curve.map(([x, z]) => [x, z + 5 * s]), w: 1, amp: 1});
-  cap.lines.push({d: lower, w: .8, amp: .8});
-  // One large floral carving survives where a row of small ornaments would turn into beads.
-  frame.lines.push({d: [P(-19, 56), P(-8, 61), P(0, 55), P(8, 61), P(19, 56)], w: 1.4, amp: 1});
-  // Closed leaves of black lacquer with gold studs: without them the gable on two posts reads as a bench.
-  const doors = part(`${id}-doors`, KIND.tier, 2, MAT.lacquer, [cx, zBase], {group: id, thick: 12});
-  doors.fills.push({d: [P(-34, 0), P(34, 0), P(34, 50), P(-34, 50)], soft: 0, crisp: .5});
-  doors.lines.push({d: [P(0, 0), P(0, 50)], w: 1.2, amp: 1});
-  for (const x of [-22, -11, 11, 22]) for (const h of [12, 26, 40]) doors.lines.push({d: [P(x - 1.6, h), P(x + 1.6, h)], w: 2.6, amp: 1});
-  return [doors, frame, cap];
-}
+export function karamon(id, cx, zBase, halfW = 66) { return meshKaramon(id, cx, zBase, halfW); }
 
 /** Masonry and its moat form a low ground border, with staggered joints drawn into a continuous bank. */
 export function moatWall(id, x0, x1, zTop, zBottom, waterFront) {
@@ -544,17 +441,7 @@ export function stoneSteps(id, cx, zBack, zFront, farW, nearW, count = 11) {
 }
 
 /** An open mountain gate: the lower passage is negative space, with all posts on the same foot line. */
-export function sanmon(id, cx, zBase, halfW) {
-  const p = part(`${id}-posts`, KIND.tier, 2, MAT.gold, [cx, zBase], {group: id, thick: 18});
-  for (const side of [-1, 1]) {
-    const x = cx + side * halfW * .65;
-    p.fills.push({d: [[x - 6, zBase], [x + 6, zBase], [x + 6, zBase - halfW * .85], [x - 6, zBase - halfW * .85]], soft: .25, crisp: .8});
-  }
-  return [p,
-    ...storey(`${id}-upper`, cx, zBase - halfW * .86, zBase - halfW * .57, halfW * .73, {group: id, order: 1, bays: 3, windowMat: MAT.lacquer}),
-    ...roof(`${id}-roof`, cx, zBase - halfW * .88, halfW, halfW * .42, {group: id, order: 2, ridgeHalf: halfW * .5}),
-  ];
-}
+export function sanmon(id, cx, zBase, halfW) { return meshSanmon(id, cx, zBase, halfW); }
 
 /** A quiet field of powdered earth joins a precinct without filling its reserved negative space with objects. */
 export function gardenGround(id, outline, {mat = MAT.mura, amp = .24} = {}) {
