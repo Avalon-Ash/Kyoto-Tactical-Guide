@@ -134,3 +134,25 @@
 ```
 
 L1 有效：岩腳、金閣與五重塔基部的暗部接近參考圖。下一個能讓建築接近參考圖的是屋頂頂面的窗光（部件的 clearcoat／key specular），不是 L2。
+
+## 8. 追加：部件光照長鏈（p1–p4，2026-11-14 晚）
+
+```text
+任務：p1 屋頂窗光、p2 軟陰影（L4）、p3 盒側壓暗（L5）、p4 岩與樹幹的切金與金銀兩面／完成
+請求模型／強度：p1–p4 gemini-4-hydrogen-high（agy，Gemini Models 池）；p4 原派 claude-sonnet-5-5-medium（agy）兩輪失敗後換模型
+工作區／base SHA：C:\Git\_wt_kyoto_parts（agy/chain）／51b1d91；串接腳本與證據在 .claude/dispatch/chain/（不提交）
+變更檔案與行為：
+  p1 three-pack.js PART_LIGHT_GLSL K_WIN、K_WIN_SOFT；three-renderer.js 部件 aomap 區塊加窗反射（受粗糙度與夜間收斂）
+  p2 three-renderer.js SHADOW_SOFT 6（shadow.radius）、SHADOW_STRENGTH .8（shadow.intensity）；r186 已移除 PCFSoftShadowMap
+  p3 three-pack.js BOX_MATERIALS.side 改暗、BOX_SIDE_FRAG_GLSL 乘 K_SIDE_DIM .82；rim、edge 不變
+  p4 three-pack.js PART_KIRIKANE_GLSL；three-renderer.js 岩體（spec.name 'mura'，即 rock-mesh.js 的 bodyMat）受光金、背光氧化銀＋依受光度大小疏密的菱形切金；
+     樹幹（patchLimbMaterial）同樣的切金與背光偏銀。主代理調整：K_ROCK_LIT_LO/HI .20/.74→-.35/.30、K_ROCK_OXID_SCALE .88→.62、K_TRUNK_OXID_STRENGTH .78→.4
+     （交件版岩體大半讀成白銀、樹幹褪色）
+檢查：每包由腳本跑 lint／validate／test／build（全 exit 0，validate ERROR 0／WARN 0，test 122+6）並拍 5 個鏡頭；整合後主代理重跑一次，同樣全過，dist 無 GLTFExporter
+問題：
+  - 乾跑 p0 第一次抓到截圖腳本的錯（埠號放進單引號字串，沒展開），修正後重跑；p1 之後未受影響（CONFIRMED）
+  - agy 的 Claude 模型讀檔走 Bash，允許清單只放行完全相同的字串，第一步就被拒、整個執行結束；加提示也一樣（CONFIRMED，兩輪）。這類流水線只派 Gemini
+  - L4 的手機幀時間沒量；PCF radius 不增加取樣數，預期成本不變（PLAUSIBLE）
+  - 背光的銀面在網站的俯視角裡多半看不到；要讀出「金銀兩面」可能得靠移光或放大
+交接：已依使用者授權併入 main 並 push（見 git log）
+```
