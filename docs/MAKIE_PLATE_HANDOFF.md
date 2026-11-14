@@ -4,6 +4,8 @@
 
 逐輪紀錄（由舊到新）：[雲端 P0–P1](agent-runs/2026-11-12-makie-plate-p0-p1.md)、[本機接續](agent-runs/2026-11-12-makie-plate-p1-local.md)、[P2](agent-runs/2026-11-13-makie-plate-p2a.md)、[P3 前半](agent-runs/2026-11-13-makie-plate-p3a.md)、[P3 後半（Codex 八區）](agent-runs/2026-11-13-makie-plate-p3b-astra.md)、[P3 收尾](agent-runs/2026-11-13-makie-plate-p3c.md)、[驗收與程式審閱（Codex）](agent-runs/2026-11-13-makie-plate-verify-astra.md)、[P3 晚間（造形修整與修正）](agent-runs/2026-11-13-makie-plate-p3d.md)、[W2（Codex）](agent-runs/2026-11-13-makie-plate-w2-astra.md)、[W2 第二輪（Codex）](agent-runs/2026-11-13-makie-plate-w2b-astra.md)、[W3（agy）](agent-runs/2026-11-13-makie-plate-w3-agy.md)、[W4 補驗（agy）](agent-runs/2026-11-13-makie-plate-w4-agy.md)、[W2 第三輪（Codex，中途額度用盡）](agent-runs/2026-11-14-makie-plate-w2c-astra.md)。
 
+> **2026-11-14 起改走 three.js**：目前狀態、設計語言（初音調度）、工作包與待辦都在 [`MAKIE_THREE_PLAN.md`](MAKIE_THREE_PLAN.md)（§2a 設計語言、§7 進度）。網址加 `?three=1` 用新渲染器，舊管線仍是預設。其他物件的網格重構（p1 鳥居與柱網、p2 屋宇與塔、p3 燈籠）的設計在 [`MAKIE_REBUILD_PLAN.md`](MAKIE_REBUILD_PLAN.md)。流水線檢討在 [`agent-runs/2026-11-14/pipeline-retro.md`](agent-runs/2026-11-14/pipeline-retro.md)。本檔以下是 11/13 以前的紀錄。
+
 ## 1. 現況一句話
 
 **十一區都已是 WebGL2 浮雕盤，已併入 `main` 並部署到 GitHub Pages**（2026-11-13，使用者分別同意合併與 push）。P0–P3 完成。使用者確認「形意方向對」。之後（同日深夜）：W1 使用者回報效能與視覺沒有意見；W2 造形精進兩輪、W3 輸入防呆、W4 補驗與它抓到的換函空白（W4-01）都已 commit 在工作分支（`4a9058e`、`ac06b40`、`766a43a`、`be8cd16`），**尚未合併 `main`、尚未 push**。剩下的是 §8.0a 的待辦與尚未開始的 P4（效能、降級、刪舊浮雕）。沒有 WebGL2 的裝置仍走舊的浮雕網格。
