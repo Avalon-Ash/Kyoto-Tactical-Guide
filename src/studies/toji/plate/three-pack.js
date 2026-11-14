@@ -378,6 +378,19 @@ float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out v
   glint=mix(avg*broad*.55,cov*gl*2.6,vis);
   return mix(avg,cov,vis);
 }
+// Kirikane as a diamond halftone (Hatsune trunks, rocks and banks): tiny gold squares turned 45 degrees on a regular
+// lattice. Each piece grows with amount, so the pieces themselves draw light and shadow: large and close on the lit
+// faces and the rims, shrinking away into the hollows and the shaded side.
+float mKiri(vec2 p,float cell,float amount,out vec3 glint){
+  vec2 q=mat2(.7071,-.7071,.7071,.7071)*p/cell,id=floor(q),j=mHash2(id)-.5,f=fract(q)-.5-j*.2;
+  float sz=.33*sqrt(clamp(amount,0.,1.))*(.65+.7*mHash(id+5.1));
+  float aa=max(uPx,.05)/cell*.75,cov=(1.-smoothstep(sz-aa,sz+aa,max(abs(f.x),abs(f.y))))*step(.02,sz);
+  float vis=smoothstep(1.3,3.2,cell/max(uPx,.05));
+  vec3 nf=normalize(mN+vec3(j.x,0.,j.y)*.5);
+  vec3 gl=(M_KEY*.5*pow(max(dot(nf,mHk),0.),60.)*mKeyC+M_POOL*mAtt*pow(max(dot(nf,mHp),0.),60.)*mPoolC)*mSh;
+  glint=cov*gl*2.4*vis;
+  return mix(4.*sz*sz,cov,vis);
+}
 vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045+mKeyC*mBand*.075;}
 vec3 mNashiji(vec2 p,float dens,vec3 tint){
   // Gold powder sunk at three depths in amber lacquer (Hatsune: 金粉を透漆で塗りこむ). The lacquer absorbs blue
@@ -398,6 +411,7 @@ vec3 mMetal(vec2 p,vec3 f0,float rise){
   return mix(c*vec3(.80,.60,.36)*.8,c,smoothstep(.12,.85,rise));
 }
 vec3 mSheet(vec3 f0){return f0*(.05+.18*mLight()+mRoom(.12)*.8)+mix(f0,vec3(1.),.5)*(mSpec(160.)*1.5+mSpec(18.)*.18);}
+vec3 mKiriColor(vec3 foil){return mSheet(foil)*.6+foil*(.16+.95*mLight());}
 vec4 mFinish(vec3 c,float a){
   c*=1.25;float l=max(dot(c,vec3(.3,.55,.15)),1e-4),t=l/(1.+l*.42);
   c=mix(c*(t/l),vec3(t),smoothstep(.9,2.6,l)*.55);c=min(c,vec3(1.));
@@ -451,16 +465,17 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
   mSetLight(normalize(normalize(vKyotoNormal)-grad.x*vKyotoTanX-grad.y*vKyotoTanZ),vKyotoWorld);
   float line=fine.b;vec3 L=mLight();
   float w=smoothstep(.02,.34,hs);
-  float dens=.82+.22*mVnoise(kp*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
+  float dens=.82+.22*mVnoise(kp*.02),kAmt=0.,wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
   vec3 tint=M_GOLD,f0=M_GOLD,c=vec3(0.);
   if(mat==1)wN=1.;
   else if(mat==2||mat==3){
     float cloud=mat==3?mVnoise(kp*.045)*.6+mVnoise(kp*.13)*.3:.55;
     // Land in the Hatsune lids is pale smooth gold; powder gathers thick at the foot and thins toward the crown.
-    wM=smoothstep(.06,.62,hs)*(.62+.3*cloud);wN=1.-wM;dens=mix(dens,1.25,smoothstep(.02,.3,hs)*(1.-wM));
+    wM=smoothstep(.06,.62,hs)*(.30+.25*cloud);wN=1.-wM;dens=mix(dens,1.25,smoothstep(.02,.3,hs)*(1.-wM));
+    kAmt=smoothstep(.01,.09,hs)*.85;
     f0=mix(M_GOLD,M_PALE,.55);tint=mix(M_GOLD,M_PALE,.35*w);rise=max(rise,.75);c=M_PALE*line*(.14+.6*L)*w;
   }
-  else if(mat==4){wN=1.;dens=mix(dens,1.05,w);bigD=.42*w;bigCell=4.;c=M_PALE*line*(.12+.5*L)*w;}
+  else if(mat==4){wN=1.;dens=mix(dens,1.05,w);bigD=.22*w;bigCell=4.;kAmt=smoothstep(.01,.09,hs)*.85;c=M_PALE*line*(.12+.5*L)*w;}
   else if(mat==5){wM=1.;c=M_PALE*line*(.12+.6*L)*mix(.5,1.,rise);}
   else if(mat==6){wM=1.;f0=M_SILVER;}
   else if(mat==7){wM=1.;f0=M_GOLD*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=M_PALE*line*(.22+.6*L);}
@@ -477,6 +492,16 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     vec3 foil=mat==7?M_PALE:M_SILVER;
     c=mix(c,mSheet(foil)+foil*(.10+.25*L)+foil*glow*(.45+.45*sin(kp.x*.31+kp.y*.17-uTime*9.)),bigX)+foil*bigG*.6;
   }else c=mix(c,tint*vec3(1.,.80,.44)*(.07+.74*L),bigX*.92)+tint*M_AMBER*bigG;
+  if(kAmt>0.){
+    // Halftone kirikane on banks: light-facing slopes and the rim of the bank get the big pieces.
+    // Which way the bank faces the light, from the soft relief's slope: the lit face gets big pieces, the far face
+    // is left darker with only specks, so the pieces carry the bank's depth.
+    float slope=smoothstep(.02,.25,length(gs)),face=-dot(gs/max(length(gs),1e-4),normalize(uKey.xz))*slope;
+    float rim=smoothstep(.0,.04,hs)*(1.-smoothstep(.1,.7,hs));
+    c*=1.-kAmt*(.14+.3*max(-face,0.));
+    vec3 kg;float kv=mKiri(kp,4.6,kAmt*clamp(.08+.8*rim+.6*max(face,0.)-.2*max(-face,0.),0.,1.),kg);
+    c=mix(c,mKiriColor(mix(M_GOLD,M_PALE,.75))*1.15,kv)+M_PALE*kg;
+  }
   if(mat==9){
     vec2 r=mHash2(floor(kp/2.3));
     float t=dot(normalize(mN+vec3(r.x-.5,0.,r.y-.5)*.5),mHp)*2.4+r.x*1.7+mAtt*.6;
@@ -521,6 +546,8 @@ export const BOX_SIDE_FRAG_GLSL = `
   c=mix(c,mMetal(sp,mix(M_GOLD,M_PALE,.5),1.)*.85+mNashiji(sp,1.3,M_PALE)*.2,land*.55);
   c=mix(c,.5*mMetal(sp,M_PALE*.95,1.)+.25*mSheet(M_PALE)+.3*mNashiji(sp,1.6,M_PALE),mist*.45);
   c+=M_PALE*(1.-smoothstep(0.,.9,abs(bank)))*body*(.06+.3*mLight());
+  vec3 kg;float kv=mKiri(sp,4.2,land*(.05+.75*(1.-smoothstep(0.,14.,-bank))),kg);
+  c=mix(c*(1.-.18*land),mKiriColor(mix(M_GOLD,M_PALE,.6)),kv)+M_PALE*kg;
   // Walls face the room, not the window: keep them a warmer, slightly deeper amber than the lid.
   outgoingLight=mFinish(c*vec3(1.,.86,.62)*.9,1.).rgb;
 }`;
