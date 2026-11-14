@@ -206,7 +206,7 @@ export function mistGeometryData(mistParts, nx = 24, nz = 6) {
 export const PART_MOTION_GLSL = `
 uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
 attribute vec4 aOwner; attribute vec4 aStyle;
-varying float vGlow;
+varying float vGlow; varying float vLift;
 ${GROUND_GLSL}
 void kyotoMotion(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
   int id=int(aOwner.x+.5); vec4 A=texelFetch(uState,ivec2(id,0),0), B=texelFetch(uState,ivec2(id,1),0);
@@ -229,8 +229,16 @@ void kyotoMotion(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
   p.y+=uOpening*360.; p.z-=uOpening*650.;
   vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
   outPos=p; outNormal=uTilt*normalize(nLocal);
-  vGlow=A.w;
+  vGlow=A.w; vLift=height;
 }`;
+
+export const PART_LIGHT_GLSL = `
+// Live-view stand-ins for what the path-traced reference shows (docs/agent-runs/2026-11-14-threert-reference.md):
+// L1 the pieces darken where they meet the ground; L2 faces turned down catch the gold ground's bounce.
+const float K_CONTACT_MIN=.45, K_CONTACT_H=10., K_BOUNCE=.8;
+const vec3 K_BOUNCE_C=vec3(1.,.72,.36);
+uniform mat3 uTilt; uniform float uNight;
+varying float vLift;`;
 
 const TREE_MOTION_CORE_GLSL = `
 uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;

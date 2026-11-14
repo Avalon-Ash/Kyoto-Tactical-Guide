@@ -116,3 +116,21 @@
 - DX12 路徑沒試（wgpu 選了 Vulkan）。
 - 只算 64 spp；沒做收斂測試。
 - 換區匯出時，經過的中間各區也會被下載一次（`export=glb` 每次換區都觸發），已刪除，只留三區。
+
+## 7. 追加：L1、L2（agy 實作，2026-11-14 晚）
+
+```text
+任務：L1 接觸暗部、L2 金地反彈／完成（L2 效果有限，見下）
+請求模型／強度：gemini-4-hydrogen-high（agy，Gemini Models 池）；實際設定：agy 日誌 model="gemini-4-hydrogen-high"
+工作區／base SHA：C:\Git\_wt_kyoto_parts（agy/parts-light）／e053e47；派工單 .claude/dispatch/L1L2.md（不提交）
+變更檔案與行為：three-pack.js：PART_MOTION_GLSL 傳出 vLift（部件離地高度），新增 PART_LIGHT_GLSL（K_CONTACT_*、K_BOUNCE*）；
+  three-renderer.js：patchMaterial 只對部件（kyotoMotion）在 aomap_fragment 後壓暗近地的間接光與一半直射漫射（L1），
+  並依半球權重 .5-.5·dot(n,up) 加上金地反彈（L2）；樹、地、盒身、深度材質未動
+檢查：agy 與主代理各自重跑 lint／validate（ERROR 0、WARN 0）／test 122+6／build，全部 exit 0；agy 無 denied_actions；主資料夾在派工期間無變動
+問題：L2 依 agy 照單實作的「只照朝下面」版本，畫面看不出差別（PLAUSIBLE：朝下的屋簷底面在俯視角幾乎不可見）；
+  主代理改成半球權重、強度 .6→1.2→.8 各拍一次，仍只有微弱差異：牆身多是黑漆窗格，加在材質色上的反彈幾乎為零。
+  參考圖的建築看起來亮，主要來自屋頂頂面映窗光，不是地面反彈
+交接：未 commit；截圖 .shots/threert/band/detail-l12-*.png、grid-l12.png（不提交）
+```
+
+L1 有效：岩腳、金閣與五重塔基部的暗部接近參考圖。下一個能讓建築接近參考圖的是屋頂頂面的窗光（部件的 clearcoat／key specular），不是 L2。

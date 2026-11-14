@@ -21,7 +21,7 @@ import {groundPoint, normalize, trailIntensity} from '../geometry.js';
 import {
   MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState,
   meshesByMaterial, limbsByMaterial, stampsByMaterial, sliceBox,
-  bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
+  bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, PART_LIGHT_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
   TREE_LIMB_MOTION_GLSL, TREE_STAMP_MOTION_GLSL,
   MAKIE_GROUND_PARS_GLSL, MAKIE_GROUND_FRAG_GLSL, MAKIE_MIST_VERT_GLSL, MAKIE_MIST_FRAG_GLSL,
   BOX_SIDE_VERT_GLSL, BOX_SIDE_PARS_GLSL, BOX_SIDE_FRAG_GLSL,
@@ -154,7 +154,8 @@ export function createThreeRenderer(gl, canvas) {
   };
   /** Faces are lit by their own normals whichever way they wind, as the old pipeline did. */
   const patchMaterial = (material, spec, glsl, call) => {
-    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}`;
+    const isPart = call === 'kyotoMotion';
+    material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}${isPart ? '-l2' : ''}`;
     material.onBeforeCompile = shader => {
       bindGlow(shader, spec);
       shader.vertexShader = shader.vertexShader
@@ -162,9 +163,26 @@ export function createThreeRenderer(gl, canvas) {
         .replace('#include <beginnormal_vertex>', `vec3 kyotoP; vec3 objectNormal; ${call}(position, normal, kyotoP, objectNormal);`)
         .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP;');
       shader.fragmentShader = shader.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying float vGlow; uniform float uGlowBase, uGlowGain;')
+        .replace('#include <common>', `#include <common>\nvarying float vGlow; uniform float uGlowBase, uGlowGain;${isPart ? `\n${PART_LIGHT_GLSL}` : ''}`)
         .replace('#include <normal_fragment_begin>', NORMAL_FIX)
         .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= uGlowBase + vGlow * uGlowGain;');
+      if (isPart) {
+        shader.fragmentShader = shader.fragmentShader.replace('#include <aomap_fragment>', `#include <aomap_fragment>
+{
+  // L1: contact darkness, strongest at the foot, gone by K_CONTACT_H plate units up.
+  float kyotoContact=mix(K_CONTACT_MIN,1.,smoothstep(0.,K_CONTACT_H,vLift));
+  reflectedLight.indirectDiffuse*=kyotoContact;
+  reflectedLight.indirectSpecular*=kyotoContact;
+  reflectedLight.directDiffuse*=mix(1.,kyotoContact,.5);
+  // L2: the gold ground below lights faces that turn away from the sky (the plate's up follows the box's tilt).
+  vec3 kyotoUp=normalize(uTilt*vec3(0.,1.,0.));
+  vec3 kyotoNW=inverseTransformDirection(normal,viewMatrix);
+  float kyotoDown=.5-.5*dot(kyotoNW,kyotoUp); // hemisphere: walls see half the ground, eaves all of it
+  vec3 kyotoBounce=K_BOUNCE_C*K_BOUNCE*kyotoDown*mix(1.,.45,uNight)*kyotoContact;
+  reflectedLight.indirectDiffuse+=material.diffuseContribution*kyotoBounce;
+  reflectedLight.indirectSpecular+=material.specularColorBlended*kyotoBounce;
+}`);
+      }
     };
     return material;
   };
