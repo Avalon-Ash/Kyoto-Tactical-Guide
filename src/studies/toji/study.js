@@ -421,7 +421,7 @@ const intersection=new IntersectionObserver(entries=>{visible=entries[0].isInter
 const resize=new ResizeObserver(()=>{syncBackdrop();schedule();queueSnapshot();});resize.observe(canvas);
 
 function init(){
-  const renderer=createRenderer(canvas,cabinet.id);
+  const renderer=createRenderer(canvas,cabinet.id,()=>{if(!destroyed){queueSnapshot();schedule();}});
   updateMesh=()=>renderer.setMesh(cabinet.id);setMeshRaw=id=>renderer.setMesh(id);rawDraw=frame=>renderer.draw(frame);queueSnapshot();
   render=(time,moving)=>{projection=renderer.draw({time,moving,still:still(),flat,night,ground,lift,opening:bookProgress,px,py,zoom,panX,panY,trails,presence:hover||autoPlaying||demoStart?1:0,offset:dragOffset,kick});kick=0;};
   poke=renderer.poke;

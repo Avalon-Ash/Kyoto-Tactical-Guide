@@ -4,7 +4,6 @@ import {buildScene, multiply, lookAt, ortho, normalize, trailIntensity} from './
 import {vertex, fragment, depth} from './shaders.js';
 import {viewBox, renderDpr} from './view.js';
 import {createPlateRenderer} from './plate/renderer.js';
-import {createThreeRenderer} from './plate/three-renderer.js';
 import {hasPlate} from './plate/parts.js';
 
 // Fixed home camera; the backdrop's cabinet keepout shares it.
@@ -21,9 +20,10 @@ export function cameraMatrix(width, height, zoom = 1, cx = 0, cy = 0) {
  * px:number, py:number, zoom:number, panX:number, panY:number, presence?:number, offset?:number, kick?:number, trails:{x:number, z:number, time:number}[]}} Frame
  * @param {HTMLCanvasElement} canvas
  * @param {string} wardId
+ * @param {() => void} [onPlateReady] called once a deferred ?three=1 renderer finishes loading
  * Throws when WebGL or the shadow framebuffer is unavailable; nothing is left allocated in that case.
  */
-export function createRenderer(canvas, wardId) {
+export function createRenderer(canvas, wardId, onPlateReady) {
   // WebGL2 where it exists: redrawn wards are makie plates (plate/renderer.js). The relief mesh below is GLSL ES 1.00
   // and runs on either context, for the wards not yet redrawn and for devices without WebGL2.
   const settings = {alpha: true, antialias: true, stencil: true, powerPreference: 'low-power'};
@@ -47,20 +47,45 @@ export function createRenderer(canvas, wardId) {
   try {
     const main = program(fragment), shadow = program(depth), buffer = gl.createBuffer();
     resources.push(() => gl.deleteBuffer(buffer));
-    let mesh, ward = wardId, draws = 0, plateActive = false;
+    let mesh, ward = wardId, draws = 0, plateActive = false, threeLoading = false, disposed = false;
+    resources.push(() => { disposed = true; });
     // If the plate renderer cannot be built on this device, every ward falls back to the relief mesh.
     let plate = null;
-    // ?three=1 opts into the three.js plate renderer (docs/MAKIE_THREE_PLAN.md); without it nothing changes.
+    // ?three=1 opts into the three.js plate renderer (docs/MAKIE_THREE_PLAN.md); without it nothing changes, and three loads dynamically only for ?three=1.
     const useThree = typeof location !== 'undefined' && new URLSearchParams(location.search).get('three') === '1';
-    if (gl2) try { plate = (useThree ? createThreeRenderer : createPlateRenderer)(gl2, canvas); } catch (error) { console.warn('Makie plate unavailable:', error); }
-    if (plate) resources.push(() => plate.dispose());
     const setMesh = id => {
       ward = id;
+      if (threeLoading && hasPlate(id)) {
+        plateActive = false; canvas.dataset.plate = 'false';
+        return;
+      }
       plateActive = Boolean(plate && hasPlate(id) && plate.setWard(id));
       canvas.dataset.plate = String(plateActive);
       if (plateActive) return;
       mesh = buildScene(id); gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
     };
+    if (gl2) {
+      if (useThree) {
+        threeLoading = true;
+        import('./plate/three-renderer.js').then(({createThreeRenderer}) => {
+          threeLoading = false;
+          if (disposed) return;
+          try { plate = createThreeRenderer(gl2, canvas); resources.push(() => plate.dispose()); }
+          catch (error) { console.warn('Makie plate unavailable:', error); }
+          setMesh(ward);
+          onPlateReady?.();
+        }).catch(error => {
+          threeLoading = false;
+          if (disposed) return;
+          console.warn('Makie plate unavailable:', error);
+          setMesh(ward);
+          onPlateReady?.();
+        });
+      } else {
+        try { plate = createPlateRenderer(gl2, canvas); } catch (error) { console.warn('Makie plate unavailable:', error); }
+        if (plate) resources.push(() => plate.dispose());
+      }
+    }
     const framebuffer = gl.createFramebuffer(), texture = gl.createTexture(), depthBuffer = gl.createRenderbuffer();
     resources.push(() => gl.deleteFramebuffer(framebuffer), () => gl.deleteTexture(texture), () => gl.deleteRenderbuffer(depthBuffer));
     gl.bindTexture(gl.TEXTURE_2D, texture); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SHADOW, SHADOW, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -91,6 +116,10 @@ export function createRenderer(canvas, wardId) {
         if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
         const projection = cameraMatrix(w, h, f.zoom, f.panX, f.panY);
         canvas.dataset.renderedWard = ward; canvas.dataset.frames = String(++draws);
+        if (threeLoading && hasPlate(ward)) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, w, h); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          return projection;
+        }
         if (plateActive) {
           plate.draw(f, projection, viewBox(w / h, f.zoom).halfW * 2 / w);
           return projection;

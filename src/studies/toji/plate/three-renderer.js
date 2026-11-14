@@ -1,20 +1,25 @@
 // The makie plate drawn with three.js (docs/MAKIE_THREE_PLAN.md). Same interface as plate/renderer.js:
 // {setWard, draw, poke, active, dispose}. Opt in with ?three=1 (see ../renderer.js); the old pipeline stays the default.
 //
-// T0 scope: box and lid, every part that is already a mesh (p1–p3 buildings, torii, stage, lanterns), their motion
-// (createLife → DataTexture → onBeforeCompile hinge, the same code in the colour and the shadow-depth material), a
-// DirectionalLight shadow map. Parts that are not meshes yet (ground, hills, mist, water, trees, fox, phoenix, bird) are
-// painted flat onto the lid as a placeholder; T1/T2 replace that with real three geometry.
+// T0–T1 scope: box and lid, layer 0 ground relief (groundY from baked soft/ident maps) and makie ground/water shaders,
+// floating semi-transparent mist (KIND.mist), every part that is already a mesh (p1–p3 buildings, torii, stage, lanterns),
+// their motion (createLife → DataTexture → onBeforeCompile hinge), and a DirectionalLight shadow map.
+// Trees (T2) and organic layer > 0 parts (T4: rocks, fox, phoenix, bird, sandCone, moonBowl) still use a transparent
+// placeholder overlay on the lid until T2/T4 replace them with real three geometry.
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {PLATE, MAT, KIND, rand} from './vocab.js';
 import {PLATES, LAYERS, preparePlate, createLife, partAt} from './parts.js';
-import {identMaps} from './bake.js';
+import {paintLayer, identMaps} from './bake.js';
 import {buildBox, FITTINGS} from './renderer.js';
 import {createCord, cordTube} from './cord.js';
 import {stepSpring} from './spring.js';
-import {groundPoint, normalize} from '../geometry.js';
-import {MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState, meshesByMaterial, sliceBox, PART_MOTION_GLSL, BOX_MOTION_GLSL} from './three-pack.js';
+import {groundPoint, normalize, trailIntensity} from '../geometry.js';
+import {
+  MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState, meshesByMaterial, sliceBox,
+  bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
+  MAKIE_GROUND_PARS_GLSL, MAKIE_GROUND_FRAG_GLSL, MAKIE_MIST_VERT_GLSL, MAKIE_MIST_FRAG_GLSL,
+} from './three-pack.js';
 
 const EYE = [430, 720, 920], TARGET = [0, 40, 0];
 const VIEW = normalize(EYE.map((v, i) => v - TARGET[i])), KEY = normalize([-.5, .78, .22]);
@@ -44,23 +49,19 @@ export function bakeFlakeNormal(doc, size = 256) {
 }
 
 /**
- * The placeholder for everything that is not a mesh yet: flat colour in plate coordinates (x right, z down; the canvas
- * covers the whole plate). Sources: fills, lines, tree limbs and stamps. Returns the canvas.
+ * Transparent overlay for parts above layer 0 that are not three meshes yet (T2 trees; T4 rocks, fox, phoenix, bird,
+ * sandCone, moonBowl). Layer 0 (ground, hills, water, sand, steps, scatter) and KIND.mist now use real shaders/meshes.
  */
 export function paintPlaceholder(doc, parts, w, h) {
   const canvas = doc.createElement('canvas'); canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = MATERIALS[MAT.ground].paint; ctx.fillRect(0, 0, w, h);
+  ctx.clearRect(0, 0, w, h);
   ctx.setTransform(w / (PLATE.halfW * 2), 0, 0, h / (PLATE.halfH * 2), w / 2, h / 2);
-  const speck = rand(11);
-  ctx.fillStyle = 'rgba(214,166,64,.35)';
-  for (let i = 0; i < 2600; i++) { const s = .5 + speck() * 1.2; ctx.fillRect((speck() - .5) * PLATE.halfW * 2, (speck() - .5) * PLATE.halfH * 2, s, s); }
   const trace = (d, close) => { ctx.beginPath(); ctx.moveTo(d[0][0], d[0][1]); for (let i = 1; i < d.length; i++) ctx.lineTo(d[i][0], d[i][1]); if (close) ctx.closePath(); };
   const paint = mat => MATERIALS[mat]?.paint ?? '#8a6a2c';
   ctx.lineCap = ctx.lineJoin = 'round';
-  // Stable sort: layer 0 first, then the parts that stand, in drawing order.
-  for (const p of parts.filter(q => !q.mesh).sort((a, b) => a.layer - b.layer)) {
-    ctx.globalAlpha = p.kind === KIND.mist ? .8 : .92;
+  for (const p of parts.filter(q => !q.mesh && q.layer > 0 && q.kind !== KIND.mist).sort((a, b) => a.layer - b.layer)) {
+    ctx.globalAlpha = .95;
     ctx.fillStyle = paint(p.mat);
     for (const f of p.fills) { trace(f.d, true); ctx.fill(); }
     ctx.globalAlpha = .85; ctx.strokeStyle = '#f0d48c';
@@ -119,7 +120,17 @@ export function createThreeRenderer(gl, canvas) {
   const stateData = new Float32Array(STATE_WIDTH * STATE_HEIGHT * 4);
   const stateTexture = own(new THREE.DataTexture(stateData, STATE_WIDTH, STATE_HEIGHT, THREE.RGBAFormat, THREE.FloatType));
   stateTexture.minFilter = stateTexture.magFilter = THREE.NearestFilter; stateTexture.needsUpdate = true;
-  const shared = {uState: {value: stateTexture}, uTilt: {value: new THREE.Matrix3()}, uOpening: {value: 0}};
+  const dummyRgba = own(new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat, THREE.UnsignedByteType)); dummyRgba.needsUpdate = true;
+  const dummyRg = own(new THREE.DataTexture(new Uint8Array([0, 0]), 1, 1, THREE.RGFormat, THREE.UnsignedByteType)); dummyRg.unpackAlignment = 1; dummyRg.needsUpdate = true;
+  const dummySoft = own(new THREE.DataTexture(new Uint16Array([0]), 1, 1, THREE.RedFormat, THREE.HalfFloatType)); dummySoft.unpackAlignment = 1; dummySoft.needsUpdate = true;
+  const trails = Array.from({length: 20}, () => new THREE.Vector3());
+  const shared = {
+    uState: {value: stateTexture}, uTilt: {value: new THREE.Matrix3()}, uOpening: {value: 0},
+    uSoft0: {value: dummySoft}, uIdent0: {value: dummyRg}, uFine0: {value: dummyRgba}, uPlaceholder: {value: dummyRgba},
+    uMistFine: {value: dummyRgba}, uMistIdent: {value: dummyRg},
+    uView: {value: new THREE.Vector3(...VIEW)}, uKey: {value: new THREE.Vector3(...KEY)}, uLamp: {value: new THREE.Vector3(0, 70, 0)},
+    uTime: {value: 0}, uNight: {value: 1}, uPresence: {value: 0}, uPx: {value: 1}, uTrails: {value: trails},
+  };
 
   const flake = own(bakeFlakeNormal(doc));
   const NORMAL_FIX = THREE.ShaderChunk.normal_fragment_begin.replace('gl_FrontFacing ? 1.0 : - 1.0', '1.0');
@@ -151,7 +162,7 @@ export function createThreeRenderer(gl, canvas) {
     };
     return own(material);
   };
-  const partDepth = patchDepth('kyotoMotion', PART_MOTION_GLSL), boxDepth = patchDepth('kyotoBox', BOX_MOTION_GLSL);
+  const partDepth = patchDepth('kyotoMotion', PART_MOTION_GLSL), boxDepth = patchDepth('kyotoBox', BOX_MOTION_GLSL), groundDepth = patchDepth('kyotoGround', BOX_GROUND_DEPTH_GLSL);
 
   const physical = (spec, extra = {}) => {
     const m = new THREE.MeshPhysicalMaterial({
@@ -175,15 +186,35 @@ export function createThreeRenderer(gl, canvas) {
     return g;
   };
 
-  // The box: lid top (the picture is painted on it), then everything from the lid's edge down to the tray and packets.
+  // The box: lid top (ground relief, water, sand, steps, border), then everything from the lid's edge down to the tray and packets.
   const box = buildBox(), boxGroup = new THREE.Group(); scene.add(boxGroup);
-  const groundMaterial = patchMaterial(physical(GROUND_LID), GROUND_LID, BOX_MOTION_GLSL, 'kyotoBox');
+  const groundMaterial = physical(GROUND_LID);
+  groundMaterial.customProgramCacheKey = () => 'kyoto-ground';
+  groundMaterial.onBeforeCompile = shader => {
+    Object.assign(shader.uniforms, shared);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>\n${BOX_GROUND_GLSL}`)
+      .replace('#include <beginnormal_vertex>', 'vec3 kyotoP; vec3 objectNormal; kyotoGround(position, normal, kyotoP, objectNormal);')
+      .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>\n${MAKIE_GROUND_PARS_GLSL}`)
+      .replace('#include <opaque_fragment>', `${MAKIE_GROUND_FRAG_GLSL}\n#include <opaque_fragment>`)
+      .replace('#include <tonemapping_fragment>', '')
+      .replace('#include <colorspace_fragment>', '');
+  };
+  const mistMaterial = own(new THREE.ShaderMaterial({
+    glslVersion: THREE.GLSL3,
+    uniforms: {...shared},
+    vertexShader: MAKIE_MIST_VERT_GLSL,
+    fragmentShader: MAKIE_MIST_FRAG_GLSL,
+    transparent: true,
+    depthWrite: false,
+    depthTest: true,
+    side: THREE.DoubleSide,
+  }));
+  Object.assign(mistMaterial.uniforms, shared);
   const [lidTop] = [...sliceBox(box.data, 0, box.lidTop).values()];
-  for (let i = 0; i < lidTop.uv.length; i += 2) {
-    const x = lidTop.uv[i], z = lidTop.uv[i + 1];
-    lidTop.uv[i] = (x + PLATE.halfW) / (PLATE.halfW * 2); lidTop.uv[i + 1] = 1 - (z + PLATE.halfH) / (PLATE.halfH * 2);
-  }
-  boxGroup.add(mesh(buffers(lidTop.position, lidTop.normal, lidTop.uv, lidTop.part), groundMaterial, boxDepth));
+  boxGroup.add(mesh(buffers(lidTop.position, lidTop.normal, lidTop.uv, lidTop.part), groundMaterial, groundDepth));
   let boxVertices = box.lidTop;
   for (const [id, slice] of sliceBox(box.data, box.lidTop, box.opaque)) {
     const spec = BOX_MATERIALS[id];
@@ -225,7 +256,8 @@ export function createThreeRenderer(gl, canvas) {
     return materials.get(mat);
   };
 
-  let plate = null, life = null, lastTime = 0, wardGroup = null, placeholder = null;
+  let plate = null, life = null, lastTime = 0, wardGroup = null, wardTextures = [];
+  const scratch = doc.createElement('canvas');
   const presence = {x: 0, v: 0}, drift = {offset: 0, velocity: 0}, size = {w: 0, h: 0};
 
   function freePlate() {
@@ -233,7 +265,10 @@ export function createThreeRenderer(gl, canvas) {
       scene.remove(wardGroup);
       wardGroup.traverse(o => o.geometry?.dispose());
     }
-    placeholder?.dispose(); placeholder = null; groundMaterial.map = null; groundMaterial.needsUpdate = true;
+    for (const tex of wardTextures.splice(0)) tex.dispose();
+    shared.uFine0.value = shared.uPlaceholder.value = shared.uMistFine.value = dummyRgba;
+    shared.uIdent0.value = shared.uMistIdent.value = dummyRg;
+    shared.uSoft0.value = dummySoft;
     wardGroup = null; plate = null; life = null;
   }
 
@@ -245,10 +280,34 @@ export function createThreeRenderer(gl, canvas) {
     const {parts, errors} = preparePlate(PLATES[ward]());
     if (errors.length) throw Error(`Plate ${ward}: ${errors.join('; ')}`);
     const w = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), canvas.clientWidth < 700 ? 1152 : 1536), h = Math.round(w * PLATE.halfH / PLATE.halfW);
-    placeholder = new THREE.CanvasTexture(paintPlaceholder(doc, parts, w, h));
-    placeholder.colorSpace = THREE.SRGBColorSpace; placeholder.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    groundMaterial.map = placeholder; groundMaterial.needsUpdate = true;
-    const mw = Math.round(w / 2), mh = Math.round(h / 2), {maps} = identMaps(doc, parts, mw, mh, LAYERS, MAT.ground);
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+    scratch.width = w; scratch.height = h;
+    const ctx = scratch.getContext('2d', {willReadFrequently: true});
+    paintLayer(ctx, w, h, parts, 0);
+    const fine0Img = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
+    const fine0Tex = new THREE.DataTexture(fine0Img, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
+    fine0Tex.minFilter = THREE.LinearMipmapLinearFilter; fine0Tex.magFilter = THREE.LinearFilter;
+    fine0Tex.generateMipmaps = true; fine0Tex.anisotropy = maxAniso; fine0Tex.unpackAlignment = 1; fine0Tex.needsUpdate = true;
+
+    const soft = bakeSoftLayer(fine0Img, w, h);
+    const softHalf = new Uint16Array(soft.data.length);
+    for (let i = 0; i < soft.data.length; i++) softHalf[i] = THREE.DataUtils.toHalfFloat(soft.data[i]);
+    const soft0Tex = new THREE.DataTexture(softHalf, soft.sw, soft.sh, THREE.RedFormat, THREE.HalfFloatType);
+    soft0Tex.minFilter = soft0Tex.magFilter = THREE.LinearFilter; soft0Tex.unpackAlignment = 1; soft0Tex.needsUpdate = true;
+
+    const mw = Math.round(w / 2), mh = Math.round(h / 2), {maps, packed} = identMaps(doc, parts, mw, mh, LAYERS, MAT.ground);
+    const ident0Tex = new THREE.DataTexture(packed[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
+    ident0Tex.minFilter = ident0Tex.magFilter = THREE.NearestFilter; ident0Tex.unpackAlignment = 1; ident0Tex.needsUpdate = true;
+
+    const placeholderTex = new THREE.CanvasTexture(paintPlaceholder(doc, parts, w, h));
+    placeholderTex.flipY = false; placeholderTex.colorSpace = THREE.SRGBColorSpace; placeholderTex.anisotropy = maxAniso; placeholderTex.needsUpdate = true;
+
+    wardTextures.push(fine0Tex, soft0Tex, ident0Tex, placeholderTex);
+    shared.uFine0.value = fine0Tex;
+    shared.uSoft0.value = soft0Tex;
+    shared.uIdent0.value = ident0Tex;
+    shared.uPlaceholder.value = placeholderTex;
 
     wardGroup = new THREE.Group(); scene.add(wardGroup);
     let meshVertices = 0;
@@ -260,6 +319,33 @@ export function createThreeRenderer(gl, canvas) {
       wardGroup.add(mesh(g, partMaterial(mat), partDepth));
       meshVertices += data.length / 16;
     }
+
+    const mistParts = parts.filter(p => p.kind === KIND.mist);
+    if (mistParts.length) {
+      paintLayer(ctx, w, h, mistParts.map(p => ({...p, layer: 1})), 1);
+      const mistFineImg = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
+      const mistFineTex = new THREE.DataTexture(mistFineImg, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
+      mistFineTex.minFilter = THREE.LinearMipmapLinearFilter; mistFineTex.magFilter = THREE.LinearFilter;
+      mistFineTex.generateMipmaps = true; mistFineTex.anisotropy = maxAniso; mistFineTex.unpackAlignment = 1; mistFineTex.needsUpdate = true;
+
+      const {packed: mistPacked} = identMaps(doc, mistParts.map(p => ({...p, layer: 0})), mw, mh, 1, 0);
+      const mistIdentTex = new THREE.DataTexture(mistPacked[0], mw, mh, THREE.RGFormat, THREE.UnsignedByteType);
+      mistIdentTex.minFilter = mistIdentTex.magFilter = THREE.NearestFilter; mistIdentTex.unpackAlignment = 1; mistIdentTex.needsUpdate = true;
+
+      wardTextures.push(mistFineTex, mistIdentTex);
+      shared.uMistFine.value = mistFineTex;
+      shared.uMistIdent.value = mistIdentTex;
+
+      const {position, owner} = mistGeometryData(mistParts);
+      const mg = new THREE.BufferGeometry();
+      mg.setAttribute('position', new THREE.BufferAttribute(position, 3));
+      mg.setAttribute('aOwner', new THREE.BufferAttribute(owner, 4));
+      const mistMesh = new THREE.Mesh(mg, mistMaterial);
+      mistMesh.frustumCulled = false; mistMesh.castShadow = false; mistMesh.receiveShadow = false; mistMesh.renderOrder = 5;
+      wardGroup.add(mistMesh);
+    }
+    scratch.width = scratch.height = 1;
+
     plate = {parts, maps, mw, mh};
     life = createLife(parts);
     canvas.dataset.renderer = 'three'; canvas.dataset.ward = ward;
@@ -312,6 +398,17 @@ export function createThreeRenderer(gl, canvas) {
     key.color.set(night ? '#9fb4e8' : '#fff0d6'); key.intensity = night ? 1.7 : 3.4;
     scene.environmentIntensity = night ? .22 : .55;
     lamp.position.set(lampAt[0], lampAt[1], lampAt[2]); lamp.intensity = (night ? 120000 : 50000) * (.15 + presence.x);
+
+    shared.uLamp.value.set(lampAt[0], lampAt[1], lampAt[2]);
+    shared.uTime.value = (f.time / 1000) % 3600;
+    shared.uNight.value = night ? 1 : 0;
+    shared.uPresence.value = presence.x;
+    shared.uPx.value = unitsPerPx;
+    for (let i = 0; i < 20; i++) {
+      const p = f.trails?.[i];
+      if (p) trails[i].set(p.x, p.z, trailIntensity(p.time, f.time, f.still));
+      else trails[i].set(0, 0, 0);
+    }
 
     const w = canvas.width, h = canvas.height;
     if (size.w !== w || size.h !== h) { size.w = w; size.h = h; renderer.setSize(w, h, false); }

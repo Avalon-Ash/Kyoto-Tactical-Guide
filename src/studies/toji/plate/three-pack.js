@@ -82,6 +82,79 @@ export function sliceBox(data, from, to) {
 /** The lid's ground has no height field yet (T1): the dome only, same formula as buildBox. */
 export const DOME_GLSL = `float groundY(vec2 p){ return 3.2*(1.-(p.x/370.)*(p.x/370.))*(1.-(p.y/240.)*(p.y/240.)); }`;
 
+/** Layer 0 height field: the shallow dome plus the blurred soft swell modulated by each bank's rise state. */
+export const GROUND_GLSL = `
+uniform sampler2D uSoft0, uIdent0;
+const vec2 K_HALF=vec2(360.,230.);
+const float K_SWELL=17.;
+float groundY(vec2 p){
+  vec2 c=clamp(p,-K_HALF,K_HALF),uv=(c+K_HALF)/(2.*K_HALF);
+  ivec2 sz=textureSize(uIdent0,0);
+  int id=int(texelFetch(uIdent0,clamp(ivec2(uv*vec2(sz)),ivec2(0),sz-1),0).r*255.+.5);
+  float rise=texelFetch(uState,ivec2(id,0),0).z;
+  float dome=3.2*(1.-(p.x/370.)*(p.x/370.))*(1.-(p.y/240.)*(p.y/240.));
+  vec2 e=1.-smoothstep(K_HALF-44.,K_HALF-6.,abs(c));
+  return dome+textureLod(uSoft0,uv,0.).r*K_SWELL*mix(.3,1.,rise)*e.x*e.y;
+}`;
+
+/**
+ * Downsamples the red channel of layer 0 (4×4 box, matching mip 2 of the legacy GPU blur) and runs a
+ * 15-tap separable Gaussian blur (`exp(-i*i/14)`), producing the soft swell height field in 0..1.
+ */
+export function bakeSoftLayer(rgba, w, h) {
+  const sw = Math.round(w / 4), sh = Math.round(h / 4);
+  const src = new Float32Array(sw * sh), tmp = new Float32Array(sw * sh), dst = new Float32Array(sw * sh);
+  for (let sy = 0; sy < sh; sy++) {
+    const y0 = Math.floor(sy * h / sh), y1 = Math.min(h, Math.floor((sy + 1) * h / sh));
+    for (let sx = 0; sx < sw; sx++) {
+      const x0 = Math.floor(sx * w / sw), x1 = Math.min(w, Math.floor((sx + 1) * w / sw));
+      let sum = 0, count = 0;
+      for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { sum += rgba[(y * w + x) * 4]; count++; }
+      src[sy * sw + sx] = count ? sum / (count * 255) : 0;
+    }
+  }
+  const weights = new Float32Array(15);
+  let norm = 0;
+  for (let i = -7; i <= 7; i++) { const wt = Math.exp(-(i * i) / 14); weights[i + 7] = wt; norm += wt; }
+  for (let i = 0; i < 15; i++) weights[i] /= norm;
+  for (let y = 0; y < sh; y++) {
+    const row = y * sw;
+    for (let x = 0; x < sw; x++) {
+      let sum = 0;
+      for (let i = -7; i <= 7; i++) sum += weights[i + 7] * src[row + Math.max(0, Math.min(sw - 1, x + i))];
+      tmp[row + x] = sum;
+    }
+  }
+  for (let y = 0; y < sh; y++) {
+    for (let x = 0; x < sw; x++) {
+      let sum = 0;
+      for (let i = -7; i <= 7; i++) sum += weights[i + 7] * tmp[Math.max(0, Math.min(sh - 1, y + i)) * sw + x];
+      dst[y * sw + x] = sum;
+    }
+  }
+  return {data: dst, sw, sh};
+}
+
+/**
+ * Builds subdivided quads for every KIND.mist band so floating mist tracks the hills beneath it cleanly.
+ * Returns {position: Float32Array, owner: Float32Array, count: number}.
+ */
+export function mistGeometryData(mistParts, nx = 24, nz = 6) {
+  const pos = [], owner = [], pad = 3;
+  for (const p of mistParts) {
+    const x0 = p.bounds[0] - pad, z0 = p.bounds[1] - pad, x1 = p.bounds[2] + pad, z1 = p.bounds[3] + pad;
+    const dx = (x1 - x0) / nx, dz = (z1 - z0) / nz;
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+      const xa = x0 + i * dx, xb = xa + dx, za = z0 + j * dz, zb = za + dz;
+      for (const [x, z] of [[xa, za], [xb, za], [xb, zb], [xa, za], [xb, zb], [xa, zb]]) {
+        pos.push(x, 0, z);
+        owner.push(p.index, p.foot, p.anchor[0], p.anchor[1]);
+      }
+    }
+  }
+  return {position: new Float32Array(pos), owner: new Float32Array(owner), count: pos.length / 3};
+}
+
 /**
  * The hinge of mesh-shaders.js, written as a function so MeshPhysicalMaterial and MeshDepthMaterial run the same code:
  * stand up about the foot line, sway about the anchor, travel, lift, open with the lid, tilt with the hand.
@@ -91,7 +164,7 @@ export const PART_MOTION_GLSL = `
 uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
 attribute vec4 aOwner; attribute vec4 aStyle;
 varying float vGlow;
-${DOME_GLSL}
+${GROUND_GLSL}
 void kyotoMotion(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
   int id=int(aOwner.x+.5); vec4 A=texelFetch(uState,ivec2(id,0),0), B=texelFetch(uState,ivec2(id,1),0);
   float foot=aOwner.y; vec2 anchor=aOwner.zw;
@@ -126,4 +199,242 @@ void kyotoBox(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
   if(aPart<.5){p.y+=uOpening*360.; p.z-=uOpening*650.;}
   vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
   outPos=p; outNormal=uTilt*aNormal; vGlow=0.;
+}`;
+
+/** Lid top vertex deformation: shares groundY with PART_MOTION_GLSL and passes plate coordinates to the fragment shader. */
+export const BOX_GROUND_GLSL = `
+uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
+attribute float aPart;
+varying float vGlow;
+varying vec2 vKyotoPlate;
+varying vec3 vKyotoWorld, vKyotoNormal, vKyotoTanX, vKyotoTanZ;
+${GROUND_GLSL}
+void kyotoGround(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
+  vec3 p=vec3(aPos.x,groundY(aPos.xz),aPos.z);
+  if(aPart<.5){p.y+=uOpening*360.; p.z-=uOpening*650.;}
+  vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
+  outPos=p; outNormal=uTilt*aNormal; vGlow=0.;
+  vKyotoPlate=aPos.xz; vKyotoWorld=p; vKyotoNormal=outNormal;
+  vKyotoTanX=uTilt*vec3(1.,0.,0.); vKyotoTanZ=uTilt*vec3(0.,0.,1.);
+}`;
+
+/** Lid top shadow-depth vertex deformation so building shadows meet hills at their raised height. */
+export const BOX_GROUND_DEPTH_GLSL = `
+uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
+attribute float aPart;
+${GROUND_GLSL}
+void kyotoGround(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
+  vec3 p=vec3(aPos.x,groundY(aPos.xz),aPos.z);
+  if(aPart<.5){p.y+=uOpening*360.; p.z-=uOpening*650.;}
+  vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
+  outPos=p; outNormal=uTilt*aNormal;
+}`;
+
+const MAKIE_COMMON_GLSL = `
+uniform vec3 uView, uKey, uLamp;
+uniform float uTime, uNight, uPresence, uPx, uOpening;
+uniform vec3 uTrails[20];
+uniform sampler2D uSoft0, uIdent0;
+const vec2 M_HALF=vec2(360.,230.);
+const vec3 M_GOLD=vec3(1.,.70,.26), M_PALE=vec3(.98,.84,.48), M_SILVER=vec3(.84,.85,.83), M_LACQ=vec3(.020,.015,.013), M_AMBER=vec3(1.,.86,.58);
+const float M_SWELL=17., M_AMB=.17, M_KEY=.44, M_POOL=1.75;
+const mat2 M_R1=mat2(.940,.342,-.342,.940), M_R2=mat2(.766,-.643,.643,.766), M_R3=mat2(.5,.866,-.866,.5);
+vec2 mPuv(vec2 q){return (clamp(q,-M_HALF,M_HALF)+M_HALF)/(2.*M_HALF);}
+ivec2 mIdent0(vec2 p){
+  ivec2 sz=textureSize(uIdent0,0);
+  return ivec2(texelFetch(uIdent0,clamp(ivec2((p+M_HALF)/(2.*M_HALF)*vec2(sz)),ivec2(0),sz-1),0).rg*255.+.5);
+}
+float mHash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+vec2 mHash2(vec2 p){vec3 q=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));q+=dot(q,q.yzx+33.33);return fract((q.xx+q.yz)*q.zy);}
+float mVnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mHash(i),mHash(i+vec2(1.,0.)),f.x),mix(mHash(i+vec2(0.,1.)),mHash(i+1.),f.x),f.y);}
+vec3 mN, mHk, mHp, mKeyC, mPoolC, mAmbC; float mAtt, mDk, mDp, mWake=0., mSh=1.;
+vec3 mLight(){return M_AMB*mAmbC+(M_KEY*mDk*mKeyC+M_POOL*mAtt*mDp*mPoolC)*mSh;}
+vec3 mSpec(float e){return (M_KEY*pow(max(dot(mN,mHk),0.),e)*mKeyC+M_POOL*mAtt*pow(max(dot(mN,mHp),0.),e)*mPoolC)*mSh;}
+vec3 mRoom(float rough){
+  vec3 r=reflect(-uView,mN);
+  float up=smoothstep(-.35,1.,r.y),win=smoothstep(mix(.74,.15,rough),1.,dot(r,uKey));
+  return mAmbC*(.04+.30*up*up)+mKeyC*win*mix(1.15,.5,rough);
+}
+void mSetLight(vec3 n,vec3 worldPos){
+  mN=n;
+  mKeyC=mix(vec3(1.,.95,.86),vec3(.64,.72,.90),uNight);
+  mPoolC=mix(vec3(1.,.93,.80),vec3(.96,.96,1.),uNight);
+  mAmbC=mix(vec3(1.,.96,.90),vec3(.50,.60,.84),uNight);
+  vec3 toLamp=uLamp-worldPos;float d2=dot(toLamp,toLamp);vec3 lp=toLamp*inversesqrt(max(d2,1.));
+  mAtt=(uPresence/(1.+d2/24000.))+mWake*.55;
+  mDk=max(dot(n,uKey),0.);mDp=max(dot(n,lp),0.);
+  mHk=normalize(uKey+uView);mHp=normalize(lp+uView);
+}
+float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out vec3 glint){
+  float vis=smoothstep(1.3,3.2,cell/max(uPx,.05));
+  dens=min(dens,1.);
+  float avg=dens*mix(1.95,3.57,sq)*size*size;
+  vec3 broad=(M_KEY*pow(max(dot(mN,mHk),0.),12.)*mKeyC+M_POOL*mAtt*pow(max(dot(mN,mHp),0.),12.)*mPoolC)*mSh;
+  vec2 g=p/cell,id=floor(g),r=mHash2(id);
+  float present=step(mHash(id+7.31),dens);
+  float sz=size*mix(1.,.55+.45*mHash(id+11.3),1.-sq*.6);
+  vec2 d=fract(g)-(.5+(r-.5)*(1.-2.*sz));
+  float a=(mHash(id+3.17)-.5)*mix(6.283,.5,sq),ca=cos(a),sa=sin(a);d=vec2(ca*d.x-sa*d.y,sa*d.x+ca*d.y);
+  float ang=atan(d.y,d.x);
+  float round_=length(d)*(1.+.26*sin(ang*3.+r.x*6.3)+.16*sin(ang*4.+r.y*9.)+.08*sin(ang*7.+r.x*4.));
+  float dist=mix(round_,max(abs(d.x),abs(d.y)*mix(.8,1.25,r.x)),sq),aa=max(uPx,.05)/cell*.75;
+  float cov=present*(1.-smoothstep(sz-aa,sz+aa,dist));
+  vec3 nf=normalize(mN+vec3(r.x-.5,0.,r.y-.5)*spread);
+  vec3 gl=(M_KEY*.45*pow(max(dot(nf,mHk),0.),70.)*mKeyC+M_POOL*mAtt*pow(max(dot(nf,mHp),0.),70.)*mPoolC)*mSh;
+  glint=mix(avg*broad*.55,cov*gl*2.6,vis);
+  return mix(avg,cov,vis);
+}
+vec3 mCoat(){return vec3(1.,.95,.86)*(mSpec(220.)*.42+mSpec(36.)*.10)+mRoom(0.)*.045;}
+vec3 mNashiji(vec2 p,float dens,vec3 tint){
+  vec3 L=mLight(),ga,gb,gc;
+  float a=mFlake(M_R1*p,.62,.47,dens*1.05,0.,.55,ga),b=mFlake(M_R2*p+13.7,1.35,.45,dens*.78,0.,.5,gb),c=mFlake(M_R3*p+41.3,2.5,.38,dens*.15,0.,.4,gc);
+  vec3 col=M_LACQ*(.6+L)+tint*vec3(.55,.26,.07)*min(dens,1.3)*(.03+.28*L);
+  col=mix(col,tint*vec3(.92,.55,.19)*(.05+.58*L),a*.85);
+  col=mix(col,tint*vec3(1.,.70,.30)*(.06+.78*L),b*.9);
+  col=mix(col,tint*vec3(1.,.78,.40)*(.07+.86*L),c);
+  return col+tint*M_AMBER*(ga*.8+gb*1.3+gc)+mCoat();
+}
+vec3 mMetal(vec2 p,vec3 f0,float rise){
+  vec3 g;mFlake(p,.5,.4,.9,0.,.35,g);
+  vec3 c=f0*f0*(.04+.30*mLight())+f0*mRoom(.7)*.85+mix(f0,vec3(1.),.14)*(mSpec(34.)*.8+mSpec(9.)*.10+g*.5);
+  return mix(c*vec3(.80,.60,.36)*.8,c,smoothstep(.12,.85,rise));
+}
+vec3 mSheet(vec3 f0){return f0*(.05+.18*mLight()+mRoom(.12)*.8)+mix(f0,vec3(1.),.5)*(mSpec(160.)*1.5+mSpec(18.)*.18);}
+vec4 mFinish(vec3 c,float a){
+  c*=1.25;float l=max(dot(c,vec3(.3,.55,.15)),1e-4),t=l/(1.+l*.42);
+  c=mix(c*(t/l),vec3(t),smoothstep(.9,2.6,l)*.55);c=min(c,vec3(1.));
+  c=mix(c,c*vec3(.92,.96,1.05)+vec3(.003,.005,.009),uNight*.6);
+  return vec4(pow(c,vec3(.4545)),a);
+}`;
+
+/** Fragment declarations injected into groundMaterial (MeshPhysicalMaterial). */
+export const MAKIE_GROUND_PARS_GLSL = `
+varying float vGlow; uniform float uGlowBase, uGlowGain;
+uniform sampler2D uState, uFine0, uPlaceholder;
+varying vec2 vKyotoPlate;
+varying vec3 vKyotoWorld, vKyotoNormal, vKyotoTanX, vKyotoTanZ;
+${MAKIE_COMMON_GLSL}`;
+
+/** Fragment body replacing outgoingLight right before #include <opaque_fragment> on the lid top. */
+export const MAKIE_GROUND_FRAG_GLSL = `
+if(uOpening>.999)discard;
+vec2 kp=vKyotoPlate;
+if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
+  vec2 e=abs(kp)-M_HALF;float out_=max(e.x,e.y);
+  mWake=0.;mSh=1.;mSetLight(normalize(vKyotoNormal),vKyotoWorld);
+  vec3 bc=out_>7.4?mMetal(kp,M_GOLD*.92,1.):out_>6.4?mMetal(kp,M_SILVER*.8,1.):mNashiji(kp,.34,M_GOLD);
+  outgoingLight=mFinish(bc,1.).rgb;
+  diffuseColor.a=1.;
+}else{
+  ivec2 im=mIdent0(kp);int id=im.x,mat=im.y;
+  float rise=texelFetch(uState,ivec2(id,0),0).z,glow=texelFetch(uState,ivec2(id,0),0).w;
+  vec4 fine=texture(uFine0,mPuv(kp));float hs=texture(uSoft0,mPuv(kp)).r;
+  float eS=3.,sH=M_SWELL*mix(.3,1.,rise),cH=2.4,lH=.7,eC=max(uPx*.9,.55);
+  vec4 st=vec4(texture(uSoft0,mPuv(kp+vec2(eS,0.))).r,texture(uSoft0,mPuv(kp-vec2(eS,0.))).r,
+               texture(uSoft0,mPuv(kp+vec2(0.,eS))).r,texture(uSoft0,mPuv(kp-vec2(0.,eS))).r);
+  vec2 gs=vec2(st.x-st.y,st.z-st.w)/(2.*eS)*sH;
+  vec4 fx1=texture(uFine0,mPuv(kp+vec2(eC,0.))),fx0=texture(uFine0,mPuv(kp-vec2(eC,0.))),
+       fz1=texture(uFine0,mPuv(kp+vec2(0.,eC))),fz0=texture(uFine0,mPuv(kp-vec2(0.,eC)));
+  vec2 grad=gs+vec2((fx1.g-fx0.g)*cH+(fx1.b-fx0.b)*lH,(fz1.g-fz0.g)*cH+(fz1.b-fz0.b)*lH)/(2.*eC)*mix(.55,1.,rise);
+  grad*=min(1.,2.4/max(length(grad),1e-4));
+  mWake=0.;float ring=0.;
+  for(int i=0;i<20;i++){
+    vec2 d=vKyotoWorld.xz-uTrails[i].xy;float dd=dot(d,d),tw=uTrails[i].z;
+    mWake=max(mWake,exp(-dd/900.)*tw);
+    float l=sqrt(dd);ring+=tw*exp(-l/46.)*sin(l*.55-(1.-tw)*26.);
+  }
+  float sh=1.;
+  #if defined(USE_SHADOWMAP) && NUM_DIR_LIGHT_SHADOWS > 0
+    if(receiveShadow){
+      sh=getShadow(directionalShadowMap[0],directionalLightShadows[0].shadowMapSize,directionalLightShadows[0].shadowIntensity,directionalLightShadows[0].shadowBias,directionalLightShadows[0].shadowRadius,vDirectionalShadowCoord[0]);
+    }
+  #endif
+  mSh=mix(1.,sh,.86);
+  mSetLight(normalize(normalize(vKyotoNormal)-grad.x*vKyotoTanX-grad.y*vKyotoTanZ),vKyotoWorld);
+  float line=fine.b;vec3 L=mLight();
+  float w=smoothstep(.02,.34,hs);
+  float dens=.60+.16*mVnoise(kp*.02),wN=0.,wM=0.,wS=0.,bigD=0.,bigCell=6.6,bigSq=0.;
+  vec3 tint=M_GOLD,f0=M_GOLD,c=vec3(0.);
+  if(mat==1)wN=1.;
+  else if(mat==2||mat==3){
+    float cloud=mat==3?mVnoise(kp*.045)*.6+mVnoise(kp*.13)*.3:.55;
+    wM=w*(.25+.6*cloud);wN=1.-wM;dens=mix(dens,1.05+.3*cloud,w);f0=mix(M_GOLD,M_PALE,.3);tint=mix(M_GOLD,M_PALE,.3*w);c=M_PALE*line*(.14+.6*L)*w;
+  }
+  else if(mat==4){wN=1.;dens=mix(dens,.8,w);bigD=.85*w;c=M_PALE*line*(.12+.5*L)*w;}
+  else if(mat==5){wM=1.;c=M_PALE*line*(.12+.6*L)*mix(.5,1.,rise);}
+  else if(mat==6){wM=1.;f0=M_SILVER;}
+  else if(mat==7){wM=1.;f0=M_GOLD*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=M_PALE*line*(.22+.6*L);}
+  else if(mat==8){wM=1.;f0=mix(M_SILVER,M_GOLD,.25)*.9;rise=max(rise,.6);bigD=.4;bigCell=7.;bigSq=1.;c=M_SILVER*line*(.22+.6*L);}
+  else if(mat==9||mat==12){wN=1.;}
+  else if(mat==10){wS=1.;f0=M_PALE;c=M_PALE*glow*.5;}
+  else if(mat==11){wS=1.;f0=M_SILVER;}
+  else if(mat==13){wS=.82;wM=.18;f0=M_GOLD;tint=M_GOLD;}
+  else if(mat==14)c=M_LACQ*(.8+1.4*L)+mCoat()*2.2+M_GOLD*line*(.16+.80*L)*mix(.5,1.,rise);
+  else c=mix(vec3(.10,.06,.025)*(.4+.5*L),vec3(1.,.62,.22)*1.15,glow)+M_LACQ;
+  c+=wN*mNashiji(kp,dens,tint)+wM*mMetal(kp,f0,rise)+wS*mSheet(f0);
+  vec3 bigG;float bigX=mFlake(M_R2*kp,bigCell,mix(.47,.30,bigSq),bigD,bigSq,.26,bigG);
+  if(mat==7||mat==8){
+    vec3 foil=mat==7?M_PALE:M_SILVER;
+    c=mix(c,mSheet(foil)+foil*(.10+.25*L)+foil*glow*(.45+.45*sin(kp.x*.31+kp.y*.17-uTime*9.)),bigX)+foil*bigG*.6;
+  }else c=mix(c,tint*vec3(1.,.80,.44)*(.07+.74*L),bigX*.92)+tint*M_AMBER*bigG;
+  if(mat==9){
+    vec2 r=mHash2(floor(kp/2.3));
+    float t=dot(normalize(mN+vec3(r.x-.5,0.,r.y-.5)*.5),mHp)*2.4+r.x*1.7+mAtt*.6;
+    vec3 film=mix(vec3(.16,.50,.50),vec3(.26,.40,.70),.5+.5*sin(t*3.1));
+    film=mix(film,vec3(.80,.56,.64),smoothstep(.55,1.,.5+.5*sin(t*2.3+2.))*.45);
+    c=mix(c,film*(.16+.60*L)+vec3(.9,1.,1.)*mSpec(120.)*.9,clamp((fine.g-.2)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.));
+  }
+  if(mat==12){
+    float flow=.55+.45*sin(kp.y*.20-uTime*1.5+kp.x*.06);
+    vec3 wtr=c*vec3(.62,.72,.84)+M_SILVER*(.05+.14*L)+M_SILVER*line*(.22+.95*L)*(.5+.5*flow)+M_SILVER*max(ring,0.)*.5*(.2+L)+mCoat()*.6+M_SILVER*mRoom(.05)*.08;
+    c=mix(c,wtr,clamp((fine.g-.035)/max(fwidth(fine.g)*1.5,.004)+.5,0.,1.));
+  }
+  vec4 ph=texture(uPlaceholder,mPuv(kp));
+  if(ph.a>.001)c=mix(c,ph.rgb*(.45+1.05*L),ph.a);
+  outgoingLight=mFinish(c,1.).rgb;
+  diffuseColor.a=1.;
+}`;
+
+/** Vertex shader for KIND.mist (suyari-gasumi) bands floating above the hills. */
+export const MAKIE_MIST_VERT_GLSL = `
+uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
+attribute vec4 aOwner;
+varying vec3 vKyotoWorld, vKyotoNormal;
+varying vec2 vKyotoUv, vKyotoMeta;
+varying float vPartId;
+${GROUND_GLSL}
+void main(){
+  int id=int(aOwner.x+.5);vec4 B=texelFetch(uState,ivec2(id,1),0);
+  vec2 q=position.xz+B.xy;
+  float gy=groundY(q);
+  vec3 p=vec3(q.x,gy+B.z+.35,q.y);
+  p.y+=uOpening*360.;p.z-=uOpening*650.;
+  vec3 centre=vec3(0.,-48.,0.);p=uTilt*(p-centre)+centre;
+  vKyotoWorld=p;vKyotoNormal=uTilt*vec3(0.,1.,0.);
+  vKyotoUv=position.xz;vKyotoMeta=q;vPartId=aOwner.x;
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);
+}`;
+
+/** Fragment shader for KIND.mist: semi-transparent gold foil drifting over the plate, clipped inside the lid lip. */
+export const MAKIE_MIST_FRAG_GLSL = `
+uniform sampler2D uState, uMistFine, uMistIdent;
+varying vec3 vKyotoWorld, vKyotoNormal;
+varying vec2 vKyotoUv, vKyotoMeta;
+varying float vPartId;
+out vec4 fragColor;
+${MAKIE_COMMON_GLSL}
+void main(){
+  if(uOpening>.999)discard;
+  ivec2 sz=textureSize(uMistIdent,0);
+  int id=int(texelFetch(uMistIdent,clamp(ivec2((vKyotoUv+M_HALF)/(2.*M_HALF)*vec2(sz)),ivec2(0),sz-1),0).r*255.+.5);
+  if(id==0||id!=int(vPartId+.5))discard;
+  vec4 fine=texture(uMistFine,mPuv(vKyotoUv));
+  float alpha=clamp((fine.a-.5)/max(fwidth(fine.a),.006)+.5,0.,1.)*.82;
+  vec2 lip=1.-smoothstep(M_HALF-5.,M_HALF-1.,abs(vKyotoMeta));
+  alpha*=lip.x*lip.y;
+  if(alpha<.01)discard;
+  float rise=texelFetch(uState,ivec2(id,0),0).z;
+  mWake=0.;mSh=1.;mSetLight(normalize(vKyotoNormal),vKyotoWorld);
+  vec3 c=.82*mSheet(M_GOLD)+.18*mMetal(vKyotoUv,M_GOLD,rise);
+  fragColor=mFinish(c,alpha);
 }`;

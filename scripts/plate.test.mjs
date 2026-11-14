@@ -1023,8 +1023,9 @@ test('meshLantern upper frame and hidden cap support join hexCapMesh with 0.3-0.
   }
 });
 
-// ---- three.js renderer (T0): pure data checks. The WebGL side is checked by screenshots (.claude/dispatch/shot.mjs). ----
-import {MATERIALS, BOX_MATERIALS, STATE_WIDTH, STATE_HEIGHT, packLifeState, meshesByMaterial, sliceBox} from '../src/studies/toji/plate/three-pack.js';
+// ---- three.js renderer (T0–T1): pure data checks. The WebGL side is checked by screenshots (.claude/dispatch/shot.mjs). ----
+import {readFileSync} from 'node:fs';
+import {MATERIALS, BOX_MATERIALS, STATE_WIDTH, STATE_HEIGHT, GROUND_GLSL, PART_MOTION_GLSL, packLifeState, meshesByMaterial, sliceBox, bakeSoftLayer, mistGeometryData} from '../src/studies/toji/plate/three-pack.js';
 import {packMeshes} from '../src/studies/toji/plate/mesh-geometry.js';
 import {createThreeRenderer} from '../src/studies/toji/plate/three-renderer.js';
 
@@ -1077,4 +1078,42 @@ test('three: part meshes regroup by material without losing a vertex', () => {
 
 test('three: renderer factory has the plate renderer entry point', () => {
   assert.equal(typeof createThreeRenderer, 'function');
+});
+
+test('three: bakeSoftLayer blurs layer 0 alpha at quarter scale cleanly', () => {
+  const w = 64, h = 40, rgba = new Uint8Array(w * h * 4);
+  for (let y = 16; y < 24; y++) for (let x = 24; x < 40; x++) rgba[(y * w + x) * 4] = 255;
+  const {data, sw, sh} = bakeSoftLayer(rgba, w, h);
+  assert.equal(sw, Math.round(w / 4));
+  assert.equal(sh, Math.round(h / 4));
+  assert.equal(data.length, sw * sh);
+  for (let i = 0; i < data.length; i++) assert.ok(Number.isFinite(data[i]) && data[i] >= 0 && data[i] <= 1);
+  const center = data[Math.floor(sh / 2) * sw + Math.floor(sw / 2)];
+  const edge = data[0];
+  assert.ok(center > .1 && edge < center * .05, `center ${center} drops toward edge ${edge}`);
+});
+
+test('three: mistGeometryData produces finite subdivided quads for every ward with mist', () => {
+  for (const ward of Object.keys(PLATES)) {
+    const {parts} = preparePlate(PLATES[ward]());
+    const mist = parts.filter(p => p.kind === KIND.mist);
+    const {position, owner, count} = mistGeometryData(mist);
+    assert.equal(position.length, count * 3);
+    assert.equal(owner.length, count * 4);
+    if (!mist.length) { assert.equal(count, 0); continue; }
+    assert.ok(count > 0, `${ward}: mist emits triangles`);
+    for (let i = 0; i < position.length; i++) assert.ok(Number.isFinite(position[i]));
+    for (let i = 0; i < owner.length; i += 4) {
+      const idx = owner[i] - 1;
+      assert.ok(idx >= 0 && idx < parts.length && parts[idx].kind === KIND.mist, `${ward}: owner ${owner[i]} maps to mist`);
+    }
+  }
+});
+
+test('three: part motion shader reads groundY from soft/ident maps and renderer lazy-imports three', () => {
+  assert.ok(PART_MOTION_GLSL.includes(GROUND_GLSL));
+  assert.ok(GROUND_GLSL.includes('uSoft0') && GROUND_GLSL.includes('uIdent0') && GROUND_GLSL.includes('groundY'));
+  const src = readFileSync(new URL('../src/studies/toji/renderer.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(src, /^\s*import\s+[^;]*three-renderer\.js/m);
+  assert.match(src, /import\(\s*'\.\/plate\/three-renderer\.js'\s*\)/);
 });
