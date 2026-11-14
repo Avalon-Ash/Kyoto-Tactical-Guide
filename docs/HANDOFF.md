@@ -1,14 +1,15 @@
 # 京都專案交接入口
 
-更新：2026-11-13。這是**唯一的目前狀態入口**；各輪細節在 `agent-runs/`，舊狀態以 Git 歷史為準，不再在文件頂端堆疊「最新狀態」。新對話依序讀 `../AGENTS.md`、本檔、`MAKIE_PLATE_HANDOFF.md`（文箱蒔繪盤，§8.1 是接手清單）。
+更新：2026-11-14。這是**唯一的目前狀態入口**；各輪細節在 `agent-runs/`，舊狀態以 Git 歷史為準，不再在文件頂端堆疊「最新狀態」。新對話依序讀 `../AGENTS.md`、本檔、`MAKIE_PLATE_HANDOFF.md`（文箱蒔繪盤，§8.1 是接手清單）。
 
 ## 1. Git 狀態
 
 | 項目 | 狀態 |
 |---|---|
-| 主線 | `main`：2026-11-13 已含蒔繪浮雕盤（十一區都是 WebGL2 浮雕盤）與其前的十一區文庫、手機 UI、UI 翻新 P1／P3。實際 HEAD 以 `git log -1 main` 為準 |
-| 工作分支 | `claude/great-brahmagupta-ye2uqt`（蒔繪浮雕盤）：2026-11-13 兩度 fast-forward 併入 `main` 並 push（使用者分別同意），交接當下與 `main` 同一個 commit。後續在此分支或新分支接著做；接手計畫在 `MAKIE_PLATE_HANDOFF.md` §8；11-13 深夜 W1–W4 又加了四個 commit，未 push |
+| 主線 | `main`：2026-11-14 併入蒔繪盤的網格重構（p1 鳥居與清水柱網、p2 屋宇與塔、p3 燈籠）與 three.js 渲染器（`?three=1` 才啟用）。實際 HEAD 以 `git log -1 main` 為準 |
+| 工作分支 | `claude/great-brahmagupta-ye2uqt`：2026-11-14 與 `main` 同一個 commit（使用者同意合併並 push）。後續 three.js 工作在此分支或新分支 |
 | 分支清理 | 2026-11-13 刪除已併入 `main` 的本機 `ux-unify` 與遠端 `claude/relaxed-feynman-lh5xnr`；agy 用的 worktree（`C:\Git\Kyoto-agy`、`Kyoto-agy2`）、舊 clone `C:\Git\_wt_kyoto_chores` 與 `.shots/` 截圖一併刪除（使用者同意） |
+| 臨時 clone | `C:\Git\_wt_kyoto_rebuild`（`rebuild`）、`_wt_kyoto_p2`（`p2`）、`_wt_kyoto_three`（`three`）的內容都已併入；保留到使用者確認後再刪。各 clone 的 `.claude/dispatch/` 有派工單、gate 日誌、審查與截圖 |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
 | 改名 | 2026-11-13 專案改名 Kyoto Bunko 京洛文庫：GitHub repo 改為 `Avalon-Ash/Kyoto-Bunko`（Pages：`https://avalon-ash.github.io/Kyoto-Bunko/`），本機 remote 已指向新網址。門面 README 改成英／繁中／日三語（`README.md`、`README.zh-TW.md`、`README.ja.md`，附圖在 `docs/images/`）；原本的開發者長文移到 `docs/DEVELOPMENT.md`。本機資料夾已於 2026-11-13 深夜改名為 `C:\Git\Kyoto-Bunko`（使用者手動） |
@@ -34,28 +35,27 @@ npm run dev -- --host 127.0.0.1 --strictPort
 | 程式審查與 UI 統一 | 2026-11-09 完成：修地圖重繪跳回全區、返回焦點；刪死碼、未用依賴與 1 MB 原型圖；色票集中 `src/theme.css`、文案集中 `i18n.ts`。已併入 `main`，見執行紀錄 |
 | 歲時記 | 只有[計畫](SEASONAL_PLAN.md)；首頁入口已移除，舊頁 `public/seasonal.html` 已刪除（Git 歷史可取回） |
 | UI 翻新 | P1 文箱放大（`bc688c3`）與 P3 背景（すやり霞＋和紙，霞帶飄移，金箔／銀塵微粒）已併入 `main`。`ux-unify` 再加上十一區各自的紋樣、霞帶配置與一行短句（`src/studies/toji/ward-art.js`；配對與短句是主代理的設計稿，待使用者看過）。P2 蒔繪光澤、`src/lib/spring.ts` 尚未做。規劃見[總計畫](UI_RENEWAL_PLAN.md)、[架構](UI_RENEWAL_ARCHITECTURE.md)、[美術](UI_RENEWAL_ART.md) |
-| 蒔繪浮雕盤 | P0–P3 完成並部署（2026-11-13）：十一區都重畫為浮雕盤（`src/studies/toji/plate/`，WebGL2）。地子隆起、部品為膨脹實體並隨手立起、深度圖陰影、鶯換枝、組紐與紐金具、箱側紋飾、換函軌道與三函同框。造形原則「形歸形、意歸意」：立體只做認得出的大形，特徵用平嵌的切金、切銀、青貝意象（落葉、花瓣、水中月、足跡、燈光）。暫停＝部品全躺平、光仍跟手。南、伏見、東山由主代理構圖，其餘八區由 Codex 構圖。待辦（使用者的線上版回饋、幾處造形、補驗、P4）與派工做法見 [MAKIE_PLATE_HANDOFF.md](MAKIE_PLATE_HANDOFF.md) §8 |
+| 蒔繪浮雕盤 | 預設仍是自寫 WebGL2 管線，但鳥居、清水舞台、屋宇、五重塔、門、迴廊、燈籠、高蒔繪岩已改成顯式網格（不再膨脹）。**2026-11-14 起改走 three.js**（使用者決定，AGENTS.md §2 例外）：網址加 `?three=1` 用新渲染器，盒身梨子地、地面浮雕、水、霞、樹、岩已遷移；狐、鳳凰、鶯仍是平塗佔位。入口文件 [`MAKIE_THREE_PLAN.md`](MAKIE_THREE_PLAN.md)（§2a 初音調度設計語言、§7 進度與待辦） |
 | 文箱架構 | `study.js`（`mountBunko`：手勢、移光、縮放、換函、開蓋）、`renderer.js`（WebGL）、`interaction.js`／`view.js`（純函式）、`backdrop.js`＋`ward-art.js`（背景）、`template.ts`（`BUNKO_STAGE`）。獨立展示頁另由 `study-chrome.js`（`mountStudy`）包一層控制，主站不載入 |
 
-## 3. 最近一次驗收（2026-11-11，`ux-unify`）
+## 3. 最近一次驗收（2026-11-14，工作分支 `4b8f9ea` 之後）
 
 | 檢查 | 結果 |
 |---|---|
 | `npm run lint` | exit 0 |
-| `npx --no-install tsx validate_data.js --strict` | exit 0；ERROR 0、WARN 0（809 筆） |
-| `npm test` | exit 0；`scripts/*.test.mjs` 67/67、`src/lib/*.test.ts` 6/6 |
-| `npm run build` | exit 0 |
-| 內建瀏覽器 375×812 | 短撫不換函、長拖換函、點蓋進入南區卷（45 筆、2 個軸頭、無輸入框）、換函後紋樣／霞帶／短句跟著換、暖日與月光兩版、展示頁可換函 |
-| 內建瀏覽器 1440×900 | 首頁文箱、紋樣與短句正常，無橫向溢出 |
+| `npx --no-install tsx validate_data.js --strict` | ERROR 0、WARN 0 |
+| `npm test` | `scripts/*.test.mjs` 121/121、`src/lib/*.test.ts` 6/6 |
+| `npm run build` | exit 0；three 獨立成 `three-renderer-*.js`（gzip 約 145 KB），只有 `?three=1` 才載入 |
+| 截圖 | 十一區舊管線與 `?three=1` 各 16–18 張（`C:\Git\_wt_kyoto_three\.shots\`），plate=true、無 console 錯誤 |
 
-未測：真實手機觸控手感、Safari／iOS、1440px 詳細頁截圖、FPS。內建瀏覽器的動畫被節流，開蓋與換函的流暢度需實機判斷。
+未測：實機手感、Safari／iOS、手機幀時間（three 版）。
 
 ## 4. 下一步（依序）
 
-1. 使用者實機確認手勢手感（參數在 `interaction.js`：`DRAG_DEAD`、`DRAG_FOLLOW`、`SWITCH_SHARE`、`SWITCH_MAX`）與卷軸動線。
-2. 使用者過目十一區紋樣與短句（`ward-art.js`），不滿意的區再調。
-3. 使用者同意後合併 `ux-unify` 進 `main` 並另外授權 push。
-4. 其餘 Phase 4 工作（全庫事實查核、個別景點點位、MapLibre 評估、歲時記資料庫）照 `PLAN.md` Phase 4，各自需要授權。
+1. three.js 待辦見 `MAKIE_THREE_PLAN.md` §7：T3 材質（銀偏灰、燈窗橙色、青貝）、岩頂面切金覆蓋、T4 狐／鳳凰／鶯、T5 設為預設並刪舊管線。派工：Astra（Codex 約 11/21 重設）或 Fable 5.2（Claude 的 Fable 週額度約 11/15 21:00 重設）整包做；小而具體的包給 Hydrogen。各模型擅長見 `~/.claude/skills/agy-call/MODELS.md`。
+2. 派夜間流水線前，先照 [`agent-runs/2026-11-14/pipeline-retro.md`](agent-runs/2026-11-14/pipeline-retro.md) 的 A–H 改好並乾跑。
+3. 設計語言一律依初音調度（`MAKIE_PLATE_HANDOFF.md` §3、`MAKIE_THREE_PLAN.md` §2a）；美術取捨由主代理判斷，不必先問。
+4. 其餘 Phase 4 工作照 `PLAN.md`，各自需要授權。
 
 ## 5. 不變條件（摘要；全文見 `AGENTS.md` §2）
 
