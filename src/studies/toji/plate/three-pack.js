@@ -16,16 +16,19 @@ export const MATERIALS = {
   [MAT.mura]: {name: 'mura', color: '#9c7430', paint: '#6e5222', metalness: .8, roughness: .55, clearcoat: .6, clearcoatRoughness: .1, flake: .45},
   [MAT.gyobu]: {name: 'gyobu', color: '#c29a46', paint: '#8a6a2c', metalness: .85, roughness: .45, clearcoat: .5, clearcoatRoughness: .1, flake: .7},
   [MAT.gold]: {name: 'gold', color: '#cf9e48', paint: '#d6a640', metalness: 1, roughness: .38, clearcoat: .3, clearcoatRoughness: .1, flake: .22},
-  [MAT.silver]: {name: 'silver', color: '#d4d6d2', paint: '#cfd0cc', metalness: 1, roughness: .28, clearcoat: 0, clearcoatRoughness: 0, flake: .3},
+  // T3: railings read dull grey under the grey room; a whiter, smoother silver with a thin coat keeps them silver.
+  [MAT.silver]: {name: 'silver', color: '#e6e8e4', paint: '#d8dad6', metalness: 1, roughness: .2, clearcoat: .3, clearcoatRoughness: .08, flake: .3},
   [MAT.kirikane]: {name: 'kirikane', color: '#f2c65e', paint: '#e0b650', metalness: .88, roughness: .45, clearcoat: 0, clearcoatRoughness: 0, flake: .12},
   [MAT.kirigin]: {name: 'kirigin', color: '#d8dbd6', paint: '#bfc0b8', metalness: .88, roughness: .45, clearcoat: 0, clearcoatRoughness: 0, flake: .12},
-  [MAT.aogai]: {name: 'aogai', color: '#2a6f78', paint: '#3c8f90', metalness: .2, roughness: .25, clearcoat: 1, clearcoatRoughness: .05, flake: 0, iridescence: 1, iridescenceIOR: 1.7, iridescenceThicknessRange: [200, 600]},
+  // T3: mother-of-pearl is pale with colour that shifts, not a teal paint: lighter base, wider film range.
+  [MAT.aogai]: {name: 'aogai', color: '#8fbcb6', paint: '#9cc6c0', metalness: .2, roughness: .2, clearcoat: 1, clearcoatRoughness: .05, flake: 0, iridescence: 1, iridescenceIOR: 1.6, iridescenceThicknessRange: [250, 800]},
   [MAT.hyomonGold]: {name: 'hyomonGold', color: '#e6b94e', paint: '#e2b24c', metalness: 1, roughness: .18, clearcoat: 0, clearcoatRoughness: 0, flake: .15},
   [MAT.hyomonSilver]: {name: 'hyomonSilver', color: '#e0e2de', paint: '#d8d9d4', metalness: 1, roughness: .15, clearcoat: 0, clearcoatRoughness: 0, flake: .15},
   [MAT.water]: {name: 'water', color: '#2c4256', paint: '#2a3d50', metalness: .6, roughness: .12, clearcoat: 1, clearcoatRoughness: .02, flake: 0},
   [MAT.kasumi]: {name: 'kasumi', color: '#d9b25a', paint: '#caa24a', metalness: .9, roughness: .3, clearcoat: 0, clearcoatRoughness: 0, flake: .2},
   [MAT.lacquer]: {name: 'lacquer', color: '#0b0807', paint: '#1a1310', metalness: 0, roughness: .12, clearcoat: 1, clearcoatRoughness: .03, flake: 0},
-  [MAT.lamp]: {name: 'lamp', color: '#2a1a0a', paint: '#ff9a3c', metalness: 0, roughness: .6, clearcoat: 0, clearcoatRoughness: 0, flake: 0, emissive: '#ff9a3c', glow: true},
+  // T3: a paper window lit from inside is warm amber, not saturated orange.
+  [MAT.lamp]: {name: 'lamp', color: '#2a1a0a', paint: '#f0b46a', metalness: 0, roughness: .6, clearcoat: 0, clearcoatRoughness: 0, flake: 0, emissive: '#f0b46a', glow: true},
 };
 
 /** The box has its own small material ids (see buildBox in renderer.js). 25 is the shadow underlay and is not drawn here. */
