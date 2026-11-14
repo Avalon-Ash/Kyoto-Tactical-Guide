@@ -30,6 +30,8 @@ import {
 const EYE = [430, 720, 920], TARGET = [0, 40, 0];
 const VIEW = normalize(EYE.map((v, i) => v - TARGET[i])), KEY = normalize([-.5, .78, .22]);
 const STRIDE = 10;
+const SHADOW_SOFT = 6; // PCF shadow filter radius in texels for softer window-light penumbra
+const SHADOW_STRENGTH = .8; // Shadow intensity [0..1] so cast shadows are not pitch-black
 
 /** Procedural gold-powder normal map: random small tilted flakes on a flat tangent-space field. No external image. */
 export function bakeFlakeNormal(doc, size = 256) {
@@ -123,6 +125,7 @@ export function createThreeRenderer(gl, canvas) {
   const shadowSize = canvas.clientWidth < 700 ? 1024 : 2048;
   Object.assign(key.shadow.camera, {left: -480, right: 480, top: 420, bottom: -420, near: 50, far: 1500});
   key.castShadow = true; key.shadow.mapSize.set(shadowSize, shadowSize); key.shadow.bias = -.0006; key.shadow.normalBias = 1.2;
+  key.shadow.radius = SHADOW_SOFT; key.shadow.intensity = SHADOW_STRENGTH;
   key.shadow.camera.updateProjectionMatrix();
   const lamp = new THREE.PointLight('#ffe2b0', 0, 0, 2);
   scene.add(ambient, key, key.target, lamp);
