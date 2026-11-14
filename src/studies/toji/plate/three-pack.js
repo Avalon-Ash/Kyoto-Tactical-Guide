@@ -383,7 +383,7 @@ float mFlake(vec2 p,float cell,float size,float dens,float sq,float spread,out v
 // faces and the rims, shrinking away into the hollows and the shaded side.
 float mKiri(vec2 p,float cell,float amount,out vec3 glint){
   vec2 q=mat2(.7071,-.7071,.7071,.7071)*p/cell,id=floor(q),j=mHash2(id)-.5,f=fract(q)-.5-j*.2;
-  float sz=.33*sqrt(clamp(amount,0.,1.))*(.65+.7*mHash(id+5.1));
+  float sz=.28*sqrt(clamp(amount,0.,1.))*(.65+.7*mHash(id+5.1))*step(mHash(id+9.7),.15+amount*1.3);
   float aa=max(uPx,.05)/cell*.75,cov=(1.-smoothstep(sz-aa,sz+aa,max(abs(f.x),abs(f.y))))*step(.02,sz);
   float vis=smoothstep(1.3,3.2,cell/max(uPx,.05));
   vec3 nf=normalize(mN+vec3(j.x,0.,j.y)*.5);
@@ -500,7 +500,12 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     float rim=smoothstep(.0,.04,hs)*(1.-smoothstep(.1,.7,hs));
     // Silver carries the shade: the Hatsune rocks and sandbars are gold where lit and grey silver on the far face.
     c=mix(c*(1.-.14*kAmt),mMetal(kp,M_OXID,1.)*.82,clamp(kAmt*max(-face,0.)*1.1,0.,.75));
-    vec3 kg;float kv=mKiri(kp,4.6,kAmt*clamp(.08+.8*rim+.6*max(face,0.)-.2*max(-face,0.),0.,1.),kg);
+    // One gradient from the rim inward, carried by two techniques (Hatsune rocks and sandbars): kirikane at the bright
+    // end, thinning; dense nashiji under and between the pieces, carrying on past the last piece and thinning in turn
+    // into the plain ground.
+    float g=clamp(.08+.85*rim+.6*max(face,0.)-.25*max(-face,0.),0.,1.);
+    c=mix(c,mNashiji(kp,mix(1.,2.4,smoothstep(.1,.75,g)),mix(M_GOLD,M_PALE,.3)),kAmt*smoothstep(.02,.4,g)*.92);
+    vec3 kg;float kv=mKiri(kp,4.6,kAmt*smoothstep(.35,1.,g),kg);
     c=mix(c,mKiriColor(mix(M_GOLD,M_PALE,.75))*1.15,kv)+M_PALE*kg;
   }
   if(mat==9){
@@ -551,8 +556,10 @@ export const BOX_SIDE_FRAG_GLSL = `
   c=mix(c,mMetal(sp,mix(M_GOLD,M_PALE,.5),1.)*.85+mNashiji(sp,1.3,M_PALE)*.2,land*.55);
   c=mix(c,.5*mMetal(sp,M_PALE*.95,1.)+.25*mSheet(M_PALE)+.3*mNashiji(sp,1.6,M_PALE),mist*.45);
   c+=M_PALE*(1.-smoothstep(0.,.9,abs(bank)))*body*(.06+.3*mLight());
-  vec3 kg;float kv=mKiri(sp,4.2,land*(.05+.75*(1.-smoothstep(0.,14.,-bank))),kg);
-  c=mix(c*(1.-.18*land),mKiriColor(mix(M_GOLD,M_PALE,.6)),kv)+M_PALE*kg;
+  float g=land*(1.-smoothstep(0.,26.,-bank));
+  c=mix(c*(1.-.12*land),mNashiji(sp,mix(1.,2.4,smoothstep(.1,.75,g)),mix(M_GOLD,M_PALE,.3)),smoothstep(.02,.4,g)*.9);
+  vec3 kg;float kv=mKiri(sp,4.2,smoothstep(.4,1.,g)*.85,kg);
+  c=mix(c,mKiriColor(mix(M_GOLD,M_PALE,.6)),kv)+M_PALE*kg;
   // Walls face the room, not the window: keep them a warmer, slightly deeper amber than the lid.
   outgoingLight=mFinish(c*vec3(1.,.86,.62)*.9,1.).rgb;
 }`;
