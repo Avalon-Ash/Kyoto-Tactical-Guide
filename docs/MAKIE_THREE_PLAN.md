@@ -137,6 +137,7 @@
 
 待辦：
 - **地（2026-11-14 使用者回饋）**：對標初音調度文箱本體的地，企劃與進度見 [`MAKIE_GROUND_PLAN.md`](MAKIE_GROUND_PLAN.md)（D0–D2、D4–D6 第一版完成，D3 未做）。肉合蒔繪部件等地定稿後再改。
+- **ThreeRT 參考圖（2026-11-14）**：不接進網站，當參考渲染器用；匯出與渲染步驟見 [`MAKIE_THREERT_REFERENCE.md`](MAKIE_THREERT_REFERENCE.md)。
 - **構圖（2026-11-14 使用者回饋）**：平面上的深度與資訊密度，企劃見 [`MAKIE_COMPOSITION_PLAN.md`](MAKIE_COMPOSITION_PLAN.md)（C1–C6）。
 - **T3 材質**：銀欄杆偏灰、燈窗橙色太飽和、青貝。
 - **T4a 後續**：切金只覆蓋到岩的下半部，頂面沒有片；`rock-mesh.js` 的鋪片條件要查。

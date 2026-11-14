@@ -480,7 +480,7 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
     }
     scratch.width = scratch.height = 1;
 
-    plate = {parts, maps, mw, mh};
+    plate = {parts, maps, mw, mh, ward, soft, ident: packed[0], frames: 0};
     life = createLife(parts);
     canvas.dataset.renderer = 'three'; canvas.dataset.ward = ward;
     canvas.dataset.meshVertices = String(meshVertices); canvas.dataset.parts = String(parts.length);
@@ -506,6 +506,14 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
     const state = life.update(dt, {time: f.time, light: [lx, lz], presence: presence.x, still: f.still, lift: f.lift, maps: plate.maps, mapW: plate.mw, mapH: plate.mh});
     canvas.dataset.under = state.under ? plate.parts[state.under - 1].id : '';
     packLifeState(state.a, state.b, stateData); stateTexture.needsUpdate = true;
+    // Dev only (?export=glb): once the plate has settled, download it at rest for a ThreeRT reference render
+    // (docs/MAKIE_THREERT_REFERENCE.md). The production build drops this branch and the module.
+    if (import.meta.env.DEV && ++plate.frames === 30 && new URLSearchParams(location.search).get('export') === 'glb') {
+      const pose = {ward: plate.ward, parts: plate.parts, soft: plate.soft, ident: plate.ident, mw: plate.mw, mh: plate.mh,
+        a: Float32Array.from(state.a), b: Float32Array.from(state.b), box};
+      void import('./export-glb.js').then(m => m.downloadPlateGlb(doc, pose))
+        .then(bytes => { canvas.dataset.exported = String(bytes); }, error => { console.error('glb export failed', error); canvas.dataset.exported = 'error'; });
+    }
 
     // The box leans a little toward the hand: Rx · Rz, column-major, as in the old pipeline.
     const rz = quiet ? 0 : -f.px * .05 * f.lift, rx = quiet ? 0 : f.py * .035 * f.lift;
