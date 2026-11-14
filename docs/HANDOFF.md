@@ -9,7 +9,7 @@
 | 主線 | `main`：2026-11-14 併入蒔繪盤的網格重構（p1 鳥居與清水柱網、p2 屋宇與塔、p3 燈籠）與 three.js 渲染器（`?three=1` 才啟用）。實際 HEAD 以 `git log -1 main` 為準 |
 | 工作分支 | `claude/great-brahmagupta-ye2uqt`：2026-11-14 與 `main` 同一個 commit（使用者同意合併並 push）。後續 three.js 工作在此分支或新分支 |
 | 分支清理 | 2026-11-13 刪除已併入 `main` 的本機 `ux-unify` 與遠端 `claude/relaxed-feynman-lh5xnr`；agy 用的 worktree（`C:\Git\Kyoto-agy`、`Kyoto-agy2`）、舊 clone `C:\Git\_wt_kyoto_chores` 與 `.shots/` 截圖一併刪除（使用者同意） |
-| 臨時 clone | `C:\Git\_wt_kyoto_rebuild`（`rebuild`）、`_wt_kyoto_p2`（`p2`）、`_wt_kyoto_three`（`three`）的內容都已併入；保留到使用者確認後再刪。各 clone 的 `.claude/dispatch/` 有派工單、gate 日誌、審查與截圖 |
+| 臨時 clone | 2026-11-14 深夜全部刪除（使用者同意）：`_wt_kyoto_rebuild`、`_wt_kyoto_p2`、`_wt_kyoto_three`、`_wt_kyoto_parts`（agy 長鏈的派工單與證據隨之刪除；結論在 `agent-runs/2026-11-14-threert-reference.md` §7–9）。ThreeRT 原始碼與參考圖仍在 `C:Git_ext` |
 | 遠端與部署 | `origin/main` 是否已同步，用 `git status -sb` 與 `git ls-remote origin refs/heads/main` 確認；push 需要使用者另外授權。GitHub Pages 由 `.github/workflows/deploy.yml` 在 push `main` 時自動部署（`643a816`） |
 | 已合併分支 | `codex/phase4-data-audit`、`codex/mobile-bunko-ui` 都已併入 `main`，可刪；刪遠端分支屬於 push，需要授權 |
 | 改名 | 2026-11-13 專案改名 Kyoto Bunko 京洛文庫：GitHub repo 改為 `Avalon-Ash/Kyoto-Bunko`（Pages：`https://avalon-ash.github.io/Kyoto-Bunko/`），本機 remote 已指向新網址。門面 README 改成英／繁中／日三語（`README.md`、`README.zh-TW.md`、`README.ja.md`，附圖在 `docs/images/`）；原本的開發者長文移到 `docs/DEVELOPMENT.md`。本機資料夾已於 2026-11-13 深夜改名為 `C:\Git\Kyoto-Bunko`（使用者手動） |
