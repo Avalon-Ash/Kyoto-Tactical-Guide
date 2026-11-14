@@ -422,7 +422,7 @@ vec4 mFinish(vec3 c,float a){
 /** Fragment declarations injected into groundMaterial (MeshPhysicalMaterial). */
 export const MAKIE_GROUND_PARS_GLSL = `
 varying float vGlow; uniform float uGlowBase, uGlowGain;
-uniform sampler2D uState, uFine0, uPlaceholder, uOrn0;
+uniform sampler2D uState, uFine0, uPlaceholder;
 varying vec2 vKyotoPlate;
 varying vec3 vKyotoWorld, vKyotoNormal, vKyotoTanX, vKyotoTanZ;
 ${MAKIE_COMMON_GLSL}`;
@@ -527,11 +527,6 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     wtr=mix(wtr*vec3(1.,.93,.80),mMetal(kp,M_OXID,1.)*.85+M_SILVER*line*(.1+.3*L),shore*.7);
     c=mix(c,wtr,m);
   }
-  vec4 orn=texture(uOrn0,mPuv(kp));
-  c=mix(c,mMetal(kp,mix(M_OXID,M_GOLD,.45),1.)*.9,orn.b*.62);
-  c=mix(c,.5*mNashiji(kp,1.6,mix(M_GOLD,M_PALE,.5))+.5*mMetal(kp,M_PALE*.95,1.),clamp(orn.a*1.6,0.,1.)*.85);
-  c=mix(c,mKiriColor(M_PALE)*1.1,clamp(orn.r*1.6,0.,1.));
-  c=mix(c,mKiriColor(M_OXID)*1.05,clamp(orn.g*1.6,0.,1.));
   vec4 ph=texture(uPlaceholder,mPuv(kp));
   if(ph.a>.001)c=mix(c,ph.rgb*(.45+1.05*L),ph.a);
   outgoingLight=mFinish(c,1.).rgb;
