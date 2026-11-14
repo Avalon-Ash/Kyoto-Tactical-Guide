@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {stepSpring, stepDamped, settled} from '../src/studies/toji/plate/spring.js';
 import {PLATES, hasPlate, preparePlate, createLife, partAt, MAX_PARTS, LAYERS, DWELL_MS, STAND_REST} from '../src/studies/toji/plate/parts.js';
-import {KIND, MAT, PLATE, roof, storey, kakezukuri, stoneSteps, stream, shell, steppingStones, corridor, romon, sanmon, karamon} from '../src/studies/toji/plate/vocab.js';
+import {KIND, MAT, PLATE, roof, storey, kakezukuri, stoneSteps, stream, shell, steppingStones, corridor, romon, sanmon, karamon, rock} from '../src/studies/toji/plate/vocab.js';
 import {buildBox, shadeMatrix, SHADE_H} from '../src/studies/toji/plate/renderer.js';
 
 const p3bWards = ['W_KITA', 'W_UKYO', 'W_NISHIKYO', 'W_SAKYO', 'W_KAMIGYO', 'W_SHIMOGYO', 'W_NAKAGYO', 'W_YAMASHINA'];
@@ -488,7 +488,7 @@ test('preparePlate validates mesh/motionWith and preserves all 11 wards without 
   for (const p of fushimi) {
     // Scope fence (p1, widened by p2): torii and the rōmon are explicit meshes; the rest of Fushimi is not migrated yet.
     const isTorii = p.id === 'torii' || p.id === 'torii-lip' || p.id.startsWith('gate-');
-    if (isTorii || p.id.startsWith('romon-')) {
+    if (isTorii || p.id.startsWith('romon-') || p.kind === KIND.rock) {
       assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
       assert.equal(p.thick, 0, `${p.id} thick is 0`);
     } else {
@@ -500,7 +500,7 @@ test('preparePlate validates mesh/motionWith and preserves all 11 wards without 
   const higashiyama = preparePlate(PLATES.W_HIGASHIYAMA()).parts;
   for (const p of higashiyama) {
     // Scope fence (p1, widened by p2): the stage and the hondō on it are explicit meshes.
-    if (p.id === 'butai-frame' || p.id === 'butai-deck' || p.id.startsWith('hondo-')) {
+    if (p.id === 'butai-frame' || p.id === 'butai-deck' || p.id.startsWith('hondo-') || p.kind === KIND.rock) {
       assert.ok(Array.isArray(p.mesh) && p.mesh.length > 0, `${p.id} has mesh`);
       assert.equal(p.thick, 0, `${p.id} thick is 0`);
     } else {
@@ -1178,4 +1178,148 @@ test('three: tree motion shaders use anchor groundY and paintPlaceholder skips t
 
   paintPlaceholder(doc, minami.filter(p => p.kind === KIND.bird), 100, 64);
   assert.ok(calls.includes('fill'), 'paintPlaceholder still draws non-tree T4 placeholders (bird)');
+});
+
+function pointTriDist3D(p, a, b, c) {
+  const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+  const ac = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+  const ap = [p[0] - a[0], p[1] - a[1], p[2] - a[2]];
+  const d1 = ab[0] * ap[0] + ab[1] * ap[1] + ab[2] * ap[2];
+  const d2 = ac[0] * ap[0] + ac[1] * ap[1] + ac[2] * ap[2];
+  if (d1 <= 0 && d2 <= 0) return Math.hypot(ap[0], ap[1], ap[2]);
+
+  const bp = [p[0] - b[0], p[1] - b[1], p[2] - b[2]];
+  const d3 = ab[0] * bp[0] + ab[1] * bp[1] + ab[2] * bp[2];
+  const d4 = ac[0] * bp[0] + ac[1] * bp[1] + ac[2] * bp[2];
+  if (d3 >= 0 && d4 <= d3) return Math.hypot(bp[0], bp[1], bp[2]);
+
+  const vc = d1 * d4 - d3 * d2;
+  if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+    const v = d1 / (d1 - d3);
+    return Math.hypot(ap[0] - v * ab[0], ap[1] - v * ab[1], ap[2] - v * ab[2]);
+  }
+
+  const cp = [p[0] - c[0], p[1] - c[1], p[2] - c[2]];
+  const d5 = ab[0] * cp[0] + ab[1] * cp[1] + ab[2] * cp[2];
+  const d6 = ac[0] * cp[0] + ac[1] * cp[1] + ac[2] * cp[2];
+  if (d6 >= 0 && d5 <= d6) return Math.hypot(cp[0], cp[1], cp[2]);
+
+  const vb = d5 * d2 - d1 * d6;
+  if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+    const w = d2 / (d2 - d6);
+    return Math.hypot(ap[0] - w * ac[0], ap[1] - w * ac[1], ap[2] - w * ac[2]);
+  }
+
+  const va = d3 * d6 - d5 * d4;
+  if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0) {
+    const w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+    return Math.hypot(bp[0] - w * (c[0] - b[0]), bp[1] - w * (c[1] - b[1]), bp[2] - w * (c[2] - b[2]));
+  }
+
+  const denom = 1 / (va + vb + vc);
+  const v = vb * denom, w = vc * denom;
+  return Math.hypot(ap[0] - ab[0] * v - ac[0] * w, ap[1] - ab[1] * v - ac[1] * w, ap[2] - ab[2] * v - ac[2] * w);
+}
+
+function segIntersectXZ(a0, a1, b0, b1) {
+  const cross2 = (u, v, w) => (v[0] - u[0]) * (w[2] - u[2]) - (v[2] - u[2]) * (w[0] - u[0]);
+  const d1 = cross2(a0, a1, b0), d2 = cross2(a0, a1, b1);
+  const d3 = cross2(b0, b1, a0), d4 = cross2(b0, b1, a1);
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+}
+
+test('T4a rock() produces valid closed rock meshes and kirikane/kirigin foil chunks across all wards', () => {
+  const calls = [];
+  const ctx = {
+    clearRect: () => {}, setTransform: () => {}, beginPath: () => calls.push('beginPath'),
+    moveTo: () => {}, lineTo: () => {}, closePath: () => {}, fill: () => calls.push('fill'),
+    stroke: () => calls.push('stroke'), ellipse: () => calls.push('ellipse'),
+  };
+  const doc = {createElement: () => ({width: 0, height: 0, getContext: () => ctx})};
+
+  let rockCount = 0;
+  for (const [ward, build] of Object.entries(PLATES)) {
+    const {parts, errors} = preparePlate(build());
+    assert.deepEqual(errors, [], `${ward} preparePlate errors`);
+    // rock() parts use kirikane or kirigin; moatWall (ishigaki, MAT.mura) shares KIND.rock and is not part of T4a.
+    const rocks = parts.filter(p => p.kind === KIND.rock && (p.mat === MAT.kirikane || p.mat === MAT.kirigin));
+    paintPlaceholder(doc, rocks, 100, 64);
+    for (const r of rocks) {
+      rockCount++;
+      assert.equal(r.thick, 0, `${ward}/${r.id} thick is 0`);
+      assert.equal(r.layer, 1, `${ward}/${r.id} layer preserved`);
+      assert.ok(r.anchor.length === 2, `${ward}/${r.id} keeps anchor`);
+      assertValidMeshChunks(r.mesh);
+      assert.equal(r.mesh[0].mat, MAT.mura, `${ward}/${r.id} body uses warm mura lacquer relief`);
+      assert.ok(r.mesh.length >= 2, `${ward}/${r.id} includes kirikane/kirigin tile chunk`);
+      assert.equal(r.mesh[1].mat, r.mat, `${ward}/${r.id} tile chunk keeps part material`);
+    }
+  }
+  assert.ok(rockCount >= 18, `verified ${rockCount} rocks across all wards`);
+  assert.equal(calls.length, 0, 'paintPlaceholder draws nothing for explicit-mesh rocks');
+});
+
+test('T4a kirikane/kirigin tiles hover 0.05-0.2 above the rock surface with positive gaps between tiles', () => {
+  const [goldRock] = rock('rock-gold', 0, 0, 34, 24, 1);
+  const [silverRock] = rock('rock-silver', 10, -10, 26, 20, 7, {mat: MAT.kirigin});
+  const minamiRocks = preparePlate(PLATES.W_MINAMI()).parts.filter(p => p.kind === KIND.rock);
+  const kitaRocks = preparePlate(PLATES.W_KITA()).parts.filter(p => p.kind === KIND.rock);
+
+  for (const r of [goldRock, silverRock, ...minamiRocks, ...kitaRocks]) {
+    const body = r.mesh[0].vertices;
+    const tiles = r.mesh[1].vertices;
+    assert.equal(tiles.length % 288, 0, `${r.id}: each foil tile emits 36 vertices (288 floats)`);
+
+    // Upper body triangles (skip bottom cap triangles where ny < 0)
+    const bodyTris = [];
+    let maxY = 0;
+    for (let i = 0; i < body.length; i += 24) {
+      if (body[i + 4] < 0 && body[i + 12] < 0 && body[i + 20] < 0) continue;
+      const a = [body[i], body[i + 1], body[i + 2]];
+      const b = [body[i + 8], body[i + 9], body[i + 10]];
+      const c = [body[i + 16], body[i + 17], body[i + 18]];
+      maxY = Math.max(maxY, a[1], b[1], c[1]);
+      bodyTris.push([a, b, c]);
+    }
+    assert.ok(maxY >= 18 && maxY <= 31, `${r.id}: peak height ${maxY.toFixed(2)} matches high-relief target`);
+
+    // 1) Check every foil tile bottom & top face vertex clearance above the rock body surface
+    const tileQuads = [];
+    for (let t = 0; t < tiles.length; t += 288) {
+      // Top quad vertices are 0, 1, 2, 4 (offsets 0, 8, 16, 32); bottom quad vertices are 6, 7, 8, 10 (offsets 48, 56, 64, 80)
+      const topCorners = [0, 8, 16, 32].map(o => [tiles[t + o], tiles[t + o + 1], tiles[t + o + 2]]);
+      const botCorners = [48, 56, 64, 80].map(o => [tiles[t + o], tiles[t + o + 1], tiles[t + o + 2]]);
+      for (const p of [...botCorners, ...topCorners]) {
+        let minD = Infinity;
+        for (const [a, b, c] of bodyTris) {
+          const d = pointTriDist3D(p, a, b, c);
+          if (d < minD) minD = d;
+        }
+        assert.ok(minD >= 0.05 && minD <= 0.2,
+          `${r.id}: tile vertex clearance ${minD.toFixed(4)} must lie in [0.05, 0.2]`);
+      }
+      tileQuads.push(topCorners);
+    }
+
+    // 2) Confirm real gaps between every pair of foil tiles (quad-to-quad 3D clearance & non-crossing XZ footprints)
+    assert.ok(tileQuads.length >= 6, `${r.id}: has multiple foil tiles (${tileQuads.length})`);
+    let minGap = Infinity;
+    for (let i = 0; i < tileQuads.length; i++) {
+      const qa = tileQuads[i];
+      for (let j = i + 1; j < tileQuads.length; j++) {
+        const qb = tileQuads[j];
+        for (let ea = 0; ea < 4; ea++) for (let eb = 0; eb < 4; eb++) {
+          assert.equal(segIntersectXZ(qa[ea], qa[(ea + 1) % 4], qb[eb], qb[(eb + 1) % 4]), false,
+            `${r.id}: tile ${i} and tile ${j} must not overlap`);
+        }
+        for (const p of qa) {
+          minGap = Math.min(minGap, pointTriDist3D(p, qb[0], qb[1], qb[2]), pointTriDist3D(p, qb[0], qb[2], qb[3]));
+        }
+        for (const p of qb) {
+          minGap = Math.min(minGap, pointTriDist3D(p, qa[0], qa[1], qa[2]), pointTriDist3D(p, qa[0], qa[2], qa[3]));
+        }
+      }
+    }
+    assert.ok(minGap > 0.1, `${r.id}: adjacent tiles stay separated by clear gaps (min ${minGap.toFixed(3)})`);
+  }
 });

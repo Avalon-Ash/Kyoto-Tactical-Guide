@@ -14,6 +14,7 @@
 import {meshTorii, meshKakezukuri} from './frame-mesh.js';
 import {meshRoof, meshStorey, meshPagoda, meshHall, meshRomon, meshSanmon, meshKaramon, meshCorridor} from './architecture-mesh.js';
 import {meshLantern} from './lantern-mesh.js';
+import {meshRock} from './rock-mesh.js';
 
 export const PLATE = {halfW: 360, halfH: 230};
 export const MAT = {ground: 1, nashijiLight: 2, mura: 3, gyobu: 4, gold: 5, silver: 6, kirikane: 7, kirigin: 8, aogai: 9,
@@ -105,19 +106,9 @@ export function suyari(id, x0, x1, z, thick, seed, layer = 1) {
   return [p];
 }
 
-/** A rock: angular, raised, with a few facet lines; cut gold sits on its lit faces (material). */
-export function rock(id, cx, cz, w, h, seed, {mat = MAT.kirikane, layer = 1} = {}) {
-  const r = rand(seed), n = 8, d = [];
-  for (let i = 0; i < n; i++) {
-    const t = i / n * 6.283 - Math.PI * .9, k = .72 + r() * .38, lower = Math.sin(t) > 0 ? .55 : 1;
-    d.push([cx + Math.cos(t) * w * k, cz + Math.sin(t) * h * k * lower]);
-  }
-  const p = part(id, KIND.rock, layer, mat, [cx, cz + h * .4], {thick: 30});
-  p.fills.push({d, soft: .35, crisp: .7});
-  p.fills.push({d: d.map(([x, z]) => [cx + (x - cx) * .55 - w * .1, cz + (z - cz) * .5 - h * .12]), soft: .5, crisp: 1});
-  p.lines.push({d: [d[1], [cx - w * .1, cz - h * .1], d[5]], w: .7, amp: .8});
-  p.lines.push({d: [d[3], [cx + w * .2, cz], d[6]], w: .6, amp: .6});
-  return [p];
+/** A rock: angular, raised, with ridge lines; cut gold or silver foil tiles sit on its lit faces. */
+export function rock(id, cx, cz, w, h, seed, opts = {}) {
+  return meshRock(id, cx, cz, w, h, seed, opts);
 }
 
 /**
