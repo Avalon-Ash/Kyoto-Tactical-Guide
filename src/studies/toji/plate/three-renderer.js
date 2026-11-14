@@ -1,5 +1,5 @@
 // The makie plate drawn with three.js (docs/MAKIE_THREE_PLAN.md). Same interface as plate/renderer.js:
-// {setWard, draw, poke, active, dispose}. Opt in with ?three=1 (see ../renderer.js); the old pipeline stays the default.
+// {setWard, draw, poke, active, dispose}. The default since 2026-11-14 (see ../renderer.js); ?three=0 keeps the old pipeline.
 //
 // T0–T2 scope: box and lid, layer 0 ground relief (groundY from baked soft/ident maps) and makie ground/water shaders,
 // floating semi-transparent mist (KIND.mist), every part that is already a mesh (p1–p3 buildings, torii, stage, lanterns),

@@ -21,7 +21,7 @@ export function cameraMatrix(width, height, zoom = 1, cx = 0, cy = 0) {
  * px:number, py:number, zoom:number, panX:number, panY:number, presence?:number, offset?:number, kick?:number, trails:{x:number, z:number, time:number}[]}} Frame
  * @param {HTMLCanvasElement} canvas
  * @param {string} wardId
- * @param {() => void} [onPlateReady] called once a deferred ?three=1 renderer finishes loading
+ * @param {() => void} [onPlateReady] called once the deferred three.js renderer finishes loading
  * Throws when WebGL or the shadow framebuffer is unavailable; nothing is left allocated in that case.
  */
 export function createRenderer(canvas, wardId, onPlateReady) {
@@ -52,8 +52,9 @@ export function createRenderer(canvas, wardId, onPlateReady) {
     resources.push(() => { disposed = true; });
     // If the plate renderer cannot be built on this device, every ward falls back to the relief mesh.
     let plate = null;
-    // ?three=1 opts into the three.js plate renderer (docs/MAKIE_THREE_PLAN.md); without it nothing changes, and three loads dynamically only for ?three=1.
-    const useThree = typeof location !== 'undefined' && new URLSearchParams(location.search).get('three') === '1';
+    // The three.js plate renderer is the default (user decision 2026-11-14, docs/MAKIE_THREE_PLAN.md T5); it loads dynamically.
+    // ?three=0 keeps the old WebGL2 plate, which also stays the fallback when three cannot load or start on a device.
+    const useThree = typeof location !== 'undefined' && new URLSearchParams(location.search).get('three') !== '0';
     const setMesh = id => {
       ward = id;
       if (threeLoading && hasPlate(id)) {
@@ -112,7 +113,7 @@ export function createRenderer(canvas, wardId, onPlateReady) {
     }
     return {
       setMesh,
-      /** True while the deferred ?three=1 renderer is still loading (the canvas is blank meanwhile). */
+      /** True while the deferred three.js renderer is still loading (the canvas is blank meanwhile). */
       loading: () => threeLoading,
       /** A tap on a part of a plate in close-up; '' when there is no plate or nothing was met. */
       poke: (x, z, time) => plateActive ? plate.poke(x, z, time) : '',
