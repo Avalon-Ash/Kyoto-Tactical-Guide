@@ -1323,3 +1323,27 @@ test('T4a kirikane/kirigin tiles hover 0.05-0.2 above the rock surface with posi
     assert.ok(minGap > 0.1, `${r.id}: adjacent tiles stay separated by clear gaps (min ${minGap.toFixed(3)})`);
   }
 });
+
+import {blankStats, scatter, nearness} from '../src/studies/toji/plate/fillers.js';
+
+test('blankStats measures bare ground by distance to the nearest drawn texel', () => {
+  const w = 41, h = 21, drawn = new Uint8Array(w * h);
+  assert.equal(blankStats(drawn, w, h, 1).radius, Infinity);
+  drawn[10 * w + 20] = 1;
+  const one = blankStats(drawn, w, h, 1, 5);
+  // Chamfer 3-4 overestimates the Euclidean corner distance (~22.4) by at most ~8%.
+  assert.ok(one.radius > 21 && one.radius < 25, `radius ${one.radius}`);
+  assert.ok(one.ratio > .8 && one.ratio < 1);
+  drawn.fill(1);
+  assert.deepEqual(blankStats(drawn, w, h, 1), {ratio: 0, radius: 0});
+});
+
+test('scatter is deterministic, stays on free ground and grows denser toward the viewer', () => {
+  const free = (x, z) => !(Math.abs(x) < 60 && Math.abs(z) < 60);
+  const a = scatter(free, 42), b = scatter(free, 42);
+  assert.deepEqual(a, b);
+  assert.ok(a.length > 20);
+  for (const o of a) assert.ok(free(o.x, o.z));
+  const far = a.filter(o => nearness(o.z) < .5).length, near = a.filter(o => nearness(o.z) >= .5).length;
+  assert.ok(near > far, `near ${near} far ${far}`);
+});

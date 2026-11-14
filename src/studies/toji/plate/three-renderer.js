@@ -12,6 +12,7 @@ import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.j
 import {PLATE, MAT, KIND, rand} from './vocab.js';
 import {PLATES, LAYERS, preparePlate, createLife, partAt} from './parts.js';
 import {paintLayer, identMaps} from './bake.js';
+import {bakeOrnaments} from './fillers.js';
 import {buildBox, FITTINGS} from './renderer.js';
 import {bakeStamps} from './stamps.js';
 import {createCord, cordTube} from './cord.js';
@@ -139,7 +140,7 @@ export function createThreeRenderer(gl, canvas) {
   const shared = {
     uState: {value: stateTexture}, uTilt: {value: new THREE.Matrix3()}, uOpening: {value: 0},
     uSoft0: {value: dummySoft}, uIdent0: {value: dummyRg}, uFine0: {value: dummyRgba}, uPlaceholder: {value: dummyRgba},
-    uMistFine: {value: dummyRgba}, uMistIdent: {value: dummyRg}, uStamps: {value: stampTex},
+    uMistFine: {value: dummyRgba}, uOrn0: {value: dummyRgba}, uMistIdent: {value: dummyRg}, uStamps: {value: stampTex},
     uView: {value: new THREE.Vector3(...VIEW)}, uKey: {value: new THREE.Vector3(...KEY)}, uLamp: {value: new THREE.Vector3(0, 70, 0)},
     uTime: {value: 0}, uNight: {value: 1}, uPresence: {value: 0}, uPx: {value: 1}, uTrails: {value: trails},
   };
@@ -370,7 +371,7 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
       wardGroup.traverse(o => { o.geometry?.dispose(); o.dispose?.(); });
     }
     for (const tex of wardTextures.splice(0)) tex.dispose();
-    shared.uFine0.value = shared.uPlaceholder.value = shared.uMistFine.value = dummyRgba;
+    shared.uFine0.value = shared.uPlaceholder.value = shared.uMistFine.value = shared.uOrn0.value = dummyRgba;
     shared.uIdent0.value = shared.uMistIdent.value = dummyRg;
     shared.uSoft0.value = dummySoft;
     wardGroup = null; plate = null; life = null;
@@ -406,7 +407,16 @@ normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`
     const placeholderTex = new THREE.CanvasTexture(paintPlaceholder(doc, parts, w, h));
     placeholderTex.flipY = false; placeholderTex.colorSpace = THREE.SRGBColorSpace; placeholderTex.anisotropy = maxAniso; placeholderTex.needsUpdate = true;
 
-    wardTextures.push(fine0Tex, soft0Tex, ident0Tex, placeholderTex);
+    // Small scenes, distant hills and clouds on the bare ground (fillers.js), with how much bare ground they leave.
+    const orn = bakeOrnaments(ctx, w, h, maps, mw, mh, [...ward].reduce((a, ch) => a * 31 + ch.charCodeAt(0) >>> 0, 7));
+    const ornTex = new THREE.DataTexture(orn.data, w, h, THREE.RGBAFormat, THREE.UnsignedByteType);
+    ornTex.minFilter = THREE.LinearMipmapLinearFilter; ornTex.magFilter = THREE.LinearFilter;
+    ornTex.generateMipmaps = true; ornTex.anisotropy = maxAniso; ornTex.unpackAlignment = 1; ornTex.needsUpdate = true;
+    shared.uOrn0.value = ornTex;
+    const pct = v => `${(v.ratio * 100).toFixed(1)}%/${v.radius.toFixed(0)}`;
+    canvas.dataset.blankBefore = pct(orn.before); canvas.dataset.blank = pct(orn.after); canvas.dataset.scenes = String(orn.scenes);
+
+    wardTextures.push(fine0Tex, soft0Tex, ident0Tex, placeholderTex, ornTex);
     shared.uFine0.value = fine0Tex;
     shared.uSoft0.value = soft0Tex;
     shared.uIdent0.value = ident0Tex;

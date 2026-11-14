@@ -325,7 +325,7 @@ uniform float uTime, uNight, uPresence, uPx, uOpening;
 uniform vec3 uTrails[20];
 uniform sampler2D uSoft0, uIdent0;
 const vec2 M_HALF=vec2(360.,230.);
-const vec3 M_GOLD=vec3(1.,.70,.26), M_PALE=vec3(.98,.84,.48), M_SILVER=vec3(.84,.85,.83), M_LACQ=vec3(.020,.015,.013), M_AMBER=vec3(1.,.86,.58);
+const vec3 M_GOLD=vec3(1.,.70,.26), M_PALE=vec3(.98,.84,.48), M_SILVER=vec3(.84,.85,.83), M_LACQ=vec3(.020,.015,.013), M_AMBER=vec3(1.,.86,.58), M_OXID=vec3(.66,.66,.64);
 const float M_SWELL=17., M_AMB=.17, M_KEY=.44, M_POOL=1.75;
 const mat2 M_R1=mat2(.940,.342,-.342,.940), M_R2=mat2(.766,-.643,.643,.766), M_R3=mat2(.5,.866,-.866,.5);
 vec2 mPuv(vec2 q){return (clamp(q,-M_HALF,M_HALF)+M_HALF)/(2.*M_HALF);}
@@ -399,7 +399,7 @@ vec3 mNashiji(vec2 p,float dens,vec3 tint){
   vec3 L=mLight(),ga,gb,gc;
   float a=mFlake(M_R1*p,.62,.47,dens*1.15,0.,.55,ga),b=mFlake(M_R2*p+13.7,1.35,.43,dens*.85,0.,.5,gb),c=mFlake(M_R3*p+41.3,2.4,.36,dens*.30,0.,.4,gc);
   vec3 deep=tint*vec3(.82,.52,.17),mid=tint*vec3(1.,.70,.28),top=tint*vec3(1.,.86,.52);
-  vec3 col=tint*vec3(.44,.25,.07)*(.16+.52*L);
+  vec3 col=tint*vec3(.36,.20,.056)*(.16+.52*L);
   col=mix(col,deep*(.10+.62*L),a*.9);
   col=mix(col,mid*(.10+.84*L),b*.92);
   col=mix(col,top*(.12+1.02*L),c);
@@ -422,7 +422,7 @@ vec4 mFinish(vec3 c,float a){
 /** Fragment declarations injected into groundMaterial (MeshPhysicalMaterial). */
 export const MAKIE_GROUND_PARS_GLSL = `
 varying float vGlow; uniform float uGlowBase, uGlowGain;
-uniform sampler2D uState, uFine0, uPlaceholder;
+uniform sampler2D uState, uFine0, uPlaceholder, uOrn0;
 varying vec2 vKyotoPlate;
 varying vec3 vKyotoWorld, vKyotoNormal, vKyotoTanX, vKyotoTanZ;
 ${MAKIE_COMMON_GLSL}`;
@@ -498,7 +498,8 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     // is left darker with only specks, so the pieces carry the bank's depth.
     float slope=smoothstep(.02,.25,length(gs)),face=-dot(gs/max(length(gs),1e-4),normalize(uKey.xz))*slope;
     float rim=smoothstep(.0,.04,hs)*(1.-smoothstep(.1,.7,hs));
-    c*=1.-kAmt*(.14+.3*max(-face,0.));
+    // Silver carries the shade: the Hatsune rocks and sandbars are gold where lit and grey silver on the far face.
+    c=mix(c*(1.-.14*kAmt),mMetal(kp,M_OXID,1.)*.82,clamp(kAmt*max(-face,0.)*1.1,0.,.75));
     vec3 kg;float kv=mKiri(kp,4.6,kAmt*clamp(.08+.8*rim+.6*max(face,0.)-.2*max(-face,0.),0.,1.),kg);
     c=mix(c,mKiriColor(mix(M_GOLD,M_PALE,.75))*1.15,kv)+M_PALE*kg;
   }
@@ -520,8 +521,17 @@ if(abs(kp.x)>M_HALF.x||abs(kp.y)>M_HALF.y){
     vec3 base=mMetal(kp,M_GOLD*.74,.9)*.82+tint*vec3(.36,.17,.045)*(.10+.30*L);
     vec3 crest=mSheet(M_PALE)*.45+mix(M_PALE,M_GOLD,.3)*(.10+.62*L)*(.8+.2*flow)+M_PALE*mBand*.12;
     vec3 wtr=mix(base,crest,ln)+M_SILVER*line*(.08+.36*L)*(.5+.5*flow)+M_SILVER*max(ring,0.)*.5*(.2+L)+mCoat()*.6;
-    c=mix(c,wtr*vec3(1.,.93,.80),m);
+    // A silver shore just inside the water's edge (the Hatsune sandbars and banks are grey silver).
+    float e=.25*(texture(uFine0,mPuv(kp+vec2(7.,0.))).g+texture(uFine0,mPuv(kp-vec2(7.,0.))).g+texture(uFine0,mPuv(kp+vec2(0.,7.))).g+texture(uFine0,mPuv(kp-vec2(0.,7.))).g);
+    float shore=1.-smoothstep(.5,.95,e/max(fine.g,.01));
+    wtr=mix(wtr*vec3(1.,.93,.80),mMetal(kp,M_OXID,1.)*.85+M_SILVER*line*(.1+.3*L),shore*.7);
+    c=mix(c,wtr,m);
   }
+  vec4 orn=texture(uOrn0,mPuv(kp));
+  c=mix(c,mMetal(kp,mix(M_OXID,M_GOLD,.45),1.)*.9,orn.b*.62);
+  c=mix(c,.5*mNashiji(kp,1.6,mix(M_GOLD,M_PALE,.5))+.5*mMetal(kp,M_PALE*.95,1.),clamp(orn.a*1.6,0.,1.)*.85);
+  c=mix(c,mKiriColor(M_PALE)*1.1,clamp(orn.r*1.6,0.,1.));
+  c=mix(c,mKiriColor(M_OXID)*1.05,clamp(orn.g*1.6,0.,1.));
   vec4 ph=texture(uPlaceholder,mPuv(kp));
   if(ph.a>.001)c=mix(c,ph.rgb*(.45+1.05*L),ph.a);
   outgoingLight=mFinish(c,1.).rgb;
