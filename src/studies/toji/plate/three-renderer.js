@@ -1,23 +1,27 @@
 // The makie plate drawn with three.js (docs/MAKIE_THREE_PLAN.md). Same interface as plate/renderer.js:
 // {setWard, draw, poke, active, dispose}. Opt in with ?three=1 (see ../renderer.js); the old pipeline stays the default.
 //
-// T0–T1 scope: box and lid, layer 0 ground relief (groundY from baked soft/ident maps) and makie ground/water shaders,
+// T0–T2 scope: box and lid, layer 0 ground relief (groundY from baked soft/ident maps) and makie ground/water shaders,
 // floating semi-transparent mist (KIND.mist), every part that is already a mesh (p1–p3 buildings, torii, stage, lanterns),
+// trees (T2: half-tube limbs with procedural bark + instanced foliage stamps with 2D array texture & alphaTest),
 // their motion (createLife → DataTexture → onBeforeCompile hinge), and a DirectionalLight shadow map.
-// Trees (T2) and organic layer > 0 parts (T4: rocks, fox, phoenix, bird, sandCone, moonBowl) still use a transparent
-// placeholder overlay on the lid until T2/T4 replace them with real three geometry.
+// Organic non-tree layer > 0 parts (T4: rocks, fox, phoenix, bird, sandCone, moonBowl) still use a transparent
+// placeholder overlay on the lid until T4 replaces them with real three geometry.
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {PLATE, MAT, KIND, rand} from './vocab.js';
 import {PLATES, LAYERS, preparePlate, createLife, partAt} from './parts.js';
 import {paintLayer, identMaps} from './bake.js';
 import {buildBox, FITTINGS} from './renderer.js';
+import {bakeStamps} from './stamps.js';
 import {createCord, cordTube} from './cord.js';
 import {stepSpring} from './spring.js';
 import {groundPoint, normalize, trailIntensity} from '../geometry.js';
 import {
-  MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState, meshesByMaterial, sliceBox,
+  MATERIALS, BOX_MATERIALS, GROUND_LID, STATE_WIDTH, STATE_HEIGHT, packLifeState,
+  meshesByMaterial, limbsByMaterial, stampsByMaterial, sliceBox,
   bakeSoftLayer, mistGeometryData, PART_MOTION_GLSL, BOX_MOTION_GLSL, BOX_GROUND_GLSL, BOX_GROUND_DEPTH_GLSL,
+  TREE_LIMB_MOTION_GLSL, TREE_STAMP_MOTION_GLSL,
   MAKIE_GROUND_PARS_GLSL, MAKIE_GROUND_FRAG_GLSL, MAKIE_MIST_VERT_GLSL, MAKIE_MIST_FRAG_GLSL,
 } from './three-pack.js';
 
@@ -49,9 +53,23 @@ export function bakeFlakeNormal(doc, size = 256) {
   return texture;
 }
 
+/** Procedural 8-layer stamp atlas (R = thin relief, G = coverage, B = incised veins/needles) uploaded as a DataArrayTexture. */
+function bakeStampTexture(doc, maxAniso) {
+  const {size, layers} = bakeStamps(doc);
+  const data = new Uint8Array(size * size * 4 * layers.length);
+  layers.forEach((pixels, i) => data.set(pixels, i * size * size * 4));
+  const texture = new THREE.DataArrayTexture(data, size, size, layers.length);
+  texture.format = THREE.RGBAFormat; texture.type = THREE.UnsignedByteType;
+  texture.minFilter = THREE.LinearMipmapLinearFilter; texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true; texture.anisotropy = maxAniso;
+  texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 /**
- * Transparent overlay for parts above layer 0 that are not three meshes yet (T2 trees; T4 rocks, fox, phoenix, bird,
- * sandCone, moonBowl). Layer 0 (ground, hills, water, sand, steps, scatter) and KIND.mist now use real shaders/meshes.
+ * Transparent overlay for parts above layer 0 that are not three meshes yet (T4 rocks, fox, phoenix, bird,
+ * sandCone, moonBowl). Layer 0, KIND.mist, and T2 trees now use real shaders/meshes.
  */
 export function paintPlaceholder(doc, parts, w, h) {
   const canvas = doc.createElement('canvas'); canvas.width = w; canvas.height = h;
@@ -61,22 +79,12 @@ export function paintPlaceholder(doc, parts, w, h) {
   const trace = (d, close) => { ctx.beginPath(); ctx.moveTo(d[0][0], d[0][1]); for (let i = 1; i < d.length; i++) ctx.lineTo(d[i][0], d[i][1]); if (close) ctx.closePath(); };
   const paint = mat => MATERIALS[mat]?.paint ?? '#8a6a2c';
   ctx.lineCap = ctx.lineJoin = 'round';
-  for (const p of parts.filter(q => !q.mesh && q.layer > 0 && q.kind !== KIND.mist).sort((a, b) => a.layer - b.layer)) {
+  for (const p of parts.filter(q => !q.mesh && !q.limbs && !q.stamps && q.layer > 0 && q.kind !== KIND.mist).sort((a, b) => a.layer - b.layer)) {
     ctx.globalAlpha = .95;
     ctx.fillStyle = paint(p.mat);
     for (const f of p.fills) { trace(f.d, true); ctx.fill(); }
     ctx.globalAlpha = .85; ctx.strokeStyle = '#f0d48c';
     for (const l of p.lines) { ctx.lineWidth = Math.max(.6, l.w); trace(l.d, false); ctx.stroke(); }
-    for (const limb of p.limbs ?? []) {
-      ctx.strokeStyle = limb.mat ? paint(limb.mat) : '#3a2a14';
-      for (let i = 1; i < limb.points.length; i++) {
-        const [x0, z0, r0] = limb.points[i - 1], [x1, z1, r1] = limb.points[i];
-        ctx.lineWidth = Math.max(.8, (r0 + r1)); ctx.beginPath(); ctx.moveTo(x0, z0); ctx.lineTo(x1, z1); ctx.stroke();
-      }
-    }
-    for (const s of p.stamps ?? []) {
-      ctx.fillStyle = paint(s.mat); ctx.beginPath(); ctx.ellipse(s.x, s.z, s.w / 2, s.h / 2, s.turn, 0, 6.283); ctx.fill();
-    }
   }
   ctx.globalAlpha = 1;
   return canvas;
@@ -124,28 +132,33 @@ export function createThreeRenderer(gl, canvas) {
   const dummyRgba = own(new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat, THREE.UnsignedByteType)); dummyRgba.needsUpdate = true;
   const dummyRg = own(new THREE.DataTexture(new Uint8Array([0, 0]), 1, 1, THREE.RGFormat, THREE.UnsignedByteType)); dummyRg.unpackAlignment = 1; dummyRg.needsUpdate = true;
   const dummySoft = own(new THREE.DataTexture(new Uint16Array([0]), 1, 1, THREE.RedFormat, THREE.HalfFloatType)); dummySoft.unpackAlignment = 1; dummySoft.needsUpdate = true;
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  const stampTex = own(bakeStampTexture(doc, maxAniso));
   const trails = Array.from({length: 20}, () => new THREE.Vector3());
   const shared = {
     uState: {value: stateTexture}, uTilt: {value: new THREE.Matrix3()}, uOpening: {value: 0},
     uSoft0: {value: dummySoft}, uIdent0: {value: dummyRg}, uFine0: {value: dummyRgba}, uPlaceholder: {value: dummyRgba},
-    uMistFine: {value: dummyRgba}, uMistIdent: {value: dummyRg},
+    uMistFine: {value: dummyRgba}, uMistIdent: {value: dummyRg}, uStamps: {value: stampTex},
     uView: {value: new THREE.Vector3(...VIEW)}, uKey: {value: new THREE.Vector3(...KEY)}, uLamp: {value: new THREE.Vector3(0, 70, 0)},
     uTime: {value: 0}, uNight: {value: 1}, uPresence: {value: 0}, uPx: {value: 1}, uTrails: {value: trails},
   };
 
   const flake = own(bakeFlakeNormal(doc));
   const NORMAL_FIX = THREE.ShaderChunk.normal_fragment_begin.replace('gl_FrontFacing ? 1.0 : - 1.0', '1.0');
+  const bindGlow = (shader, spec) => {
+    Object.assign(shader.uniforms, shared);
+    shader.uniforms.uGlowBase = {value: spec.glow ? .3 : 1};
+    shader.uniforms.uGlowGain = {value: spec.glow ? 1.8 : 0};
+  };
   /** Faces are lit by their own normals whichever way they wind, as the old pipeline did. */
   const patchMaterial = (material, spec, glsl, call) => {
     material.customProgramCacheKey = () => `kyoto-${call}-${spec.glow ? 1 : 0}`;
     material.onBeforeCompile = shader => {
-      Object.assign(shader.uniforms, shared);
-      shader.uniforms.uGlowBase = {value: spec.glow ? .3 : 1}; shader.uniforms.uGlowGain = {value: spec.glow ? 1.8 : 0};
-      shader.vertexShader = shader.vertexShader.replace('#include <common>', `#include <common>\n${glsl}`);
-      shader.vertexShader = call === 'kyotoMotion'
-        ? shader.vertexShader.replace('#include <beginnormal_vertex>', 'vec3 kyotoP; vec3 objectNormal; kyotoMotion(position, normal, kyotoP, objectNormal);')
-        : shader.vertexShader.replace('#include <beginnormal_vertex>', 'vec3 kyotoP; vec3 objectNormal; kyotoBox(position, normal, kyotoP, objectNormal);');
-      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', 'vec3 transformed = kyotoP;');
+      bindGlow(shader, spec);
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>\n${glsl}`)
+        .replace('#include <beginnormal_vertex>', `vec3 kyotoP; vec3 objectNormal; ${call}(position, normal, kyotoP, objectNormal);`)
+        .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP;');
       shader.fragmentShader = shader.fragmentShader
         .replace('#include <common>', '#include <common>\nvarying float vGlow; uniform float uGlowBase, uGlowGain;')
         .replace('#include <normal_fragment_begin>', NORMAL_FIX)
@@ -153,17 +166,85 @@ export function createThreeRenderer(gl, canvas) {
     };
     return material;
   };
-  const patchDepth = (call, glsl) => {
-    const material = new THREE.MeshDepthMaterial({depthPacking: THREE.RGBADepthPacking, side: THREE.DoubleSide});
-    material.customProgramCacheKey = () => `kyoto-depth-${call}`;
+  const patchLimbMaterial = (material, spec) => {
+    material.customProgramCacheKey = () => `kyoto-limb-${spec.glow ? 1 : 0}`;
+    material.onBeforeCompile = shader => {
+      bindGlow(shader, spec);
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>\n${TREE_LIMB_MOTION_GLSL}\nvarying vec2 vTreeUv;\nvarying float vBark;\nvarying vec3 vTreeTanX, vTreeTanZ;`)
+        .replace('#include <beginnormal_vertex>', 'vec3 kyotoP, objectNormal, kyotoTx, kyotoTz; kyotoLimb(position, normal, kyotoP, objectNormal, kyotoTx, kyotoTz);')
+        .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP; vTreeUv = uv; vBark = aStyle.z; vTreeTanX = normalize(normalMatrix * kyotoTx); vTreeTanZ = normalize(normalMatrix * kyotoTz);');
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', '#include <common>\nvarying float vGlow;\nvarying vec2 vTreeUv;\nvarying float vBark;\nvarying vec3 vTreeTanX, vTreeTanZ;\nuniform float uGlowBase, uGlowGain;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+float kyotoGrain = sin(vTreeUv.x * 2.5 + .5 * sin(vTreeUv.y * .31));
+float kyotoRow = floor(vTreeUv.y / 6.5);
+float kyotoCu = fract(vTreeUv.x / 5. + mod(kyotoRow, 2.) * .5) - .5;
+float kyotoCv = fract(vTreeUv.y / 6.5) - .5;
+float kyotoSeam = abs(length(vec2(kyotoCu * 1.7, kyotoCv)) - .48) * 5.;
+float kyotoBark = vBark > .5 ? 1. - smoothstep(.18, .6, kyotoSeam) : smoothstep(.62, .93, kyotoGrain);
+diffuseColor.rgb *= 1. - kyotoBark * .45;`)
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, .85, kyotoBark * .5);')
+        .replace('#include <normal_fragment_begin>', NORMAL_FIX)
+        .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(normal - kyotoGrain * .13 * vTreeTanX - cos(vTreeUv.y * .9) * .06 * vTreeTanZ);')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= uGlowBase + vGlow * uGlowGain;');
+    };
+    return material;
+  };
+  const patchStampMaterial = (material, spec) => {
+    material.customProgramCacheKey = () => `kyoto-stamp-${spec.glow ? 1 : 0}`;
+    material.onBeforeCompile = shader => {
+      bindGlow(shader, spec);
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>\n${TREE_STAMP_MOTION_GLSL}\nvarying vec3 vTreeTanX, vTreeTanZ;`)
+        .replace('#include <uv_vertex>', '#include <uv_vertex>\n#ifdef USE_NORMALMAP\nvNormalMapUv = (normalMapTransform * vec3(uv * aStamp.xy, 1.0)).xy;\n#endif')
+        .replace('#include <beginnormal_vertex>', 'vec3 kyotoP, objectNormal, kyotoTx, kyotoTz; kyotoStamp(uv, kyotoP, objectNormal, kyotoTx, kyotoTz);')
+        .replace('#include <begin_vertex>', 'vec3 transformed = kyotoP; vTreeTanX = normalize(normalMatrix * kyotoTx); vTreeTanZ = normalize(normalMatrix * kyotoTz);');
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', '#include <common>\nuniform highp sampler2DArray uStamps;\nvarying float vGlow;\nvarying vec4 vTree;\nvarying vec2 vTreeScale;\nvarying vec3 vTreeTanX, vTreeTanZ;\nuniform float uGlowBase, uGlowGain;')
+        .replace('#include <map_fragment>', `#include <map_fragment>
+vec4 kyotoInk = texture(uStamps, vTree.xyz);
+diffuseColor.a *= kyotoInk.g;
+float kyotoLine = kyotoInk.b / max(kyotoInk.g, 0.01);
+diffuseColor.rgb *= 1. - kyotoLine * .42;`)
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, .85, kyotoLine * .5);')
+        .replace('#include <normal_fragment_begin>', NORMAL_FIX)
+        .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+vec2 kyotoE = 1. / vec2(textureSize(uStamps, 0).xy);
+vec2 kyotoGrad = vec2(
+  texture(uStamps, vTree.xyz + vec3(kyotoE.x, 0., 0.)).r - texture(uStamps, vTree.xyz - vec3(kyotoE.x, 0., 0.)).r,
+  texture(uStamps, vTree.xyz + vec3(0., kyotoE.y, 0.)).r - texture(uStamps, vTree.xyz - vec3(0., kyotoE.y, 0.)).r
+) * vTree.w / (2. * kyotoE * vTreeScale);
+normal = normalize(normal - kyotoGrad.x * vTreeTanX - kyotoGrad.y * vTreeTanZ);`)
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance *= uGlowBase + vGlow * uGlowGain;');
+    };
+    return material;
+  };
+  const patchDepth = (key, glsl, beginVertex, fragHook) => {
+    const material = new THREE.MeshDepthMaterial({depthPacking: THREE.RGBADepthPacking, side: THREE.DoubleSide, ...(fragHook ? {alphaTest: .5} : {})});
+    material.customProgramCacheKey = () => `kyoto-depth-${key}`;
     material.onBeforeCompile = shader => {
       Object.assign(shader.uniforms, shared);
       shader.vertexShader = shader.vertexShader.replace('#include <common>', `#include <common>\n${glsl}`)
-        .replace('#include <begin_vertex>', `vec3 kyotoP; vec3 kyotoN; ${call}(position, normal, kyotoP, kyotoN); vec3 transformed = kyotoP;`);
+        .replace('#include <begin_vertex>', beginVertex);
+      if (fragHook) fragHook(shader);
     };
     return own(material);
   };
-  const partDepth = patchDepth('kyotoMotion', PART_MOTION_GLSL), boxDepth = patchDepth('kyotoBox', BOX_MOTION_GLSL), groundDepth = patchDepth('kyotoGround', BOX_GROUND_DEPTH_GLSL);
+  const partDepth = patchDepth('kyotoMotion', PART_MOTION_GLSL, 'vec3 kyotoP; vec3 kyotoN; kyotoMotion(position, normal, kyotoP, kyotoN); vec3 transformed = kyotoP;');
+  const boxDepth = patchDepth('kyotoBox', BOX_MOTION_GLSL, 'vec3 kyotoP; vec3 kyotoN; kyotoBox(position, normal, kyotoP, kyotoN); vec3 transformed = kyotoP;');
+  const groundDepth = patchDepth('kyotoGround', BOX_GROUND_DEPTH_GLSL, 'vec3 kyotoP; vec3 kyotoN; kyotoGround(position, normal, kyotoP, kyotoN); vec3 transformed = kyotoP;');
+  const limbDepth = patchDepth('kyotoLimb', TREE_LIMB_MOTION_GLSL, 'vec3 kyotoP, kyotoN, kyotoTx, kyotoTz; kyotoLimb(position, normal, kyotoP, kyotoN, kyotoTx, kyotoTz); vec3 transformed = kyotoP;');
+  const stampDepth = patchDepth(
+    'kyotoStamp',
+    TREE_STAMP_MOTION_GLSL,
+    'vec3 kyotoP, kyotoN, kyotoTx, kyotoTz; kyotoStamp(uv, kyotoP, kyotoN, kyotoTx, kyotoTz); vec3 transformed = kyotoP;',
+    shader => {
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', '#include <common>\nuniform highp sampler2DArray uStamps;\nvarying vec4 vTree;')
+        .replace('#include <map_fragment>', '#include <map_fragment>\nfloat kyotoCover = texture(uStamps, vTree.xyz).g;\ndiffuseColor.a = clamp((kyotoCover - .5) / max(fwidth(kyotoCover), .02) + .5, 0., 1.);');
+    },
+  );
 
   const physical = (spec, extra = {}) => {
     const m = new THREE.MeshPhysicalMaterial({
@@ -247,15 +328,21 @@ export function createThreeRenderer(gl, canvas) {
     pos.needsUpdate = nor.needsUpdate = true;
   };
 
-  const materials = new Map();
-  const partMaterial = mat => {
-    if (!materials.has(mat)) {
-      const spec = MATERIALS[mat];
-      if (!spec) throw new Error(`three renderer: no material for MAT ${mat}`);
-      materials.set(mat, patchMaterial(physical(spec), spec, PART_MOTION_GLSL, 'kyotoMotion'));
-    }
-    return materials.get(mat);
+  const materialCache = (patch, extra = {}) => {
+    const cache = new Map();
+    return mat => {
+      if (!cache.has(mat)) {
+        const spec = MATERIALS[mat];
+        if (!spec) throw new Error(`three renderer: no material for MAT ${mat}`);
+        cache.set(mat, patch(physical(spec, extra), spec));
+      }
+      return cache.get(mat);
+    };
   };
+  const partMaterial = materialCache((m, spec) => patchMaterial(m, spec, PART_MOTION_GLSL, 'kyotoMotion'));
+  const limbMaterial = materialCache((m, spec) => patchLimbMaterial(m, spec));
+  const stampMaterial = materialCache((m, spec) => patchStampMaterial(m, spec), {alphaTest: .45, alphaToCoverage: true});
+  const IDENTITY = new THREE.Matrix4();
 
   let plate = null, life = null, lastTime = 0, wardGroup = null, wardTextures = [];
   const scratch = doc.createElement('canvas');
@@ -264,7 +351,7 @@ export function createThreeRenderer(gl, canvas) {
   function freePlate() {
     if (wardGroup) {
       scene.remove(wardGroup);
-      wardGroup.traverse(o => o.geometry?.dispose());
+      wardGroup.traverse(o => { o.geometry?.dispose(); o.dispose?.(); });
     }
     for (const tex of wardTextures.splice(0)) tex.dispose();
     shared.uFine0.value = shared.uPlaceholder.value = shared.uMistFine.value = dummyRgba;
@@ -281,7 +368,6 @@ export function createThreeRenderer(gl, canvas) {
     const {parts, errors} = preparePlate(PLATES[ward]());
     if (errors.length) throw Error(`Plate ${ward}: ${errors.join('; ')}`);
     const w = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), canvas.clientWidth < 700 ? 1152 : 1536), h = Math.round(w * PLATE.halfH / PLATE.halfW);
-    const maxAniso = renderer.capabilities.getMaxAnisotropy();
 
     scratch.width = w; scratch.height = h;
     const ctx = scratch.getContext('2d', {willReadFrequently: true});
@@ -311,14 +397,38 @@ export function createThreeRenderer(gl, canvas) {
     shared.uPlaceholder.value = placeholderTex;
 
     wardGroup = new THREE.Group(); scene.add(wardGroup);
-    let meshVertices = 0;
-    for (const [mat, data] of meshesByMaterial(parts)) {
-      const g = new THREE.BufferGeometry(), buffer = new THREE.InterleavedBuffer(data, 16);
-      g.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0)); g.setAttribute('normal', new THREE.InterleavedBufferAttribute(buffer, 3, 3));
-      g.setAttribute('uv', new THREE.InterleavedBufferAttribute(buffer, 2, 6));
-      g.setAttribute('aOwner', new THREE.InterleavedBufferAttribute(buffer, 4, 8)); g.setAttribute('aStyle', new THREE.InterleavedBufferAttribute(buffer, 4, 12));
-      wardGroup.add(mesh(g, partMaterial(mat), partDepth));
-      meshVertices += data.length / 16;
+    const addInterleaved = (byMat, getMaterial, depth) => {
+      let vertices = 0;
+      for (const [mat, data] of byMat) {
+        const g = new THREE.BufferGeometry(), buffer = new THREE.InterleavedBuffer(data, 16);
+        g.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0)); g.setAttribute('normal', new THREE.InterleavedBufferAttribute(buffer, 3, 3));
+        g.setAttribute('uv', new THREE.InterleavedBufferAttribute(buffer, 2, 6));
+        g.setAttribute('aOwner', new THREE.InterleavedBufferAttribute(buffer, 4, 8)); g.setAttribute('aStyle', new THREE.InterleavedBufferAttribute(buffer, 4, 12));
+        wardGroup.add(mesh(g, getMaterial(mat), depth));
+        vertices += data.length / 16;
+      }
+      return vertices;
+    };
+    const meshVertices = addInterleaved(meshesByMaterial(parts), partMaterial, partDepth);
+    const treeVertices = addInterleaved(limbsByMaterial(parts), limbMaterial, limbDepth);
+
+    let treeStamps = 0;
+    for (const [mat, s] of stampsByMaterial(parts)) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-.5, 0, -.5, .5, 0, -.5, .5, 0, .5, -.5, 0, .5]), 3));
+      g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), 3));
+      g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]), 2));
+      g.setIndex([0, 1, 2, 0, 2, 3]);
+      g.setAttribute('aPlacement', new THREE.InstancedBufferAttribute(s.placement, 4));
+      g.setAttribute('aStamp', new THREE.InstancedBufferAttribute(s.stamp, 4));
+      g.setAttribute('aOwner', new THREE.InstancedBufferAttribute(s.owner, 4));
+      g.setAttribute('aStyle', new THREE.InstancedBufferAttribute(s.style, 4));
+      const im = new THREE.InstancedMesh(g, stampMaterial(mat), s.count);
+      for (let i = 0; i < s.count; i++) im.setMatrixAt(i, IDENTITY);
+      im.instanceMatrix.needsUpdate = true;
+      im.frustumCulled = false; im.castShadow = true; im.receiveShadow = true; im.customDepthMaterial = stampDepth;
+      wardGroup.add(im);
+      treeStamps += s.count;
     }
 
     const mistParts = parts.filter(p => p.kind === KIND.mist);
@@ -351,6 +461,7 @@ export function createThreeRenderer(gl, canvas) {
     life = createLife(parts);
     canvas.dataset.renderer = 'three'; canvas.dataset.ward = ward;
     canvas.dataset.meshVertices = String(meshVertices); canvas.dataset.parts = String(parts.length);
+    canvas.dataset.treeVertices = String(treeVertices); canvas.dataset.treeStamps = String(treeStamps);
     canvas.dataset.boxVertices = String(boxVertices); canvas.dataset.bakeMs = (performance.now() - started).toFixed(0);
     return true;
   }

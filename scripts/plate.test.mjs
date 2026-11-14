@@ -1025,9 +1025,10 @@ test('meshLantern upper frame and hidden cap support join hexCapMesh with 0.3-0.
 
 // ---- three.js renderer (T0–T1): pure data checks. The WebGL side is checked by screenshots (.claude/dispatch/shot.mjs). ----
 import {readFileSync} from 'node:fs';
-import {MATERIALS, BOX_MATERIALS, STATE_WIDTH, STATE_HEIGHT, GROUND_GLSL, PART_MOTION_GLSL, packLifeState, meshesByMaterial, sliceBox, bakeSoftLayer, mistGeometryData} from '../src/studies/toji/plate/three-pack.js';
+import {MATERIALS, BOX_MATERIALS, STATE_WIDTH, STATE_HEIGHT, GROUND_GLSL, PART_MOTION_GLSL, TREE_LIMB_MOTION_GLSL, TREE_STAMP_MOTION_GLSL, packLifeState, meshesByMaterial, limbsByMaterial, stampsByMaterial, sliceBox, bakeSoftLayer, mistGeometryData} from '../src/studies/toji/plate/three-pack.js';
 import {packMeshes} from '../src/studies/toji/plate/mesh-geometry.js';
-import {createThreeRenderer} from '../src/studies/toji/plate/three-renderer.js';
+import {limbMesh, stampInstances} from '../src/studies/toji/plate/limbs.js';
+import {createThreeRenderer, paintPlaceholder} from '../src/studies/toji/plate/three-renderer.js';
 
 test('three: every MAT has a material entry with sane physical parameters', () => {
   for (const [name, id] of Object.entries(MAT)) {
@@ -1116,4 +1117,65 @@ test('three: part motion shader reads groundY from soft/ident maps and renderer 
   const src = readFileSync(new URL('../src/studies/toji/renderer.js', import.meta.url), 'utf8');
   assert.doesNotMatch(src, /^\s*import\s+[^;]*three-renderer\.js/m);
   assert.match(src, /import\(\s*'\.\/plate\/three-renderer\.js'\s*\)/);
+});
+
+test('three: tree limbs and stamps regroup by material without losing a vertex or stamp', () => {
+  for (const ward of Object.keys(PLATES)) {
+    const {parts} = preparePlate(PLATES[ward]());
+    const treeParts = parts.filter(p => p.limbs);
+    const totalLimbVerts = limbMesh(treeParts).length / 16;
+    const limbGroups = limbsByMaterial(parts);
+    let limbVerts = 0;
+    for (const [mat, data] of limbGroups) {
+      assert.ok(MATERIALS[mat], `${ward}: limb material ${mat} is in the table`);
+      assert.equal(data.length % 16, 0);
+      for (let i = 0; i < data.length; i += 16) assert.equal(data[i + 13], mat, 'limb style.y carries material');
+      limbVerts += data.length / 16;
+    }
+    assert.equal(limbVerts, totalLimbVerts, `${ward}: limb vertex count`);
+    assert.ok(limbVerts > 0, `${ward}: has limbs`);
+
+    const totalStamps = stampInstances(treeParts).length / 16;
+    const stampGroups = stampsByMaterial(parts);
+    let stampCount = 0;
+    for (const [mat, s] of stampGroups) {
+      assert.ok(MATERIALS[mat], `${ward}: stamp material ${mat} is in the table`);
+      assert.equal(s.placement.length, s.count * 4);
+      assert.equal(s.stamp.length, s.count * 4);
+      assert.equal(s.owner.length, s.count * 4);
+      assert.equal(s.style.length, s.count * 4);
+      for (let i = 0; i < s.count; i++) {
+        assert.equal(s.style[i * 4 + 1], mat, 'stamp style.y carries material');
+        assert.ok(Number.isFinite(s.placement[i * 4]) && Number.isFinite(s.stamp[i * 4]));
+      }
+      stampCount += s.count;
+    }
+    assert.equal(stampCount, totalStamps, `${ward}: stamp instance count`);
+    assert.ok(stampCount > 0, `${ward}: has stamps`);
+  }
+});
+
+test('three: tree motion shaders use anchor groundY and paintPlaceholder skips trees', () => {
+  assert.ok(TREE_LIMB_MOTION_GLSL.includes(GROUND_GLSL) && TREE_LIMB_MOTION_GLSL.includes('groundY(anchor)'));
+  assert.ok(TREE_STAMP_MOTION_GLSL.includes(GROUND_GLSL) && TREE_STAMP_MOTION_GLSL.includes('groundY(anchor)'));
+
+  const calls = [];
+  const ctx = {
+    clearRect: () => {},
+    setTransform: () => {},
+    beginPath: () => calls.push('beginPath'),
+    moveTo: () => {},
+    lineTo: () => {},
+    closePath: () => {},
+    fill: () => calls.push('fill'),
+    stroke: () => calls.push('stroke'),
+    ellipse: () => calls.push('ellipse'),
+  };
+  const doc = {createElement: () => ({width: 0, height: 0, getContext: () => ctx})};
+  const minami = preparePlate(PLATES.W_MINAMI()).parts;
+  paintPlaceholder(doc, minami.filter(p => p.kind === KIND.pine), 100, 64);
+  assert.equal(calls.length, 0, 'paintPlaceholder draws nothing for tree parts');
+
+  paintPlaceholder(doc, minami.filter(p => p.kind === KIND.bird), 100, 64);
+  assert.ok(calls.includes('fill'), 'paintPlaceholder still draws non-tree T4 placeholders (bird)');
 });

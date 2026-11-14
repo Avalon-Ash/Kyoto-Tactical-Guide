@@ -3,6 +3,7 @@
 import {MAT} from './vocab.js';
 import {MAX_PARTS} from './parts.js';
 import {packMeshes} from './mesh-geometry.js';
+import {limbMesh, stampInstances} from './limbs.js';
 
 /**
  * MAT → MeshPhysicalMaterial parameters (docs/MAKIE_THREE_PLAN.md §3). First pass: T3 tunes the numbers against .shots/refs.
@@ -62,6 +63,46 @@ export function meshesByMaterial(parts) {
   for (const mat of [...mats].sort((x, y) => x - y)) {
     const only = parts.filter(p => p.mesh?.some(c => c.mat === mat)).map(p => ({...p, mesh: p.mesh.filter(c => c.mat === mat)}));
     out.set(mat, packMeshes(only));
+  }
+  return out;
+}
+
+/** Tree limbs grouped by material id: Map(mat → Float32Array of 16 floats per vertex, the limbMesh layout). */
+export function limbsByMaterial(parts) {
+  const mats = new Set();
+  for (const p of parts) for (const limb of p.limbs ?? []) mats.add(limb.mat ?? p.mat);
+  const out = new Map();
+  for (const mat of [...mats].sort((x, y) => x - y)) {
+    const only = parts.filter(p => p.limbs?.some(l => (l.mat ?? p.mat) === mat))
+      .map(p => ({...p, limbs: p.limbs.filter(l => (l.mat ?? p.mat) === mat)}));
+    out.set(mat, limbMesh(only));
+  }
+  return out;
+}
+
+/**
+ * Tree stamps grouped by material id for InstancedMesh:
+ * Map(mat → {placement, stamp, owner, style, count}) where each typed array holds 4 floats per stamp.
+ */
+export function stampsByMaterial(parts) {
+  const mats = new Set();
+  for (const p of parts) for (const s of p.stamps ?? []) mats.add(s.mat);
+  const out = new Map();
+  for (const mat of [...mats].sort((x, y) => x - y)) {
+    const only = parts.filter(p => p.stamps?.some(s => s.mat === mat))
+      .map(p => ({...p, stamps: p.stamps.filter(s => s.mat === mat)}));
+    const packed = stampInstances(only);
+    const count = packed.length / 16;
+    const placement = new Float32Array(count * 4), stamp = new Float32Array(count * 4);
+    const owner = new Float32Array(count * 4), style = new Float32Array(count * 4);
+    for (let i = 0; i < count; i++) {
+      const b = i * 16, o = i * 4;
+      placement.set(packed.subarray(b, b + 4), o);
+      stamp.set(packed.subarray(b + 4, b + 8), o);
+      owner.set(packed.subarray(b + 8, b + 12), o);
+      style.set(packed.subarray(b + 12, b + 16), o);
+    }
+    out.set(mat, {placement, stamp, owner, style, count});
   }
   return out;
 }
@@ -188,6 +229,52 @@ void kyotoMotion(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal){
   vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
   outPos=p; outNormal=uTilt*normalize(nLocal);
   vGlow=A.w;
+}`;
+
+const TREE_MOTION_CORE_GLSL = `
+uniform sampler2D uState; uniform mat3 uTilt; uniform float uOpening;
+varying float vGlow;
+${GROUND_GLSL}
+void kyotoTreeTransform(vec2 rest, float height, vec3 localN, vec2 along, vec4 owner, vec4 style,
+    out vec3 outPos, out vec3 outNormal, out vec3 outTanX, out vec3 outTanZ){
+  int id=int(owner.x+.5); vec4 A=texelFetch(uState,ivec2(id,0),0), B=texelFetch(uState,ivec2(id,1),0);
+  float foot=owner.y; vec2 anchor=owner.zw;
+  float theta=A.y*style.x, ct=cos(theta), st=sin(theta), cs=cos(A.x), sn=sin(A.x);
+  vec2 r=rest-anchor, q=anchor+vec2(cs*r.x-sn*r.y,sn*r.x+cs*r.y)+B.xy;
+  vec3 up=vec3(0.,ct,st), down=vec3(0.,-st,ct), right=vec3(1.,0.,0.);
+  vec3 tx=right*cs+down*sn, tz=-right*sn+down*cs;
+  float gy=groundY(anchor);
+  vec3 p=vec3(q.x,gy+B.z+.6,foot)+down*(q.y-foot)+up*height;
+  p.y+=uOpening*360.; p.z-=uOpening*650.;
+  vec3 centre=vec3(0.,-48.,0.); p=uTilt*(p-centre)+centre;
+  outPos=p;
+  outNormal=uTilt*normalize(tx*localN.x+up*localN.y+tz*localN.z);
+  outTanX=uTilt*(tx*along.x+tz*along.y);
+  outTanZ=uTilt*(-tx*along.y+tz*along.x);
+  vGlow=A.w;
+}`;
+
+/** Tree limb hinge/sway transform matching tree-shaders.js (groundY at tree anchor, +0.6 clearance). */
+export const TREE_LIMB_MOTION_GLSL = `
+attribute vec4 aOwner; attribute vec4 aStyle;
+${TREE_MOTION_CORE_GLSL}
+void kyotoLimb(vec3 aPos, vec3 aNormal, out vec3 outPos, out vec3 outNormal, out vec3 outTanX, out vec3 outTanZ){
+  kyotoTreeTransform(aPos.xz, aPos.y, aNormal, vec2(1.,0.), aOwner, aStyle, outPos, outNormal, outTanX, outTanZ);
+}`;
+
+/** Instanced tree stamp hinge/sway transform matching tree-shaders.js. */
+export const TREE_STAMP_MOTION_GLSL = `
+attribute vec4 aPlacement, aStamp, aOwner, aStyle;
+varying vec4 vTree;
+varying vec2 vTreeScale;
+${TREE_MOTION_CORE_GLSL}
+void kyotoStamp(vec2 aUv, out vec3 outPos, out vec3 outNormal, out vec3 outTanX, out vec3 outTanZ){
+  float c=cos(aPlacement.z), s=sin(aPlacement.z);
+  vec2 along=vec2(c,s), corner=(aUv-.5)*aStamp.xy;
+  vec2 rest=aPlacement.xy+vec2(c*corner.x-s*corner.y,s*corner.x+c*corner.y);
+  kyotoTreeTransform(rest, aPlacement.w, vec3(0.,1.,0.), along, aOwner, aStyle, outPos, outNormal, outTanX, outTanZ);
+  vTree=vec4(aUv, aStamp.z, aStamp.w);
+  vTreeScale=aStamp.xy;
 }`;
 
 /** The box and its lid: only the lid (part 0) opens, everything leans with the hand. */
